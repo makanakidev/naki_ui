@@ -14,6 +14,55 @@ void main() {
       expect(() => NakiApp(home: const div([])), returnsNormally);
     });
 
+    testComponents('NakiApp resolves base path and asset URLs properly', (
+      tester,
+    ) async {
+      tester.pumpComponent(
+        NakiApp(
+          basePath: '/naki_ui',
+          favicon: 'assets/favicon.jpg',
+          seo: const SEO(
+            url: 'https://makanakidev.github.io/naki_ui',
+            logo: '/assets/logo.png',
+          ),
+          home: const div([]),
+        ),
+      );
+      await tester.pump();
+
+      expect(
+        find.byComponentPredicate(
+          (c) => c is DomComponent && c.tag == 'base' && c.attributes?['href'] == '/naki_ui/',
+          description: 'base href tag',
+        ),
+        findsOneComponent,
+      );
+
+      expect(
+        find.byComponentPredicate(
+          (c) =>
+              c is DomComponent &&
+              c.tag == 'link' &&
+              c.attributes?['rel'] == 'icon' &&
+              c.attributes?['href'] == 'assets/favicon.jpg',
+          description: 'favicon link tag',
+        ),
+        findsOneComponent,
+      );
+
+      expect(
+        find.byComponentPredicate(
+          (c) =>
+              c is DomComponent &&
+              c.tag == 'meta' &&
+              c.attributes?['property'] == 'og:image' &&
+              c.attributes?['content'] == 'https://makanakidev.github.io/naki_ui/assets/logo.png',
+          description: 'og:image meta tag',
+        ),
+        findsOneComponent,
+      );
+    });
+
     test('ThemeConfig instances are isolated', () {
       const light = LightThemeData(
         colorSeed: ColorSeed(primary: Color('#123456')),

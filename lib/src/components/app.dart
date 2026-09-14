@@ -94,11 +94,11 @@ class NakiApp extends StatefulComponent {
   /// Default style for all texts in the application.
   final TextStyle? textStyle;
 
-  /// Initial location or page to load in the browser.
+  /// The base path for the application.
   ///
-  /// If provided, the location must start and end with a slash.
-  /// If `null`, the default location [`"/"`] is used.
-  final String? initialLocation;
+  /// If provided, the path must start with a slash. If `null`, the default
+  /// path is "/".
+  final String? basePath;
 
   /// The [pageBuilder] callback has two arguments, the [BuildContext] (as
   /// `context`) and the [home] component (as `child`) if any.
@@ -308,7 +308,7 @@ class NakiApp extends StatefulComponent {
     this.head = const [],
     this.cacheThemeMode = false,
     this.themeMode = ThemeMode.system,
-    this.initialLocation,
+    this.basePath,
     this.charset,
     this.viewport,
     this.locale,
@@ -327,8 +327,8 @@ class NakiApp extends StatefulComponent {
          'Either home or pageBuilder must be provided',
        ),
        assert(
-         initialLocation == null || initialLocation.startsWith('/'),
-         'initialLocation must start with a leading slash "/"',
+         basePath == null || basePath.startsWith('/'),
+         'basePath must start with a leading slash "/"',
        ),
        routes = null,
        navigatorKey = null,
@@ -405,7 +405,7 @@ class NakiApp extends StatefulComponent {
     this.charset,
     this.viewport,
     this.locale,
-    this.initialLocation,
+    this.basePath,
     this.routes,
     this.builder,
     this.fontFamily,
@@ -419,8 +419,8 @@ class NakiApp extends StatefulComponent {
     this.darkTheme,
     this.scrollBarConfiguration,
   }) : assert(
-         initialLocation == null || initialLocation.startsWith('/'),
-         'initialLocation must start with a leading slash "/"',
+         basePath == null || basePath.startsWith('/'),
+         'basePath must start with a leading slash "/"',
        ),
        assert(
          (routes != null && routes.isNotEmpty) || builder != null,
@@ -590,7 +590,7 @@ class _NakiAppState extends State<NakiApp> {
   }
 
   (String, String)? get favicon {
-    final favico = _absoluteUrl(component.favicon ?? '');
+    final favico = normaliseUrl(component.favicon ?? '');
     String? type;
 
     if (favico.isNotEmpty) {
@@ -609,39 +609,63 @@ class _NakiAppState extends State<NakiApp> {
   }
 
   String get normalizedBase {
-    var base = component.initialLocation ?? _defaultBasePath;
+    String base = component.basePath ?? _defaultBasePath;
     if (!base.startsWith('/')) base = '/$base';
     if (!base.endsWith('/')) base = '$base/';
     return base;
   }
 
-  String _absoluteUrl(String value) {
-    if (value.startsWith('http://') || value.startsWith('https://')) {
-      return value;
+  String normaliseUrl(String value) {
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) return '';
+
+    if (trimmed.startsWith('http://') ||
+        trimmed.startsWith('https://') ||
+        trimmed.startsWith('//') ||
+        trimmed.startsWith('data:')) {
+      return trimmed;
     }
 
-    if (value.startsWith('/') && component.seo?.url != null) {
-      final origin = component.seo!.url!.replaceFirst(
-        RegExp(r'/+$'),
-        '',
-      );
-      return '$origin$value';
+    // from '/naki_ui/docs' to 'https://xyz.com/naki_ui/docs'
+    final seoUrl = component.seo?.url?.trim() ?? '';
+    if (trimmed.startsWith('/') && seoUrl.isNotEmpty) {
+      final uri = Uri.tryParse(seoUrl);
+      final origin = (uri != null && uri.hasScheme && uri.hasAuthority)
+          ? uri.origin
+          : seoUrl.replaceFirst(RegExp(r'/+$'), '');
+
+      if (origin.isNotEmpty) {
+        String base =
+            component.basePath?.trim() ??
+            (uri?.path.isNotEmpty == true && uri!.path != '/' ? uri.path : '');
+
+        if (base.isNotEmpty) {
+          if (!base.startsWith('/')) base = '/$base';
+          base = base.replaceFirst(RegExp(r'/+$'), '');
+        }
+
+        if (base.isNotEmpty && !trimmed.startsWith('$base/') && trimmed != base) {
+          return '$origin$base$trimmed';
+        }
+
+        return '$origin$trimmed';
+      }
     }
 
-    return value;
+    return trimmed.startsWith('/') ? trimmed.substring(1) : trimmed;
   }
 
   List<Component> get seoTags {
     final seo = component.seo;
     if (seo == null) return [];
 
-    final pageUrl = _absoluteUrl(seo.url ?? '');
-    final imageUrl = _absoluteUrl(seo.logo ?? '');
+    final pageUrl = normaliseUrl(seo.url ?? '');
+    final imageUrl = normaliseUrl(seo.logo ?? '');
     final title = seo.title ?? component.title ?? '';
 
     final smTitle = seo.socialMediaTitle ?? title;
     final smDesc = seo.socialMediaDescription ?? seo.description ?? '';
-    final smImg = _absoluteUrl(
+    final smImg = normaliseUrl(
       seo.socialMediaBanner ?? imageUrl,
     );
 

@@ -46,7 +46,7 @@ Use the named constructor for router-managed pages.
 ```dart
 NakiApp.router(
   title: 'Acme Portal',
-  initialLocation: '/',
+  basePath: '/',
   routes: [
     Route(
       path: '/',
@@ -63,7 +63,7 @@ NakiApp.router(
 )
 ```
 
-The `initialLocation` must start with `/`. Include the router returned to `builder` when supplying a custom router wrapper. Client-side SPA navigation requires a hydrated boundary; server-driven multipage routing can render without client navigation.
+The `basePath` must start with `/`. Include the router returned to `builder` when supplying a custom router wrapper. Client-side SPA navigation requires a hydrated boundary; server-driven multipage routing can render without client navigation.
 
 ## PageNotFound
 

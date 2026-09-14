@@ -43,9 +43,9 @@
       "href": "/framework"
     },
     {
-      "id": "tooling",
-      "title": "Tooling",
-      "href": "/tooling"
+      "id": "cli",
+      "title": "CLI",
+      "href": "/cli"
     }
   ],
   "anchors": [
@@ -200,12 +200,12 @@
       ]
     },
     {
-      "tab": "tooling",
+      "tab": "cli",
       "group": "Developer Tools",
       "pages": [
         {
           "title": "🤖 Overview",
-          "href": "/tooling"
+          "href": "/cli"
         }
       ]
     }
@@ -225,8 +225,9 @@
     "/components/overview": "/components",
     "/framework/overview": "/framework",
     "/theming/overview": "/theming",
-    "/tooling/cli-and-skills": "/tooling",
-    "/cli-and-skills": "/tooling"
+    "/cli/overview": "/cli",
+    "/tooling": "/cli",
+    "/skills": "/cli"
   },
   "social": {
     "github": "makanakidev/naki_ui"

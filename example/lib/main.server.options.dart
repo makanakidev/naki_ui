@@ -26,5 +26,4 @@ import 'package:naki_ui_example/main.dart' as _main;
 ServerOptions get defaultServerOptions => ServerOptions(
   clientId: 'main.client.dart.js',
   clients: {_main.TodoApp: ClientTarget<_main.TodoApp>('main')},
-  stylesId: 'main.css',
 );

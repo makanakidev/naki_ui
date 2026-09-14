@@ -675,21 +675,42 @@ class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
     if (hasDrawer) _drawerController.toggle();
   }
 
-  /// Computes the absolute URL for a given URL string.
-  String _absoluteUrl(String value) {
-    if (value.startsWith('http://') || value.startsWith('https://')) {
-      return value;
+  /// Normalises a given URL string.
+  String normaliseUrl(String value) {
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) return '';
+
+    if (trimmed.startsWith('http://') ||
+        trimmed.startsWith('https://') ||
+        trimmed.startsWith('//') ||
+        trimmed.startsWith('data:')) {
+      return trimmed;
     }
 
-    if (value.startsWith('/') && component.seo?.url != null) {
-      final origin = component.seo!.url!.replaceFirst(
-        RegExp(r'/+$'),
-        '',
-      );
-      return '$origin$value';
+    final seoUrl = component.seo?.url?.trim() ?? '';
+    if (trimmed.startsWith('/') && seoUrl.isNotEmpty) {
+      final uri = Uri.tryParse(seoUrl);
+      final origin = (uri != null && uri.hasScheme && uri.hasAuthority)
+          ? uri.origin
+          : seoUrl.replaceFirst(RegExp(r'/+$'), '');
+
+      if (origin.isNotEmpty) {
+        String base = (uri?.path.isNotEmpty == true && uri!.path != '/' ? uri.path : '');
+
+        if (base.isNotEmpty) {
+          if (!base.startsWith('/')) base = '/$base';
+          base = base.replaceFirst(RegExp(r'/+$'), '');
+        }
+
+        if (base.isNotEmpty && !trimmed.startsWith('$base/') && trimmed != base) {
+          return '$origin$base$trimmed';
+        }
+
+        return '$origin$trimmed';
+      }
     }
 
-    return value;
+    return trimmed.startsWith('/') ? trimmed.substring(1) : trimmed;
   }
 
   /// Returns SEO meta tags for the scaffold
@@ -697,13 +718,13 @@ class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
     final seo = component.seo;
     if (seo == null) return [];
 
-    final pageUrl = _absoluteUrl(seo.url ?? '');
-    final imageUrl = _absoluteUrl(seo.logo ?? '');
+    final pageUrl = normaliseUrl(seo.url ?? '');
+    final imageUrl = normaliseUrl(seo.logo ?? '');
     final title = seo.title ?? '';
 
     final smTitle = seo.socialMediaTitle ?? title;
     final smDesc = seo.socialMediaDescription ?? seo.description ?? '';
-    final smImg = _absoluteUrl(
+    final smImg = normaliseUrl(
       seo.socialMediaBanner ?? imageUrl,
     );
 

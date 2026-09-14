@@ -96,7 +96,8 @@ class _TodoAppState extends State<TodoApp> {
       locale: 'en',
       themeMode: ThemeMode.system,
       cacheThemeMode: true,
-      favicon: '/assets/favicon.jpg',
+      basePath: '/naki_ui',
+      favicon: 'assets/favicon.jpg',
       lightTheme: const LightThemeData(
         colorSeed: ColorSeed(
           primary: Color('#2563eb'),

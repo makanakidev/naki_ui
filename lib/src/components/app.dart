@@ -11,6 +11,7 @@ import '../theme/tokens.dart';
 import '../utilities/enums.dart';
 import '../utilities/extensions.dart';
 import '../utilities/helpers.dart';
+
 import 'basics.dart';
 import 'layout.dart';
 import 'scaffold.dart';
@@ -608,7 +609,7 @@ class _NakiAppState extends State<NakiApp> {
     return type == null ? null : (favico, type);
   }
 
-  String get normalizedBase {
+  String get normalisedBase {
     String base = component.basePath ?? _defaultBasePath;
     if (!base.startsWith('/')) base = '/$base';
     if (!base.endsWith('/')) base = '$base/';
@@ -772,7 +773,7 @@ class _NakiAppState extends State<NakiApp> {
           },
         ),
 
-        // app meta tags
+        // meta tags
         Document.head(
           title: effectiveTitle.isEmpty ? null : effectiveTitle,
           meta: {
@@ -783,10 +784,10 @@ class _NakiAppState extends State<NakiApp> {
           },
           children: [
             // base path
-            if (normalizedBase.isNotEmpty)
+            if (normalisedBase.isNotEmpty)
               .element(
                 tag: 'base',
-                attributes: {'href': normalizedBase},
+                attributes: {'href': normalisedBase},
               ),
 
             // default theme tokens

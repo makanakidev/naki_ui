@@ -1,0 +1,74 @@
+---
+title: Responsive Design & Breakpoints
+description: Adaptive layouts using MediaQueryProvider, viewport dimensions, and orientation in Naki UI.
+---
+
+Build adaptive interfaces that react smoothly to mobile, tablet, and desktop viewports using `MediaQueryProvider`.
+
+---
+
+## `MediaQueryProvider` Helpers
+
+`MediaQueryProvider` exposes static helper methods to query viewport dimensions and orientation from `BuildContext`:
+
+```dart
+import 'package:jaspr/jaspr.dart';
+import 'package:jaspr_icons_pack/jaspr_icons_pack.dart';
+import 'package:naki_ui/framework.dart';
+import 'package:naki_ui/naki_ui.dart';
+
+@client
+class AdaptiveNavigation extends StatelessComponent {
+  const AdaptiveNavigation({super.key});
+
+  @override
+  Component build(BuildContext context) {
+    final width = MediaQueryProvider.width(context) ?? 1200;
+    final isMobile = width < 768;
+
+    if (isMobile) {
+      return BottomNavigationBar(
+        items: const [
+          BottomNavigationBarItem(icon: MaterialIcons.home, label: 'Home'),
+          BottomNavigationBarItem(icon: MaterialIcons.person, label: 'Profile'),
+        ],
+      );
+    }
+
+    return Row(
+      children: [
+        Drawer.sidebar(
+          width: const Dim.px(200),
+          child: Column(
+            children: [
+              Button.text('Home', onTap: () {}),
+              Button.text('Profile', onTap: () {}),
+            ],
+          ),
+        ),
+        const Expanded(
+          child: Align(
+            alignment: Alignment.center,
+            child: NakiText('Desktop View Content'),
+          ),
+        ),
+      ],
+    );
+  }
+}
+```
+
+---
+
+## Viewport & Dimension Queries
+
+| Method | Return Type | Description |
+| :--- | :--- | :--- |
+| `MediaQueryProvider.width(context)` | `double?` | Current browser viewport width in logical pixels |
+| `MediaQueryProvider.height(context)` | `double?` | Current browser viewport height in logical pixels |
+| `MediaQueryProvider.orientation(context)` | `Orientation?` | Returns `Orientation.portrait` or `Orientation.landscape` |
+| `MediaQueryProvider.of(context)` | `MediaQueryData?` | Nearest inherited `MediaQueryData` object |
+| `MediaQueryProvider.widthOf(context)` | `double?` | Observed component width when `id` is specified |
+| `MediaQueryProvider.heightOf(context)` | `double?` | Observed component height when `id` is specified |
+| `MediaQueryProvider.orientationOf(context)` | `Orientation?` | Observed component orientation when `id` is specified |
+

@@ -1,0 +1,86 @@
+---
+title: Asynchronous Builders
+description: Render asynchronous data flows with NakiFutureBuilder and NakiStreamBuilder in Naki UI.
+---
+
+Asynchronous components bind asynchronous Dart `Future` and `Stream` data sources directly to UI rendering states.
+
+---
+
+## `NakiFutureBuilder`
+
+Rebuilds UI based on the resolution state of a `Future`:
+
+```dart
+import 'package:jaspr/jaspr.dart';
+import 'package:naki_ui/naki_ui.dart';
+
+NakiFutureBuilder<String>(
+  future: fetchUserProfileName(),
+  builder: (context, data, hasError, loading) {
+    if (loading) {
+      return const Align(
+        alignment: Alignment.center,
+        child: Spinner(),
+      );
+    }
+
+    if (hasError) {
+      return Card(
+        child: const Padding(
+          padding: EdgeInsets.all(Dim.px(16)),
+          child: NakiText(
+            'Failed to load user profile.',
+            style: TextStyle(color: Color('#ef4444')),
+          ),
+        ),
+      );
+    }
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(Dim.px(16)),
+        child: Heading('Welcome back, $data!', level: 3),
+      ),
+    );
+  },
+)
+```
+
+---
+
+## `NakiStreamBuilder`
+
+Rebuilds UI reactively as new events are emitted on a `Stream`:
+
+```dart
+import 'package:jaspr/jaspr.dart';
+import 'package:naki_ui/naki_ui.dart';
+
+NakiStreamBuilder<int>(
+  stream: messageCountStream,
+  initialData: 0,
+  builder: (context, data, hasError, loading) {
+    if (hasError) {
+      return const NakiText('Stream connection error');
+    }
+
+    final count = data ?? 0;
+    return Container(
+      decoration: BoxDecoration(
+        backgroundColor: count > 0 ? const Color('#ef4444') : const Color('#64748b'),
+        borderRadius: const BorderRadiusData.all(Dim.px(12)),
+        padding: const EdgeInsets.symmetric(
+          horizontal: Dim.px(8),
+          vertical: Dim.px(4),
+        ),
+      ),
+      child: NakiText(
+        '$count unread notifications',
+        style: const TextStyle(color: Color('#ffffff')),
+      ),
+    );
+  },
+)
+```
+

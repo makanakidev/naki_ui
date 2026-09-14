@@ -1,0 +1,61 @@
+---
+title: SSR & Hydration
+description: How Naki UI components integrate with Jaspr server-side rendering, static site generation, and client hydration boundaries.
+---
+
+Jaspr supports multiple rendering modes: `static` (SSG), `server` (SSR), and `client` (SPA). Naki UI is designed to render clean semantic HTML and CSS server-side, while hydrating smoothly on the client.
+
+---
+
+## The `@client` Annotation Rule
+
+In Jaspr `static` or `server` mode, interactive components requiring browser-native event listeners, controllers, dynamic theme toggling, or overlays require the `@client` annotation.
+
+### Placement Best Practice
+
+Place `@client` on the highest shared interactive root component (such as your `App` or an interactive section):
+
+```dart
+import 'package:jaspr/jaspr.dart';
+import 'package:naki_ui/naki_ui.dart';
+
+// ✅ CORRECT: Top-level interactive client boundary
+@client
+class DashboardPage extends StatelessComponent {
+  const DashboardPage({super.key});
+
+  @override
+  Component build(BuildContext context) {
+    return const Scaffold(
+      appBar: AppBar(titleText: 'Dashboard'),
+      body: Align(
+        alignment: Alignment.center,
+        child: CounterWidget(), // Descendant inherits client boundary
+      ),
+    );
+  }
+}
+```
+
+<Warning>
+  Do NOT add `@client` annotations to descendant child components when an ancestor already possesses the `@client` boundary. Redundant annotations create separate, unnecessary client bundles.
+</Warning>
+
+---
+
+## Visual SSR vs Client Interactivity
+
+| Component | Static / Server Rendering (No `@client`) | Client Interactive (With `@client`) |
+| :--- | :--- | :--- |
+| `NakiApp` | Injects CSS design tokens & meta tags into `<head>` | Listens to system theme changes & caches preferences |
+| `Scaffold` / `AppBar` | Renders layout structure, headers, and navigation slots | Handles drawer open/close transitions and responsive menus |
+| `Button` | Renders native `<button>` with styles | Executes Dart `onTap` callbacks and loading spinners |
+| `TextField` | Renders styled `<input>` / `<textarea>` | Binds `onTyping`, `onSubmit`, and client-side validators |
+| `Dialog` / `BottomSheet` | Not rendered in initial static markup | Mounted dynamically via `OverlayController` on DOM body |
+| `NakiFutureBuilder` | Renders initial fallback or pre-rendered data | Re-evaluates future updates and streams in the browser |
+
+---
+
+## Token CSS Injection During SSR
+
+`NakiApp` automatically generates a `<style id="naki-theme-tokens">` tag during initial page rendering. This ensures zero "Flash of Unstyled Content" (FOUC) when loading statically generated or server-rendered pages.

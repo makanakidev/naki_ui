@@ -1,0 +1,199 @@
+---
+title: Basic & Content Components
+description: Buttons, typography, formatting components, rich text, icons, images, spinners, and banners in Naki UI.
+---
+
+Core display and interaction primitives exported from `package:naki_ui/naki_ui.dart`.
+
+---
+
+## `Button`
+
+Buttons trigger user actions, submit forms, or navigate. All button constructors use the `onTap` callback:
+
+```dart
+import 'package:jaspr/dom.dart';
+import 'package:jaspr/jaspr.dart';
+import 'package:jaspr_icons_pack/jaspr_icons_pack.dart';
+import 'package:naki_ui/naki_ui.dart';
+
+// 1. Filled button
+Button.filled(
+  const Color('#0f766e'),
+  child: const NakiText('Save Changes'),
+  onTap: () => handleSave(),
+)
+
+// 2. Text-only button
+Button.text(
+  'Cancel',
+  onTap: () => handleCancel(),
+)
+
+// 3. Outlined button with BorderData
+Button.outlined(
+  const BorderData(
+    color: Color('#0f766e'),
+    width: Dim.px(1),
+    radius: BorderRadiusData.all(Dim.px(8)),
+  ),
+  child: const NakiText('Export Data'),
+  onTap: () => handleExport(),
+)
+
+// 4. Icon button (semanticLabel required when interactive)
+Button.icon(
+  MaterialIcons.favorite,
+  semanticLabel: 'Add to Favorites',
+  onTap: () => handleFavorite(),
+)
+
+// 5. Button with both icon and text
+Button.iconText(
+  icon: MaterialIcons.add,
+  text: 'Create Project',
+  iconPosition: Position.left,
+  onTap: () => handleCreate(),
+)
+```
+
+---
+
+## `NakiText` & Typography Helpers
+
+`NakiText` renders styled text via `TextStyle`. Naki UI also provides semantic HTML text elements:
+
+```dart
+// Standard text with custom TextStyle
+const NakiText(
+  'Application Dashboard',
+  style: TextStyle(
+    fontSize: Dim.px(20),
+    fontWeight: FontWeight.bold,
+  ),
+)
+
+// Semantic headings (level 1 to 6)
+const Heading('Primary Section Title', level: 2)
+const SubHeading('Secondary section subtitle')
+
+// Semantic inline formatting components
+const Bold('Important text')
+const Italic('Emphasized note')
+const Underline('Underlined link text')
+const Strikethrough('Discounted price: $99')
+```
+
+---
+
+## `RichText` & `TextSpan`
+
+Combines styled text spans and interactive click handlers into a single paragraph:
+
+```dart
+RichText(
+  text: TextSpan(
+    text: 'Already have an account? ',
+    style: const TextStyle(color: Color('#64748b')),
+    children: [
+      TextSpan(
+        text: 'Sign in here',
+        style: const TextStyle(
+          color: Color('#0f766e'),
+          fontWeight: FontWeight.bold,
+        ),
+        recognizer: GestureRecognizer(
+          onClick: (e) => navigateToLogin(),
+        ),
+      ),
+    ],
+  ),
+)
+```
+
+---
+
+## `Icon` & `Image`
+
+```dart
+// Icon with size and color
+Icon(
+  MaterialIcons.check_circle,
+  size: 24,
+  color: const Color('#10b981'),
+)
+
+// Image with SizeConstraints, BoxFit, and BorderRadiusData
+Image(
+  'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=600',
+  alt: 'Abstract gradient artwork',
+  size: const SizeConstraints(
+    width: Dim.px(300),
+    height: Dim.px(200),
+  ),
+  fit: BoxFit.cover,
+  radius: const BorderRadiusData.all(Dim.px(12)),
+)
+```
+
+---
+
+## `Spinner`
+
+Circular loading indicators with standard, iOS, and glassmorphic styles:
+
+```dart
+// Standard Material spinner
+const Spinner()
+
+// iOS native style spinner
+const Spinner.ios(
+  size: Dim.px(24),
+)
+
+// Glass-styled spinner with background surface
+Spinner.glass(
+  surfaceColor: const Color('rgba(255, 255, 255, 0.2)'),
+  size: const Dim.px(36),
+  color: const Color('#0f766e'),
+)
+```
+
+---
+
+## `Banner`
+
+Callout notification banners with severity color-coding, actions, and dismiss support:
+
+```dart
+Banner(
+  severity: BannerType.info,
+  icon: const Icon(MaterialIcons.info),
+  primary: const NakiText('Update Available'),
+  secondary: const NakiText('A new version of your application is ready to install.'),
+  dismissible: true,
+  onClose: () => handleDismiss(),
+  actions: [
+    Button.text(
+      'Install Now',
+      onTap: () => handleInstall(),
+    ),
+  ],
+)
+```
+
+---
+
+## `GestureDetector`
+
+Captures user pointer interactions, keyboard navigation, and clicks on arbitrary components:
+
+```dart
+GestureDetector(
+  gestures: Gestures(
+    onClick: (event) => print('Element clicked!'),
+    onDoubleClick: (event) => print('Double clicked!'),
+  ),
+  child: const NakiText('Clickable surface'),
+)
+```

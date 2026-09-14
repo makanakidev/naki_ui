@@ -1,0 +1,109 @@
+---
+title: Selection Controls
+description: Checkboxes, radio buttons, switches, continuous/discrete sliders, and dropdown menus in Naki UI.
+---
+
+Selection components allow users to toggle binary options, select mutually exclusive values, adjust numeric sliders, and pick from dropdown menus.
+
+---
+
+## `Checkbox`
+
+Theme-aware checkable box with custom label support:
+
+```dart
+import 'package:jaspr/jaspr.dart';
+import 'package:naki_ui/naki_ui.dart';
+
+Checkbox(
+  isChecked: isSubscribed,
+  label: 'Subscribe to product newsletter',
+  onChange: (checked) {
+    setState(() => isSubscribed = checked);
+  },
+)
+```
+
+---
+
+## `RadioButton`
+
+Single-choice radio button participating in a named group:
+
+```dart
+Column(
+  spacing: 8,
+  children: [
+    RadioButton(
+      name: 'shipping',
+      value: 'standard',
+      isSelected: selectedShipping == 'standard',
+      label: 'Standard Shipping (3-5 days)',
+      onChange: (selected) {
+        if (selected) setState(() => selectedShipping = 'standard');
+      },
+    ),
+    RadioButton(
+      name: 'shipping',
+      value: 'express',
+      isSelected: selectedShipping == 'express',
+      label: 'Express Shipping (1-2 days)',
+      onChange: (selected) {
+        if (selected) setState(() => selectedShipping = 'express');
+      },
+    ),
+  ],
+)
+```
+
+---
+
+## `Switch`
+
+Smooth animated toggle switch:
+
+```dart
+Switch(
+  isActive: notificationsEnabled,
+  label: 'Enable Push Notifications',
+  onChange: (enabled) {
+    setState(() => notificationsEnabled = enabled);
+  },
+)
+```
+
+---
+
+## `Slider`
+
+Continuous and discrete numeric value slider:
+
+```dart
+Slider(
+  id: 'brightness-slider',
+  value: brightnessLevel,
+  minValue: 0.0,
+  maxValue: 100.0,
+  onChange: (val) => setState(() => brightnessLevel = val),
+)
+```
+
+---
+
+## `Dropdown`
+
+Selectable menu with typed options and section headers:
+
+```dart
+Dropdown<String>(
+  placeholder: 'Select a plan',
+  options: const [
+    DropdownItem(value: 'monthly', label: 'Monthly Plan', selected: true),
+    DropdownItem(value: 'yearly', label: 'Yearly Plan (Save 20%)'),
+  ],
+  onSelected: (item) {
+    print('Selected plan: ${item.value}');
+  },
+)
+```
+

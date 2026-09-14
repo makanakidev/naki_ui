@@ -1,0 +1,74 @@
+---
+title: Controllers & State
+description: Managing overlay states, scroll positions, and page navigation programmatically using typed controllers in Naki UI.
+---
+
+Controllers provide imperative handles into declarative components, enabling fine-grained control over overlays, scroll positions, and page views.
+
+---
+
+## `OverlayController`
+
+Controls dialogs, bottom sheets, drawers, snackbars, and popovers:
+
+```dart
+final overlayController = OverlayController();
+
+// Open overlay
+overlayController.open();
+
+// Toggle visibility
+overlayController.toggle();
+
+// Check if open
+final isVisible = overlayController.isOpen;
+
+// Close overlay
+overlayController.close();
+```
+
+---
+
+## `ScrollController`
+
+Controls scroll offsets and enables programmatic scroll animations:
+
+```dart
+final scrollController = ScrollController();
+
+// Listen to scroll events
+scrollController.addListener(() {
+  print('Current scroll offset: ${scrollController.offset}');
+});
+
+// Smooth scroll to offset
+scrollController.animateTo(
+  500.0,
+  duration: const Duration(milliseconds: 400),
+  curve: Curves.easeInOut,
+);
+
+// Jump directly to top or end
+scrollController.scrollToTop();
+scrollController.scrollToEnd();
+```
+
+---
+
+## `PageController`
+
+Controls page navigation in `PageView` components:
+
+```dart
+final pageController = PageController(initialPage: 0);
+
+// Animate to next page
+pageController.nextPage(
+  duration: const Duration(milliseconds: 300),
+  curve: Curves.easeInOut,
+);
+
+// Jump to specific page index
+pageController.jumpToPage(2);
+```
+

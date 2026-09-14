@@ -1,0 +1,277 @@
+---
+title: Scrolling Views
+description: Efficient scrolling lists, grids, carousels, page views, tables, scroll physics, and custom scrollbar styling in Naki UI.
+---
+
+Naki UI provides a full suite of responsive scrolling components, typed controllers, physics models, and scrollbar configurations exported from `package:naki_ui/naki_ui.dart` and `package:naki_ui/framework.dart`.
+
+---
+
+## `SingleChildScrollView` & `ScrollController`
+
+Scrolls a single child along a horizontal or vertical axis. Supports programmatic controllers, custom scroll physics, and container-level scrollbar styling:
+
+```dart
+import 'package:jaspr/jaspr.dart';
+import 'package:naki_ui/framework.dart';
+import 'package:naki_ui/naki_ui.dart';
+
+final scrollController = ScrollController();
+
+SingleChildScrollView(
+  controller: scrollController,
+  direction: ScrollDirection.vertical,
+  padding: const EdgeInsets.all(Dim.px(16)),
+  physics: const BouncingScrollPhysics(),
+  scrollBarConfiguration: const ScrollBarConfiguration(
+    thumbColor: Color('#888888'),
+    trackColor: Color('#f0f0f0'),
+    width: 6,
+    radius: 3,
+  ),
+  child: const Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      NakiText('Long scrollable content...'),
+    ],
+  ),
+)
+```
+
+---
+
+## `ListView`
+
+Renders linear scrollable item collections with direct children, dynamic lazy loading builders, or custom separators:
+
+```dart
+// Standard list with custom physics and styled scrollbar
+ListView(
+  physics: const BouncingScrollPhysics(),
+  scrollBarConfiguration: const ScrollBarConfiguration(
+    thumbColor: Color('#6750a4'),
+    trackColor: Color('#e7e0ec'),
+    width: 6,
+    radius: 3,
+  ),
+  padding: const EdgeInsets.all(Dim.px(12)),
+  itemExtent: const Dim.px(48),
+  children: const [
+    NakiText('Item 1'),
+    NakiText('Item 2'),
+  ],
+)
+
+// Dynamic builder with lazy loading and clamping physics
+ListView.builder(
+  itemCount: 100,
+  physics: const ClampingScrollPhysics(),
+  scrollBarConfig: const ScrollBarConfiguration(
+    thumbColor: Color('#888888'),
+    trackColor: Color('#f0f0f0'),
+    width: 6,
+  ),
+  itemBuilder: (context, index) {
+    return Card(
+      margin: const EdgeInsets(bottom: Dim.px(8)),
+      child: Padding(
+        padding: const EdgeInsets.all(Dim.px(16)),
+        child: NakiText('List Item #$index'),
+      ),
+    );
+  },
+)
+```
+
+---
+
+## `GridView` & `GridTile`
+
+Two-dimensional grid layouts with configurable cross-axis columns, spacing, scroll physics, and custom scrollbars:
+
+```dart
+GridView.count(
+  3,
+  mainAxisSpacing: const Dim.px(16),
+  crossAxisSpacing: const Dim.px(16),
+  physics: const BouncingScrollPhysics(),
+  scrollBarConfig: const ScrollBarConfiguration(
+    thumbColor: Color('#888888'),
+    trackColor: Color('#f0f0f0'),
+    width: 6,
+  ),
+  children: [
+    for (int i = 0; i < 9; i++)
+      GridTile(
+        child: Card(
+          child: Align(
+            alignment: Alignment.center,
+            child: NakiText('Tile $i'),
+          ),
+        ),
+      ),
+  ],
+)
+```
+
+---
+
+## `PageView` & `CarouselView`
+
+Swipeable page slideshows and multi-item carousels with snapping and scrollbar styling:
+
+```dart
+// Full-page slideshow with snapping and custom scrollbar
+PageView(
+  pageSnapping: true,
+  physics: const BouncingScrollPhysics(),
+  scrollBarConfiguration: const ScrollBarConfiguration(
+    thumbColor: Color('#888888'),
+    trackColor: Color('#f0f0f0'),
+    width: 4,
+    radius: 2,
+  ),
+  onPageChanged: (page) => print('Active page: $page'),
+  children: const [
+    Page1(),
+    Page2(),
+  ],
+)
+
+// Smooth horizontal card carousel
+CarouselView(
+  itemExtent: const Dim.px(300),
+  direction: ScrollDirection.horizontal,
+  itemSnapping: true,
+  physics: const BouncingScrollPhysics(),
+  scrollBarConfiguration: const ScrollBarConfiguration(
+    thumbColor: Color('#888888'),
+    trackColor: Color('#f0f0f0'),
+    height: 4,
+    radius: 2,
+  ),
+  onTap: (index) => print('Tapped item: $index'),
+  children: const [
+    Image('https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=600'),
+    Image('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600'),
+  ],
+)
+```
+
+---
+
+## `Table` & `TableRow`
+
+Data tables with column widths, cell borders, and built-in horizontal scrollbar configuration:
+
+```dart
+Table(
+  scrollBarConfiguration: const ScrollBarConfiguration(
+    thumbColor: Color('#888888'),
+    trackColor: Color('#f0f0f0'),
+    height: 6,
+    radius: 3,
+  ),
+  border: TableBorder.all(
+    color: const Color('#cbd5e1'),
+    width: const Dim.px(1),
+  ),
+  headers: const [
+    Bold('User'),
+    Bold('Role'),
+    Bold('Status'),
+  ],
+  rows: const [
+    TableRow(children: [
+      NakiText('Alex Doe'),
+      NakiText('Admin'),
+      NakiText('Active'),
+    ]),
+    TableRow(children: [
+      NakiText('Sam Smith'),
+      NakiText('Editor'),
+      NakiText('Pending'),
+    ]),
+  ],
+)
+```
+
+---
+
+## `StaggeredView` & `StaggeredTile`
+
+Masonry-like staggered layouts across columns or rows with customizable scroll physics:
+
+```dart
+StaggeredView.count(
+  3,
+  mainAxisSpacing: const Dim.px(12),
+  crossAxisSpacing: const Dim.px(12),
+  expandLastItem: true,
+  physics: const BouncingScrollPhysics(),
+  scrollBarConfig: const ScrollBarConfiguration(
+    thumbColor: Color('#888888'),
+    trackColor: Color('#f0f0f0'),
+    width: 6,
+  ),
+  children: cards,
+)
+```
+
+---
+
+## Scroll Physics (`ScrollPhysics`)
+
+Naki UI provides declarative scroll physics to customize kinetic deceleration, bounce, and touch interactions:
+
+| Physics Class | Behavior |
+| :--- | :--- |
+| `BouncingScrollPhysics` | iOS-style overscroll bounce with elastic spring deceleration. |
+| `ClampingScrollPhysics` | Android-style boundary clamping without elastic overshoot. |
+| `NeverScrollableScrollPhysics` | Disables user scrolling gestures completely. |
+| `AlwaysScrollableScrollPhysics` | Ensures overscroll physics apply even when content fits within viewport. |
+| `SnappingScrollPhysics` | Snaps into alignment at discrete item positions upon release. |
+
+```dart
+// Disables user scroll gestures on a nested list
+ListView(
+  physics: const NeverScrollableScrollPhysics(),
+  shrinkWrap: true,
+  children: [...],
+)
+```
+
+---
+
+## Scrollbar Styling (`ScrollBarConfiguration` & `ScrollBarWrapper`)
+
+Naki UI provides flexible scrollbar styling supporting both modern standard CSS (`scrollbar-color`, `scrollbar-width`) and WebKit pseudo-elements (`::-webkit-scrollbar*`).
+
+### Configuration Options
+
+`ScrollBarConfiguration` accepts:
+- `thumbColor`: `Color` of the scrollbar thumb.
+- `trackColor`: `Color` of the scrollbar track.
+- `hoverColor`: Optional `Color` of the thumb on hover.
+- `width`: Thickness in pixels for vertical scrollbars.
+- `height`: Thickness in pixels for horizontal scrollbars.
+- `radius`: Border radius in pixels for rounded thumb ends.
+
+### Component-Level vs. Page-Level
+
+- **Page-Level:** Provide `scrollBarConfiguration` to `NakiApp` or `ThemeConfig` to style the root `html` viewport scrollbar.
+- **Component-Level:** Pass `scrollBarConfiguration` (or `scrollBarConfig`) directly to any scrollable component (`ListView`, `SingleChildScrollView`, `Table`, `GridView`, etc.) to style that container's scrollbar independently.
+- **Custom Selectors (`ScrollBarWrapper`):** Use `ScrollBarWrapper` to apply scrollbar styles to any custom container or CSS selector:
+
+```dart
+ScrollBarWrapper(
+  selector: '.custom-scroll-area',
+  config: const ScrollBarConfiguration(
+    thumbColor: Color('#6750a4'),
+    trackColor: Color('#e7e0ec'),
+    width: 8,
+    radius: 4,
+  ),
+  child: Container(classes: 'custom-scroll-area', child: Row(children: [...])),
+)
+```

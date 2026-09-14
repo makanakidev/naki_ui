@@ -1,0 +1,58 @@
+---
+title: Color Seeds & Modes
+description: Generating cohesive color palettes using ColorSeed and handling light, dark, and system theme modes.
+---
+
+`ColorSeed` generates cohesive Material-inspired color tiers (primary, secondary, error, accent, and background) from base brand colors.
+
+---
+
+## Defining a `ColorSeed`
+
+```dart
+import 'package:jaspr/dom.dart';
+import 'package:naki_ui/theme.dart';
+
+// Minimal primary seed
+const seed = ColorSeed(primary: Color('#0f766e'));
+
+// Custom multi-tier color seed
+const customSeed = ColorSeed(
+  primary: Color('#0f766e'),
+  secondary: Color('#0284c7'),
+  accent: Color('#10b981'),
+  errorColor: Color('#ef4444'),
+  backgroundColor: Color('#ffffff'),
+);
+```
+
+---
+
+## Theme Modes
+
+Naki UI supports three theme modes via the `ThemeMode` enum:
+
+```dart
+enum ThemeMode {
+  system, // Adapts dynamically to user's OS preference
+  light,  // Forces light mode styling
+  dark,   // Forces dark mode styling
+}
+```
+
+---
+
+## Dynamic Mode Switching in Components
+
+You can toggle or set the active theme mode via `NakiThemeProvider` helper methods or typed `BuildContext` extensions:
+
+```dart
+// Option 1: Context extension helpers
+context.toggleTheme();
+context.setTheme(ThemeMode.dark);
+
+// Option 2: NakiThemeProvider static methods
+NakiThemeProvider.toggleMode(context);
+NakiThemeProvider.setMode(context, ThemeMode.light);
+```
+

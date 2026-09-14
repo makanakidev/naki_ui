@@ -1,0 +1,233 @@
+---
+title: Layout & Containers
+description: Flexbox containers, positioned stacks, cards, expandable panels, spacing helpers, and sizing widgets in Naki UI.
+---
+
+Layout components provide declarative primitives for building responsive interfaces that compile cleanly to CSS Flexbox and Grid.
+
+---
+
+## `Column` & `Row`
+
+Flex containers with alignment, spacing, and child layout control:
+
+```dart
+import 'package:jaspr/dom.dart';
+import 'package:jaspr/jaspr.dart';
+import 'package:jaspr_icons_pack/jaspr_icons_pack.dart';
+import 'package:naki_ui/naki_ui.dart';
+
+// Vertical column with spacing
+Column(
+  mainAxisAlignment: MainAxisAlignment.start,
+  crossAxisAlignment: CrossAxisAlignment.stretch,
+  spacing: 16,
+  children: [
+    const Heading('Account Settings', level: 2),
+    const NakiText('Manage your personal profile and preferences.'),
+    Button.filled(
+      const Color('#0f766e'),
+      child: const NakiText('Save Changes'),
+      onTap: () {},
+    ),
+  ],
+)
+
+// Horizontal row with space-between alignment
+Row(
+  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  crossAxisAlignment: CrossAxisAlignment.center,
+  spacing: 8,
+  children: [
+    const NakiText('Status: Active'),
+    Button.text('Edit', onTap: () {}),
+  ],
+)
+```
+
+---
+
+## `Container` & `Card`
+
+Surfaces and box containers with backgrounds, borders, shadows, padding, and constraints:
+
+```dart
+// Custom Container styled via BoxDecoration
+Container(
+  width: const Dim.px(340),
+  decoration: const BoxDecoration(
+    backgroundColor: Color('#f8fafc'),
+    padding: EdgeInsets.all(Dim.px(20)),
+    borderRadius: BorderRadiusData.all(Dim.px(12)),
+    border: BorderData(color: Color('#e2e8f0'), width: Dim.px(1)),
+    shadow: ShadowData.medium,
+  ),
+  child: const NakiText('Container Content with custom decoration'),
+)
+
+// Standard theme Card (built-in padding and elevation)
+Card(
+  elevation: 2.0,
+  padding: const EdgeInsets.all(Dim.px(20)),
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    spacing: 8,
+    children: [
+      const Heading('Metrics Overview', level: 3),
+      const NakiText('Performance stats for the current billing cycle.'),
+    ],
+  ),
+)
+```
+
+---
+
+## `Stack` & `Positioned`
+
+Layer components with absolute or pinned positioning:
+
+```dart
+Stack(
+  children: [
+    Image(
+      'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=600',
+      alt: 'Post background banner',
+      size: const SizeConstraints(
+        width: Dim.px(400),
+        height: Dim.px(220),
+      ),
+      fit: BoxFit.cover,
+      radius: const BorderRadiusData.all(Dim.px(12)),
+    ),
+    Positioned(
+      bottom: const Dim.px(16),
+      left: const Dim.px(16),
+      child: Container(
+        decoration: const BoxDecoration(
+          backgroundColor: Color('rgba(15, 23, 42, 0.8)'),
+          padding: EdgeInsets.symmetric(
+            horizontal: Dim.px(12),
+            vertical: Dim.px(6),
+          ),
+          borderRadius: BorderRadiusData.all(Dim.px(6)),
+        ),
+        child: const NakiText(
+          'Featured Post',
+          style: TextStyle(color: Color('#ffffff')),
+        ),
+      ),
+    ),
+  ],
+)
+```
+
+---
+
+## `ExpansionTile` & `ExpansionPanelList`
+
+Collapsible accordion and disclosure panels:
+
+### `ExpansionTile`
+
+Standalone collapsible disclosure panel with leading/trailing components:
+
+```dart
+ExpansionTile(
+  title: const NakiText('Frequently Asked Questions'),
+  subtitle: const NakiText('Learn more about SSR and client hydration'),
+  leading: const Icon(MaterialIcons.help_outline),
+  initiallyExpanded: false,
+  onExpansionChanged: (isExpanded) {
+    print('Tile expanded: $isExpanded');
+  },
+  children: const [
+    Padding(
+      padding: EdgeInsets.all(Dim.px(16)),
+      child: NakiText(
+        'Naki UI is fully compatible with both Jaspr SSR and client hydration modes.',
+      ),
+    ),
+  ],
+)
+```
+
+### `ExpansionPanelList`
+
+Multi-item accordion list supporting simultaneous expansion and callbacks:
+
+```dart
+ExpansionPanelList(
+  allowMultiple: true,
+  expansionCallback: (panelIndex, isExpanded) {
+    print('Panel $panelIndex isExpanded: $isExpanded');
+  },
+  children: [
+    ExpansionPanel(
+      isExpanded: true,
+      header: const NakiText('What is Naki UI?'),
+      body: const Padding(
+        padding: EdgeInsets.all(Dim.px(16)),
+        child: NakiText(
+          'A Material-inspired UI component library and design system for Jaspr web apps.',
+        ),
+      ),
+    ),
+    ExpansionPanel(
+      isExpanded: false,
+      header: const NakiText('Does it support theming?'),
+      body: const Padding(
+        padding: EdgeInsets.all(Dim.px(16)),
+        child: NakiText(
+          'Yes, featuring dynamic CSS variables, light/dark mode, and color seed generation.',
+        ),
+      ),
+    ),
+  ],
+)
+```
+
+### `ExpansionPanelList.radio`
+
+Accordion mode where exactly one panel is open at a time, identified by `value`:
+
+```dart
+ExpansionPanelList.radio(
+  initialOpenPanelValue: 'general',
+  expansionCallback: (panelIndex, isExpanded) {
+    print('Radio panel $panelIndex expanded: $isExpanded');
+  },
+  children: const [
+    ExpansionPanel.radio(
+      value: 'general',
+      header: NakiText('General Settings'),
+      body: Padding(
+        padding: EdgeInsets.all(Dim.px(16)),
+        child: NakiText(
+          'Configure account profile, language preferences, and notification channels.',
+        ),
+      ),
+    ),
+    ExpansionPanel.radio(
+      value: 'security',
+      header: NakiText('Security & Authentication'),
+      body: Padding(
+        padding: EdgeInsets.all(Dim.px(16)),
+        child: NakiText(
+          'Manage two-factor authentication, active sessions, and API tokens.',
+        ),
+      ),
+    ),
+  ],
+)
+```
+
+---
+
+## Sizing & Layout Helpers
+
+- **`SizedBox`**: Fixed dimensions (`width: Dim.px(100)`, `height: Dim.px(40)`).
+- **`Padding` & `Margin`**: Insets via type-safe `EdgeInsets` with `Dim` units.
+- **`Align`**: Child alignment (`Alignment.center`, `Alignment.topRight`, etc.).
+- **`Expanded` & `Flexible`**: Flex grow/shrink weighting in `Row` and `Column`.
+- **`Wrap`**: Flowing row/column that wraps across lines when space is constrained.
+- **`SafeArea`**: Inset padding avoiding device notches and status bars.

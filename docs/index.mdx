@@ -1,0 +1,129 @@
+---
+title: Introduction
+description: Build fast, beautiful, and responsive web applications with Naki UI and Jaspr.
+---
+
+**Naki UI** is an open-source, Material-inspired component library and design system purpose-built for [Jaspr](https://jaspr.site) — bringing Flutter-like declarative UI paradigms to Dart on the modern web with full SSR support and type-safe CSS-in-Dart.
+
+---
+
+## Core Pillars
+
+<CardGroup cols={2}>
+  <Card title="75+ Reusable Components" icon="cubes" href="/components">
+    From foundational layouts (`Scaffold`, `AppBar`, `GridView`) to interactive forms (`FormBuilder`, `AutoCompleteField`) and overlays (`Dialog`, `BottomSheet`, `Snackbar`).
+  </Card>
+  <Card title="Token-Driven Design System" icon="palette" href="/theming">
+    Automatic CSS variable generation from `ColorSeed`, semantic token hierarchies, and seamless system, light, and dark mode transitions.
+  </Card>
+  <Card title="Full SSR & Hydration Support" icon="bolt" href="/hydration">
+    Designed from the ground up for Jaspr static generation and server-side rendering with straightforward `@client` boundary semantics.
+  </Card>
+  <Card title="Built-in AI Coding Skills" icon="robot" href="/tooling">
+    First-class CLI tooling (`naki_ui skills`) for Antigravity, Cursor, Claude Code, Cline, and Copilot agents.
+  </Card>
+</CardGroup>
+
+---
+
+## Package Architecture
+
+Naki UI organizes its API into three distinct, tree-shakeable barrel libraries:
+
+```dart
+// 1. UI Components, Scaffolding, Inputs, and Overlays
+import 'package:naki_ui/naki_ui.dart';
+
+// 2. Theming, Color Seeds, Design Tokens, and Styling Models
+import 'package:naki_ui/theme.dart';
+
+// 3. Framework Infrastructure, Controllers, Lifecycle, and Gestures
+import 'package:naki_ui/framework.dart';
+```
+
+---
+
+## Quick Example
+
+Here is a minimal, complete Naki UI application in Jaspr:
+
+```dart
+import 'package:jaspr/dom.dart';
+import 'package:jaspr/jaspr.dart';
+import 'package:jaspr_icons_pack/jaspr_icons_pack.dart';
+import 'package:naki_ui/framework.dart';
+import 'package:naki_ui/naki_ui.dart';
+import 'package:naki_ui/theme.dart';
+
+@client
+class App extends StatelessComponent {
+  const App({super.key});
+
+  @override
+  Component build(BuildContext context) {
+    return NakiApp(
+      themeMode: ThemeMode.system,
+      cacheThemeMode: true,
+      lightTheme: const LightThemeData(
+        colorSeed: ColorSeed(primary: Color('#0f766e')),
+      ),
+      darkTheme: const DarkThemeData(
+        colorSeed: ColorSeed(primary: Color('#14b8a6')),
+      ),
+      pageBuilder: (context, child) {
+        return Scaffold(
+          appBar: AppBar(
+            titleText: 'Naki UI App',
+            actions: [
+              Button.icon(
+                context.themeMode == ThemeMode.dark
+                    ? MaterialIcons.light_mode
+                    : MaterialIcons.dark_mode,
+                semanticLabel: 'Toggle theme',
+                onTap: context.toggleTheme,
+              ),
+            ],
+          ),
+          body: Align(
+            alignment: Alignment.center,
+            child: Card(
+              padding: const EdgeInsets.all(Dim.px(24)),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Heading('Welcome to Naki UI', level: 2),
+                  const SizedBox(height: Dim.px(16)),
+                  Button.filled(
+                    const Color('#0f766e'),
+                    child: const NakiText('Get Started'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+```
+
+<Tip>
+  **`home` vs `pageBuilder`**: Use `pageBuilder` when the root page needs immediate access to `BuildContext` (e.g. `context.toggleTheme`, `context.themeTokens`, or custom providers). Use `home` for static or self-contained root components where `context` is only needed by descendants.
+</Tip>
+
+---
+
+## Explore the Documentation
+
+<CardGroup cols={3}>
+  <Card title="Getting Started" icon="rocket" href="/getting-started">
+    Installation, project setup, and dependency configuration.
+  </Card>
+  <Card title="Component Catalog" icon="cubes" href="/components">
+    Browse all 75+ UI components with real-world examples.
+  </Card>
+  <Card title="Theming Guide" icon="wand-magic-sparkles" href="/theming">
+    Customize tokens, palettes, and dynamic switching.
+  </Card>
+</CardGroup>

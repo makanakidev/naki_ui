@@ -1,0 +1,51 @@
+# Dart and Jaspr runtime state
+/.dart_tool/
+**/.dart_tool/
+/.jaspr/
+**/.jaspr/
+/.packages
+**/.packages
+
+# Generated build and test output
+/build/
+**/build/
+/coverage/
+**/coverage/
+*.dart.js
+*.dart.js.map
+*.part.js
+*.part.js.map
+
+# Process and diagnostic files
+*.log
+*.pid
+*.tmp
+*.temp
+*.swp
+*~
+
+# Local dependency and environment overrides
+/pubspec.lock
+pubspec_overrides.yaml
+**/pubspec_overrides.yaml
+.env
+.env.*
+!.env.example
+
+# Internal development tooling
+.agents/
+.codex/
+playground/
+.*.json
+
+# Editors and operating systems
+.idea/
+.vscode/
+*.iml
+.DS_Store
+**/.DS_Store
+Thumbs.db
+
+# Keep repository automation and package metadata visible.
+!/.github/
+!/.github/**

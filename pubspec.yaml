@@ -1,0 +1,42 @@
+name: naki_ui
+
+description: A library of Material-inspired UI components and design utilities for building responsive web applications with Jaspr.
+
+version: 1.0.0
+
+license: MIT
+
+repository: https://github.com/makanakidev/naki_ui
+
+issue_tracker: https://github.com/makanakidev/naki_ui/issues
+
+homepage: https://naki-ui.web.app
+
+topics:
+  - jaspr
+  - jaspr-components
+  - naki-ui
+  - naki-components
+
+environment:
+  sdk: ">=3.10.0 <4.0.0"
+
+dependencies:
+  args: ^2.5.0
+  io: ^1.0.4
+  jaspr: ^0.23.4
+  jaspr_icons_pack: ^1.0.4
+  jaspr_router: ^0.9.0
+  path: ^1.9.0
+  universal_web: ^1.1.1+1
+  yaml: ^3.1.2
+
+executables:
+  naki_ui:
+  skills: naki_ui
+
+dev_dependencies:
+  jaspr_test: ^0.23.4
+  lints: ^6.1.0
+  test: ^1.25.8
+

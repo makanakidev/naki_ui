@@ -1,0 +1,140 @@
+---
+title: Installation & Setup
+description: Step-by-step installation and project configuration for Naki UI in Jaspr applications.
+---
+
+Get up and running with Naki UI in your Jaspr web project in under three minutes.
+
+---
+
+## Prerequisites
+
+Ensure your environment meets the minimum version requirements:
+
+- **Dart SDK**: `>=3.10.0 <4.0.0`
+- **Jaspr**: `^0.23.4` or compatible
+
+---
+
+## Step-by-Step Walkthrough
+
+<Steps>
+  <Step title="Add dependencies to pubspec.yaml">
+    Open your project's `pubspec.yaml` and add `naki_ui` along with `jaspr`:
+
+    ```yaml
+    dependencies:
+      jaspr: ^0.23.4
+      naki_ui: ^1.0.0
+    ```
+
+    Install the packages:
+
+    ```shell
+    dart pub get
+    ```
+  </Step>
+
+  <Step title="Wrap your root component in NakiApp">
+    `NakiApp` is the top-level foundation of any Naki UI application. It injects dynamic CSS design tokens into the DOM head, manages light and dark theme switching, configures document SEO, and wraps your visual tree.
+
+    ```dart
+    import 'package:jaspr/dom.dart';
+    import 'package:jaspr/jaspr.dart';
+    import 'package:naki_ui/framework.dart';
+    import 'package:naki_ui/naki_ui.dart';
+    import 'package:naki_ui/theme.dart';
+
+    @client
+    class App extends StatelessComponent {
+      const App({super.key});
+
+      @override
+      Component build(BuildContext context) {
+        return NakiApp(
+          themeMode: ThemeMode.system,
+          cacheThemeMode: true,
+          lightTheme: const LightThemeData(
+            colorSeed: ColorSeed(primary: Color('#0f766e')),
+          ),
+          darkTheme: const DarkThemeData(
+            colorSeed: ColorSeed(primary: Color('#14b8a6')),
+          ),
+          seo: const SEO(
+            title: 'My Jaspr Application',
+            description: 'Built with Jaspr and Naki UI.',
+          ),
+          home: Scaffold(
+            appBar: const AppBar(titleText: 'Naki UI Application'),
+            body: const Align(
+              alignment: Alignment.center,
+              child: NakiText('Ready to build!'),
+            ),
+          ),
+        );
+      }
+    }
+    ```
+
+    #### When to use `home` vs. `pageBuilder`
+
+    `NakiApp` accepts either `home` or `pageBuilder` to define the root view:
+
+    - **Use `home`** when your root page is static or self-contained and does not need to access `NakiApp`'s inner `BuildContext` during initialization (e.g., `home: const HomePage()` or a constant `Scaffold`). Child components within `home` will still have full access to `context` in their own `build` methods.
+    - **Use `pageBuilder`** when the root component itself needs immediate access to the `BuildContext` established by `NakiApp`—such as reading `context.themeTokens`, toggling themes via `context.toggleTheme` in the top-level app bar, or wrapping the entire application tree in custom inherited widgets and state providers:
+
+    ```dart
+    NakiApp(
+      pageBuilder: (context, child) {
+        return Scaffold(
+          appBar: AppBar(
+            titleText: 'My App',
+            actions: [
+              Button.icon(
+                context.themeMode == ThemeMode.dark
+                    ? MaterialIcons.light_mode
+                    : MaterialIcons.dark_mode,
+                onTap: context.toggleTheme,
+              ),
+            ],
+          ),
+          body: const Align(
+            alignment: Alignment.center,
+            child: NakiText('Hello Naki UI!'),
+          ),
+        );
+      },
+    )
+    ```
+  </Step>
+
+  <Step title="Configure interactive client hydration">
+    In Jaspr `static` and `server` rendering modes, annotate your interactive component tree with `@client`.
+
+    <Info>
+      A single `@client` annotation at the highest interactive ancestor boundary is sufficient. Descendant components automatically participate in client hydration without duplicating annotations.
+    </Info>
+  </Step>
+
+  <Step title="Install coding agent skills (Optional)">
+    Equip your coding assistants (Antigravity, Cursor, Claude Code, Cline, etc.) with Naki UI component knowledge and prompt guides:
+
+    ```shell
+    dart pub global activate naki_ui  # only needed for first time
+    naki_ui skills --antigravity
+    ```
+  </Step>
+</Steps>
+
+---
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="SSR & Hydration Guide" icon="bolt" href="/hydration">
+    Understand Jaspr rendering modes and client boundary rules.
+  </Card>
+  <Card title="Component Catalog" icon="cubes" href="/components">
+    Explore the full library of 75+ UI components.
+  </Card>
+</CardGroup>

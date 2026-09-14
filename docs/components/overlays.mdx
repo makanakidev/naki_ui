@@ -1,0 +1,120 @@
+---
+title: Overlays & Feedback
+description: Modals, bottom sheets, alert dialogs, toast snackbars, popovers, drawers, and tooltips in Naki UI.
+---
+
+Overlay components present contextual dialogs, notifications, flyout sheets, and tooltips. All overlays integrate with typed `OverlayController` instances for smooth animations and focus management.
+
+---
+
+## `Snackbar`
+
+Toast notification positioned dynamically at the top or bottom of the viewport:
+
+```dart
+import 'package:jaspr/jaspr.dart';
+import 'package:naki_ui/naki_ui.dart';
+
+final snackbarController = OverlayController();
+
+// Trigger button
+Button.filled(
+  const Color('#2563eb'),
+  child: const NakiText('Show Notification'),
+  onTap: () => snackbarController.open(),
+)
+
+// Snackbar component
+Snackbar(
+  controller: snackbarController,
+  content: const NakiText('Profile changes saved successfully!'),
+  position: SnackbarPosition.bottom,
+  duration: const Duration(seconds: 4),
+)
+```
+
+---
+
+## `Dialog`
+
+Accessible modal dialog with focus trapping and backdrop blur:
+
+```dart
+final dialogController = OverlayController();
+
+Dialog(
+  controller: dialogController,
+  title: 'Confirm Deletion',
+  content: const NakiText('Are you sure you want to permanently delete this project?'),
+  actions: [
+    Button.text(
+      'Cancel',
+      onTap: () => dialogController.close(),
+    ),
+    Button.filled(
+      const Color('#ef4444'),
+      child: const NakiText('Confirm'),
+      onTap: () {
+        performDelete();
+        dialogController.close();
+      },
+    ),
+  ],
+)
+```
+
+---
+
+## `BottomSheet`
+
+Slide-up sheet suited for mobile and compact responsive layouts:
+
+```dart
+final sheetController = OverlayController();
+
+BottomSheet(
+  controller: sheetController,
+  child: Padding(
+    padding: const EdgeInsets.all(Dim.px(24)),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: 12,
+      children: [
+        const Heading('Share Document', level: 3),
+        Button.text('Copy Public Link', onTap: () {}),
+        Button.text('Send via Email', onTap: () {}),
+      ],
+    ),
+  ),
+)
+```
+
+---
+
+## `Popover` & `Tooltip`
+
+Anchored contextual flyouts and hover tooltips:
+
+```dart
+// Floating Popover anchored to child trigger
+Popover(
+  child: Button.text('Options', onTap: () {}),
+  position: PopoverPosition.bottomLeft,
+  content: const Padding(
+    padding: EdgeInsets.all(Dim.px(12)),
+    child: NakiText('Popover content panel'),
+  ),
+)
+
+// Hover/focus Tooltip
+Tooltip(
+  text: 'Refresh analytics feed',
+  child: Button.icon(
+    MaterialIcons.refresh,
+    semanticLabel: 'Refresh',
+    onTap: () {},
+  ),
+)
+```
+

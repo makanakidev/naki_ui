@@ -1,0 +1,139 @@
+---
+title: Form & Input Controls
+description: Accessible text fields, auto-complete inputs, OTP segmented inputs, calendars, and validated declarative FormBuilder workflows.
+---
+
+Input components provide accessible form controls with built-in validation, floating labels, helper text, and icon slots.
+
+---
+
+## `TextField`
+
+The standard text field supporting password masking, validation callbacks, helper text, and multi-line modes:
+
+```dart
+import 'package:jaspr/dom.dart';
+import 'package:jaspr/jaspr.dart';
+import 'package:naki_ui/naki_ui.dart';
+
+TextField(
+  id: 'user-email',
+  type: InputType.email,
+  decoration: const InputDecoration(
+    labelText: 'Email Address',
+    placeholderText: 'name@example.com',
+    helperText: 'We will send your verification code here',
+  ),
+  autoValidate: true,
+  validator: (value) {
+    if (value == null || !value.contains('@')) {
+      return 'Please enter a valid email address';
+    }
+    return null;
+  },
+  onTyping: (text) => print('Current text: $text'),
+  onSubmit: (text) => print('Submitted text: $text'),
+)
+```
+
+---
+
+## `FormBuilder`
+
+`FormBuilder` manages declarative HTML form validation and submission. It features built-in `direction` (`Direction.vertical` or `Direction.horizontal`) and `spacing` parameters:
+
+```dart
+final formKey = GlobalNodeKey<HTMLFormElement>();
+
+FormBuilder(
+  key: formKey,
+  direction: Direction.vertical,
+  spacing: 16,
+  autoValidate: true,
+  children: [
+    const Heading('Account Information'),
+    TextField(
+      id: 'username',
+      type: InputType.text,
+      required: true,
+      decoration: const InputDecoration(
+        labelText: 'Username',
+        placeholderText: 'Choose a username',
+      ),
+    ),
+    TextField(
+      id: 'password',
+      type: InputType.password,
+      required: true,
+      decoration: const InputDecoration(
+        labelText: 'Password',
+        placeholderText: 'Enter your password',
+      ),
+    ),
+    Button.filled(
+      const Color('#0f766e'),
+      child: const NakiText('Submit Form'),
+      validateForm: true, // Triggers FormBuilder validation before onTap
+      onTap: () {
+        print('Form validated and submitted!');
+      },
+    ),
+  ],
+)
+```
+
+---
+
+## `AutoCompleteField`
+
+Text field with dynamic autocomplete dropdown suggestions:
+
+```dart
+AutoCompleteField(
+  id: 'framework-search',
+  options: const ['Jaspr', 'Flutter', 'Dart', 'Next.js', 'Vue'],
+  decoration: const InputDecoration(
+    labelText: 'Search Frameworks',
+    placeholderText: 'Type to filter options...',
+  ),
+  onSelected: (selection) {
+    print('Selected framework: $selection');
+  },
+)
+```
+
+---
+
+## `SegmentedInput` (OTP / PIN Verification)
+
+Specialized multi-character segmented input for OTP codes, PINs, and verification sequences:
+
+```dart
+SegmentedInput(
+  id: 'pin-verification',
+  length: 6,
+  type: SegmentedInputType.number,
+  onCompleted: (pin) {
+    print('Completed 6-digit PIN: $pin');
+  },
+)
+```
+
+---
+
+## `Calendar`
+
+Date and time selection component:
+
+```dart
+Calendar(
+  id: 'booking-calendar',
+  type: CalendarType.date,
+  initialValue: DateTime.now(),
+  minimum: DateTime(2020),
+  maximum: DateTime(2030),
+  onSelected: (date) {
+    print('Selected date: $date');
+  },
+)
+```

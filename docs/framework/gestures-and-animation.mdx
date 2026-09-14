@@ -1,0 +1,51 @@
+---
+title: Gestures & Animation
+description: Handling clicks, taps, pointer events, and standardizing animation curves in Naki UI.
+---
+
+Handle user pointer interactions and standardize motion with built-in gesture recognizers and animation curves exported from `package:naki_ui/framework.dart`.
+
+---
+
+## `GestureDetector` & `Events`
+
+`GestureDetector` captures user clicks, double clicks, hover states, and pointer events:
+
+```dart
+import 'package:jaspr/jaspr.dart';
+import 'package:naki_ui/framework.dart';
+import 'package:naki_ui/naki_ui.dart';
+
+GestureDetector(
+  gestures: Events(
+    onClick: (e) => print('Element clicked'),
+    onDoubleClick: (e) => print('Element double-clicked'),
+    onMouseEnter: (e) => print('Pointer entered'),
+    onMouseLeave: (e) => print('Pointer left'),
+  ),
+  child: Container(
+    decoration: const BoxDecoration(
+      backgroundColor: Color('#f1f5f9'),
+      padding: EdgeInsets.all(Dim.px(16)),
+      borderRadius: BorderRadiusData.all(Dim.px(8)),
+    ),
+    child: const NakiText('Interactive Gesture Target'),
+  ),
+)
+```
+
+---
+
+## Animation Curves & Motion
+
+`Curves` provides standard CSS easing transitions:
+
+- `Curves.easeInOut`: Balanced acceleration and deceleration for smooth interface transitions.
+- `Curves.easeOut`: Snappy deceleration for incoming overlays and dropdowns.
+- `Curves.easeIn`: Accelerated exit transitions.
+- `Curves.easeInOutBack`: Smooth transition with overshoot at both ends.
+- `Curves.easeOutBack`: Overshooting entrance transition.
+- `Curves.bounceIn`: Bouncing acceleration transition.
+- `Curves.bounceOut`: Bouncing settle transition.
+- `Curves.linear`: Constant velocity linear motion.
+

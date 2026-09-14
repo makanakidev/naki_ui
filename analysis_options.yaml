@@ -1,0 +1,53 @@
+include: package:lints/recommended.yaml
+
+analyzer:
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+  exclude:
+    - "build/**"
+    - ".dart_tool/**"
+  errors:
+    avoid_types_as_parameter_names: ignore
+    constant_identifier_names: ignore
+    curly_braces_in_flow_control_structures: ignore
+    dangling_library_doc_comments: ignore
+    no_leading_underscores_for_local_identifiers: ignore
+    unused_field: ignore
+    unawaited_futures: error
+    avoid_void_async: error
+
+linter:
+  rules:
+    - prefer_relative_imports
+    - prefer_final_locals
+    - unnecessary_parenthesis
+    - curly_braces_in_flow_control_structures
+    - require_trailing_commas
+    - use_super_parameters
+    - use_enums
+    - prefer_const_constructors
+    - prefer_const_declarations
+    - prefer_const_literals_to_create_immutables
+    - directives_ordering
+    - combinators_ordering
+    - always_declare_return_types
+    - unawaited_futures
+    - cancel_subscriptions
+    - close_sinks
+    - avoid_void_async
+    - prefer_single_quotes
+
+plugins:
+  jaspr_lints:
+    version: ^0.6.0
+    diagnostics:
+      sort_children_last: true
+      prefer_html_components: true
+      styles_ordering: true
+      prefer_styles_getter: true
+
+formatter:
+  page_width: 100
+  trailing_commas: preserve

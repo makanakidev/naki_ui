@@ -1,0 +1,89 @@
+---
+title: Lifecycle & Browser Events
+description: Lifecycle mixins, afterRender hooks, and browser resize/visibility listeners in Naki UI.
+---
+
+`package:naki_ui/framework.dart` provides mixins and browser listeners that integrate safely across server and client environments.
+
+---
+
+## `NakiStatefulMixin`
+
+Provides an `afterRender` lifecycle hook executed after client-side hydration and DOM rendering:
+
+```dart
+import 'dart:async';
+import 'package:jaspr/jaspr.dart';
+import 'package:naki_ui/framework.dart';
+import 'package:naki_ui/naki_ui.dart';
+
+class MyComponent extends StatefulComponent {
+  const MyComponent({super.key});
+
+  @override
+  State<MyComponent> createState() => _MyComponentState();
+}
+
+class _MyComponentState extends State<MyComponent> with NakiStatefulMixin {
+  @override
+  FutureOr<VoidCallback?> afterRender(BuildContext context) {
+    print('Component rendered on client DOM');
+
+    // Return optional cleanup callback executed on dispose
+    return () {
+      print('Component cleanup');
+    };
+  }
+
+  @override
+  Component build(BuildContext context) {
+    return const NakiText('Client hydrated content');
+  }
+}
+```
+
+---
+
+## `BrowserLifecycleListeners`
+
+Listens to window resize, visibility state, and element dimensions with safe lifecycle registration in client-side only:
+
+```dart
+// optional: add `@client` if the root component is not client annotated
+@client
+class ViewportTracker extends StatefulComponent {
+  const ViewportTracker({super.key});
+
+  @override
+  State<ViewportTracker> createState() => ViewportTrackerState();
+}
+
+class ViewportTrackerState extends State<ViewportTracker> {
+  final _lifecycle = BrowserLifecycleListeners();
+
+  @override
+  void initState() {
+    super.initState();
+
+    _lifecycle.whenVisible = () {
+      print('Tab is active');
+    };
+
+    _lifecycle.whenResized = (height, width, orientation) {
+      print('Window dimensions: ${width.cssText} x ${height.cssText}');
+    };
+
+    _lifecycle.register();
+  }
+
+  @override
+  void dispose() {
+    _lifecycle.dispose();
+    super.dispose();
+  }
+
+  @override
+  Component build(BuildContext context) => const NakiText('Tracking viewport');
+}
+```
+

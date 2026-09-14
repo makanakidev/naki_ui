@@ -1,0 +1,85 @@
+---
+title: CLI & AI Agent Skills
+description: Install, update, and manage Naki UI and Jaspr companion skills across AI coding agents.
+---
+
+Naki UI ships comprehensive prompt guidelines, component indices, and best-practice skills for AI coding agents.
+
+---
+
+## Installation Commands
+
+<CodeGroup>
+
+```bash title="Global CLI"
+# Activate globally
+dart pub global activate naki_ui
+
+# Install for your preferred agent
+naki_ui skills --antigravity
+naki_ui skills --cursor
+naki_ui skills --claude-code
+```
+
+```bash title="Local Project Run"
+# Run directly inside any project depending on naki_ui
+dart run naki_ui skills --antigravity
+dart run naki_ui skills --cursor
+dart run naki_ui skills --claude-code
+```
+
+</CodeGroup>
+
+---
+
+## Supported AI Coding Agents
+
+| Agent | Direct CLI Flag | `--agent` Option | Target Destination |
+| :--- | :--- | :--- | :--- |
+| **Antigravity** | `--antigravity` | `antigravity` | `.agents/skills` |
+| **Cursor** | `--cursor` | `cursor` | `.cursor/skills` |
+| **Claude Code** | `--claude-code`, `--claude` | `claude-code` | `.claude/skills` |
+| **Cline** | `--cline` | `cline` | `.cline/skills` |
+| **Codex** | `--codex` | `codex` | `.agents/skills` |
+| **GitHub Copilot** | `--copilot`, `--github-copilot` | `copilot` | `.github/skills` |
+| **Command Code** | `--command-code`, `--commandcode` | `command-code` | `.commandcode/skills` |
+| **OpenCode** | `--opencode`, `--open-code` | `opencode` | `.opencode/skills` |
+| **Continue** | `--continue` | `continue` | `.continue/skills` |
+| **Windsurf** | `--windsurf` | `windsurf` | `.windsurf/skills` |
+| **General** | `--general`, `--generic` | `general` | `.agents/skills` |
+
+---
+
+## Companion Jaspr Skills
+
+When installing skills, the CLI automatically scans for missing companion Jaspr skills (`jaspr-fundamentals`, `jaspr-styling`, `jaspr-convert-html`, `jaspr-pre-rendering-and-hydration`, and `jaspr-js-interop`) and installs them automatically into the target agent directory.
+
+<Info>
+  Use `--no-jaspr` if you wish to skip installing companion Jaspr skills.
+</Info>
+
+---
+
+## Complete CLI Flags & Shorthands
+
+```bash
+# List all available Naki UI skills and their descriptions
+naki_ui skills --list
+naki_ui --list
+naki_ui -l
+
+# Install only a specific skill by name
+naki_ui skills --antigravity --skill naki-ui-theming
+
+# Preview changes without modifying files
+naki_ui skills --cursor --dry-run
+
+# Remove installed skills
+naki_ui skills --antigravity --remove
+naki_ui skills --antigravity --clean
+
+# Help and usage
+naki_ui --help
+naki_ui -h
+naki_ui skills --help
+```

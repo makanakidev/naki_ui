@@ -1,0 +1,84 @@
+---
+title: Theme Configuration
+description: Configuring LightThemeData, DarkThemeData, and ThemeConfig on NakiApp.
+---
+
+Theme data encapsulates all styling tokens, color schemes, font families, and component defaults for a mode.
+
+---
+
+## `LightThemeData` & `DarkThemeData`
+
+```dart
+import 'package:jaspr/dom.dart';
+import 'package:naki_ui/theme.dart';
+
+final lightTheme = LightThemeData(
+  colorSeed: const ColorSeed(
+    primary: Color('#0f766e'),
+    secondary: Color('#0284c7'),
+  ),
+  typography: const TypographyScheme(
+    fontFamily: ['Inter', 'system-ui', 'sans-serif'],
+  ),
+);
+
+final darkTheme = DarkThemeData(
+  colorSeed: const ColorSeed(
+    primary: Color('#14b8a6'),
+    secondary: Color('#38bdf8'),
+  ),
+  typography: const TypographyScheme(
+    fontFamily: ['Inter', 'system-ui', 'sans-serif'],
+  ),
+);
+```
+
+---
+
+## Global `NakiApp` Integration
+
+Supply `lightTheme` and `darkTheme` directly to `NakiApp`:
+
+```dart
+NakiApp(
+  themeMode: ThemeMode.system,
+  cacheThemeMode: true, // Persists user preference across browser reloads
+  fontFamily: const ['Inter', 'system-ui', 'sans-serif'],
+  lightTheme: lightTheme,
+  darkTheme: darkTheme,
+  home: const MyHomeScreen(),
+)
+```
+
+### Choosing `home` or `pageBuilder`
+
+- **`home`**: Use `home` when your root screen is a pre-instantiated or `const` component (`home: const MyHomeScreen()`). Child components inside `MyHomeScreen` can access `context.themeTokens` in their own `build` methods.
+- **`pageBuilder`**: Use `pageBuilder: (context, child)` when the top-level page itself needs to read active theme tokens, invoke `context.toggleTheme()`, or wrap the entire app in additional providers:
+
+```dart
+NakiApp(
+  themeMode: ThemeMode.system,
+  cacheThemeMode: true,
+  lightTheme: lightTheme,
+  darkTheme: darkTheme,
+  pageBuilder: (context, child) {
+    return Scaffold(
+      appBar: AppBar(
+        titleText: 'Themed App',
+        actions: [
+          Button.icon(
+            context.themeMode == ThemeMode.dark
+                ? MaterialIcons.light_mode
+                : MaterialIcons.dark_mode,
+            onTap: context.toggleTheme,
+          ),
+        ],
+      ),
+      body: child ?? const MyHomeScreen(),
+    );
+  },
+)
+```
+
+

@@ -1,0 +1,76 @@
+---
+title: Painting & Visual Effects
+description: Background decorations, colored boxes, opacity, visibility, clipping, rotated boxes, and backdrop filters in Naki UI.
+---
+
+Painting components provide visual modifications and effects exported from `package:naki_ui/naki_ui.dart`.
+
+---
+
+## `DecoratedBox` & `ColoredBox`
+
+Applies styling, borders, corner radii, and drop shadows to a child component:
+
+```dart
+import 'package:jaspr/jaspr.dart';
+import 'package:naki_ui/naki_ui.dart';
+
+DecoratedBox(
+  color: const Color('#ffffff'),
+  borderRadius: const BorderRadiusData.all(Dim.px(16)),
+  border: BorderData(
+    color: const Color('#e2e8f0'),
+    width: const Dim.px(1),
+  ),
+  shadow: ShadowData.medium,
+  child: const Padding(
+    padding: EdgeInsets.all(Dim.px(24)),
+    child: NakiText('Decorated box surface'),
+  ),
+)
+```
+
+For solid color backgrounds:
+
+```dart
+ColoredBox(
+  color: const Color('#2563eb'),
+  child: const Padding(
+    padding: EdgeInsets.all(Dim.px(16)),
+    child: NakiText(
+      'Primary colored box',
+      style: TextStyle(color: Color('#ffffff')),
+    ),
+  ),
+)
+```
+
+---
+
+## `BackdropFilter`
+
+Applies CSS filter effects (such as frosted glass blurs):
+
+```dart
+BackdropFilter(
+  filter: FilterBuilder().applyBlur(12),
+  child: Container(
+    decoration: BoxDecoration(
+      backgroundColor: const Color('rgba(255, 255, 255, 0.7)'),
+      padding: const EdgeInsets.all(Dim.px(20)),
+    ),
+    child: const NakiText('Frosted Glass Panel'),
+  ),
+)
+```
+
+---
+
+## Clipping & Transformations
+
+- **`ClipRect`**: Clips child content to rectangular bounds.
+- **`ClipOval`**: Clips child content to an oval/circular silhouette.
+- **`Opacity`**: Controls transparency (`opacity: 0.75`).
+- **`Visibility`**: Conditionally displays or hides elements (`visible: bool`).
+- **`RotatedBox`**: Rotates child by quarter turns (`quarterTurns: 1`).
+

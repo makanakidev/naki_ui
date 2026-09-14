@@ -1,0 +1,102 @@
+---
+title: Scaffolding & Navigation
+description: Core application layout structure, top app bars, navigation drawers, persistent sidebars, and bottom navigation in Naki UI.
+---
+
+Scaffolding components provide the foundational structure of standard web application layouts exported from `package:naki_ui/naki_ui.dart`.
+
+---
+
+## `Scaffold`
+
+`Scaffold` implements the top-level visual layout structure for a page, integrating an app bar, modal drawer, persistent sidebar, main body, bottom navigation, and floating action button.
+
+### Use Case: Complete Application Layout
+
+```dart
+import 'package:jaspr/jaspr.dart';
+import 'package:jaspr_icons_pack/jaspr_icons_pack.dart';
+import 'package:naki_ui/naki_ui.dart';
+
+class DashboardLayout extends StatelessComponent {
+  const DashboardLayout({super.key});
+
+  @override
+  Component build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        titleText: 'Analytics Dashboard',
+        actions: [
+          Button.icon(
+            MaterialIcons.notifications,
+            semanticLabel: 'Notifications',
+            onTap: () {},
+          ),
+        ],
+      ),
+      sideBar: Drawer.sidebar(
+        width: const Dim.px(240),
+        child: Padding(
+          padding: const EdgeInsets.all(Dim.px(16)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 8,
+            children: [
+              const Bold('Workspace'),
+              Button.text('Projects', onTap: () {}),
+              Button.text('Team Members', onTap: () {}),
+            ],
+          ),
+        ),
+      ),
+      body: const Padding(
+        padding: EdgeInsets.all(Dim.px(24)),
+        child: NakiText('Main Dashboard Content'),
+      ),
+    );
+  }
+}
+```
+
+---
+
+## `AppBar`
+
+`AppBar` renders a theme-aware top navigation header with elevation, leading component slot, title text/component, and action items:
+
+```dart
+AppBar(
+  leading: Button.icon(
+    MaterialIcons.arrow_back,
+    semanticLabel: 'Back',
+    onTap: () {},
+  ),
+  titleText: 'User Profile',
+  actions: [
+    Button.filled(
+      const Color('#2563eb'),
+      child: const NakiText('Save'),
+      onTap: () {},
+    ),
+  ],
+)
+```
+
+---
+
+## `BottomNavigationBar`
+
+Renders a bottom navigation bar for mobile and compact responsive layouts:
+
+```dart
+BottomNavigationBar(
+  selectedIndex: 1,
+  onTap: (index) => print('Selected tab: $index'),
+  items: const [
+    BottomNavigationBarItem(icon: MaterialIcons.home, label: 'Home'),
+    BottomNavigationBarItem(icon: MaterialIcons.search, label: 'Search'),
+    BottomNavigationBarItem(icon: MaterialIcons.person, label: 'Profile'),
+  ],
+)
+```
+

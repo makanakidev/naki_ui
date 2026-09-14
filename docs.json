@@ -1,0 +1,249 @@
+{
+  "$schema": "https://docs.page/schema.json",
+  "name": "Naki UI",
+  "description": "Material-inspired UI components and design utilities for Jaspr",
+  "logo": {
+    "light": "https://raw.githubusercontent.com/makanakidev/naki_ui/refs/heads/main/assets/logo-light.jpg",
+    "dark": "https://raw.githubusercontent.com/makanakidev/naki_ui/refs/heads/main/assets/logo-dark.jpg"
+  },
+  "favicon": "https://raw.githubusercontent.com/makanakidev/naki_ui/refs/heads/main/assets/favicon.jpg",
+  "socialPreview": "https://raw.githubusercontent.com/makanakidev/naki_ui/refs/heads/main/assets/logo-dark.jpg",
+  "banner": {},
+  "theme": {
+    "defaultTheme": "light",
+    "primary": "#0f766e",
+    "primaryLight": "#0f766e",
+    "primaryDark": "#14b8a6"
+  },
+  "header": {
+    "showName": true,
+    "showThemeToggle": true,
+    "showGitHubCard": true,
+    "links": []
+  },
+  "tabs": [
+    {
+      "id": "docs",
+      "title": "Docs",
+      "href": "/"
+    },
+    {
+      "id": "components",
+      "title": "Components",
+      "href": "/components"
+    },
+    {
+      "id": "theming",
+      "title": "Theming",
+      "href": "/theming"
+    },
+    {
+      "id": "framework",
+      "title": "Framework",
+      "href": "/framework"
+    },
+    {
+      "id": "tooling",
+      "title": "Tooling",
+      "href": "/tooling"
+    }
+  ],
+  "anchors": [
+    {
+      "title": "GitHub",
+      "icon": "github",
+      "href": "https://github.com/makanakidev/naki_ui"
+    },
+    {
+      "title": "pub.dev",
+      "icon": "box-open",
+      "href": "https://pub.dev/packages/naki_ui"
+    }
+  ],
+  "sidebar": [
+    {
+      "tab": "docs",
+      "group": "Getting Started",
+      "pages": [
+        {
+          "title": "📖 Introduction",
+          "href": "/"
+        },
+        {
+          "title": "🚀 Installation & Setup",
+          "href": "/getting-started"
+        },
+        {
+          "title": "💧 SSR & Hydration",
+          "href": "/hydration"
+        }
+      ]
+    },
+    {
+      "tab": "components",
+      "group": "Catalog",
+      "pages": [
+        {
+          "title": "📚 Overview",
+          "href": "/components"
+        }
+      ]
+    },
+    {
+      "tab": "components",
+      "group": "Structure & Layout",
+      "pages": [
+        {
+          "title": "🏗️ Scaffolding & Navigation",
+          "href": "/components/scaffold"
+        },
+        {
+          "title": "📐 Layout & Containers",
+          "href": "/components/layout"
+        },
+        {
+          "title": "📜 Scrolling Views",
+          "href": "/components/scrolling"
+        }
+      ]
+    },
+    {
+      "tab": "components",
+      "group": "Forms & Selection",
+      "pages": [
+        {
+          "title": "📝 Form & Inputs",
+          "href": "/components/inputs"
+        },
+        {
+          "title": "🔘 Selection Controls",
+          "href": "/components/selection"
+        }
+      ]
+    },
+    {
+      "tab": "components",
+      "group": "Feedback & Content",
+      "pages": [
+        {
+          "title": "✨ Basic & Content",
+          "href": "/components/basics"
+        },
+        {
+          "title": "💬 Overlays & Feedback",
+          "href": "/components/overlays"
+        },
+        {
+          "title": "🎨 Painting & Effects",
+          "href": "/components/painting"
+        },
+        {
+          "title": "⚡ Asynchronous Builders",
+          "href": "/components/async"
+        }
+      ]
+    },
+    {
+      "tab": "theming",
+      "group": "Theme System",
+      "pages": [
+        {
+          "title": "🎨 Overview",
+          "href": "/theming"
+        },
+        {
+          "title": "🌱 Color Seeds & Modes",
+          "href": "/theming/color-seeds"
+        },
+        {
+          "title": "⚙️ Theme Configuration",
+          "href": "/theming/configuration"
+        },
+        {
+          "title": "🪙 Design Tokens & CSS",
+          "href": "/theming/tokens"
+        },
+        {
+          "title": "📐 Styling Models",
+          "href": "/theming/styling-models"
+        }
+      ]
+    },
+    {
+      "tab": "framework",
+      "group": "Framework Core",
+      "pages": [
+        {
+          "title": "🧩 Overview",
+          "href": "/framework"
+        },
+        {
+          "title": "📱 Responsive & Breakpoints",
+          "href": "/framework/responsive"
+        },
+        {
+          "title": "🎮 Controllers & State",
+          "href": "/framework/controllers"
+        },
+        {
+          "title": "🌐 Lifecycle & Browser Events",
+          "href": "/framework/lifecycle"
+        },
+        {
+          "title": "👆 Gestures & Animation",
+          "href": "/framework/gestures-and-animation"
+        },
+        {
+          "title": "🛠️ Utilities & Extensions",
+          "href": "/framework/utilities"
+        }
+      ]
+    },
+    {
+      "tab": "tooling",
+      "group": "Developer Tools",
+      "pages": [
+        {
+          "title": "🤖 Overview",
+          "href": "/tooling"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "headerDepth": 3,
+    "zoomImages": false,
+    "automaticallyInferNextPrevious": true,
+    "showPageTitle": true,
+    "showPageImage": true
+  },
+  "seo": {
+    "noindex": false
+  },
+  "variables": {},
+  "redirects": {
+    "/components/overview": "/components",
+    "/framework/overview": "/framework",
+    "/theming/overview": "/theming",
+    "/tooling/cli-and-skills": "/tooling",
+    "/cli-and-skills": "/tooling"
+  },
+  "social": {
+    "github": "makanakidev/naki_ui"
+  },
+  "og": {
+    "logo": "https://raw.githubusercontent.com/makanakidev/naki_ui/refs/heads/main/assets/logo-light.jpg",
+    "github": true
+  },
+  "scripts": {},
+  "search": {},
+  "agent": {
+    "limits": {
+      "ip": 200,
+      "repo": 10000
+    }
+  },
+  "mcp": {
+    "enabled": true
+  }
+}

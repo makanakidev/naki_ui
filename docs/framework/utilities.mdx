@@ -1,0 +1,68 @@
+---
+title: Utilities & Context Extensions
+description: Debouncing and BuildContext extension helpers for concise UI code in Naki UI.
+---
+
+`package:naki_ui/framework.dart` and `package:naki_ui/theme.dart` provide developer ergonomics through debounce helpers and typed context extensions.
+
+---
+
+## `NakiDebounce`
+
+Rate-limit high-frequency operations such as search text input, auto-save requests, and window resizing:
+
+```dart
+import 'package:naki_ui/framework.dart';
+
+// Debounce search text input with a unique tag
+void onSearchChanged(String query) {
+  NakiDebounce.run(
+    'search-input',
+    const Duration(milliseconds: 300),
+    () {
+      fetchSearchResults(query);
+    },
+  );
+}
+
+// Immediately fire pending execution
+void forceSearchNow() {
+  NakiDebounce.fire('search-input');
+}
+
+// Cancel pending execution
+void cancelSearch() {
+  NakiDebounce.cancel('search-input');
+}
+```
+
+---
+
+## `BuildContext` Extensions
+
+Naki UI extends `BuildContext` with convenient theme and token getters:
+
+```dart
+// Access design tokens
+final tokens = context.themeTokens;
+
+// Access active theme mode
+final mode = context.themeMode;
+
+// Toggle theme between light/dark/system
+context.toggleTheme();
+
+// Set specific mode
+context.setTheme(ThemeMode.dark);
+
+// Direct color token shortcuts
+final primary = context.primaryColor;
+final secondary = context.secondaryColor;
+final background = context.backgroundColor;
+final text = context.textColor;
+final muted = context.mutedColor;
+
+// Apply opacity to a color
+final semiTransparent = context.withOpacity(primary, 0.5);
+```
+

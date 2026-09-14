@@ -1,0 +1,73 @@
+---
+title: Styling Models
+description: Type-safe BoxDecoration, BorderRadiusData, EdgeInsets, ShadowData, and TextStyle models in Naki UI.
+---
+
+Naki UI provides declarative, type-safe Dart styling models exported from `package:naki_ui/theme.dart` and `package:naki_ui/naki_ui.dart`.
+
+---
+
+## `BoxDecoration`
+
+Defines background color, borders, corner radius, padding, and drop shadows:
+
+```dart
+import 'package:jaspr/dom.dart';
+import 'package:naki_ui/naki_ui.dart';
+
+const decoration = BoxDecoration(
+  backgroundColor: Color('#ffffff'),
+  borderRadius: BorderRadiusData.all(Dim.px(12)),
+  border: BorderData(
+    color: Color('#cbd5e1'),
+    width: Dim.px(1),
+  ),
+  shadow: ShadowData.medium,
+);
+```
+
+---
+
+## `EdgeInsets`
+
+Specifies padding and margin offsets using `Dim` values:
+
+```dart
+// All sides equal
+const paddingAll = EdgeInsets.all(Dim.px(16));
+
+// Symmetric horizontal and vertical
+const paddingSymmetric = EdgeInsets.symmetric(
+  horizontal: Dim.px(24),
+  vertical: Dim.px(12),
+);
+
+// Individual sides
+const paddingCustom = EdgeInsets(
+  top: Dim.px(8),
+  bottom: Dim.px(16),
+  left: Dim.px(12),
+  right: Dim.px(12),
+);
+
+// Zero padding
+const paddingZero = EdgeInsets.zero;
+```
+
+---
+
+## `TextStyle`
+
+Encapsulates font family, size, weight, line height, letter spacing, and text color:
+
+```dart
+const textStyle = TextStyle(
+  fontFamily: FontFamily('Inter'),
+  fontSize: Dim.px(18),
+  fontWeight: FontWeight.w600,
+  color: Color('#0f172a'),
+  letterSpacing: Dim.px(-0.2),
+  lineHeight: Dim.em(1.4),
+);
+```
+

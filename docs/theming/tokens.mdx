@@ -1,0 +1,69 @@
+---
+title: Design Tokens & CSS Variables
+description: Reference guide to Naki UI design tokens, color variables, and CSS custom properties.
+---
+
+Naki UI design tokens are accessible in Dart via `context.themeTokens` / `context.primaryColor` and in CSS stylesheets via `--naki-*` custom properties.
+
+---
+
+## Token Reference
+
+### Brand & Accent Colors
+
+| Dart Token | CSS Custom Property | Description |
+| :--- | :--- | :--- |
+| `themeTokens.primaryColor` | `--naki-primary-color` | Primary brand color |
+| `themeTokens.secondaryColor` | `--naki-secondary-color` | Secondary brand color |
+| `themeTokens.accentColor` | `--naki-accent-color` | Highlight / accent color |
+| `themeTokens.green` | `--naki-green` | Green accent color |
+| `themeTokens.yellow` | `--naki-yellow` | Yellow accent color |
+| `themeTokens.red` | `--naki-red` | Red accent / danger color |
+
+### Surface & Status Colors
+
+| Dart Token | CSS Custom Property | Description |
+| :--- | :--- | :--- |
+| `themeTokens.backgroundColor` | `--naki-bg-color` | Page background color |
+| `themeTokens.borderColor` | `--naki-border-color` | Standard component border color |
+| `themeTokens.errorColor` | `--naki-error-color` | Error alert and validation color |
+| `themeTokens.successColor` | `--naki-success-color` | Success notification color |
+| `themeTokens.warningColor` | `--naki-warning-color` | Warning notification color |
+| `themeTokens.infoColor` | `--naki-info-color` | Information callout color |
+
+---
+
+## Accessing Tokens in Code
+
+```dart
+import 'package:jaspr/dom.dart';
+import 'package:jaspr/jaspr.dart';
+import 'package:naki_ui/naki_ui.dart';
+import 'package:naki_ui/theme.dart';
+
+@override
+Component build(BuildContext context) {
+  // Option 1: Direct BuildContext color getters
+  final primary = context.primaryColor;
+  final background = context.backgroundColor;
+
+  // Option 2: Full themeTokens object
+  final tokens = context.themeTokens;
+
+  return Container(
+    decoration: BoxDecoration(
+      backgroundColor: background,
+      padding: const EdgeInsets.all(Dim.px(16)),
+      border: BorderData(
+        color: tokens.borderColor.color!,
+        width: const Dim.px(1),
+      ),
+    ),
+    child: NakiText(
+      'Styled with design tokens',
+      style: TextStyle(color: primary),
+    ),
+  );
+}
+```
+

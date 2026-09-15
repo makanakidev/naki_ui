@@ -1,7 +1,7 @@
 {
   "$schema": "https://docs.page/schema.json",
   "name": "Naki UI",
-  "description": "Material-inspired UI components and design utilities for Jaspr",
+  "description": "Guides and examples for Jaspr's Material-inspired UI components and utilities",
   "logo": {
     "light": "https://raw.githubusercontent.com/makanakidev/naki_ui/main/assets/icon-light.jpg",
     "dark": "https://raw.githubusercontent.com/makanakidev/naki_ui/main/assets/icon-dark.jpg"
@@ -19,7 +19,13 @@
     "showName": true,
     "showThemeToggle": true,
     "showGitHubCard": true,
-    "links": []
+    "links": [
+      {
+        "title": "Sample App",
+        "href": "https://makanakidev.github.io/naki_ui",
+        "cta": true
+      }
+    ]
   },
   "tabs": [
     {
@@ -240,16 +246,5 @@
   "og": {
     "logo": "https://raw.githubusercontent.com/makanakidev/naki_ui/main/assets/logo-light.jpg",
     "github": true
-  },
-  "scripts": {},
-  "search": {},
-  "agent": {
-    "limits": {
-      "ip": 200,
-      "repo": 10000
-    }
-  },
-  "mcp": {
-    "enabled": true
   }
 }

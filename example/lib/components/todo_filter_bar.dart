@@ -45,17 +45,12 @@ class TodoFilterBar extends StatelessComponent {
                 context.primaryColor,
                 key: ValueKey('filter-${filter.name}'),
                 hoverColor: context.primaryColor.withOpacity(0.8),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: Dim.px(20),
-                  vertical: Dim.px(6),
-                ),
                 onTap: () => onFilterChanged(filter),
                 child: NakiText(
                   filter.label,
                   style: const TextStyle(
                     color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                    fontSize: Dim.rem(0.85),
+                    fontSize: Dim.rem(0.9),
                   ),
                 ),
               );
@@ -65,8 +60,7 @@ class TodoFilterBar extends StatelessComponent {
                 key: ValueKey('filter-${filter.name}'),
                 style: TextStyle(
                   color: context.subtitleColor,
-                  fontWeight: FontWeight.w500,
-                  fontSize: const Dim.rem(0.85),
+                  fontSize: const Dim.rem(0.9),
                 ),
                 onTap: () => onFilterChanged(filter),
               );
@@ -74,23 +68,23 @@ class TodoFilterBar extends StatelessComponent {
           }).toList(),
         ),
 
-        if (hasCompleted && currentFilter == TodoFilter.completed)
-          Button.text(
-            'Clear All',
-            border: BorderData.only(
-              radius: BorderRadiusData.all(const Dim.px(8)),
-            ),
-            padding: const EdgeInsets.symmetric(
-              horizontal: Dim.px(20),
-              vertical: Dim.px(6),
-            ),
-            style: TextStyle(
-              color: context.errorColor,
-              fontWeight: FontWeight.w500,
-              fontSize: const Dim.rem(0.85),
-            ),
-            onTap: onClearCompleted,
-          ),
+        // if (hasCompleted && currentFilter == TodoFilter.completed)
+        //   Button.text(
+        //     'Clear All',
+        //     border: BorderData.only(
+        //       radius: BorderRadiusData.all(const Dim.px(8)),
+        //     ),
+        //     padding: const EdgeInsets.symmetric(
+        //       horizontal: Dim.px(20),
+        //       vertical: Dim.px(6),
+        //     ),
+        //     style: TextStyle(
+        //       color: context.errorColor,
+        //       fontWeight: FontWeight.w500,
+        //       fontSize: const Dim.rem(0.85),
+        //     ),
+        //     onTap: onClearCompleted,
+        //   ),
       ],
     );
   }

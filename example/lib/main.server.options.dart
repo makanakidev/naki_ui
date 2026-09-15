@@ -25,6 +25,10 @@ import 'package:naki_ui_example/main.dart' as _main;
 /// ```
 ServerOptions get defaultServerOptions => ServerOptions(
   clientId: 'main.client.dart.js',
-  clients: {_main.TodoApp: ClientTarget<_main.TodoApp>('main')},
+  clients: {
+    _main.TodoApp: ClientTarget<_main.TodoApp>('main', params: __mainTodoApp),
+  },
   stylesId: 'main.css',
 );
+
+Map<String, Object?> __mainTodoApp(_main.TodoApp c) => {'base': c.base};

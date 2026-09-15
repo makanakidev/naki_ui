@@ -218,6 +218,8 @@ class _SingleChildScrollViewState extends State<SingleChildScrollView> with Naki
       'flex-direction': isHoriz
           ? (component.reverse ? 'row-reverse' : 'row')
           : (component.reverse ? 'column-reverse' : 'column'),
+      'width': '100%',
+      'height': '100%',
       ...?component.padding?.pProps,
       ...?component.physics?.props(component.direction),
     };

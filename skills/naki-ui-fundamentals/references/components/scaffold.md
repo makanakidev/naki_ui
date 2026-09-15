@@ -78,7 +78,6 @@ Scaffold(
   body: const OrdersPage(),
   floatingActionButton: Button.text('New order', onTap: createOrder),
   bottomNavigationBar: navigationBar,
-  footer: const NakiText('© Acme'),
 )
 ```
 

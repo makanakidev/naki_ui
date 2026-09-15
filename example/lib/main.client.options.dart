@@ -26,6 +26,9 @@ import 'package:naki_ui_example/main.dart' deferred as _main;
 /// ```
 ClientOptions get defaultClientOptions => ClientOptions(
   clients: {
-    'main': ClientLoader((p) => _main.TodoApp(), loader: _main.loadLibrary),
+    'main': ClientLoader(
+      (p) => _main.TodoApp(base: p['base'] as String),
+      loader: _main.loadLibrary,
+    ),
   },
 );

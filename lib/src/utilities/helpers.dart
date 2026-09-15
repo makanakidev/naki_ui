@@ -1,5 +1,3 @@
-// ignore_for_file: inference_failure_on_instance_creation
-
 import 'dart:convert';
 import 'dart:math';
 import 'package:jaspr/jaspr.dart' hide Element;
@@ -168,8 +166,15 @@ bool showValidationError(
       ? '${id}__segmentedfield'
       : '${id}__textfield';
 
-  final fieldWrapper = document.getElementById(fieldId);
+  final fieldWrapper = document.getElementById(fieldId) as HTMLElement?;
   if (fieldWrapper == null) return false;
+
+  // link input element to validation error element
+  final inputElem = document.getElementById(isSegmentedInput ? '${id}_0' : id) as HTMLElement?;
+  <String, String>{
+    'aria-describedby': validationId,
+    'aria-invalid': 'true',
+  }.forEach((key, value) => inputElem?.setAttribute(key, value));
 
   // create validation error element
   final validationElem = document.createElement('naki-error') as HTMLElement;
@@ -178,31 +183,15 @@ bool showValidationError(
   validationElem.textContent = text;
 
   // apply error styles
-  final style = Css.nakiErrorTextStyle.copyWith(
-    extra: {'margin-top': '8px'},
-  );
-  validationElem.style.cssText = style.cssText;
+  validationElem.style.cssText = Css.nakiErrorTextStyle
+      .copyWith(extra: {'margin-top': '8px'})
+      .cssText;
 
-  // place validation error underneath field
-  fieldWrapper.insertAdjacentElement(
-    'beforeend',
-    validationElem,
-  );
-
-  // link input element to validation error element via
-  // aria-describedby for screen readers
-  final targetInput = document.getElementById(
-    isSegmentedInput ? '${id}_0' : id,
-  );
-
-  targetInput?.setAttribute(
-    'aria-describedby',
-    validationId,
-  );
-  targetInput?.setAttribute('aria-invalid', 'true');
+  // place validation error as the last child of the field
+  fieldWrapper.insertAdjacentElement('beforeend', validationElem);
 
   // scroll the field into viewport
-  scrollToView(id: fieldId, animate: true, highlight: true);
+  scrollToView(id: fieldId, highlight: true);
 
   return true;
 }
@@ -255,14 +244,24 @@ String themeSwitchingScript(
 }
 
 /// Updates the root element data attribute with theme mode class.
-Future<void> updateRootTheme(String mode) async {
+void updateRootTheme(String mode) {
   if (kIsWeb) {
-    final root = document.documentElement as HTMLElement;
-    root.classList.add('switching-theme');
-    await Future.delayed(const Duration(milliseconds: 320));
-    root.setAttribute('data-naki-theme', mode);
-    root.classList.remove('switching-theme');
-    if (root.classList.length < 1) root.removeAttribute('class');
+    void applyTheme() {
+      final root = document.documentElement as HTMLElement;
+      root.setAttribute('data-naki-theme', mode);
+    }
+
+    try {
+      document.startViewTransition(applyTheme.toJS);
+    } catch (_) {
+      final root = document.documentElement as HTMLElement;
+      root.classList.add('switching-theme');
+      applyTheme();
+      Future.delayed(const Duration(milliseconds: 500), () {
+        root.classList.remove('switching-theme');
+        if (root.classList.length < 1) root.removeAttribute('class');
+      });
+    }
   }
 }
 
@@ -299,25 +298,19 @@ void scrollToView({
 
   if (kIsWeb) {
     final elem = document.getElementById(id) as HTMLElement?;
+
     if (elem != null) {
-      final scrollableElement = _findScrollableAncestor(
-        elem,
-      );
+      final scrollableElement = _findScrollableAncestor(elem);
+
       if (scrollableElement != null) {
         // scroll within the scrollable element
         scrollableElement.scrollTo(
           ScrollToOptions(
             top: direction == ScrollDirection.vertical
-                ? (elem.offsetTop - offset).clamp(
-                    0,
-                    double.infinity,
-                  )
+                ? (elem.offsetTop - offset).clamp(0, double.infinity)
                 : 0,
             left: direction == ScrollDirection.horizontal
-                ? (elem.offsetLeft - offset).clamp(
-                    0,
-                    double.infinity,
-                  )
+                ? (elem.offsetLeft - offset).clamp(0, double.infinity)
                 : 0,
             behavior: animate ? 'smooth' : 'auto',
           ),

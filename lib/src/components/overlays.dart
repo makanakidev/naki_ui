@@ -250,12 +250,8 @@ class _SnackbarState extends State<Snackbar> {
     super.didUpdateComponent(oldComponent);
 
     if (oldComponent.controller != component.controller) {
-      oldComponent.controller.removeListener(
-        _onControllerChanged,
-      );
-      component.controller.addListener(
-        _onControllerChanged,
-      );
+      oldComponent.controller.removeListener(_onControllerChanged);
+      component.controller.addListener(_onControllerChanged);
     }
 
     _localIsOpen = component.controller.isOpen;
@@ -264,9 +260,7 @@ class _SnackbarState extends State<Snackbar> {
   @override
   void dispose() {
     _timer?.cancel();
-    component.controller.removeListener(
-      _onControllerChanged,
-    );
+    component.controller.removeListener(_onControllerChanged);
     super.dispose();
   }
 
@@ -302,6 +296,7 @@ class _SnackbarState extends State<Snackbar> {
   /// Returns offset properties when appbar or bottom navbar is present
   Map<String, String>? get _offsetProps {
     final scaffold = Scaffold.maybeOf(context);
+
     if (scaffold != null) {
       final appBarHeight = scaffold.appBarHeight ?? Tokens.current.appbarHeight.value;
 
@@ -320,14 +315,15 @@ class _SnackbarState extends State<Snackbar> {
 
       if (isTopPosition && scaffold.hasAppbar) {
         return {
-          Tokens.current.snackbarOffset.name: 'calc($appBarHeight + env(--safe-area-inset-top))',
+          Tokens.current.snackbarOffset.name:
+              'calc($appBarHeight + env(--safe-area-inset-top, 0px))',
         };
       }
 
       if (isBottomPosition && scaffold.hasBottomNavbar) {
         return {
           Tokens.current.snackbarOffset.name:
-              'calc($bottomNavbarHeight + env(--safe-area-inset-bottom))',
+              'calc($bottomNavbarHeight + env(--safe-area-inset-bottom, 0px))',
         };
       }
     }
@@ -359,12 +355,14 @@ class _SnackbarState extends State<Snackbar> {
 
       // optional close icon
       if (component.showCloseIcon)
-        Icon(
+        Button.icon(
           MaterialIcons.icon_round_close,
-          size: 22,
-          color: component.closeIconColor ?? context.red,
+          size: 18,
+          padding: EdgeInsets.zero,
+          backgroundColor: Colors.transparent,
+          foregroundColor: component.closeIconColor ?? context.red,
           onTap: _close,
-          semanticLabel: 'Close notification',
+          attributes: const {'aria-label': 'Close notification'},
         ),
     ];
 

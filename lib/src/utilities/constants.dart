@@ -44,21 +44,15 @@ const List<String> kDays = [
 /// Theme switching script.
 const String kThemeSwitchingScript = '''
 !(function (t) {
-  function e() {
-    const e = localStorage.getItem("naki-theme-mode"),
-      i = "{{MODE}}",
-      s = (t && e) || i,
-      n = document.documentElement;
-
-    n.classList.add("switching-theme");
-    setTimeout(() => {
-      n.setAttribute("data-naki-theme", s);
-      n.classList.remove("switching-theme");
-      n.classList.length || n.removeAttribute("class");
-      t && !e && localStorage.setItem("naki-theme-mode", i);
-    }, 320);
-  }
-
-  document.startViewTransition ? document.startViewTransition(() => e()) : e();
+  const e = localStorage.getItem("naki-theme-mode"),
+    i = "{{MODE}}",
+    s = (t && e) || i,
+    n = document.documentElement;
+  n.setAttribute("data-naki-theme", s);
+  t && !e && localStorage.setItem("naki-theme-mode", i);
+  setTimeout(() => {
+    const b = document.querySelectorAll("base");
+    b.length > 1 && b.forEach((i, index) => index > 0 && i.remove());
+  }, 1000);
 })({{CACHE}});
 ''';

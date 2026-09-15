@@ -3,7 +3,14 @@
 Naki UI is a Material-inspired library of 75+ reusable UI components and design
 utilities for building fast, responsive web applications with Jaspr.
 
----
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/makanakidev/naki_ui/main/assets/logo-dark.jpg">
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/makanakidev/naki_ui/main/assets/logo-light.jpg">
+    <img alt="Naki UI Logo" src="https://raw.githubusercontent.com/makanakidev/naki_ui/main/assets/logo-dark.jpg" width="200">
+  </picture>
+</p>
+
 
 ## Features
 

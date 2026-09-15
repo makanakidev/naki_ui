@@ -12,7 +12,7 @@ class TodoStorage {
     TodoItem(
       id: '1',
       title: 'Explore Naki UI design tokens',
-      isCompleted: true,
+      isCompleted: false,
       createdAt: DateTime.now().millisecondsSinceEpoch - 120000,
     ),
     TodoItem(
@@ -56,7 +56,7 @@ class TodoStorage {
 
     try {
       final encoded = jsonEncode(todos.map((t) => t.toJson()).toList());
-      window.localStorage.setItem(_storageKey, encoded);
+      window.localStorage.setItem(_storageKey, encoded == '[]' ? '' : encoded);
     } catch (_) {
       // Ignore storage quota or access errors
     }

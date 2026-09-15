@@ -32,7 +32,8 @@ class _TodoInputState extends State<TodoInput> {
   @override
   Component build(BuildContext context) {
     return Card.outlined(
-      borderRadius: BorderRadiusData.all(const Dim.px(14)),
+      borderRadius: BorderRadiusData.all(const Dim.px(20)),
+      border: BorderData(color: context.borderColor.withOpacity(0.5)),
       padding: const EdgeInsets.symmetric(
         horizontal: Dim.px(10),
         vertical: Dim.px(8),
@@ -46,7 +47,8 @@ class _TodoInputState extends State<TodoInput> {
               key: ValueKey(_inputKeyVersion),
               id: 'todo-text-input-$_inputKeyVersion',
               type: InputType.text,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
+                border: BorderData(color: context.borderColor.withOpacity(0.3)),
                 placeholderText: 'What needs to be done?',
               ),
               onTyping: (value) => _currentText = value,
@@ -57,28 +59,11 @@ class _TodoInputState extends State<TodoInput> {
             context.primaryColor,
             id: 'add-task-submit-button',
             hoverColor: context.primaryColor.withOpacity(0.8),
-            border: BorderData.only(radius: BorderRadiusData.all(const Dim.px(8))),
             attributes: const {'aria-label': 'Add new task'},
             onTap: _submit,
             height: const Dim.px(45),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              spacing: 6,
-              children: [
-                Icon(
-                  MaterialIcons.icon_round_add,
-                  size: 18,
-                  color: Colors.white,
-                ),
-                NakiText(
-                  'Add',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
+            foregroundColor: Colors.white,
+            child: const Icon(MaterialIcons.icon_round_add),
           ),
         ],
       ),

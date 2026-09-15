@@ -77,7 +77,9 @@ class Rules {
     ),
   ];
 
-  static const _slowTransition = '320ms cubic-bezier(0.2, 0.8, 0.2, 1)';
+  static const _fastTransition = '150ms cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+  static const _mediumTransition = '320ms cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+  static const _slowTransition = '500ms cubic-bezier(0.25, 0.46, 0.45, 0.94)';
 
   /// Build scrollbar styling rules for a selector.
   static List<StyleRule> buildScrollbarRules(
@@ -158,29 +160,11 @@ class Rules {
       ],
     ),
 
-    css('.naki-control-hitbox').styles(
-      raw: {
-        'display': 'inline-flex',
-        'align-items': 'center',
-        'justify-content': 'center',
-        'min-width': '42px',
-        'min-height': '42px',
-        'cursor': 'pointer',
-      },
-    ),
-
     // theme switching animation
     css(
       'html.switching-theme *, html.switching-theme *::before, '
       'html.switching-theme *::after',
-    ).styles(
-      raw: {
-        'transition':
-            'background-color $_slowTransition, color $_slowTransition, '
-            'border-color $_slowTransition, box-shadow $_slowTransition, '
-            'fill $_slowTransition, stroke $_slowTransition',
-      },
-    ),
+    ).styles(raw: {'transition': 'all $_slowTransition'}),
 
     css.supports('(view-transition-name: root)', [
       css(
@@ -191,8 +175,8 @@ class Rules {
         '::view-transition-old(root), ::view-transition-new(root)',
       ).styles(
         raw: {
-          'animation-duration': '320ms',
-          'animation-timing-function': 'cubic-bezier(0.2, 0.8, 0.2, 1)',
+          'animation-duration': '500ms',
+          'animation-timing-function': 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
           'opacity': '1',
         },
       ),
@@ -214,6 +198,7 @@ class Rules {
         'color': 'var(${Tokens.current.baseTextColor}, ${Tokens.current.baseTextColor.value})',
         'font-family': 'var(${Tokens.current.fontFamily}, ${Tokens.current.fontFamily.value})',
         'font-size': 'var(${Tokens.current.fontSizeMd}, ${Tokens.current.fontSizeMd.value})',
+        'scrollbar-width': 'none',
       },
     ),
   ];
@@ -223,36 +208,42 @@ class Rules {
     css('&').styles(raw: Css.nakiInputStyle),
 
     // if input type is number or tel, hide stepper
-    css(
-      '&::-webkit-inner-spin-button',
-    ).styles(raw: {'margin': '0', 'appearance': 'none'}),
+    css('&::-webkit-inner-spin-button').styles(
+      raw: {'margin': '0', 'appearance': 'none'},
+    ),
 
-    css(
-      '&::-webkit-outer-spin-button',
-    ).styles(raw: {'margin': '0', 'appearance': 'none'}),
+    css('&::-webkit-outer-spin-button').styles(
+      raw: {'margin': '0', 'appearance': 'none'},
+    ),
 
     // placeholder
-    css(
-      '&::placeholder',
-    ).styles(raw: Css.nakiPlaceholderStyle),
+    css('&::placeholder').styles(raw: Css.nakiPlaceholderStyle),
 
     // hover state
-    css('&:hover').styles(raw: Css.nakiFieldHoverStyle),
+    css('&[hvr]:hover').styles(raw: Css.nakiFieldHoverStyle),
 
     // focus state
-    css('&:focus').styles(raw: Css.nakiFocusBorderStyle),
+    css('&[fcs]:focus').styles(raw: Css.nakiFocusBorderStyle),
+    css('&:focus-visible').styles(raw: {'outline': 'none'}),
 
     // disabled state
-    css(
-      '&:disabled',
-    ).styles(raw: {'cursor': 'not-allowed'}),
+    css('&:disabled').styles(raw: {'cursor': 'not-allowed'}),
   ]);
 
   /// Form field rules
   static final nakiFormFieldRules = css('.naki-form-field').styles(
+    raw: {'display': 'flex', 'flex-direction': 'column'},
+  );
+
+  /// Hitbox rules
+  static final nakiHitboxRules = css('.naki-control-hitbox').styles(
     raw: {
-      'display': 'flex',
-      'flex-direction': 'column',
+      'display': 'inline-flex',
+      'align-items': 'center',
+      'justify-content': 'center',
+      'min-width': '42px',
+      'min-height': '42px',
+      'cursor': 'pointer',
     },
   );
 
@@ -260,14 +251,10 @@ class Rules {
   static final nakiCalendarRules = [
     css('.naki-calendar', [
       // wrapper
-      css(
-        '&',
-      ).styles(raw: Css.nakiCalendarStyle['wrapper']),
+      css('&').styles(raw: Css.nakiCalendarStyle['wrapper']),
 
       // default trigger
-      css(
-        '& > .default_trigger',
-      ).styles(
+      css('& > .default_trigger').styles(
         raw: Css.nakiCalendarStyle['default-trigger'],
       ),
 
@@ -283,15 +270,11 @@ class Rules {
         ),
 
         // disabled state
-        css(
-          '&[disabled]',
-        ).styles(raw: Css.nakiDisabledStyle),
+        css('&[disabled]').styles(raw: Css.nakiDisabledStyle),
       ]),
 
       // input (hidden)
-      css(
-        '& > input',
-      ).styles(raw: Css.nakiCalendarStyle['input']),
+      css('& > input').styles(raw: Css.nakiCalendarStyle['input']),
 
       // numeric input stepper
       css('input', [
@@ -325,7 +308,7 @@ class Rules {
           raw: {
             'font-weight': '500',
             'font-size': '14px',
-            'border-radius': '30px',
+            'border-radius': '24px',
             'padding': '8px 12px',
             'height': 'auto',
           },
@@ -359,9 +342,7 @@ class Rules {
             ),
 
             // place header above year-month popover barrier when open
-            css(
-              '&[showyear]',
-            ).styles(
+            css('&[showyear]').styles(
               raw: {
                 'position': 'relative',
                 'z-index': '50',
@@ -534,21 +515,17 @@ class Rules {
   ];
 
   /// Label rules
-  static final nakiLabelRules = css(
-    '.naki-label',
-  ).styles(raw: Css.nakiLabelTextStyle.props);
+  static final nakiLabelRules = css('.naki-label').styles(
+    raw: Css.nakiLabelTextStyle.props,
+  );
 
   /// Segmented input field rules
   static final nakiSegmentedInputRules = [
-    css(
-      'naki-segmentedfield',
-    ).styles(raw: {'display': 'contents'}),
+    css('naki-segmentedfield').styles(raw: {'display': 'contents'}),
 
     css('.naki-segmented-input', [
       // wrapper
-      css(
-        '&',
-      ).styles(raw: Css.nakiSegmentedInputStyle['wrapper']),
+      css('&').styles(raw: Css.nakiSegmentedInputStyle['wrapper']),
 
       // segment box
       css('.input-segment', [
@@ -571,34 +548,25 @@ class Rules {
         ),
 
         // placeholder
-        css(
-          '&::placeholder',
-        ).styles(raw: Css.nakiPlaceholderStyle),
+        css('&::placeholder').styles(raw: Css.nakiPlaceholderStyle),
 
         // underline shape
-        css(
-          '&.shape-underline',
-        ).styles(
+        css('&.shape-underline').styles(
           raw: Css.nakiSegmentedInputStyle['underline'],
         ),
 
         // circle shape
-        css(
-          '&.shape-circle',
-        ).styles(raw: {'border-radius': '50%'}),
+        css('&.shape-circle').styles(raw: {'border-radius': '50%'}),
 
         // hover state
-        css('&:hover').styles(raw: Css.nakiFieldHoverStyle),
+        css('&[hvr]:hover').styles(raw: Css.nakiFieldHoverStyle),
 
         // focus state
-        css(
-          '&:focus',
-        ).styles(raw: Css.nakiFocusBorderStyle),
+        css('&[fcs]:focus').styles(raw: Css.nakiFocusBorderStyle),
+        css('&:focus-visible').styles(raw: {'outline': 'none'}),
 
         // disabled state
-        css(
-          '&:disabled',
-        ).styles(
+        css('&:disabled').styles(
           raw: {'opacity': '30%', 'cursor': 'not-allowed'},
         ),
       ]),
@@ -610,26 +578,21 @@ class Rules {
     css('&').styles(raw: Css.nakiTextareaStyle),
 
     // placeholder
-    css(
-      '&::placeholder',
-    ).styles(raw: Css.nakiPlaceholderStyle),
+    css('&::placeholder').styles(raw: Css.nakiPlaceholderStyle),
 
     // hover state
-    css('&:hover').styles(raw: Css.nakiFieldHoverStyle),
+    css('&[hvr]:hover').styles(raw: Css.nakiFieldHoverStyle),
 
     // focus state
-    css('&:focus').styles(raw: Css.nakiFocusBorderStyle),
+    css('&[fcs]:focus').styles(raw: Css.nakiFocusBorderStyle),
+    css('&:focus-visible').styles(raw: {'outline': 'none'}),
 
     // disabled state
-    css(
-      '&:disabled',
-    ).styles(raw: {'cursor': 'not-allowed'}),
+    css('&:disabled').styles(raw: {'cursor': 'not-allowed'}),
   ]);
 
-  /// Hint / Helper text rules
-  static final nakiHelperRules = css(
-    '.naki-helper',
-  ).styles(raw: Css.nakiHintTextStyle.props);
+  /// Helper text rules
+  static final nakiHelperRules = css('.naki-helper').styles(raw: Css.nakiHelperTextStyle.props);
 
   /// Checkbox rules
   static final nakiCheckboxRules = css('naki-checkbox', [
@@ -640,26 +603,18 @@ class Rules {
     css('.naki-checkbox', [
       css('&').styles(raw: Css.nakiCheckboxStyle['input']),
 
-      css(
-        '&:focus-visible',
-      ).styles(raw: Css.nakiFocusBorderStyle),
+      css('&[fcs]:focus-visible').styles(raw: Css.nakiFocusBorderStyle),
 
       // tick (default)
-      css(
-        '&::before',
-      ).styles(raw: Css.nakiCheckboxStyle['before']),
+      css('&::before').styles(raw: Css.nakiCheckboxStyle['before']),
 
       // tick (when checked)
-      css(
-        '&:checked::before',
-      ).styles(
+      css('&:checked::before').styles(
         raw: Css.nakiCheckboxStyle['checked:before'],
       ),
 
       // disabled
-      css(
-        '&:disabled',
-      ).styles(raw: Css.nakiCheckboxStyle['disabled']),
+      css('&:disabled').styles(raw: Css.nakiCheckboxStyle['disabled']),
     ]),
   ]);
 
@@ -673,7 +628,7 @@ class Rules {
       css('&').styles(raw: Css.nakiSwitchStyle['input']),
 
       css(
-        '&:focus-visible',
+        '&[fcs]:focus-visible',
       ).styles(raw: Css.nakiFocusBorderStyle),
 
       // track (default)
@@ -845,7 +800,11 @@ class Rules {
   /// Button rules
   static final nakiButtonRules = css('.naki-button', [
     // button
-    css('&').styles(raw: Css.nakiButtonStyle),
+    css('&').styles(
+      raw: Css.nakiButtonStyle.combine({
+        'transition': 'all $_fastTransition',
+      }),
+    ),
 
     // disabled state
     css('&:disabled').styles(
@@ -855,19 +814,18 @@ class Rules {
     ),
 
     // hover state
-    css(
-      '&:not(:disabled):hover',
-    ).styles(
-      raw: {
-        'background': 'var(${Tokens.current.buttonHoverBgColor})',
-      },
+    css('&[hvr]:hover').styles(
+      raw: {'background': 'var(${Tokens.current.buttonHoverBgColor})'},
+    ),
+
+    // tap / pressed state
+    css('&:not(:disabled):active').styles(
+      raw: {'transform': 'scale(0.97)'},
     ),
   ]);
 
   /// Icon rules
-  static final nakiIconRules = css(
-    '.naki-icon',
-  ).styles(raw: Css.nakiIconStyle);
+  static final nakiIconRules = css('.naki-icon').styles(raw: Css.nakiIconStyle);
 
   /// Scaffold rules
   static final nakiScaffoldRules = css('.naki-scaffold', [
@@ -893,11 +851,6 @@ class Rules {
     css(
       '.naki-scaffold-body',
     ).styles(raw: Css.nakiScaffoldStyle['body']),
-
-    // footer
-    css(
-      '.naki-scaffold-footer',
-    ).styles(raw: Css.nakiScaffoldStyle['footer']),
 
     // bottom navbar
     css('.naki-scaffold-bottom-navbar', [
@@ -941,24 +894,33 @@ class Rules {
   ]);
 
   /// Stack rules
-  static final nakiStackRules = css(
-    '.naki-stack',
-  ).styles(raw: Css.nakiStackStyle);
+  static final nakiStackRules = css('.naki-stack').styles(raw: Css.nakiStackStyle);
 
-  // Align rules
+  /// Align rules
   static final nakiAlignRules = css(
     '.naki-align',
-  ).styles(raw: {'height': '100%'});
+  ).styles(raw: {'width': '100%', 'height': '100%'});
 
-  // Cliprect rules
+  /// Cliprect rules
   static final nakiClipRectRules = css(
     '.naki-cliprect',
   ).styles(raw: {'display': 'block', 'overflow': 'hidden'});
 
-  // Container rules
-  static final nakiContainerRules = css(
-    '.naki-container',
-  ).styles(raw: Css.nakiContainerStyle);
+  /// Container rules
+  static final nakiContainerRules = css('.naki-container').styles(
+    raw: Css.nakiContainerStyle,
+  );
+
+  /// Footer rules
+  static final nakiFooterRules = css('.naki-footer').styles(
+    raw: {
+      'width': '100%',
+      'flex-shrink': '0',
+      'height': 'auto',
+      'min-height': 'auto',
+      'margin-top': 'auto',
+    },
+  );
 
   /// Card rules
   static final nakiCardRules = css('.naki-card', [
@@ -986,7 +948,7 @@ class Rules {
       ),
 
       // hover state
-      css('&:hover').styles(
+      css('&[hvr]:hover').styles(
         raw: {
           'box-shadow':
               '0 4px 6px -1px var(${Tokens.current.mediumShadowColor}, '
@@ -1064,15 +1026,12 @@ class Rules {
   ];
 
   /// Positioned rules
-  static final nakiPositionedRules =
-      css(
-        '.naki-positioned',
-      ).styles(
-        raw: {
-          'display': 'inline-flex',
-          'position': 'absolute',
-        },
-      );
+  static final nakiPositionedRules = css('.naki-positioned').styles(
+    raw: {
+      'display': 'inline-flex',
+      'position': 'absolute',
+    },
+  );
 
   /// Wrap rules
   static final nakiWrapRules = css(
@@ -1109,10 +1068,6 @@ class Rules {
     // input element
     css('.naki-radio-btn', [
       css('&').styles(raw: Css.nakiRadioBtnStyle['input']),
-
-      css(
-        '&:focus-visible',
-      ).styles(raw: Css.nakiFocusBorderStyle),
 
       // dot indicator (default)
       css(
@@ -1160,9 +1115,7 @@ class Rules {
 
       // default trigger
       css('.default_trigger', [
-        css(
-          '&',
-        ).styles(raw: Css.nakiDropdownStyle['trigger']),
+        css('&').styles(raw: Css.nakiDropdownStyle['trigger']),
 
         // arrow down (dropdown closed)
         css(
@@ -1177,12 +1130,10 @@ class Rules {
         ),
 
         // hover state
-        css('&:hover').styles(raw: Css.nakiFieldHoverStyle),
+        css('&[hvr]:hover').styles(raw: Css.nakiFieldHoverStyle),
 
         // focus state
-        css(
-          '&:focus',
-        ).styles(raw: Css.nakiFocusBorderStyle),
+        css('&[fcs]:focus').styles(raw: Css.nakiFocusBorderStyle),
       ]),
 
       // wrapped trigger
@@ -1334,9 +1285,7 @@ class Rules {
         ),
 
         // options
-        css(
-          '& > *',
-        ).styles(raw: Css.nakiDropdownStyle['option']),
+        css('& > *').styles(raw: Css.nakiDropdownStyle['option']),
       ]),
     ]),
 
@@ -1348,9 +1297,7 @@ class Rules {
   ];
 
   /// Form rules
-  static final nakiFormRules = css(
-    '.naki-form',
-  ).styles(raw: Css.nakiFormStyle);
+  static final nakiFormRules = css('.naki-form').styles(raw: Css.nakiFormStyle);
 
   /// Text rules
   static final nakiTextRules = css('.naki-text', [
@@ -1481,32 +1428,25 @@ class Rules {
   ).styles(raw: {'display': 'block', 'overflow': 'hidden'});
 
   /// Expanded rules
-  static final nakiExpandedRules =
-      css(
-        '.naki-expanded',
-      ).styles(
-        raw: {
-          'min-height': '0',
-          'min-width': '0',
-          'display': 'block',
-        },
-      );
+  static final nakiExpandedRules = css('.naki-expanded').styles(
+    raw: {
+      'min-height': '0',
+      'min-width': '0',
+      'display': 'block',
+    },
+  );
 
   /// Flexible rules
-  static final nakiFlexibleRules =
-      css(
-        '.naki-flexible',
-      ).styles(
-        raw: {
-          'min-height': '0',
-          'min-width': '0',
-          'display': 'block',
-        },
-      );
+  static final nakiFlexibleRules = css('.naki-flexible').styles(
+    raw: {
+      'min-height': '0',
+      'min-width': '0',
+      'display': 'block',
+    },
+  );
 
-  static final nakiHide = css(
-    '.naki-hide',
-  ).styles(raw: {'display': 'none'});
+  /// Hide rules
+  static final nakiHide = css('.naki-hide').styles(raw: {'display': 'none'});
 
   /// StaggeredView rules
   static final nakiStaggeredRules = css(
@@ -1534,7 +1474,7 @@ class Rules {
     // top position
     css('&.sb-top').styles(
       raw: {
-        'top': 'var(${Tokens.current.snackbarOffset}, 20px)',
+        'top': 'var(${Tokens.current.snackbarOffset}, 10px)',
         'left': '50%',
         'transform': 'translateX(-50%)',
       },
@@ -1543,7 +1483,7 @@ class Rules {
     // bottom position
     css('&.sb-bottom').styles(
       raw: {
-        'bottom': 'var(${Tokens.current.snackbarOffset}, 20px)',
+        'bottom': 'var(${Tokens.current.snackbarOffset}, 10px)',
         'left': '50%',
         'transform': 'translateX(-50%)',
       },
@@ -1552,7 +1492,7 @@ class Rules {
     // top-left position
     css('&.sb-top-left').styles(
       raw: {
-        'top': 'var(${Tokens.current.snackbarOffset}, 20px)',
+        'top': 'var(${Tokens.current.snackbarOffset}, 10px)',
         'left': '20px',
       },
     ),
@@ -1560,7 +1500,7 @@ class Rules {
     // top-right position
     css('&.sb-top-right').styles(
       raw: {
-        'top': 'var(${Tokens.current.snackbarOffset}, 20px)',
+        'top': 'var(${Tokens.current.snackbarOffset}, 10px)',
         'right': '20px',
       },
     ),
@@ -1568,7 +1508,7 @@ class Rules {
     // bottom-left position
     css('&.sb-bottom-left').styles(
       raw: {
-        'bottom': 'var(${Tokens.current.snackbarOffset}, 20px)',
+        'bottom': 'var(${Tokens.current.snackbarOffset}, 10px)',
         'left': '20px',
       },
     ),
@@ -1576,7 +1516,7 @@ class Rules {
     // bottom-right position
     css('&.sb-bottom-right').styles(
       raw: {
-        'bottom': 'var(${Tokens.current.snackbarOffset}, 20px)',
+        'bottom': 'var(${Tokens.current.snackbarOffset}, 10px)',
         'right': '20px',
       },
     ),

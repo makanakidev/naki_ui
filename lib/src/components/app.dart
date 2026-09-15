@@ -468,7 +468,7 @@ class _NakiAppState extends State<NakiApp> {
     }
   }
 
-  Component get appBase {
+  Component get _appBody {
     final textStyles = component.textStyle;
     final homeChild = component.home;
 
@@ -609,10 +609,13 @@ class _NakiAppState extends State<NakiApp> {
     return type == null ? null : (favico, type);
   }
 
-  String get normalisedBase {
-    String base = component.basePath ?? _defaultBasePath;
+  String get normalisedBasePath {
+    String base = component.basePath ?? '';
+    if (base.isEmpty) return _defaultBasePath;
+
     if (!base.startsWith('/')) base = '/$base';
     if (!base.endsWith('/')) base = '$base/';
+
     return base;
   }
 
@@ -755,9 +758,7 @@ class _NakiAppState extends State<NakiApp> {
   @override
   Component build(BuildContext context) {
     final fontFamilyVar = Tokens.current.fontFamily.name;
-    final fontFamilyCSS = css(
-      'html',
-    ).styles(raw: {fontFamilyVar: ?fontFamily});
+    final fontFamilyCSS = css('html').styles(raw: {fontFamilyVar: ?fontFamily});
     final effectiveTitle = component.seo?.title ?? component.title ?? '';
 
     final themeScript = themeSwitchingScript(
@@ -767,11 +768,7 @@ class _NakiAppState extends State<NakiApp> {
 
     return AppScope(
       child: .fragment([
-        Document.html(
-          attributes: {
-            'lang': component.locale ?? _defaultLocale,
-          },
-        ),
+        Document.html(attributes: {'lang': component.locale ?? _defaultLocale}),
 
         // meta tags
         Document.head(
@@ -779,16 +776,17 @@ class _NakiAppState extends State<NakiApp> {
           meta: {
             'viewport': component.viewport ?? _defaultViewport,
             'naki-ui': 'https://naki-ui.web.app',
-            'charset': component.charset ?? _defaultCharset,
             ...component.metaTags,
           },
           children: [
             // base path
-            if (normalisedBase.isNotEmpty)
-              .element(
-                tag: 'base',
-                attributes: {'href': normalisedBase},
-              ),
+            .element(
+              tag: 'base',
+              attributes: {'href': normalisedBasePath},
+            ),
+
+            // meta charset
+            meta(charset: component.charset ?? _defaultCharset),
 
             // default theme tokens
             .wrapElement(
@@ -798,8 +796,8 @@ class _NakiAppState extends State<NakiApp> {
               ),
             ),
 
-            // theme caching
-            script(content: themeScript, id: 'ntc'),
+            // theme script
+            script(content: themeScript, id: 'nts'),
 
             // icon
             if (favicon case (final href, final type)) link(href: href, rel: 'icon', type: type),
@@ -816,7 +814,7 @@ class _NakiAppState extends State<NakiApp> {
         ),
 
         // app body
-        appBase,
+        _appBody,
       ]),
     );
   }

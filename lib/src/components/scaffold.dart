@@ -581,9 +581,6 @@ class Scaffold extends StatefulComponent {
   /// Modal drawer to display when opened.
   final Drawer? drawer;
 
-  /// Footer component displayed at the bottom of the page.
-  final Component? footer;
-
   /// Persistent sidebar or navigation rail (non-modal) displayed
   /// beside the [body] content.
   final Component? sideBar;
@@ -608,7 +605,6 @@ class Scaffold extends StatefulComponent {
     this.floatingActionButton,
     this.classes,
     this.seo,
-    this.footer,
   });
 
   /// Finds the [ScaffoldState] from the closest [Scaffold] ancestor,
@@ -641,9 +637,6 @@ class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
 
   /// Whether the scaffold has a persistent sidebar.
   bool get hasSideBar => component.sideBar != null;
-
-  /// Whether the scaffold has a footer.
-  bool get hasFooter => component.footer != null;
 
   /// Returns the computed height of the app bar.
   String? get appBarHeight => component.appBar?.height?.cssText;
@@ -865,12 +858,6 @@ class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
               // Body content
               bodyContent,
 
-              // Footer
-              if (component.footer != null)
-                .wrapElement(
-                  classes: 'naki-scaffold-footer',
-                  child: component.footer!,
-                ),
 
               // Floating action button
               if (component.floatingActionButton != null)

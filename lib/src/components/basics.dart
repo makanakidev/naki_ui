@@ -856,7 +856,6 @@ class _ButtonState extends State<Button> {
       Tokens.current.buttonHoverBgColor.name: ?component.hoverColor?.value,
       Tokens.current.buttonHeight.name: ?component.height?.cssText,
       Tokens.current.buttonWidth.name: ?component.width?.cssText,
-      'min-height': ?component.height?.cssText,
       ...?component.border?.props,
       ...?component.padding?.pProps,
       ...?component.margin?.mProps,
@@ -868,6 +867,8 @@ class _ButtonState extends State<Button> {
         ? ButtonType.reset
         : component.type;
 
+    final canHover = component.hoverColor != null && !component.disabled;
+
     return button(
       key: component.key,
       id: component.id,
@@ -875,7 +876,7 @@ class _ButtonState extends State<Button> {
       type: effectiveType,
       styles: Styles(raw: effectiveStyles),
       disabled: component.disabled,
-      attributes: component.attributes,
+      attributes: {'hvr': ?(canHover ? '' : null), ...?component.attributes},
       onClick: component.onTap != null || component.validateForm || component.resetForm
           ? _onClick
           : null,
@@ -956,10 +957,9 @@ class Icon extends StatelessComponent {
   @override
   Component build(BuildContext context) {
     const String baseClass = 'naki-icon';
-    String effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
-    if (onTap != null) effectiveClasses += ' naki-control-hitbox';
+    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
 
-    return SvgIcon(
+    final child = SvgIcon(
       icon,
       key: key,
       size: size,
@@ -968,10 +968,13 @@ class Icon extends StatelessComponent {
       attributes: semanticLabel.isNotNullAndEmpty ? {'aria-label': semanticLabel!} : null,
       onClick: onTap,
     );
+
+    return onTap != null ? span(classes: 'naki-control-hitbox', [child]) : child;
   }
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('Icon', [Rules.nakiIconRules]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('Icon', [Rules.nakiIconRules, Rules.nakiHitboxRules]);
 }
 
 /// {@template Spinner}

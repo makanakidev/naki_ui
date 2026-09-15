@@ -1118,7 +1118,7 @@ class Card extends StatelessComponent {
               },
             ).toMap
           : null,
-      attributes: isInteractive ? {'tabindex': '0', 'role': 'button'} : null,
+      attributes: isInteractive ? {'tabindex': '0', 'role': 'button', 'hvr': ''} : null,
       children: [child],
     );
   }

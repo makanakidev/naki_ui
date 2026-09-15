@@ -561,9 +561,9 @@ class _DarkModeTokens extends Tokens {
   @override
   String get yellowValue => '#fbbf24';
 
-  /// Red accent color (dark: `#fb7185`).
+  /// Red accent color (dark: `#ff3d00`).
   @override
-  String get redValue => '#fb7185';
+  String get redValue => '#ff3d00';
 
   /// Default text placeholder color (dark: `#94a3b8`).
   @override

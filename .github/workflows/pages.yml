@@ -42,7 +42,7 @@ jobs:
         run: |
           dart pub global activate jaspr_cli
           dart pub get
-          jaspr build --verbose
+          jaspr build -v --dart-define=BASE_PATH=/naki_ui
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

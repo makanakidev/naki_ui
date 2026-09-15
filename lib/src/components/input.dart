@@ -380,14 +380,13 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
     final helperStyle = decoration?.helperStyle;
     final labelStyle = decoration?.labelStyle;
 
-    final disableHoverStyle = decoration?.disableHoverStyle ?? false;
-    final disableFocusStyle = decoration?.disableFocusStyle ?? false;
+    final allowHover = hoverColor != null && !disable && !readOnly;
+    final allowFocus = focusColor != null && !disable && !readOnly;
 
     final effectiveStyles = {
       'width': ?effectiveWidth,
       ...?border,
       ...?padding,
-      'outline': ?(disableFocusStyle || disableHoverStyle ? 'none !important' : null),
     };
 
     final defaultEvents = InputEvents(
@@ -443,6 +442,8 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
                   'autocomplete': ?autofill?.value,
                   'maxlength': ?maxLength?.toString(),
                   'minlength': ?minLength?.toString(),
+                  'hvr': ?(allowHover ? '' : null),
+                  'fcs': ?(allowFocus ? '' : null),
                   'autofocus': ?(autoFocus ? '' : null),
                 },
                 onInput: _handleInput,
@@ -471,6 +472,8 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
                   'max': ?maxValueAllowed?.toCleanString,
                   'autocomplete': ?autofill?.value,
                   'spellcheck': enableSpellCheck ? 'true' : 'false',
+                  'hvr': ?(allowHover ? '' : null),
+                  'fcs': ?(allowFocus ? '' : null),
                   'autofocus': ?(autoFocus ? '' : null),
                   'inputmode': ?(type == InputType.number || type == InputType.tel
                       ? 'numeric'
@@ -1337,8 +1340,8 @@ class _SegmentedInputState extends State<SegmentedInput> with NakiStatefulMixin 
     final paddingProps = component.style?.padding?.pProps;
     final marginProps = component.style?.margin?.mProps ?? component.decoration?.margin?.mProps;
 
-    final disableHoverStyle = component.decoration?.disableHoverStyle ?? false;
-    final disableFocusStyle = component.decoration?.disableFocusStyle ?? false;
+    final allowHover = hoverColor != null && !component.disable && !component.readOnly;
+    final allowFocus = focusColor != null && !component.disable && !component.readOnly;
 
     const baseClass = 'naki-segmented-input';
     final effectiveSegmentClasses = 'input-segment shape-${shape.name}';
@@ -1363,7 +1366,6 @@ class _SegmentedInputState extends State<SegmentedInput> with NakiStatefulMixin 
       'font-size': ?fontSize,
       'color': ?inputColor,
       'font-weight': ?component.style?.textStyle?.fontWeight?.value,
-      'outline': ?(disableFocusStyle || disableHoverStyle ? 'none !important' : null),
       ...?borderProps,
       ...?radiusProps,
       ...?paddingProps,
@@ -1429,6 +1431,8 @@ class _SegmentedInputState extends State<SegmentedInput> with NakiStatefulMixin 
                 'aria-label': 'Segment ${i + 1} of ${component.length}',
                 'readonly': ?(component.readOnly ? '' : null),
                 'required': ?(component.required && i == 0 ? '' : null),
+                'hvr': ?(allowHover ? '' : null),
+                'fcs': ?(allowFocus ? '' : null),
               },
               onInput: (val) => _handleInput(i, val),
               events: InputEvents(
@@ -2093,8 +2097,8 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
     final helperStyle = decoration?.helperStyle;
     final labelStyle = decoration?.labelStyle;
 
-    final disableHoverStyle = decoration?.disableHoverStyle ?? false;
-    final disableFocusStyle = decoration?.disableFocusStyle ?? false;
+    final allowHover = hoverColor != null && !component.disable && !component.readOnly;
+    final allowFocus = focusColor != null && !component.disable && !component.readOnly;
 
     final effectiveClasses = component.classes.isNotNullAndEmpty
         ? 'naki-calendar ${component.classes}'
@@ -2201,24 +2205,19 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
               'required': ?(component.required ? '' : null),
               'readonly': '',
             },
-            events: InputEvents(
-              onInvalid: (event) => _invalid(event),
-            ).toMap,
+            events: InputEvents(onInvalid: _invalid).toMap,
           ),
 
           // Trigger (opens/closes modal)
           .wrapElement(
             child: effectiveChild,
             classes: 'naki-calendar-trigger',
-            styles: Styles(
-              raw: {
-                'outline': ?(disableFocusStyle || disableHoverStyle ? 'none !important' : null),
-              },
-            ),
             attributes: {
               'novalue': ?(currentValue == null ? '' : null),
               'selected': ?(currentValue != null ? '' : null),
               'disabled': ?(component.disable ? '' : null),
+              'hvr': ?(allowHover ? '' : null),
+              'fcs': ?(allowFocus ? '' : null),
             },
           ),
 

@@ -589,7 +589,7 @@ abstract class ScrollPhysics {
         return {
           'overflow-x': isHoriz ? 'auto' : 'hidden',
           'overflow-y': !isHoriz ? 'auto' : 'hidden',
-          'overscroll-behavior': 'none',
+          'overscroll-behavior-${isHoriz ? 'x' : 'y'}': 'none',
         };
       case ScrollPhysicsType.snapping:
         return {

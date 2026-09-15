@@ -120,6 +120,7 @@ class Checkbox extends StatelessComponent {
             name: name,
             value: value,
             type: InputType.checkbox,
+            attributes: !disabled ? {'fcs': ''} : null,
             classes: effectiveClasses,
             styles: Styles(color: color),
             checked: isChecked,
@@ -154,9 +155,8 @@ class Checkbox extends StatelessComponent {
   }
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('Checkbox', [
-    Rules.nakiCheckboxRules,
-  ]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('Checkbox', [Rules.nakiCheckboxRules, Rules.nakiHitboxRules]);
 }
 
 /// {@template Switch}
@@ -261,6 +261,7 @@ class Switch extends StatelessComponent {
                 Tokens.current.switchThumbColor.name: ?thumbColor?.value,
               },
             ),
+            attributes: !disabled ? {'fcs': ''} : null,
             checked: isActive,
             disabled: disabled,
             onChange: disabled ? null : onChange,
@@ -293,9 +294,8 @@ class Switch extends StatelessComponent {
   }
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('Switch', [
-    Rules.nakiSwitchRules,
-  ]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('Switch', [Rules.nakiSwitchRules, Rules.nakiHitboxRules]);
 }
 
 /// {@template Slider}
@@ -400,6 +400,7 @@ class Slider extends StatelessComponent {
   @override
   Component build(BuildContext context) {
     final String _id = 'nsl_$id';
+    final showTooltip = allowInteraction && showValueIndicator;
 
     final double percent = ((value - minValue) * 100) / (maxValue - minValue);
     final String position = 'calc($percent% + (${8 - percent * 0.15}px))';
@@ -434,21 +435,17 @@ class Slider extends StatelessComponent {
                 ? null
                 : ((maxValue - minValue) / divisions!).toCleanString),
           },
-          onInput: (value) {
-            if (allowInteraction) {
-              onChange?.call(value);
-              if (showValueIndicator) {
-                updateSliderTooltip(_id, hide: false);
-              }
-            }
-          },
-          events: {
-            if (allowInteraction && showValueIndicator) 'blur': (_) => updateSliderTooltip(_id),
-          },
+          onInput: allowInteraction
+              ? (value) {
+                  onChange?.call(value);
+                  if (showTooltip) updateSliderTooltip(_id, hide: false);
+                }
+              : null,
+          events: showTooltip ? {'blur': (_) => updateSliderTooltip(_id)} : null,
         ),
 
         // Tooltip
-        if (showValueIndicator && allowInteraction)
+        if (showTooltip)
           .element(
             tag: 'output',
             classes: 'slider-tooltip',
@@ -604,9 +601,8 @@ class RadioButton extends StatelessComponent {
   }
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('RadioButton', [
-    Rules.nakiRadioBtnRules,
-  ]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('RadioButton', [Rules.nakiRadioBtnRules, Rules.nakiHitboxRules]);
 }
 
 /// {@template Dropdown}
@@ -1141,8 +1137,6 @@ class _DropdownState<T> extends State<Dropdown<T>> with NakiStatefulMixin {
       decoration: InputDecoration(
         placeholderText: component.searchPlaceholder,
         inputStyle: const TextStyle(fontSize: Dim.px(13)),
-        disableFocusStyle: true,
-        disableHoverStyle: true,
         border: BorderData.only(
           bottom: BorderSideData(
             width: const Dim.px(1),

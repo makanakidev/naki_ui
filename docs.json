@@ -3,11 +3,11 @@
   "name": "Naki UI",
   "description": "Material-inspired UI components and design utilities for Jaspr",
   "logo": {
-    "light": "https://raw.githubusercontent.com/makanakidev/naki_ui/refs/heads/main/assets/logo-light.jpg",
-    "dark": "https://raw.githubusercontent.com/makanakidev/naki_ui/refs/heads/main/assets/logo-dark.jpg"
+    "light": "https://raw.githubusercontent.com/makanakidev/naki_ui/main/assets/logo-light.jpg",
+    "dark": "https://raw.githubusercontent.com/makanakidev/naki_ui/main/assets/logo-dark.jpg"
   },
-  "favicon": "https://raw.githubusercontent.com/makanakidev/naki_ui/refs/heads/main/assets/favicon.jpg",
-  "socialPreview": "https://raw.githubusercontent.com/makanakidev/naki_ui/refs/heads/main/assets/logo-dark.jpg",
+  "favicon": "https://raw.githubusercontent.com/makanakidev/naki_ui/main/assets/favicon.png",
+  "socialPreview": "https://raw.githubusercontent.com/makanakidev/naki_ui/main/assets/logo-dark.jpg",
   "banner": {},
   "theme": {
     "defaultTheme": "light",
@@ -233,7 +233,7 @@
     "github": "makanakidev/naki_ui"
   },
   "og": {
-    "logo": "https://raw.githubusercontent.com/makanakidev/naki_ui/refs/heads/main/assets/logo-light.jpg",
+    "logo": "https://raw.githubusercontent.com/makanakidev/naki_ui/main/assets/logo-light.jpg",
     "github": true
   },
   "scripts": {},

@@ -334,7 +334,7 @@ extension NumExtension on num {
   /// final roundTo = number.roundTo(4);
   /// // returns: 4.1235
   /// ```
-  double roundTo(int places) => double.parse(toStringAsFixed(places));
+  double roundTo(int places) => double.tryParse(toStringAsFixed(places)) ?? 0.0;
 
   /// Returns true if this number is an integer.
   ///

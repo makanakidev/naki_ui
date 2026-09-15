@@ -425,12 +425,9 @@ class BorderData implements NakiStylable {
          right: right,
          bottom: bottom,
          left: left,
-         isNone: false,
-         isOnly: false,
        );
 
-  /// Creates a border with only the specified borders
-  /// and/or radius set.
+  /// Creates a border with only the specified borders and radius.
   const BorderData.only({
     BorderSideData? top,
     BorderSideData? right,
@@ -446,7 +443,6 @@ class BorderData implements NakiStylable {
          color: Color.unset,
          style: BorderStyle.none,
          width: const Dim.zero(),
-         isNone: false,
          isOnly: true,
        );
 
@@ -457,7 +453,6 @@ class BorderData implements NakiStylable {
     width: Dim.zero(),
     radius: BorderRadiusData.none,
     isNone: true,
-    isOnly: false,
   );
 
   /// Convert border attributes to CSS styles.
@@ -465,21 +460,15 @@ class BorderData implements NakiStylable {
   Map<String, String> get props => {
     if (_isNone) ...{
       'border': 'unset',
-    } else if (_isOnly) ...{
+    } else if (top != null || right != null || bottom != null || left != null) ...{
       'border-top': ?top?.value,
       'border-right': ?right?.value,
       'border-bottom': ?bottom?.value,
       'border-left': ?left?.value,
-    } else ...{
-      if (top != null || right != null || bottom != null || left != null) ...{
-        'border-top': ?top?.value,
-        'border-right': ?right?.value,
-        'border-bottom': ?bottom?.value,
-        'border-left': ?left?.value,
-      } else if (style != BorderStyle.none && width != const Dim.zero()) ...{
-        'border': '${width.cssText} ${style.value} ${color.value}',
-      },
+    } else if (!_isOnly) ...{
+      'border': '${width.cssText} ${style.value} ${color.value}',
     },
+
     ...?radius?.props,
   };
 
@@ -642,12 +631,6 @@ class InputDecoration {
   /// Color of the border when hovered.
   final Color? hoverBorderColor;
 
-  /// When `true`, no styling changes are applied on hover.
-  final bool disableHoverStyle;
-
-  /// When `true`, no styling changes are applied on focus.
-  final bool disableFocusStyle;
-
   /// Color of the border when focused.
   final Color? focusBorderColor;
 
@@ -663,8 +646,6 @@ class InputDecoration {
 
   /// Creates an [InputDecoration] instance.
   const InputDecoration({
-    this.disableFocusStyle = false,
-    this.disableHoverStyle = false,
     this.labelText,
     this.labelStyle,
     this.helperText,
@@ -681,8 +662,6 @@ class InputDecoration {
   });
 
   InputDecoration copyWith({
-    bool? disableHoverStyle,
-    bool? disableFocusStyle,
     String? labelText,
     TextStyle? labelStyle,
     String? helperText,
@@ -698,8 +677,6 @@ class InputDecoration {
     EdgeInsets? margin,
   }) {
     return InputDecoration(
-      disableFocusStyle: disableFocusStyle ?? this.disableFocusStyle,
-      disableHoverStyle: disableHoverStyle ?? this.disableHoverStyle,
       labelText: labelText ?? this.labelText,
       labelStyle: labelStyle ?? this.labelStyle,
       helperText: helperText ?? this.helperText,
@@ -728,8 +705,6 @@ class InputDecoration {
           helperStyle == other.helperStyle &&
           placeholderText == other.placeholderText &&
           placeholderColor == other.placeholderColor &&
-          disableFocusStyle == other.disableFocusStyle &&
-          disableHoverStyle == other.disableHoverStyle &&
           border == other.border &&
           hoverBorderColor == other.hoverBorderColor &&
           focusBorderColor == other.focusBorderColor &&
@@ -746,8 +721,6 @@ class InputDecoration {
     helperStyle,
     placeholderText,
     placeholderColor,
-    disableHoverStyle,
-    disableFocusStyle,
     border,
     hoverBorderColor,
     focusBorderColor,
@@ -796,10 +769,10 @@ class EdgeInsets {
 
   /// Converts padding attributes to a CSS style map.
   Map<String, String> get pProps => {
-    if (top == right && bottom == left && top == bottom && right == left && top != null) ...{
+    if (top != null && top == right && bottom == left && top == bottom && right == left) ...{
       'padding': top!.cssText,
-    } else if (top != null && right != null && bottom != null && left != null) ...{
-      'padding': '${top!.cssText} ${right!.cssText} ${bottom!.cssText} ${left!.cssText}',
+    } else if (top != null && right != null && top == bottom && right == left) ...{
+      'padding': '${top!.cssText} ${right!.cssText}',
     } else ...{
       'padding-top': ?top?.cssText,
       'padding-right': ?right?.cssText,
@@ -810,10 +783,10 @@ class EdgeInsets {
 
   /// Converts margin attributes to a CSS style map.
   Map<String, String> get mProps => {
-    if (top == right && bottom == left && top == bottom && right == left && top != null) ...{
+    if (top != null && top == right && bottom == left && top == bottom && right == left) ...{
       'margin': top!.cssText,
-    } else if (top != null && right != null && bottom != null && left != null) ...{
-      'margin': '${top!.cssText} ${right!.cssText} ${bottom!.cssText} ${left!.cssText}',
+    } else if (top != null && right != null && top == bottom && right == left) ...{
+      'margin': '${top!.cssText} ${right!.cssText}',
     } else ...{
       'margin-top': ?top?.cssText,
       'margin-right': ?right?.cssText,

@@ -17,7 +17,7 @@ class TodoHeader extends StatelessComponent {
   @override
   Component build(BuildContext context) {
     final double percent = totalCount == 0 ? 0.0 : (completedCount / totalCount);
-    final int percentInt = (percent * 100).round();
+    final percentInt = (percent * 100).roundTo(2);
 
     return Card.filled(
       borderRadius: BorderRadiusData.all(const Dim.px(16)),
@@ -26,26 +26,27 @@ class TodoHeader extends StatelessComponent {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: 14,
         children: [
+          // title content row
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              // title and subtitle
               const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: 4,
                 children: [
-                  Heading('My Tasks'),
+                  Heading('Tasks'),
                   SubHeading(
                     'Keep track of your daily priorities',
                     style: TextStyle(fontSize: Dim.rem(0.875)),
                   ),
                 ],
               ),
+
+              // badge
               Container(
                 decoration: BoxDecoration(
-                  backgroundColor: context.withOpacity(
-                    context.primaryColor,
-                    0.12,
-                  ),
+                  backgroundColor: context.primaryColor.withOpacity(0.12),
                   borderRadius: BorderRadiusData.all(const Dim.px(20)),
                 ),
                 child: Padding(
@@ -57,27 +58,30 @@ class TodoHeader extends StatelessComponent {
                     '$completedCount of $totalCount done',
                     style: TextStyle(
                       color: context.primaryColor,
-                      fontWeight: FontWeight.w600,
-                      fontSize: const Dim.rem(0.8125),
+                      fontWeight: FontWeight.w500,
+                      lineHeight: const Dim(1),
+                      fontSize: const Dim.rem(0.85),
                     ),
                   ),
                 ),
               ),
             ],
           ),
+
+          // progress bar
           Container(
             height: const Dim.px(6),
             width: const Dim.percent(100),
             clip: true,
             decoration: BoxDecoration(
-              backgroundColor: context.surfaceMutedColor,
+              backgroundColor: context.secondaryColor.withOpacity(0.2),
               borderRadius: BorderRadiusData.all(const Dim.px(3)),
             ),
             child: Align(
               alignment: Alignment.centerLeft,
               child: Container(
-                height: const Dim.px(6),
-                width: Dim.percent(percentInt.toDouble()),
+                height: const Dim.percent(100),
+                width: Dim.percent(percentInt),
                 decoration: BoxDecoration(
                   backgroundColor: context.primaryColor,
                   borderRadius: BorderRadiusData.all(const Dim.px(3)),

@@ -25,8 +25,8 @@ class TodoItemTile extends StatelessComponent {
       key: ValueKey(todo.id),
       borderRadius: BorderRadiusData.all(const Dim.px(12)),
       padding: const EdgeInsets.symmetric(
-        horizontal: Dim.px(14),
-        vertical: Dim.px(10),
+        horizontal: Dim.px(8),
+        vertical: Dim.px(6),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,

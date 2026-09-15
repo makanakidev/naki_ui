@@ -86,9 +86,9 @@ abstract class Tokens {
   );
 
   /// Default value for [red].
-  String get redValue => '#be123c';
+  String get redValue => '#F44336';
 
-  /// Red accent/danger color (default: `#be123c`, CSS variable: `--naki-red`).
+  /// Red accent/danger color (default: `#F44336`, CSS variable: `--naki-red`).
   Token get red => Token(
     value: redValue,
     name: '--naki-red',
@@ -329,7 +329,7 @@ abstract class Tokens {
   );
 
   /// Default value for [surfaceMutedColor].
-  String get surfaceMutedColorValue => '#f8fafc';
+  String get surfaceMutedColorValue => '#eaeaea';
 
   /// Muted background color for container surfaces (default: `#f8fafc`,
   /// CSS variable: `--naki-surface-muted-color`).
@@ -774,14 +774,14 @@ abstract class Tokens {
   // Border Radius Tokens
   // ===========================================================================
 
-  /// Small border radius (default: `8px`, CSS variable: `--naki-radius-sm`).
-  Token get radiusSm => const Token(value: '8px', name: '--naki-radius-sm');
+  /// Small border radius (default: `6px`, CSS variable: `--naki-radius-sm`).
+  Token get radiusSm => const Token(value: '6px', name: '--naki-radius-sm');
 
-  /// Medium border radius (default: `16px`, CSS variable: `--naki-radius-md`).
-  Token get radiusMd => const Token(value: '16px', name: '--naki-radius-md');
+  /// Medium border radius (default: `12px`, CSS variable: `--naki-radius-md`).
+  Token get radiusMd => const Token(value: '12px', name: '--naki-radius-md');
 
-  /// Large border radius (default: `32px`, CSS variable: `--naki-radius-lg`).
-  Token get radiusLg => const Token(value: '32px', name: '--naki-radius-lg');
+  /// Large border radius (default: `24px`, CSS variable: `--naki-radius-lg`).
+  Token get radiusLg => const Token(value: '24px', name: '--naki-radius-lg');
 
   // ===========================================================================
   // Component Tokens
@@ -1107,9 +1107,9 @@ abstract class Tokens {
   );
 
   /// Snackbar border radius
-  /// (default: `0`, CSS variable: `--naki-snackbar-border-radius`).
+  /// (default: `12px`, CSS variable: `--naki-snackbar-border-radius`).
   Token get snackbarBorderRadius => const Token(
-    value: '0',
+    value: '12px',
     name: '--naki-snackbar-border-radius',
   );
 
@@ -1121,9 +1121,9 @@ abstract class Tokens {
   );
 
   /// Snackbar vertical offset
-  /// (default: `20px`, CSS variable: `--naki-snackbar-offset-y`).
+  /// (default: `10px`, CSS variable: `--naki-snackbar-offset-y`).
   Token get snackbarOffset => const Token(
-    value: '20px',
+    value: '10px',
     name: '--naki-snackbar-offset-y',
   );
 
@@ -1150,9 +1150,9 @@ abstract class Tokens {
   );
 
   /// Banner border radius
-  /// (default: `10px`, CSS variable: `--naki-banner-border-radius`).
+  /// (default: `12px`, CSS variable: `--naki-banner-border-radius`).
   Token get bannerBorderRadius => const Token(
-    value: '10px',
+    value: '12px',
     name: '--naki-banner-border-radius',
   );
 
@@ -1197,9 +1197,9 @@ abstract class Tokens {
   );
 
   /// Tooltip border radius
-  /// (default: `6px`, CSS variable: `--naki-tooltip-border-radius`).
+  /// (default: `12px`, CSS variable: `--naki-tooltip-border-radius`).
   Token get tooltipBorderRadius => const Token(
-    value: '6px',
+    value: '12px',
     name: '--naki-tooltip-border-radius',
   );
 
@@ -1251,9 +1251,9 @@ abstract class Tokens {
   );
 
   /// Popover border radius
-  /// (default: `8px`, CSS variable: `--naki-popover-border-radius`).
+  /// (default: `12px`, CSS variable: `--naki-popover-border-radius`).
   Token get popoverBorderRadius => const Token(
-    value: '8px',
+    value: '12px',
     name: '--naki-popover-border-radius',
   );
 
@@ -1289,9 +1289,9 @@ abstract class Tokens {
   );
 
   /// Dialog border radius
-  /// (default: `16px`, CSS variable: `--naki-dialog-border-radius`).
+  /// (default: `12px`, CSS variable: `--naki-dialog-border-radius`).
   Token get dialogBorderRadius => const Token(
-    value: '16px',
+    value: '12px',
     name: '--naki-dialog-border-radius',
   );
 
@@ -1362,10 +1362,10 @@ abstract class Tokens {
   );
 
   /// BottomSheet border radius
-  /// (default: `20px 20px 0 0`,
+  /// (default: `12px 12px 0 0`,
   /// CSS variable: `--naki-bottom-sheet-border-radius`).
   Token get bottomSheetBorderRadius => const Token(
-    value: '20px 20px 0 0',
+    value: '12px 12px 0 0',
     name: '--naki-bottom-sheet-border-radius',
   );
 

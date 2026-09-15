@@ -20,10 +20,10 @@ void main() {
       tester.pumpComponent(
         NakiApp(
           basePath: '/naki_ui',
-          favicon: 'assets/favicon.jpg',
+          favicon: 'assets/favicon.png',
           seo: const SEO(
             url: 'https://makanakidev.github.io/naki_ui',
-            logo: '/assets/logo.png',
+            logo: 'assets/logo.png',
           ),
           home: const div([]),
         ),
@@ -44,7 +44,7 @@ void main() {
               c is DomComponent &&
               c.tag == 'link' &&
               c.attributes?['rel'] == 'icon' &&
-              c.attributes?['href'] == 'assets/favicon.jpg',
+              c.attributes?['href'] == 'assets/favicon.png',
           description: 'favicon link tag',
         ),
         findsOneComponent,

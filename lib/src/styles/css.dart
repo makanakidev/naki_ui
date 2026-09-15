@@ -107,7 +107,7 @@ class Css {
   );
 
   /// Default text style for helper/hint text.
-  static final nakiHintTextStyle = TextStyle(
+  static final nakiHelperTextStyle = TextStyle(
     fontSize: .variable(
       Tokens.current.fontSizeHint.name,
       defaultValue: Tokens.current.fontSizeHint.value,
@@ -116,17 +116,11 @@ class Css {
       '${Tokens.current.mutedColor}, ${Tokens.current.mutedColor.value}',
     ),
     margin: const EdgeInsets(top: .px(5)),
-    extra: {
-      'white-space': 'pre-wrap',
-      'word-break': 'break-word',
-    },
+    extra: {'white-space': 'pre-wrap', 'word-break': 'break-word'},
   );
 
   /// Default styles applied to components in their disabled state.
-  static final nakiDisabledStyle = {
-    'opacity': '0.3',
-    'pointer-events': 'none',
-  };
+  static final nakiDisabledStyle = {'opacity': '0.3', 'pointer-events': 'none'};
 
   /// Default text style for form validation errors.
   static final nakiErrorTextStyle = TextStyle(
@@ -137,34 +131,31 @@ class Css {
     color: .variable(
       '${Tokens.current.errorColor}, ${Tokens.current.errorColor.value}',
     ),
-    extra: {
-      'white-space': 'pre-wrap',
-      'word-break': 'break-word',
-    },
+    extra: {'white-space': 'pre-wrap', 'word-break': 'break-word'},
   );
 
   /// Default border styling rule applied to inputs with validation errors.
   static final nakiErrorBorderStyle = {
-    'outline': 'var(${Tokens.current.errorBorder}, ${Tokens.current.errorBorder.value})',
-    'outline-offset': '-1px',
+    'outline': 'none',
+    'border': Tokens.current.errorBorder.value,
   };
 
+  /// Default border styling rule applied to inputs with focus.
   static final nakiFocusBorderStyle = {
-    'outline': 'var(${Tokens.current.focusBorder}, ${Tokens.current.focusBorder.value})',
-    'outline-offset': '-1px',
+    'outline': 'none',
+    'border': Tokens.current.focusBorder.value,
+  };
+
+  /// Default styling rule applied to input fields on hover.
+  static final nakiFieldHoverStyle = {
+    'outline': 'none',
+    'border': Tokens.current.fieldHoverBorder.value,
   };
 
   /// Default placeholder text styling rule inside inputs.
   static final nakiPlaceholderStyle = {
     'color': 'var(${Tokens.current.placeholderColor}, ${Tokens.current.placeholderColor.value})',
     'opacity': '1',
-  };
-
-  /// Default styling rule applied to input fields on hover.
-  static final nakiFieldHoverStyle = {
-    'outline': 'var(${Tokens.current.fieldHoverBorder}, ${Tokens.current.fieldHoverBorder.value})',
-    'outline-offset': '-1px',
-    'border-color': 'inherit',
   };
 
   /// Default inline-block alignment and size styling rule for icons.
@@ -181,7 +172,7 @@ class Css {
     'font-size': 'var(${Tokens.current.fontSizeInput}, ${Tokens.current.fontSizeInput.value})',
     'background-color':
         'var(${Tokens.current.fieldBackgroundColor}, ${Tokens.current.fieldBackgroundColor.value})',
-    'border-radius': '8px',
+    'border-radius': '12px',
     'padding': '0 15px',
     'border': Tokens.current.border.value,
     'margin': '0',
@@ -207,7 +198,7 @@ class Css {
       'background-color':
           'var(${Tokens.current.fieldBackgroundColor}, ${Tokens.current.fieldBackgroundColor.value})',
       'border': Tokens.current.border.value,
-      'border-radius': '8px',
+      'border-radius': '12px',
       'outline': 'none',
       'transition': 'border-color 0.2s, box-shadow 0.2s, background-color 0.2s',
       'box-sizing': 'border-box',
@@ -236,7 +227,7 @@ class Css {
     'max-height': '250px',
     'padding': '10px 15px',
     'line-height': '1.5',
-    'border-radius': '8px',
+    'border-radius': '12px',
     'width': 'fit-content',
     'margin': '0',
   };
@@ -265,7 +256,7 @@ class Css {
       'cursor': 'pointer',
       'appearance': 'none',
       '-webkit-appearance': 'none',
-      'border-radius': '8px',
+      'border-radius': '12px',
       'padding': '4px',
       'vertical-align': 'middle',
       'color': 'currentcolor',
@@ -338,7 +329,7 @@ class Css {
       'grid-row-start': '1',
       'aspect-ratio': '1 / 1',
       'height': '100%',
-      'border-radius': '8px',
+      'border-radius': '12px',
       'background-color': 'currentcolor',
       'translate': '0',
       'transition': 'background-color 0.1s, translate 0.2s, inset-inline-start 0.2s',
@@ -517,14 +508,14 @@ class Css {
     'floating': {
       'width': 'calc(100% - 32px)',
       'max-width': '600px',
-      'border-radius': '24px',
+      'border-radius': '12px',
       'box-shadow': '0px 8px 24px rgba(0, 0, 0, 0.12)',
     },
 
     'frosted-glass': {
       'width': 'calc(100% - 32px)',
       'max-width': '600px',
-      'border-radius': '24px',
+      'border-radius': '12px',
       'background-color':
           'color-mix(in srgb, var(${Tokens.current.bottomNavbarBgColor}, ${Tokens.current.bottomNavbarBgColor.value}) 75%, transparent)',
       'backdrop-filter': 'blur(20px) saturate(180%)',
@@ -535,7 +526,7 @@ class Css {
 
     'frosted-glass-tile': {
       'padding': '0 5px',
-      'border-radius': '22px',
+      'border-radius': '12px',
       'transition':
           'transform 0.15s ease, color 0.15s ease, background-color 0.2s ease, box-shadow 0.2s ease',
     },
@@ -597,12 +588,12 @@ class Css {
     'width':
         'var(${Tokens.current.buttonWidth}, '
         '${Tokens.current.buttonWidth.value})',
-    'min-height': '42px',
     'display': 'flex',
     'box-sizing': 'border-box',
     'padding': '10px',
     'border': 'none',
     'cursor': 'pointer',
+    'border-radius': '12px',
     'background':
         'var(${Tokens.current.buttonBackgroundColor}, '
         '${Tokens.current.buttonBackgroundColor.value})',
@@ -613,6 +604,7 @@ class Css {
         '${Tokens.current.buttonColor.value})',
     'text-wrap-mode': 'nowrap',
     'text-align': 'center',
+    'line-height': '1',
   };
 
   /// Default CSS styles map for styling scaffold layout
@@ -621,7 +613,9 @@ class Css {
     'wrapper': {
       'display': 'flex',
       'flex-direction': 'column',
-      'min-height': '100dvh',
+      'height': '100dvh',
+      'max-height': '100dvh',
+      'overflow': 'hidden',
       'position': 'relative',
       'width': '100%',
       'padding-top': 'env(safe-area-inset-top, 0px)',
@@ -643,6 +637,7 @@ class Css {
       'flex': '1',
       'min-height': '0',
       'width': '100%',
+      'overflow': 'hidden',
     },
 
     'sidebar': {
@@ -661,13 +656,9 @@ class Css {
       'flex': '1',
       'min-width': '0',
       'min-height': '0',
+      'height': '100%',
+      'overflow': 'hidden',
       'position': 'relative',
-    },
-
-    'footer': {
-      'width': '100%',
-      'flex-shrink': '0',
-      'margin-top': 'auto',
     },
 
     'bottom-navbar': {
@@ -754,7 +745,7 @@ class Css {
       'font-size': 'var(${Tokens.current.fontSizeInput}, ${Tokens.current.fontSizeInput.value})',
       'background-color':
           'var(${Tokens.current.fieldBackgroundColor}, ${Tokens.current.fieldBackgroundColor.value})',
-      'border-radius': '8px',
+      'border-radius': '12px',
       'border': Tokens.current.border.value,
       'padding': '0 15px',
       'width': '100%',
@@ -840,7 +831,7 @@ class Css {
       'background-color':
           'var(${Tokens.current.dropdownMenuBgColor}, ${Tokens.current.dropdownMenuBgColor.value})',
       'border': Tokens.current.border.value,
-      'border-radius': '8px',
+      'border-radius': '12px',
       'max-height':
           'var(${Tokens.current.dropdownMenuHeight}, ${Tokens.current.dropdownMenuHeight.value})',
     },
@@ -1006,9 +997,8 @@ class Css {
     'display': 'flex',
     'align-items': 'center',
     'justify-content': 'space-between',
-    'width': '100dvw',
     'max-width': '600px',
-    'gap': '20px',
+    'gap': '10px',
     'background-color':
         'var(${Tokens.current.snackbarBgColor}, ${Tokens.current.snackbarBgColor.value})',
     'color':
@@ -1018,6 +1008,7 @@ class Css {
     'padding': 'var(${Tokens.current.snackbarPadding}, ${Tokens.current.snackbarPadding.value})',
     'box-shadow': 'var(${Tokens.current.largeShadow}, ${Tokens.current.largeShadow.value})',
     'box-sizing': 'border-box',
+    'line-height': '1',
     'transition': 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
   };
 
@@ -1037,6 +1028,7 @@ class Css {
         '1px solid var(${Tokens.current.bannerBorderColor}, ${Tokens.current.bannerBorderColor.value})',
     'box-sizing': 'border-box',
     'width': '100%',
+    'line-height': '1',
   };
 
   /// Default CSS styles map for Tooltip.
@@ -1236,7 +1228,7 @@ class Css {
       'z-index': _bottomSheetZindex,
       'width': '70px',
       'height': '5px',
-      'border-radius': '10px',
+      'border-radius': '12px',
       'background-color': 'rgba(150, 150, 150, 0.4)',
       'margin': '10px auto',
     },
@@ -1252,7 +1244,7 @@ class Css {
       'font-size': 'var(${Tokens.current.fontSizeInput}, ${Tokens.current.fontSizeInput.value})',
       'background':
           'var(${Tokens.current.fieldBackgroundColor}, ${Tokens.current.fieldBackgroundColor.value})',
-      'border-radius': '8px',
+      'border-radius': '12px',
       'padding': '0 15px',
       'border': Tokens.current.border.value,
       'user-select': 'none',
@@ -1272,7 +1264,7 @@ class Css {
       'background-color':
           'var(${Tokens.current.dropdownMenuBgColor}, ${Tokens.current.dropdownMenuBgColor.value})',
       'border': Tokens.current.border.value,
-      'border-radius': '8px',
+      'border-radius': '12px',
       'transform-origin': 'top left',
       'padding': '8px 5px',
       'transition': 'transform 0.2s ease',

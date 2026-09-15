@@ -3,8 +3,8 @@
   "name": "Naki UI",
   "description": "Material-inspired UI components and design utilities for Jaspr",
   "logo": {
-    "light": "https://raw.githubusercontent.com/makanakidev/naki_ui/main/assets/logo-light.jpg",
-    "dark": "https://raw.githubusercontent.com/makanakidev/naki_ui/main/assets/logo-dark.jpg"
+    "light": "https://raw.githubusercontent.com/makanakidev/naki_ui/main/assets/icon-light.jpg",
+    "dark": "https://raw.githubusercontent.com/makanakidev/naki_ui/main/assets/icon-dark.jpg"
   },
   "favicon": "https://raw.githubusercontent.com/makanakidev/naki_ui/main/assets/favicon.png",
   "socialPreview": "https://raw.githubusercontent.com/makanakidev/naki_ui/main/assets/logo-dark.jpg",
@@ -58,6 +58,11 @@
       "title": "pub.dev",
       "icon": "box-open",
       "href": "https://pub.dev/packages/naki_ui"
+    },
+    {
+      "title": "Live Demo",
+      "icon": "rocket",
+      "href": "https://makanakidev.github.io/naki_ui"
     }
   ],
   "sidebar": [

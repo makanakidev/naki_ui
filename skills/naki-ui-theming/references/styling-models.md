@@ -64,7 +64,7 @@ TextField(
   type: InputType.email,
   decoration: const InputDecoration(
     labelText: 'Email address',
-    hintText: 'name@example.com',
+    placeholderText: 'name@example.com',
     helperText: 'Used for receipts.',
   ),
 )

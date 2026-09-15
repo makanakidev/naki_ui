@@ -7,8 +7,13 @@ utilities for building fast, responsive web applications with Jaspr.
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/makanakidev/naki_ui/main/assets/logo-dark.jpg">
     <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/makanakidev/naki_ui/main/assets/logo-light.jpg">
-    <img alt="Naki UI Logo" src="https://raw.githubusercontent.com/makanakidev/naki_ui/main/assets/logo-dark.jpg" width="200">
+    <img alt="Naki UI Logo" src="https://raw.githubusercontent.com/makanakidev/naki_ui/main/assets/logo-dark.jpg" width="400">
   </picture>
+</p>
+
+<p align="center">
+  <a href="https://docs.page/makanakidev/naki_ui"><strong>Documentation</strong></a> &nbsp;&bull;&nbsp;
+  <a href="https://makanakidev.github.io/naki_ui"><strong>Live Demo</strong></a>
 </p>
 
 

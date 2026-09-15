@@ -774,7 +774,7 @@ class _NakiAppState extends State<NakiApp> {
           title: effectiveTitle.isEmpty ? null : effectiveTitle,
           meta: {
             'viewport': component.viewport ?? _defaultViewport,
-            'naki-ui': 'https://naki-ui.web.app',
+            //'naki-ui': 'https://naki-ui.web.app',
             ...component.metaTags,
           },
           children: [

@@ -712,14 +712,12 @@ class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
     if (seo == null) return [];
 
     final pageUrl = normaliseUrl(seo.url ?? '');
-    final imageUrl = normaliseUrl(seo.logo ?? '');
-    final title = seo.title ?? '';
+    final logoUrl = normaliseUrl(seo.logo ?? '');
+    final pageTitle = seo.title ?? '';
 
-    final smTitle = seo.socialMediaTitle ?? title;
+    final smTitle = seo.socialMediaTitle ?? pageTitle;
     final smDesc = seo.socialMediaDescription ?? seo.description ?? '';
-    final smImg = normaliseUrl(
-      seo.socialMediaBanner ?? imageUrl,
-    );
+    final smImg = normaliseUrl(seo.socialMediaBanner ?? logoUrl);
 
     return [
       if (pageUrl.isNotEmpty) link(href: pageUrl, rel: 'canonical'),
@@ -738,16 +736,16 @@ class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
           content: seo.robots!.join(', '),
         ),
 
-      if (title.isNotEmpty)
+      if (pageTitle.isNotEmpty)
         meta(
           attributes: const {'property': 'og:title'},
-          content: title,
+          content: pageTitle,
         ),
 
-      if (title.isNotEmpty)
+      if (pageTitle.isNotEmpty)
         meta(
           attributes: const {'property': 'og:site_name'},
-          content: title,
+          content: pageTitle,
         ),
 
       if (seo.description.isNotNullAndEmpty)
@@ -767,17 +765,18 @@ class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
           content: pageUrl,
         ),
 
-      if (imageUrl.isNotEmpty)
+      if (logoUrl.isNotEmpty) ...[
         meta(
           attributes: const {'property': 'og:image'},
-          content: imageUrl,
+          content: logoUrl,
         ),
 
-      if (imageUrl.isNotEmpty && title.isNotEmpty)
-        meta(
-          attributes: const {'property': 'og:image:alt'},
-          content: title,
-        ),
+        if (pageTitle.isNotEmpty)
+          meta(
+            attributes: const {'property': 'og:image:alt'},
+            content: pageTitle,
+          ),
+      ],
 
       if (smImg.isNotEmpty) ...[
         if (smTitle.isNotEmpty) meta(name: 'twitter:title', content: smTitle),
@@ -857,7 +856,6 @@ class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
 
               // Body content
               bodyContent,
-
 
               // Floating action button
               if (component.floatingActionButton != null)

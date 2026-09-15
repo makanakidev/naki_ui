@@ -45,6 +45,8 @@ class TodoApp extends StatelessComponent {
       seo: const SEO(
         title: 'Minimalist Task App — Naki UI',
         description: 'A sleek, minimalist to-do application built with Naki UI.',
+        logo: 'assets/icon-dark.jpg',
+        socialMediaBanner: 'assets/logo-dark.jpg',
       ),
       pageBuilder: (context, child) {
         return Scaffold(

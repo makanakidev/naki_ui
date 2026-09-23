@@ -21,7 +21,7 @@ class TodoApp extends StatelessComponent {
       themeMode: ThemeMode.system,
       cacheThemeMode: true,
       basePath: base,
-      favicon: 'assets/favicon.png',
+      favicon: 'https://makanakidev.github.io/naki_ui/assets/favicon.png',
       lightTheme: const LightThemeData(
         colorSeed: ColorSeed(
           primary: Color('#2563eb'),
@@ -47,8 +47,7 @@ class TodoApp extends StatelessComponent {
         description:
             'A sleek, minimalist to-do application built with Naki UI.',
         url: PlatformData().baseUrl,
-        logo: 'assets/icon-dark.jpg',
-        socialMediaBanner: 'assets/logo-dark.jpg',
+        logo: 'https://makanakidev.github.io/naki_ui/assets/icon-dark.jpg',
       ),
       pageBuilder: (context, child) {
         return Scaffold(

@@ -11,7 +11,7 @@ const List<String> kInputTypes = [
   'search',
 ];
 
-/// A constant that is true if the application was compiled to run on the server.
+/// Returns `true` if the application is running on the server.
 const bool kIsServer = !kIsWeb;
 
 /// List of months in a year.
@@ -56,3 +56,18 @@ const String kThemeSwitchingScript = '''
   }, 1000);
 })({{CACHE}});
 ''';
+
+/// Breakpoint width `480px` for mobile phones.
+const double kBreakpointXSmall = 480.0;
+
+/// Breakpoint width `576px` for larger phones.
+const double kBreakpointSmall = 576.0;
+
+/// Breakpoint width `768px` for tablets.
+const double kBreakpointMedium = 768.0;
+
+/// Breakpoint width `1024px` for laptops.
+const double kBreakpointLarge = 1024.0;
+
+/// Breakpoint width `1280px` for desktops.
+const double kBreakpointXLarge = 1280.0;

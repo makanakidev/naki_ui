@@ -53,7 +53,7 @@ class TodoItemTile extends StatelessComponent {
           ),
           Icon(
             MaterialIcons.icon_round_delete,
-            size: 22,
+            size: 20,
             color: context.subtitleColor,
             semanticLabel: 'Delete task: ${todo.title}',
             onTap: onDelete,

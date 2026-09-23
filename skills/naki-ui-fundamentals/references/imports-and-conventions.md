@@ -99,7 +99,7 @@ Container(
 )
 ```
 
-Prefer `Dim`, `EdgeInsets`, `SizeConstraints`, `BorderData`, `BorderRadiusData`, `BoxDecoration`, and `TextStyle` to raw style strings. Resolve active colors from `BuildContext` so theme changes rebuild correctly.
+Prefer `Dim`, `EdgeInsets`, `SizeConstraints`, `BorderData`, `BorderRadiusData`, `BoxDecoration`, `Filter`, `Gradient`, and `TextStyle` to raw style strings. Resolve active colors from `BuildContext` so theme changes rebuild correctly.
 
 ## Own controllers and listeners
 

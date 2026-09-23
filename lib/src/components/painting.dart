@@ -1,4 +1,4 @@
-import 'package:jaspr/dom.dart' hide Visibility;
+import 'package:jaspr/dom.dart' hide Filter, Visibility;
 import 'package:jaspr/jaspr.dart';
 
 import '../models/naki.dart';
@@ -43,14 +43,16 @@ class Opacity extends StatelessComponent {
   @override
   Component build(BuildContext context) {
     const baseClass = 'naki-opacity';
-    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     return .element(
       tag: 'naki-opacity',
       key: key,
       classes: effectiveClasses,
       styles: Styles(
-        raw: {'opacity': opacity.toCleanString},
+        raw: {'opacity': opacity.clamp(0.0, 1.0).toCleanString},
       ),
       children: [child],
     );
@@ -100,7 +102,9 @@ class Visibility extends StatelessComponent {
     Component effectiveChild = child;
 
     const baseClass = 'naki-visibility';
-    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     if (!visible) {
       if (maintainState) {
@@ -113,11 +117,13 @@ class Visibility extends StatelessComponent {
       }
     }
 
-    return .element(
-      tag: 'naki-visibility',
-      classes: effectiveClasses,
-      children: [effectiveChild],
-    );
+    return effectiveChild == replacement
+        ? replacement
+        : .element(
+            tag: 'naki-visibility',
+            classes: effectiveClasses,
+            children: [effectiveChild],
+          );
   }
 
   @css
@@ -158,7 +164,9 @@ class ClipRect extends StatelessComponent {
   @override
   Component build(BuildContext context) {
     const baseClass = 'naki-cliprect';
-    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     final effectiveStyles = {...?borderRadius?.props};
 
@@ -195,11 +203,22 @@ class DecoratedBox extends StatelessComponent {
   /// Background color of the decoration.
   final Color? color;
 
+  /// Background gradient of the decoration.
+  ///
+  /// ### Example
+  /// ```dart
+  /// DecoratedBox(
+  ///   gradient: Gradient()..applyLinear(colors: [Colors.orange, Colors.red]),
+  ///   child: NakiText('Gradient Box'),
+  /// )
+  /// ```
+  final Gradient? gradient;
+
   /// Border styling.
   final BorderData? border;
 
   /// Box shadow.
-  final ShadowData? shadow;
+  final Shadow? shadow;
 
   /// Border radius.
   final BorderRadiusData? borderRadius;
@@ -212,6 +231,7 @@ class DecoratedBox extends StatelessComponent {
     super.key,
     required this.child,
     this.color,
+    this.gradient,
     this.border,
     this.shadow,
     this.borderRadius,
@@ -221,14 +241,17 @@ class DecoratedBox extends StatelessComponent {
   @override
   Component build(BuildContext context) {
     const baseClass = 'naki-decoratedbox';
-    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     final effectiveStyles = {
       'display': 'block',
       'background-color': ?color?.value,
-      'box-shadow': ?shadow?.value,
+      ...?shadow?.props,
       ...?border?.props,
       ...?borderRadius?.props,
+      ...?gradient?.props,
     };
 
     return .element(
@@ -268,7 +291,9 @@ class ClipOval extends StatelessComponent {
   @override
   Component build(BuildContext context) {
     const baseClass = 'naki-clip-oval';
-    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     return .element(
       tag: 'naki-clipoval',
@@ -294,7 +319,7 @@ class ClipOval extends StatelessComponent {
 /// ### Example
 /// ```dart
 /// BackdropFilter(
-///   filter: FilterBuilder()
+///   filter: Filter()
 ///     ..applyBlur(8)
 ///     ..applyContrast(250)
 ///     ..applyGrayscale(100),
@@ -317,19 +342,19 @@ class BackdropFilter extends StatelessComponent {
   /// Filters to apply to the backdrop.
   /// This is used to create effects like blur, contrast, grayscale, etc.
   ///
-  /// See [FilterBuilder] for available filter methods.
+  /// See [Filter] for available filter methods.
   ///
   /// ### Example
   /// ```dart
   /// BackdropFilter(
-  ///   filter: FilterBuilder()
+  ///   filter: Filter()
   ///     ..applyBlur(8)
   ///     ..applyContrast(250)
   ///     ..applyGrayscale(100),
   ///   ...,
   /// )
   /// ```
-  final FilterBuilder filter;
+  final Filter filter;
 
   /// Optional CSS classes applied to the backdrop filter component.
   final String? classes;
@@ -345,27 +370,35 @@ class BackdropFilter extends StatelessComponent {
   @override
   Component build(BuildContext context) {
     const baseClass = 'naki-backdropfilter';
-    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     return .element(
       tag: 'naki-backdropfilter',
       key: key,
       classes: effectiveClasses,
-      styles: Styles(
-        raw: {'display': 'block', ...filter.props},
-      ),
+      styles: Styles(raw: {'display': 'block', ...filter.props}),
       children: [child],
     );
   }
 }
 
 /// {@template ColoredBox}
-/// A component that paints a solid background color behind its child.
+/// A component that paints a background color or gradient behind its child.
 ///
-/// ### Example
+/// ### Example: Box with solid red background
 /// ```dart
 /// ColoredBox(
 ///   color: Colors.red,
+///   child: NakiText('I am red'),
+/// )
+/// ```
+///
+/// ### Example: Box with linear gradient background
+/// ```dart
+/// ColoredBox(
+///   gradient: Gradient()..applyLinear(colors: [Colors.red, Colors.blue]),
 ///   child: NakiText('I am red'),
 /// )
 /// ```
@@ -375,7 +408,10 @@ class ColoredBox extends StatelessComponent {
   final Component child;
 
   /// Background color of the box.
-  final Color color;
+  final Color? color;
+
+  /// Background gradient of the box.
+  final Gradient? gradient;
 
   /// Optional CSS classes applied to the colored box component.
   final String? classes;
@@ -383,15 +419,21 @@ class ColoredBox extends StatelessComponent {
   /// {@macro ColoredBox}
   const ColoredBox({
     super.key,
-    required this.color,
     required this.child,
+    this.gradient,
+    this.color,
     this.classes,
-  });
+  }) : assert(
+         color != null || gradient != null,
+         'ColoredBox must have a color or gradient',
+       );
 
   @override
   Component build(BuildContext context) {
     const baseClass = 'naki-coloredbox';
-    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     return .element(
       tag: 'naki-coloredbox',
@@ -400,7 +442,8 @@ class ColoredBox extends StatelessComponent {
       styles: Styles(
         raw: {
           'display': 'block',
-          'background-color': color.value,
+          'background-color': ?color?.value,
+          ...?gradient?.props,
         },
       ),
       children: [child],
@@ -440,7 +483,9 @@ class RotatedBox extends StatelessComponent {
   @override
   Component build(BuildContext context) {
     const baseClass = 'naki-rotatedbox';
-    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     final degrees = (quarterTurns % 4) * 90;
 
@@ -504,30 +549,20 @@ class Transform extends StatelessComponent {
 
   /// Creates a rotation transformation.
   ///
-  /// [angle] must be between 0 and 360 degrees.
-  ///
   /// ### Example
   /// ```dart
   /// Transform.rotate(
-  ///   45,
+  ///   -45,
   ///   child: NakiText('I am rotated'),
   /// );
   /// ```
-  factory Transform.rotate(
+  Transform.rotate(
     double angle, {
-    Key? key,
-    required Component child,
-    Alignment? alignment,
-    String? classes,
-  }) {
-    return Transform(
-      key: key,
-      transform: 'rotate(${angle.toCleanString}deg)',
-      alignment: alignment,
-      classes: classes,
-      child: child,
-    );
-  }
+    super.key,
+    required this.child,
+    this.alignment,
+    this.classes,
+  }) : transform = 'rotate(${angle.toCleanString}deg)';
 
   /// Creates a scaling transformation.
   ///
@@ -538,21 +573,13 @@ class Transform extends StatelessComponent {
   ///   child: NakiText('I am scaled'),
   /// );
   /// ```
-  factory Transform.scale(
+  Transform.scale(
     double scale, {
-    Key? key,
-    required Component child,
-    Alignment? alignment,
-    String? classes,
-  }) {
-    return Transform(
-      key: key,
-      transform: 'scale(${scale.toCleanString})',
-      alignment: alignment,
-      classes: classes,
-      child: child,
-    );
-  }
+    super.key,
+    required this.child,
+    this.alignment,
+    this.classes,
+  }) : transform = 'scale(${scale.toCleanString})';
 
   /// Creates a translation transformation.
   ///
@@ -567,27 +594,25 @@ class Transform extends StatelessComponent {
   ///   child: NakiText('I am translated'),
   /// );
   /// ```
-  factory Transform.translate({
-    Key? key,
+  Transform.translate({
+    super.key,
     required double offsetX,
     required double offsetY,
-    required Component child,
-    String? classes,
-  }) {
-    return Transform(
-      key: key,
-      transform: 'translate(${offsetX.toCleanString}px, ${offsetY.toCleanString}px)',
-      classes: classes,
-      child: child,
-    );
-  }
+    required this.child,
+    this.alignment,
+    this.classes,
+  }) : transform = 'translate(${offsetX.toPx}, ${offsetY.toPx})';
 
   @override
   Component build(BuildContext context) {
-    final alignmentProps = alignment != null ? NakiAlignProps.mapAlignment(alignment!) : null;
+    final alignmentProps = alignment != null
+        ? NakiAlignProps.mapAlignment(alignment!)
+        : null;
 
     const baseClass = 'naki-transform';
-    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     final effectiveStyles = {
       'display': alignment != null ? 'flex' : 'block',

@@ -1,6 +1,3 @@
-@TestOn('vm')
-library;
-
 import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
 import 'package:jaspr_test/jaspr_test.dart';

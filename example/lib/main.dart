@@ -42,26 +42,30 @@ class TodoApp extends StatelessComponent {
           fontFamily: ['Inter', 'system-ui', 'sans-serif'],
         ),
       ),
-      seo: const SEO(
+      seo: SEO(
         title: 'Minimalist Task App — Naki UI',
-        description: 'A sleek, minimalist to-do application built with Naki UI.',
+        description:
+            'A sleek, minimalist to-do application built with Naki UI.',
+        url: PlatformData().baseUrl,
         logo: 'assets/icon-dark.jpg',
         socialMediaBanner: 'assets/logo-dark.jpg',
       ),
       pageBuilder: (context, child) {
         return Scaffold(
           appBar: AppBar(
-            titleText: 'Sample Task App',
+            titleText: 'Naki UI Demo',
             actions: [
               Button.icon(
                 context.themeMode == ThemeMode.dark
-                    ? MaterialIcons.icon_round_dark_mode
-                    : context.themeMode == ThemeMode.light
                     ? MaterialIcons.icon_round_light_mode
-                    : MaterialIcons.icon_round_lightbulb,
+                    : context.themeMode == ThemeMode.light
+                    ? MaterialIcons.icon_round_dark_mode
+                    : MaterialIcons.icon_round_brightness_auto,
                 size: 28,
                 padding: EdgeInsets.zero,
-                border: const BorderData.only(radius: BorderRadiusData.circular),
+                border: const BorderData.only(
+                  radius: BorderRadiusData.circular,
+                ),
                 attributes: const {'aria-label': 'Toggle theme mode'},
                 onTap: context.toggleTheme,
               ),

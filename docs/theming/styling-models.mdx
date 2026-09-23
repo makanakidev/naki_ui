@@ -1,6 +1,6 @@
 ---
 title: Styling Models
-description: Type-safe BoxDecoration, BorderRadiusData, EdgeInsets, ShadowData, and TextStyle models in Naki UI.
+description: Type-safe BoxDecoration, Filter, Gradient, BorderRadiusData, EdgeInsets, Shadow, and TextStyle models in Naki UI.
 ---
 
 Naki UI provides declarative, type-safe Dart styling models exported from `package:naki_ui/theme.dart` and `package:naki_ui/naki_ui.dart`.
@@ -22,7 +22,7 @@ const decoration = BoxDecoration(
     color: Color('#cbd5e1'),
     width: Dim.px(1),
   ),
-  shadow: ShadowData.medium,
+  shadow: Shadow.medium,
 );
 ```
 
@@ -43,7 +43,7 @@ const paddingSymmetric = EdgeInsets.symmetric(
 );
 
 // Individual sides
-const paddingCustom = EdgeInsets(
+const paddingCustom = EdgeInsets.only(
   top: Dim.px(8),
   bottom: Dim.px(16),
   left: Dim.px(12),
@@ -71,3 +71,167 @@ const textStyle = TextStyle(
 );
 ```
 
+---
+
+## `Gradient`
+
+Builds multi-stop linear, radial, conic, and repeating CSS gradients with typed color stops and directions:
+
+```dart
+// 1. Linear gradient with direction
+final linearGradient = Gradient()
+  ..applyLinear(
+    colors: const [Color('#3b82f6'), Color('#8b5cf6')],
+    direction: LinearGradientDirection.toBottomRight,
+  );
+
+// 2. Linear gradient with angle and custom stops
+final customAngleGradient = Gradient()
+  ..applyLinear(
+    colors: const [Color('#0f766e'), Color('#14b8a6'), Color('#2dd4bf')],
+    angle: 135,
+    stops: const [Dim.percent(0), Dim.percent(50), Dim.percent(100)],
+  );
+
+// 3. Radial gradient with center positioning and shape
+final radialGradient = Gradient()
+  ..applyRadial(
+    colors: const [Color('#f59e0b'), Color('#ef4444')],
+    shape: Shape.circle,
+    position: RadialGradientPosition.center,
+  );
+
+// 4. Conic gradient with starting angle
+final conicGradient = Gradient()
+  ..applyConic(
+    colors: const [Color('#ff0000'), Color('#00ff00'), Color('#0000ff')],
+    angle: 45,
+    position: ConicGradientPosition.center,
+  );
+```
+
+---
+
+## `Shadow`
+
+Defines CSS elevation and drop shadow offsets, blur radius, spread radius, and colors:
+
+```dart
+// 1. Predefined standard shadow constants
+const smallShadow = Shadow.small;
+const mediumShadow = Shadow.medium;
+const largeShadow = Shadow.large;
+const extraLargeShadow = Shadow.extraLarge;
+
+// 2. Custom drop shadow
+const customShadow = Shadow(
+  offsetX: 0,
+  offsetY: 6,
+  blurRadius: 18,
+  spreadRadius: 2,
+  color: Color('rgba(0, 0, 0, 0.15)'),
+);
+```
+
+---
+
+## `Filter`
+
+Constructs composable CSS visual filters and backdrop effects (blurs, contrast, brightness, grayscale, etc.):
+
+```dart
+// 1. Chained custom filter pipeline
+final customFilter = Filter()
+  ..applyBlur(12)
+  ..applyBrightness(95)
+  ..applyContrast(120)
+  ..applyGrayscale(10);
+
+// 2. Pre-configured frosted glass preset
+final frostedGlassFilter = Filter.frostedGlass;
+```
+
+---
+
+## Composing Models in a Component
+
+Here is a complete example composing `BoxDecoration`, `Gradient`, `Shadow`, `Filter`, `EdgeInsets`, and `TextStyle` together inside a modern UI component:
+
+```dart
+import 'package:jaspr/dom.dart' hide Filter;
+import 'package:jaspr/jaspr.dart';
+import 'package:naki_ui/framework.dart';
+import 'package:naki_ui/naki_ui.dart';
+import 'package:naki_ui/theme.dart';
+
+class GlassmorphicPromoCard extends StatelessComponent {
+  const GlassmorphicPromoCard({super.key});
+
+  @override
+  Component build(BuildContext context) {
+    return BackdropFilter(
+      filter: Filter()
+        ..applyBlur(16)
+        ..applyContrast(110),
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: Dim.px(24),
+          vertical: Dim.px(20),
+        ),
+        constraints: const SizeConstraints(
+          maxWidth: Dim.px(420),
+        ),
+        decoration: BoxDecoration(
+          gradient: Gradient()
+            ..applyLinear(
+              colors: [
+                context.primaryColor.withOpacity(0.15),
+                context.surfaceColor.withOpacity(0.4),
+              ],
+              direction: LinearGradientDirection.toBottomRight,
+            ),
+          borderRadius: const BorderRadiusData.all(Dim.px(16)),
+          border: BorderData(
+            color: const Color('rgba(255, 255, 255, 0.25)'),
+            width: const Dim.px(1),
+          ),
+          shadow: Shadow(
+            color: context.shadowColor.withOpacity(0.12),
+            offsetY: 8,
+            blurRadius: 24,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          spacing: 12,
+          children: [
+            NakiText(
+              'Premium Membership',
+              style: TextStyle(
+                fontSize: const Dim.rem(1.25),
+                fontWeight: FontWeight.bold,
+                color: context.textColor,
+                letterSpacing: const Dim.px(-0.2),
+              ),
+            ),
+            NakiText(
+              'Unlock advanced theme customization and cloud synchronization.',
+              style: TextStyle(
+                fontSize: const Dim.rem(0.875),
+                lineHeight: const Dim.em(1.5),
+                color: context.subtitleColor,
+              ),
+            ),
+            Button.filled(
+              context.primaryColor,
+              onTap: () => print('Upgrade clicked'),
+              child: const NakiText('Upgrade Now'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```

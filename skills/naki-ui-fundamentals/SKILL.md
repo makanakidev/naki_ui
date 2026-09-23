@@ -2,7 +2,7 @@
 name: naki-ui-fundamentals
 description: Use when building, editing, reviewing, or troubleshooting Jaspr interfaces with Naki UI components, including application setup, layout, text, inputs, selection, overlays, scrolling, painting, responsive behavior, and async rendering through package:naki_ui/naki_ui.dart.
 metadata:
-  version: "1.0.0"
+  version: "1.0.1"
   author: "makanakidev"
 ---
 
@@ -47,6 +47,7 @@ Jaspr uses a component-based architecture very similar to Flutter's widgets. Con
   - Use `.empty()` to return an empty space safely.
 
 **Example Usage:**
+
 ```dart
 import 'package:jaspr/jaspr.dart';
 import 'package:jaspr/dom.dart';
@@ -93,6 +94,7 @@ Read [imports-and-conventions.md](references/imports-and-conventions.md) for com
 - Rich text and typography helpers: [rich-text.md](references/components/rich-text.md)
 - Fields, forms, autocomplete, segmented input, and calendar: [inputs.md](references/components/inputs.md)
 - Alignment, sizing, spacing, stacks, cards, and expansion: [layout.md](references/components/layout.md)
+- Responsive builder and custom breakpoints: [responsive.md](references/components/responsive.md)
 - Dialogs, drawers, sheets, snackbars, tooltips, and popovers: [overlays.md](references/components/overlays.md)
 - Opacity, visibility, clipping, decoration, filtering, color, rotation, and transforms: [painting.md](references/components/painting.md)
 - App bars, bottom navigation, and scaffold: [scaffold.md](references/components/scaffold.md)

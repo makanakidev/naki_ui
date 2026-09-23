@@ -11,7 +11,7 @@ class TodoFilterBar extends StatelessComponent {
   final TodoFilter currentFilter;
   final ValueChanged<TodoFilter> onFilterChanged;
   final bool hasCompleted;
-  final VoidCallback onClearCompleted;
+  final VoidCallback? toggle;
 
   const TodoFilterBar({
     super.key,
@@ -19,7 +19,7 @@ class TodoFilterBar extends StatelessComponent {
     required this.currentFilter,
     required this.onFilterChanged,
     required this.hasCompleted,
-    required this.onClearCompleted,
+    this.toggle,
   });
 
   @override
@@ -28,63 +28,65 @@ class TodoFilterBar extends StatelessComponent {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        NakiText(
-          '$activeCount ${activeCount <= 1 ? 'item' : 'items'} left',
-          style: TextStyle(
-            color: context.subtitleColor,
-            fontSize: const Dim.rem(0.875),
-            fontWeight: FontWeight.w500,
+        // item counter
+        BreakPointWrapper(
+          minWidth: 480,
+          child: NakiText(
+            '$activeCount ${activeCount <= 1 ? 'item' : 'items'} left',
+            style: TextStyle(
+              color: context.subtitleColor,
+              fontSize: const Dim.rem(0.875),
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ),
+
+        // filters buttons
         Row(
           spacing: 6,
-          children: TodoFilter.values.map((filter) {
-            final isSelected = filter == currentFilter;
-            if (isSelected) {
-              return Button.filled(
-                context.primaryColor,
-                key: ValueKey('filter-${filter.name}'),
-                hoverColor: context.primaryColor.withOpacity(0.8),
-                onTap: () => onFilterChanged(filter),
-                child: NakiText(
-                  filter.label,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: Dim.rem(0.9),
-                  ),
+          children: [
+            // toggle scroll physics button
+            if (toggle != null)
+              Button.text(
+                'Toggle scroll physics',
+                gradient: Gradient.oceanBreeze,
+                margin: const EdgeInsets.only(right: Dim.px(5)),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: Dim.rem(0.9),
                 ),
-              );
-            } else {
-              return Button.text(
-                filter.label,
-                key: ValueKey('filter-${filter.name}'),
-                style: TextStyle(
-                  color: context.subtitleColor,
-                  fontSize: const Dim.rem(0.9),
-                ),
-                onTap: () => onFilterChanged(filter),
-              );
-            }
-          }).toList(),
-        ),
+                onTap: toggle,
+              ),
 
-        // if (hasCompleted && currentFilter == TodoFilter.completed)
-        //   Button.text(
-        //     'Clear All',
-        //     border: BorderData.only(
-        //       radius: BorderRadiusData.all(const Dim.px(8)),
-        //     ),
-        //     padding: const EdgeInsets.symmetric(
-        //       horizontal: Dim.px(20),
-        //       vertical: Dim.px(6),
-        //     ),
-        //     style: TextStyle(
-        //       color: context.errorColor,
-        //       fontWeight: FontWeight.w500,
-        //       fontSize: const Dim.rem(0.85),
-        //     ),
-        //     onTap: onClearCompleted,
-        //   ),
+            ...TodoFilter.values.map((filter) {
+              if (filter == currentFilter) {
+                return Button.filled(
+                  context.primaryColor,
+                  key: ValueKey('filter-${filter.name}'),
+                  hoverColor: context.primaryColor.withOpacity(0.8),
+                  onTap: () => onFilterChanged(filter),
+                  child: NakiText(
+                    filter.label,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: Dim.rem(0.9),
+                    ),
+                  ),
+                );
+              } else {
+                return Button.text(
+                  filter.label,
+                  key: ValueKey('filter-${filter.name}'),
+                  style: TextStyle(
+                    color: context.subtitleColor,
+                    fontSize: const Dim.rem(0.9),
+                  ),
+                  onTap: () => onFilterChanged(filter),
+                );
+              }
+            }),
+          ],
+        ),
       ],
     );
   }

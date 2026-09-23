@@ -49,5 +49,5 @@ plugins:
       prefer_styles_getter: true
 
 formatter:
-  page_width: 100
+  page_width: 80
   trailing_commas: preserve

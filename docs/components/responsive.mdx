@@ -1,0 +1,102 @@
+---
+title: Responsive Components
+description: Declarative CSS-driven responsive rendering with ResponsiveBuilder, BreakPointWrapper, and standard breakpoints in Naki UI.
+---
+
+Naki UI provides declarative, zero-runtime CSS-driven components for building responsive interfaces across mobile, tablet, laptop, and desktop viewports.
+
+Unlike JavaScript-based viewport observation, `ResponsiveBuilder` and `BreakPointWrapper` operate purely via CSS media queries. This guarantees zero layout shift (CLS), instant rendering during SSR/SSG pre-rendering, and seamless hydration without requiring client-side `@client` components.
+
+---
+
+## `ResponsiveBuilder`
+
+`ResponsiveBuilder` renders different component hierarchies for discrete screen sizes or conditionally shows a child component at a specific breakpoint.
+
+### Multi-Breakpoint Composition
+
+Provide one or more breakpoint-specific components (`mobile`, `largerMobile`, `tablet`, `laptop`, `desktop`):
+
+```dart
+import 'package:jaspr/jaspr.dart';
+import 'package:naki_ui/naki_ui.dart';
+
+ResponsiveBuilder(
+  mobile: const MobileNavigationMenu(),
+  tablet: const TabletSidebar(),
+  desktop: const DesktopHeaderNav(),
+)
+```
+
+### Single Breakpoint Target
+
+Target a specific `BreakPoint` enum value with `breakpoint` and `child`:
+
+```dart
+import 'package:jaspr/jaspr.dart';
+import 'package:naki_ui/naki_ui.dart';
+
+ResponsiveBuilder(
+  breakpoint: BreakPoint.mobile,
+  child: const MobilePromoBanner(),
+)
+```
+
+### Breakpoint Matrix
+
+Naki UI defines 5 discrete standard breakpoints:
+
+| Breakpoint | Named Getter | Media Query Range | Target Device |
+| :--- | :--- | :--- | :--- |
+| `BreakPoint.xs` | `BreakPoint.mobile` | `480px and below` | Small mobile phones |
+| `BreakPoint.sm` | `BreakPoint.largerPhone` | `480.02px to 576px` | Larger phones / phablets |
+| `BreakPoint.md` | `BreakPoint.tablet` | `576.02px to 768px` | Tablets & small portables |
+| `BreakPoint.lg` | `BreakPoint.laptop` | `768.02px to 1024px` | Laptops & small desktops |
+| `BreakPoint.xl` | `BreakPoint.desktop` | `1024.02px and above` | Large desktop monitors |
+
+Use `BreakPoint.from(double width)` to programmatically resolve a width value in pixels to its corresponding `BreakPoint` enum instance.
+
+---
+
+## `BreakPointWrapper`
+
+When your layout requires arbitrary or custom pixel boundaries rather than standard preset tiers, use `BreakPointWrapper`.
+
+`BreakPointWrapper` accepts `minWidth`, `maxWidth`, or both (in pixels). It automatically registers scoped media query rules into the document `<head>`:
+
+```dart
+import 'package:jaspr/jaspr.dart';
+import 'package:naki_ui/naki_ui.dart';
+
+// 1. Min-width and max-width range (e.g., 600px to 900px)
+BreakPointWrapper(
+  minWidth: 600,
+  maxWidth: 900,
+  child: const SpecializedSplitView(),
+)
+
+// 2. Minimum width only (e.g. 1440px and above for ultra-wide displays)
+BreakPointWrapper(
+  minWidth: 1440,
+  child: const UltraWideSidebar(),
+)
+
+// 3. Maximum width only (e.g. 360px and below for compact smart devices)
+BreakPointWrapper(
+  maxWidth: 360,
+  child: const CompactQuickActions(),
+)
+```
+
+> [!NOTE]
+> When providing both `minWidth` and `maxWidth`, `minWidth` must be strictly less than `maxWidth`.
+
+
+## CSS-Driven vs. Client-Side Observer
+
+| Feature | `ResponsiveBuilder` / `BreakPointWrapper` | `MediaQueryProvider` |
+| :--- | :--- | :--- |
+| **Mechanism** | Pure CSS Media Queries (`@media`) | Browser `ResizeObserver` / Window Events |
+| **SSR / SSG Compatible** | Yes (Zero layout shift, works with pure static generation) | Requires `@client` hydration |
+| **Performance** | Instant native browser engine switching | Microtask / setState callback update |
+| **Use Case** | Hiding/showing layout components, adaptive navbars, drawers | Reading dynamic pixel math, canvas drawing, programmatic logic |

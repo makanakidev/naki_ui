@@ -67,7 +67,7 @@ class _NakiFutureBuilderState<T> extends State<NakiFutureBuilder<T>> {
 
   @override
   void setState(VoidCallback fn) {
-    if (mounted) super.setState(fn);
+    if (mounted && kIsWeb) super.setState(fn);
   }
 
   @override
@@ -188,7 +188,7 @@ class _NakiStreamBuilderState<T> extends State<NakiStreamBuilder<T>> {
 
   @override
   void setState(VoidCallback fn) {
-    if (mounted) super.setState(fn);
+    if (mounted && kIsWeb) super.setState(fn);
   }
 
   @override

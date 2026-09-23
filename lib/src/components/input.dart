@@ -18,7 +18,8 @@ import '../utilities/constants.dart';
 import '../utilities/debounce.dart';
 import '../utilities/enums.dart';
 import '../utilities/extensions.dart';
-import '../utilities/helpers.dart' show nakiDomId, onComponentRendered, showValidationError;
+import '../utilities/helpers.dart'
+    show nakiDomId, onComponentRendered, showValidationError;
 
 import 'basics.dart';
 import 'layout.dart';
@@ -295,7 +296,9 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
   void _showError() {
     if (kIsWeb && (validator != null || required)) {
       final value = currentValue ?? '';
-      final error = required && value.isEmpty ? 'required' : validator?.call(value) ?? '';
+      final error = required && value.isEmpty
+          ? 'required'
+          : validator?.call(value) ?? '';
 
       // show custom validation message if enabled
       if (_shouldValidate) showValidationError(id, error);
@@ -358,7 +361,9 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
   @override
   Component build(BuildContext context) {
     final baseClass = 'naki-${isMultiline ? 'textarea' : 'input'}';
-    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     final effectiveWidth = expand ? '100%' : width?.cssText;
     final effectiveHeight = height?.cssText;
@@ -419,7 +424,8 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
       ),
       children: [
         // Label
-        if (labelText.isNotEmpty) Label(labelText, fieldId: id, style: labelStyle),
+        if (labelText.isNotEmpty)
+          Label(labelText, fieldId: id, style: labelStyle),
 
         // Field
         isMultiline
@@ -435,7 +441,9 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
                 readonly: readOnly,
                 wrap: .soft,
                 rows: visibleLines,
-                spellCheck: enableSpellCheck ? SpellCheck.isTrue : SpellCheck.isFalse,
+                spellCheck: enableSpellCheck
+                    ? SpellCheck.isTrue
+                    : SpellCheck.isFalse,
                 attributes: {
                   ...?attributes,
                   'pattern': ?pattern?.value,
@@ -475,7 +483,8 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
                   'hvr': ?(allowHover ? '' : null),
                   'fcs': ?(allowFocus ? '' : null),
                   'autofocus': ?(autoFocus ? '' : null),
-                  'inputmode': ?(type == InputType.number || type == InputType.tel
+                  'inputmode':
+                      ?(type == InputType.number || type == InputType.tel
                       ? 'numeric'
                       : null),
                 },
@@ -573,7 +582,9 @@ class FormBuilder extends StatelessComponent {
   @override
   Component build(BuildContext context) {
     const baseClass = 'naki-form';
-    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     final effectiveSyles = {
       'flex-direction': ?(direction == Direction.horizontal ? 'row' : null),
@@ -712,7 +723,8 @@ class AutoCompleteField extends StatefulComponent {
   );
 }
 
-class _AutoCompleteFieldState extends State<AutoCompleteField> with NakiStatefulMixin {
+class _AutoCompleteFieldState extends State<AutoCompleteField>
+    with NakiStatefulMixin {
   late String _id;
 
   final _filteredOptions = ValueNotifier<List<String>>([]);
@@ -720,7 +732,7 @@ class _AutoCompleteFieldState extends State<AutoCompleteField> with NakiStateful
 
   @override
   void setState(VoidCallback fn) {
-    if (mounted) super.setState(fn);
+    if (mounted && kIsWeb) super.setState(fn);
   }
 
   @override
@@ -736,7 +748,8 @@ class _AutoCompleteFieldState extends State<AutoCompleteField> with NakiStateful
   }
 
   /// Returns the input element node
-  HTMLInputElement? get inputNode => component.key is GlobalNodeKey<HTMLInputElement>
+  HTMLInputElement? get inputNode =>
+      component.key is GlobalNodeKey<HTMLInputElement>
       ? (component.key as GlobalNodeKey<HTMLInputElement>).currentNode
       : document.getElementById(_id) as HTMLInputElement?;
 
@@ -892,7 +905,8 @@ class _AutoCompleteFieldState extends State<AutoCompleteField> with NakiStateful
                     id: '${_id}_option_${entry.$1}',
                     attributes: {
                       'role': 'option',
-                      'aria-selected': (_activeOptionIndex == entry.$1).toString(),
+                      'aria-selected': (_activeOptionIndex == entry.$1)
+                          .toString(),
                     },
                     events: Events(
                       onClick: (_) => _onSelect(entry.$2),
@@ -1035,14 +1049,16 @@ class SegmentedInput extends StatefulComponent {
   State<SegmentedInput> createState() => _SegmentedInputState();
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('SegmentedInput', [
-    ...Rules.nakiSegmentedInputRules,
-    Rules.nakiFormFieldRules,
-    Rules.nakiHelperRules,
-  ]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('SegmentedInput', [
+        ...Rules.nakiSegmentedInputRules,
+        Rules.nakiFormFieldRules,
+        Rules.nakiHelperRules,
+      ]);
 }
 
-class _SegmentedInputState extends State<SegmentedInput> with NakiStatefulMixin {
+class _SegmentedInputState extends State<SegmentedInput>
+    with NakiStatefulMixin {
   late String _fieldId;
 
   List<String> _segmentValues = [];
@@ -1050,7 +1066,7 @@ class _SegmentedInputState extends State<SegmentedInput> with NakiStatefulMixin 
 
   @override
   void setState(VoidCallback fn) {
-    if (mounted) super.setState(fn);
+    if (mounted && kIsWeb) super.setState(fn);
   }
 
   @override
@@ -1074,7 +1090,8 @@ class _SegmentedInputState extends State<SegmentedInput> with NakiStatefulMixin 
 
     if (component.length != oldcomponent.length) {
       _initValues();
-    } else if (component.value != oldcomponent.value && component.value != null) {
+    } else if (component.value != oldcomponent.value &&
+        component.value != null) {
       _setFullValue(component.value!);
     }
   }
@@ -1091,8 +1108,9 @@ class _SegmentedInputState extends State<SegmentedInput> with NakiStatefulMixin 
 
     _segmentKeys = List.generate(
       component.length,
-      (index) =>
-          index < previousKeys.length ? previousKeys[index] : GlobalNodeKey<HTMLInputElement>(),
+      (index) => index < previousKeys.length
+          ? previousKeys[index]
+          : GlobalNodeKey<HTMLInputElement>(),
     );
 
     _segmentValues = List.generate(component.length, (i) {
@@ -1132,7 +1150,8 @@ class _SegmentedInputState extends State<SegmentedInput> with NakiStatefulMixin 
 
   /// Whether all segment inputs are filled
   bool get _isComplete =>
-      _segmentValues.every((val) => val.isNotEmpty) && _segmentValues.length == component.length;
+      _segmentValues.every((val) => val.isNotEmpty) &&
+      _segmentValues.length == component.length;
 
   /// Focuses segment input at specified index
   void _focusSegment(int index) {
@@ -1212,7 +1231,11 @@ class _SegmentedInputState extends State<SegmentedInput> with NakiStatefulMixin 
       }
 
       if (cleanChars.isNotEmpty) {
-        for (int i = 0; i < cleanChars.length && (index + i) < component.length; i++) {
+        for (
+          int i = 0;
+          i < cleanChars.length && (index + i) < component.length;
+          i++
+        ) {
           setState(
             () => _segmentValues[index + i] = cleanChars[i],
           );
@@ -1296,7 +1319,11 @@ class _SegmentedInputState extends State<SegmentedInput> with NakiStatefulMixin 
 
     if (cleanChars.isEmpty) return;
 
-    for (int i = 0; i < cleanChars.length && (startIndex + i) < component.length; i++) {
+    for (
+      int i = 0;
+      i < cleanChars.length && (startIndex + i) < component.length;
+      i++
+    ) {
       setState(
         () => _segmentValues[startIndex + i] = cleanChars[i],
       );
@@ -1328,20 +1355,25 @@ class _SegmentedInputState extends State<SegmentedInput> with NakiStatefulMixin 
     final width = style?.segmentWidth?.cssText;
     final height = style?.segmentHeight?.cssText;
     final fontSize =
-        style?.textStyle?.fontSize?.cssText ?? decoration?.inputStyle?.fontSize?.cssText;
+        style?.textStyle?.fontSize?.cssText ??
+        decoration?.inputStyle?.fontSize?.cssText;
 
     final hoverColor = style?.hoverBorderColor ?? decoration?.hoverBorderColor;
     final focusColor = style?.focusBorderColor ?? decoration?.focusBorderColor;
     final errorColor = style?.errorBorderColor ?? decoration?.errorStyle?.color;
-    final inputColor = style?.textStyle?.color?.value ?? decoration?.inputStyle?.color?.value;
+    final inputColor =
+        style?.textStyle?.color?.value ?? decoration?.inputStyle?.color?.value;
 
     final borderProps = component.style?.border?.props;
     final radiusProps = component.style?.borderRadius?.props;
     final paddingProps = component.style?.padding?.pProps;
-    final marginProps = component.style?.margin?.mProps ?? component.decoration?.margin?.mProps;
+    final marginProps =
+        component.style?.margin?.mProps ?? component.decoration?.margin?.mProps;
 
-    final allowHover = hoverColor != null && !component.disable && !component.readOnly;
-    final allowFocus = focusColor != null && !component.disable && !component.readOnly;
+    final allowHover =
+        hoverColor != null && !component.disable && !component.readOnly;
+    final allowFocus =
+        focusColor != null && !component.disable && !component.readOnly;
 
     const baseClass = 'naki-segmented-input';
     final effectiveSegmentClasses = 'input-segment shape-${shape.name}';
@@ -1372,7 +1404,8 @@ class _SegmentedInputState extends State<SegmentedInput> with NakiStatefulMixin 
     };
 
     final effectiveType =
-        ((component.obscureText || component.type == SegmentedInputType.password) &&
+        ((component.obscureText ||
+                component.type == SegmentedInputType.password) &&
             component.obscureCharacter.length == 1)
         ? InputType.password
         : InputType.text;
@@ -1411,7 +1444,8 @@ class _SegmentedInputState extends State<SegmentedInput> with NakiStatefulMixin 
               key: _segmentKeys[i],
               id: '${_fieldId}_$i',
               name: '${_fieldId}_$i',
-              classes: '$effectiveSegmentClasses${isFilled ? ' is-filled' : ''}',
+              classes:
+                  '$effectiveSegmentClasses${isFilled ? ' is-filled' : ''}',
               styles: Styles(
                 raw: {
                   ...effectiveInputStyles,
@@ -1423,8 +1457,12 @@ class _SegmentedInputState extends State<SegmentedInput> with NakiStatefulMixin 
               value: displayedValue,
               attributes: {
                 'maxlength': '1',
-                'autocomplete': i == 0 ? Autofill.oneTimeCode.value : Autofill.off.value,
-                'inputmode': component.type == SegmentedInputType.number ? 'numeric' : 'text',
+                'autocomplete': i == 0
+                    ? Autofill.oneTimeCode.value
+                    : Autofill.off.value,
+                'inputmode': component.type == SegmentedInputType.number
+                    ? 'numeric'
+                    : 'text',
                 'pattern': ?(component.type == SegmentedInputType.number
                     ? ValidationPattern.digitsOnly.value
                     : null),
@@ -1596,11 +1634,15 @@ class Calendar extends StatefulComponent {
          'minimum must not be after maximum',
        ),
        assert(
-         initialValue == null || minimum == null || !initialValue.isBefore(minimum),
+         initialValue == null ||
+             minimum == null ||
+             !initialValue.isBefore(minimum),
          'initialValue must not be before minimum',
        ),
        assert(
-         initialValue == null || maximum == null || !initialValue.isAfter(maximum),
+         initialValue == null ||
+             maximum == null ||
+             !initialValue.isAfter(maximum),
          'initialValue must not be after maximum',
        ),
        assert(
@@ -1643,6 +1685,11 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
   StreamSubscription<KeyboardEvent>? _keyboardSubscription;
 
   @override
+  void setState(VoidCallback fn) {
+    if (mounted && kIsWeb) super.setState(fn);
+  }
+
+  @override
   void initState() {
     super.initState();
     _initCalendar();
@@ -1656,7 +1703,8 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
       _initCalendar();
     }
 
-    if (oldComponent.minimum != component.minimum || oldComponent.maximum != component.maximum) {
+    if (oldComponent.minimum != component.minimum ||
+        oldComponent.maximum != component.maximum) {
       _initCalendar();
     }
   }
@@ -1676,38 +1724,40 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
     }
 
     // listener that checks if an outside click occurred
-    final clickSubscription = EventStreamProviders.clickEvent.forTarget(window).listen((event) {
-      if (!_pickTime && !_pickDate) return;
+    final clickSubscription = EventStreamProviders.clickEvent
+        .forTarget(window)
+        .listen((event) {
+          if (!_pickTime && !_pickDate) return;
 
-      final target = event.target as Node?;
-      if (target == null) return;
+          final target = event.target as Node?;
+          if (target == null) return;
 
-      // ignore targets that were unmounted during click handling
-      if (!target.isConnected) return;
+          // ignore targets that were unmounted during click handling
+          if (!target.isConnected) return;
 
-      // ignore clicks inside the calendar
-      if (calendarNode != null && calendarNode!.contains(target)) return;
+          // ignore clicks inside the calendar
+          if (calendarNode != null && calendarNode!.contains(target)) return;
 
-      // if dropdown menu is open, let dropdown handle closing
-      final dropdownMenu =
-          calendarNode?.querySelector(
-                'naki-dropdown[open]',
-              )
-              as HTMLElement? ??
-          document.querySelector('naki-dropdown[open]') as HTMLElement?;
+          // if dropdown menu is open, let dropdown handle closing
+          final dropdownMenu =
+              calendarNode?.querySelector(
+                    'naki-dropdown[open]',
+                  )
+                  as HTMLElement? ??
+              document.querySelector('naki-dropdown[open]') as HTMLElement?;
 
-      if (dropdownMenu != null) return;
+          if (dropdownMenu != null) return;
 
-      if (_showYear) {
-        setState(() => _showYear = false);
-        return;
-      }
+          if (_showYear) {
+            setState(() => _showYear = false);
+            return;
+          }
 
-      setState(() {
-        _pickTime = false;
-        _pickDate = false;
-      });
-    });
+          setState(() {
+            _pickTime = false;
+            _pickDate = false;
+          });
+        });
 
     return clickSubscription.cancel;
   }
@@ -1734,7 +1784,8 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
     }
 
     final minYear = component.minimum?.year ?? _visibleMonth.year - 100;
-    final maxYear = (component.maximum ?? now.copyWith(year: now.year + 10)).year;
+    final maxYear =
+        (component.maximum ?? now.copyWith(year: now.year + 10)).year;
 
     final count = maxYear >= minYear ? (maxYear - minYear + 1) : 0;
     _years = List.generate(count, (i) => minYear + i);
@@ -1779,7 +1830,8 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
     return CalendarMonth(date: month, days: daysInMonth);
   }
 
-  DateTime _dateOnly(DateTime value) => DateTime(value.year, value.month, value.day);
+  DateTime _dateOnly(DateTime value) =>
+      DateTime(value.year, value.month, value.day);
 
   bool _isOutsideBounds(DateTime value) {
     final date = _dateOnly(value);
@@ -1829,7 +1881,8 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
     );
 
     return [
-      for (var index = 0; index < nodes.length; index++) nodes.item(index) as HTMLElement,
+      for (var index = 0; index < nodes.length; index++)
+        nodes.item(index) as HTMLElement,
     ];
   }
 
@@ -1888,7 +1941,8 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
         );
 
         final dates = [
-          for (var index = 0; index < nodes.length; index++) nodes.item(index) as HTMLElement,
+          for (var index = 0; index < nodes.length; index++)
+            nodes.item(index) as HTMLElement,
         ];
 
         final current = dates.indexOf(target);
@@ -1917,10 +1971,12 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
 
     final active = document.activeElement;
 
-    if (event.shiftKey && (active == focusable.first || !surface.contains(active))) {
+    if (event.shiftKey &&
+        (active == focusable.first || !surface.contains(active))) {
       event.preventDefault();
       focusable.last.focus();
-    } else if (!event.shiftKey && (active == focusable.last || !surface.contains(active))) {
+    } else if (!event.shiftKey &&
+        (active == focusable.last || !surface.contains(active))) {
       event.preventDefault();
       focusable.first.focus();
     }
@@ -2027,7 +2083,8 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
       }
 
       // set browser-default validity
-      final inputElem = document.getElementById(_calendarId) as HTMLInputElement?;
+      final inputElem =
+          document.getElementById(_calendarId) as HTMLInputElement?;
       inputElem?.setCustomValidity(error);
     }
   }
@@ -2038,7 +2095,9 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
       event.preventDefault();
 
       final inputElem = event.currentTarget as HTMLInputElement?;
-      final value = inputElem == null ? null : DateTime.tryParse(inputElem.value);
+      final value = inputElem == null
+          ? null
+          : DateTime.tryParse(inputElem.value);
 
       _showError(value);
     }
@@ -2097,8 +2156,10 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
     final helperStyle = decoration?.helperStyle;
     final labelStyle = decoration?.labelStyle;
 
-    final allowHover = hoverColor != null && !component.disable && !component.readOnly;
-    final allowFocus = focusColor != null && !component.disable && !component.readOnly;
+    final allowHover =
+        hoverColor != null && !component.disable && !component.readOnly;
+    final allowFocus =
+        focusColor != null && !component.disable && !component.readOnly;
 
     final effectiveClasses = component.classes.isNotNullAndEmpty
         ? 'naki-calendar ${component.classes}'
@@ -2230,7 +2291,9 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
               attributes: {
                 'role': 'dialog',
                 'aria-modal': 'true',
-                'aria-label': labelText.isNotEmpty ? '$labelText picker' : 'Date and time picker',
+                'aria-label': labelText.isNotEmpty
+                    ? '$labelText picker'
+                    : 'Date and time picker',
                 'tabindex': '-1',
               },
               [
@@ -2251,7 +2314,9 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
                           Button.icon(
                             MaterialSymbols.round_chevron_left,
                             classes: 'naki-calendar-header__button',
-                            disabled: currentYear == _years.first && currentMonth == 1,
+                            disabled:
+                                currentYear == _years.first &&
+                                currentMonth == 1,
                             height: const Dim.px(48),
                             width: const Dim.px(48),
                             backgroundColor: Colors.transparent,
@@ -2277,7 +2342,9 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
                                 () => _showYear = !_showYear,
                               ),
                             ),
-                            content: _showYear ? _yearMonthPopover() : const .empty(),
+                            content: _showYear
+                                ? _yearMonthPopover()
+                                : const .empty(),
                             onClose: () {
                               final dropdownMenu =
                                   calendarNode?.querySelector(
@@ -2300,7 +2367,9 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
                           Button.icon(
                             MaterialSymbols.round_chevron_right,
                             classes: 'naki-calendar-header__button',
-                            disabled: currentYear == _years.last && currentMonth == 12,
+                            disabled:
+                                currentYear == _years.last &&
+                                currentMonth == 12,
                             height: const Dim.px(48),
                             width: const Dim.px(48),
                             backgroundColor: Colors.transparent,
@@ -2348,7 +2417,8 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
                                     final now = DateTime.now();
                                     final time = _selectedTime ??= Duration(
                                       hours: _selectedDate?.hour ?? now.hour,
-                                      minutes: _selectedDate?.minute ?? now.minute,
+                                      minutes:
+                                          _selectedDate?.minute ?? now.minute,
                                     );
                                     final _hr = time.inHours % 24;
                                     final _mins = time.inMinutes % 60;
@@ -2406,7 +2476,8 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
                             classes: 'naki-calendar-action__button',
                             backgroundColor: Colors.transparent,
                             onTap: () {
-                              if (component.disable || component.readOnly) return;
+                              if (component.disable || component.readOnly)
+                                return;
 
                               _selectedDate = component.initialValue;
                               _visibleMonth = _selectedDate ?? DateTime.now();
@@ -2488,7 +2559,8 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
                               if (showBoth) {
                                 _pickDate = true;
                               } else {
-                                _selectedDate ??= component.initialValue ?? DateTime.now();
+                                _selectedDate ??=
+                                    component.initialValue ?? DateTime.now();
                               }
 
                               _selectedTime ??= null;
@@ -2505,7 +2577,8 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
                             classes: 'naki-calendar-action__button',
                             backgroundColor: Colors.transparent,
                             onTap: () {
-                              if (component.disable || component.readOnly) return;
+                              if (component.disable || component.readOnly)
+                                return;
 
                               final now = DateTime.now();
                               _selectedTime = Duration(
@@ -2614,10 +2687,13 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
     required bool hour,
   }) {
     final now = DateTime.now();
-    final time = _selectedTime ?? Duration(hours: now.hour, minutes: now.minute);
+    final time =
+        _selectedTime ?? Duration(hours: now.hour, minutes: now.minute);
 
-    final hrInputElem = document.getElementById('naki-stepper-$id-hr') as HTMLInputElement?;
-    final minsInputElem = document.getElementById('naki-stepper-$id-mins') as HTMLInputElement?;
+    final hrInputElem =
+        document.getElementById('naki-stepper-$id-hr') as HTMLInputElement?;
+    final minsInputElem =
+        document.getElementById('naki-stepper-$id-mins') as HTMLInputElement?;
 
     int _hr = time.inHours % 24;
     int _mins = time.inMinutes % 60;
@@ -2631,9 +2707,11 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
       ),
     );
 
-    void _updateMinsInputValue(int value) => minsInputElem?.value = twoDigits(value);
+    void _updateMinsInputValue(int value) =>
+        minsInputElem?.value = twoDigits(value);
 
-    void _updateHrInputValue(int value) => hrInputElem?.value = twoDigits(value);
+    void _updateHrInputValue(int value) =>
+        hrInputElem?.value = twoDigits(value);
 
     void _increase() {
       // hour block
@@ -2798,7 +2876,9 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
                       hoverColor: Colors.transparent,
                       attributes: {
                         'aria-label': '$month $selectedYear',
-                        'selected': ?(month == kMonths[selectedMonthIndex] ? '' : null),
+                        'selected': ?(month == kMonths[selectedMonthIndex]
+                            ? ''
+                            : null),
                       },
                       onTap: () => _jumpToMonth(
                         DateTime(

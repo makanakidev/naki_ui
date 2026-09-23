@@ -5,7 +5,8 @@ import 'package:jaspr/jaspr.dart';
 
 import '../components/app.dart' show NakiApp;
 import '../framework/framework.dart' show NakiStatefulMixin;
-import '../framework/inherited.dart' show AppScope, NakiDomIdRegistry, NakiDomIdScope;
+import '../framework/inherited.dart'
+    show AppScope, NakiDomIdRegistry, NakiDomIdScope;
 import '../framework/lifecycle.dart' show BrowserLifecycleListeners;
 import '../models/naki.dart' show ScrollBarConfiguration;
 import '../models/styling.dart' show Dim;
@@ -119,10 +120,7 @@ class NakiThemeProvider extends StatefulComponent {
   ///
   /// Returns `true` if successful, `false` if no [NakiThemeProvider]
   /// is in the component tree.
-  static bool setMode(
-    BuildContext context,
-    ThemeMode mode,
-  ) {
+  static bool setMode(BuildContext context, ThemeMode mode) {
     final state = of(context);
     if (state == null) return false;
     state.setMode(mode);
@@ -141,27 +139,26 @@ class NakiThemeProvider extends StatefulComponent {
   ///
   /// Returns `null` in server-side or when no [NakiThemeProvider]
   /// is in the component tree.
-  static Brightness? systemBrightness(
-    BuildContext context,
-  ) => of(context)?.systemBrightness;
+  static Brightness? systemBrightness(BuildContext context) =>
+      of(context)?.systemBrightness;
 
   /// Design tokens of the active theme relative to the [context].
   ///
   /// Returns global tokens for backward compatibility if no
   /// [NakiThemeProvider] is in the component tree.
-  static Tokens tokensOf(BuildContext context) => of(context)?.tokens ?? Tokens.current;
+  static Tokens tokensOf(BuildContext context) =>
+      of(context)?.tokens ?? Tokens.current;
 
   @override
   State<NakiThemeProvider> createState() => _NakiThemeProviderState();
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once(
-    'NakiFoundationRules',
-    Rules.nakiFoundationRules,
-  );
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('NakiFoundationRules', Rules.nakiFoundationRules);
 }
 
-class _NakiThemeProviderState extends State<NakiThemeProvider> with NakiStatefulMixin {
+class _NakiThemeProviderState extends State<NakiThemeProvider>
+    with NakiStatefulMixin {
   late Tokens _tokens;
 
   ThemeMode _mode = ThemeMode.system;
@@ -177,18 +174,23 @@ class _NakiThemeProviderState extends State<NakiThemeProvider> with NakiStateful
   final _domIdRegistry = NakiDomIdRegistry();
 
   @override
+  void setState(VoidCallback fn) {
+    if (mounted && kIsWeb) super.setState(fn);
+  }
+
+  @override
   void initState() {
     super.initState();
     _initializeTheme();
   }
 
   @override
-  FutureOr<VoidCallback?> afterRender(
-    BuildContext context,
-  ) {
+  FutureOr<VoidCallback?> afterRender(BuildContext context) {
     if (_isRoot) {
       _lifecycle.whenSystemThemeChanged = (mode) {
-        _systemBrightness = mode == ThemeMode.dark ? Brightness.dark : Brightness.light;
+        _systemBrightness = mode == ThemeMode.dark
+            ? Brightness.dark
+            : Brightness.light;
 
         if (_mode == ThemeMode.system) {
           _brightness = _systemBrightness!;
@@ -198,13 +200,13 @@ class _NakiThemeProviderState extends State<NakiThemeProvider> with NakiStateful
               : (_config?.lightThemeData ?? const _LightModeTokens());
         }
 
-        if (mounted) setState(() {});
+        setState(() {});
       };
 
       _lifecycle.register();
     }
 
-    return null;
+    return _lifecycle.dispose;
   }
 
   @override
@@ -219,8 +221,8 @@ class _NakiThemeProviderState extends State<NakiThemeProvider> with NakiStateful
 
   @override
   void dispose() {
-    super.dispose();
     _lifecycle.dispose();
+    super.dispose();
   }
 
   /// Returns the brightness of the active theme.
@@ -259,7 +261,7 @@ class _NakiThemeProviderState extends State<NakiThemeProvider> with NakiStateful
     _syncTokens(refresh: true);
 
     component.onModeChanged?.call(_mode);
-    if (mounted) setState(() {});
+    setState(() {});
   }
 
   /// Toggle theme mode (light <-> dark <-> system).
@@ -321,7 +323,7 @@ class _NakiThemeProviderState extends State<NakiThemeProvider> with NakiStateful
     final scrollBarConfig = _config?.scrollBarConfiguration;
     final hasCustomTokens = lmTokens != null || dmTokens != null;
 
-    final customStyles = <StyleRule>[];
+    final styles = <StyleRule>[];
     final baseStyles = ThemeConfig.defaultStyles;
     final hasNakiApp = AppScope.of(context) != null;
 
@@ -330,31 +332,32 @@ class _NakiThemeProviderState extends State<NakiThemeProvider> with NakiStateful
     if (!hasNakiApp && !hasCustomTokens) {
       // scroll bar styles
       if (scrollBarConfig != null) {
-        customStyles.addAll(Rules.buildScrollbarRules('html', scrollBarConfig));
+        styles.addAll(Rules.buildScrollbarRules('html', scrollBarConfig));
       }
 
       // default styles
-      customStyles.addAll(baseStyles);
+      styles.addAll(baseStyles);
+
+      // custom styles
+      styles.addAll(_config?.styles ?? []);
     }
 
     // Set custom theme styles if tokens are provided
     if (hasCustomTokens) {
       // scroll bar styles
       if (scrollBarConfig != null) {
-        customStyles.addAll(Rules.buildScrollbarRules('html', scrollBarConfig));
+        styles.addAll(Rules.buildScrollbarRules('html', scrollBarConfig));
       }
 
       // light mode styles
       if (lmTokens != null) {
-        customStyles.addAll([
+        styles.addAll([
           css(
             ':is(.naki-light-mode, html[data-naki-theme="light"])',
           ).styles(raw: lmTokens.variables),
 
           css.media(
-            const MediaQuery.all(
-              prefersColorScheme: ColorScheme.light,
-            ),
+            const MediaQuery.all(prefersColorScheme: ColorScheme.light),
             [
               css(
                 ':is(.naki-system-mode, html[data-naki-theme="system"])',
@@ -363,20 +366,18 @@ class _NakiThemeProviderState extends State<NakiThemeProvider> with NakiStateful
           ),
         ]);
       } else {
-        customStyles.addAll([baseStyles[1], baseStyles[2]]);
+        styles.addAll([baseStyles[1], baseStyles[2]]);
       }
 
       // dark mode styles
       if (dmTokens != null) {
-        customStyles.addAll([
+        styles.addAll([
           css(
             ':is(.naki-dark-mode, html[data-naki-theme="dark"])',
           ).styles(raw: dmTokens.variables),
 
           css.media(
-            const MediaQuery.all(
-              prefersColorScheme: ColorScheme.dark,
-            ),
+            const MediaQuery.all(prefersColorScheme: ColorScheme.dark),
             [
               css(
                 ':is(.naki-system-mode, html[data-naki-theme="system"])',
@@ -385,8 +386,11 @@ class _NakiThemeProviderState extends State<NakiThemeProvider> with NakiStateful
           ),
         ]);
       } else {
-        customStyles.addAll([baseStyles[3], baseStyles[4]]);
+        styles.addAll([baseStyles[3], baseStyles[4]]);
       }
+
+      // custom styles
+      styles.addAll(_config?.styles ?? []);
     }
 
     final themedContent = InheritedTheme(
@@ -398,7 +402,7 @@ class _NakiThemeProviderState extends State<NakiThemeProvider> with NakiStateful
       onToggleMode: toggleMode,
       child: _ThemeBuilder(
         mode: _mode,
-        styles: customStyles,
+        styles: styles,
         builder: component.builder,
         hasConfig: _isRoot,
       ),
@@ -406,10 +410,7 @@ class _NakiThemeProviderState extends State<NakiThemeProvider> with NakiStateful
 
     if (NakiDomIdScope.maybeOf(context) != null) return themedContent;
 
-    return NakiDomIdScope(
-      registry: _domIdRegistry,
-      child: themedContent,
-    );
+    return NakiDomIdScope(registry: _domIdRegistry, child: themedContent);
   }
 }
 
@@ -466,10 +467,7 @@ class _LocalThemeBuilder extends StatelessComponent {
   final ComponentBuilder builder;
   final ThemeMode mode;
 
-  const _LocalThemeBuilder({
-    required this.builder,
-    required this.mode,
-  });
+  const _LocalThemeBuilder({required this.builder, required this.mode});
 
   @override
   Component build(BuildContext context) => .wrapElement(
@@ -497,24 +495,16 @@ class _ThemeBuilder extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
-    return .fragment([
-      if (styles.isNotEmpty)
-        Document.head(
-          children: [
-            .wrapElement(
-              id: 'tokens',
-              child: Style(styles: styles),
-            ),
-          ],
-        ),
+    final child = hasConfig
+        ? builder(context)
+        : _LocalThemeBuilder(builder: builder, mode: mode);
 
-      hasConfig
-          ? builder(context)
-          : _LocalThemeBuilder(
-              builder: builder,
-              mode: mode,
-            ),
-    ]);
+    return styles.isEmpty
+        ? child
+        : .fragment([
+            Document.head(children: [StyleRules(styles, id: 'tokens')]),
+            child,
+          ]);
   }
 }
 
@@ -724,7 +714,8 @@ class _DarkModeTokens extends Tokens {
 
   /// Slider track color (dark: opacity 70%).
   @override
-  String get sliderTrackColorValue => 'color-mix(in srgb, currentcolor 70%, transparent)';
+  String get sliderTrackColorValue =>
+      'color-mix(in srgb, currentcolor 70%, transparent)';
 
   /// Switch thumb color (dark: `currentcolor`).
   @override
@@ -1018,9 +1009,11 @@ class ColorSeed {
       mutedColor: mutedColor ?? this.mutedColor,
       subtitleColor: subtitleColor ?? this.subtitleColor,
       selectedItemColor: selectedItemColor ?? this.selectedItemColor,
-      selectedTextBackgroundColor: selectedTextBackgroundColor ?? this.selectedTextBackgroundColor,
+      selectedTextBackgroundColor:
+          selectedTextBackgroundColor ?? this.selectedTextBackgroundColor,
       selectedTextColor: selectedTextColor ?? this.selectedTextColor,
-      selectedItemBackgroundColor: selectedItemBackgroundColor ?? this.selectedItemBackgroundColor,
+      selectedItemBackgroundColor:
+          selectedItemBackgroundColor ?? this.selectedItemBackgroundColor,
       backgroundColor: backgroundColor ?? this.backgroundColor,
       errorColor: errorColor ?? this.errorColor,
       successColor: successColor ?? this.successColor,
@@ -1034,7 +1027,8 @@ class ColorSeed {
       surfaceMutedColor: surfaceMutedColor ?? this.surfaceMutedColor,
       focusBorderColor: focusBorderColor ?? this.focusBorderColor,
       hoverColor: hoverColor ?? this.hoverColor,
-      disabledBackgroundColor: disabledBackgroundColor ?? this.disabledBackgroundColor,
+      disabledBackgroundColor:
+          disabledBackgroundColor ?? this.disabledBackgroundColor,
       disabledColor: disabledColor ?? this.disabledColor,
     );
   }
@@ -1219,12 +1213,14 @@ class TypographyScheme {
       fontSizeError: fontSizeError ?? this.fontSizeError,
       fontSizeHint: fontSizeHint ?? this.fontSizeHint,
       fontSizeLabel: fontSizeLabel ?? this.fontSizeLabel,
-      fontSizeSectionHeader: fontSizeSectionHeader ?? this.fontSizeSectionHeader,
+      fontSizeSectionHeader:
+          fontSizeSectionHeader ?? this.fontSizeSectionHeader,
       fontWeightNormal: fontWeightNormal ?? this.fontWeightNormal,
       fontWeightMedium: fontWeightMedium ?? this.fontWeightMedium,
       fontWeightSemiBold: fontWeightSemiBold ?? this.fontWeightSemiBold,
       fontWeightBold: fontWeightBold ?? this.fontWeightBold,
-      fontWeightSectionHeader: fontWeightSectionHeader ?? this.fontWeightSectionHeader,
+      fontWeightSectionHeader:
+          fontWeightSectionHeader ?? this.fontWeightSectionHeader,
     );
   }
 
@@ -1380,7 +1376,8 @@ class BorderScheme {
     return BorderScheme(
       borderColor: borderColor ?? this.borderColor,
       borderWidth: borderWidth ?? this.borderWidth,
-      fieldHoverBorderWidth: fieldHoverBorderWidth ?? this.fieldHoverBorderWidth,
+      fieldHoverBorderWidth:
+          fieldHoverBorderWidth ?? this.fieldHoverBorderWidth,
       focusBorderWidth: focusBorderWidth ?? this.focusBorderWidth,
       errorBorderWidth: errorBorderWidth ?? this.errorBorderWidth,
     );
@@ -1507,12 +1504,7 @@ class RadiusScheme {
   }
 
   @override
-  int get hashCode => Object.hash(
-    radiusSm,
-    radiusMd,
-    radiusLg,
-    shapeRadius,
-  );
+  int get hashCode => Object.hash(radiusSm, radiusMd, radiusLg, shapeRadius);
 }
 
 /// Represents customizable variables for Naki components.
@@ -1857,8 +1849,10 @@ class ComponentScheme {
     dropdownHeight: dropdownHeight ?? this.dropdownHeight,
     dropdownWidth: dropdownWidth ?? this.dropdownWidth,
     dropdownMenuHeight: dropdownMenuHeight ?? this.dropdownMenuHeight,
-    dropdownMenuBackgroundColor: dropdownMenuBackgroundColor ?? this.dropdownMenuBackgroundColor,
-    dropdownOptionFontSize: dropdownOptionFontSize ?? this.dropdownOptionFontSize,
+    dropdownMenuBackgroundColor:
+        dropdownMenuBackgroundColor ?? this.dropdownMenuBackgroundColor,
+    dropdownOptionFontSize:
+        dropdownOptionFontSize ?? this.dropdownOptionFontSize,
     dropdownOptionPadding: dropdownOptionPadding ?? this.dropdownOptionPadding,
     spinnerSize: spinnerSize ?? this.spinnerSize,
     spinnerBorderWidth: spinnerBorderWidth ?? this.spinnerBorderWidth,
@@ -1874,39 +1868,50 @@ class ComponentScheme {
     radioButtonColor: radioButtonColor ?? this.radioButtonColor,
     appbarBackgroundColor: appbarBackgroundColor ?? this.appbarBackgroundColor,
     appbarHeight: appbarHeight ?? this.appbarHeight,
-    bottomNavbarBackgroundColor: bottomNavbarBackgroundColor ?? this.bottomNavbarBackgroundColor,
+    bottomNavbarBackgroundColor:
+        bottomNavbarBackgroundColor ?? this.bottomNavbarBackgroundColor,
     bottomNavbarHeight: bottomNavbarHeight ?? this.bottomNavbarHeight,
     carouselItemExtent: carouselItemExtent ?? this.carouselItemExtent,
     carouselGap: carouselGap ?? this.carouselGap,
-    tableHeaderBackgroundColor: tableHeaderBackgroundColor ?? this.tableHeaderBackgroundColor,
-    tableHeaderBorderColor: tableHeaderBorderColor ?? this.tableHeaderBorderColor,
+    tableHeaderBackgroundColor:
+        tableHeaderBackgroundColor ?? this.tableHeaderBackgroundColor,
+    tableHeaderBorderColor:
+        tableHeaderBorderColor ?? this.tableHeaderBorderColor,
     tableRowHoverColor: tableRowHoverColor ?? this.tableRowHoverColor,
     gridGap: gridGap ?? this.gridGap,
-    snackbarBackgroundColor: snackbarBackgroundColor ?? this.snackbarBackgroundColor,
-    snackbarForegroundColor: snackbarForegroundColor ?? this.snackbarForegroundColor,
+    snackbarBackgroundColor:
+        snackbarBackgroundColor ?? this.snackbarBackgroundColor,
+    snackbarForegroundColor:
+        snackbarForegroundColor ?? this.snackbarForegroundColor,
     snackbarBorderRadius: snackbarBorderRadius ?? this.snackbarBorderRadius,
     bannerBackgroundColor: bannerBackgroundColor ?? this.bannerBackgroundColor,
     bannerForegroundColor: bannerForegroundColor ?? this.bannerForegroundColor,
     bannerBorderRadius: bannerBorderRadius ?? this.bannerBorderRadius,
     bannerBorderColor: bannerBorderColor ?? this.bannerBorderColor,
-    tooltipBackgroundColor: tooltipBackgroundColor ?? this.tooltipBackgroundColor,
+    tooltipBackgroundColor:
+        tooltipBackgroundColor ?? this.tooltipBackgroundColor,
     tooltipTextColor: tooltipTextColor ?? this.tooltipTextColor,
     tooltipBorderRadius: tooltipBorderRadius ?? this.tooltipBorderRadius,
     tooltipFontSize: tooltipFontSize ?? this.tooltipFontSize,
-    popoverBackgroundColor: popoverBackgroundColor ?? this.popoverBackgroundColor,
+    popoverBackgroundColor:
+        popoverBackgroundColor ?? this.popoverBackgroundColor,
     popoverTextColor: popoverTextColor ?? this.popoverTextColor,
     popoverBorderColor: popoverBorderColor ?? this.popoverBorderColor,
     popoverBorderRadius: popoverBorderRadius ?? this.popoverBorderRadius,
     dialogBackgroundColor: dialogBackgroundColor ?? this.dialogBackgroundColor,
     dialogBorderRadius: dialogBorderRadius ?? this.dialogBorderRadius,
-    dialogBarrierBackgroundColor: dialogBarrierBackgroundColor ?? this.dialogBarrierBackgroundColor,
+    dialogBarrierBackgroundColor:
+        dialogBarrierBackgroundColor ?? this.dialogBarrierBackgroundColor,
     drawerBackgroundColor: drawerBackgroundColor ?? this.drawerBackgroundColor,
     drawerWidth: drawerWidth ?? this.drawerWidth,
-    drawerBarrierBackgroundColor: drawerBarrierBackgroundColor ?? this.drawerBarrierBackgroundColor,
-    bottomSheetBackgroundColor: bottomSheetBackgroundColor ?? this.bottomSheetBackgroundColor,
+    drawerBarrierBackgroundColor:
+        drawerBarrierBackgroundColor ?? this.drawerBarrierBackgroundColor,
+    bottomSheetBackgroundColor:
+        bottomSheetBackgroundColor ?? this.bottomSheetBackgroundColor,
     bottomSheetMaxHeight: bottomSheetMaxHeight ?? this.bottomSheetMaxHeight,
     bottomSheetBarrierBackgroundColor:
-        bottomSheetBarrierBackgroundColor ?? this.bottomSheetBarrierBackgroundColor,
+        bottomSheetBarrierBackgroundColor ??
+        this.bottomSheetBarrierBackgroundColor,
   );
 
   @override
@@ -1976,7 +1981,8 @@ class ComponentScheme {
         other.drawerBarrierBackgroundColor == drawerBarrierBackgroundColor &&
         other.bottomSheetBackgroundColor == bottomSheetBackgroundColor &&
         other.bottomSheetMaxHeight == bottomSheetMaxHeight &&
-        other.bottomSheetBarrierBackgroundColor == bottomSheetBarrierBackgroundColor;
+        other.bottomSheetBarrierBackgroundColor ==
+            bottomSheetBarrierBackgroundColor;
   }
 
   @override
@@ -2096,13 +2102,16 @@ class LightThemeData extends _LightModeTokens {
   // ===========================================================================
 
   @override
-  String get primaryColorValue => colorSeed?.primary?.value ?? super.primaryColorValue;
+  String get primaryColorValue =>
+      colorSeed?.primary?.value ?? super.primaryColorValue;
 
   @override
-  String get secondaryColorValue => colorSeed?.secondary?.value ?? super.secondaryColorValue;
+  String get secondaryColorValue =>
+      colorSeed?.secondary?.value ?? super.secondaryColorValue;
 
   @override
-  String get accentColorValue => colorSeed?.accent?.value ?? super.accentColorValue;
+  String get accentColorValue =>
+      colorSeed?.accent?.value ?? super.accentColorValue;
 
   @override
   String get greenValue => colorSeed?.green?.value ?? super.greenValue;
@@ -2114,17 +2123,20 @@ class LightThemeData extends _LightModeTokens {
   String get redValue => colorSeed?.red?.value ?? super.redValue;
 
   @override
-  String get baseTextColorValue => colorSeed?.baseTextColor?.value ?? super.baseTextColorValue;
+  String get baseTextColorValue =>
+      colorSeed?.baseTextColor?.value ?? super.baseTextColorValue;
 
   @override
   String get placeholderColorValue =>
       colorSeed?.placeholderColor?.value ?? super.placeholderColorValue;
 
   @override
-  String get mutedColorValue => colorSeed?.mutedColor?.value ?? super.mutedColorValue;
+  String get mutedColorValue =>
+      colorSeed?.mutedColor?.value ?? super.mutedColorValue;
 
   @override
-  String get subtitleColorValue => colorSeed?.subtitleColor?.value ?? super.subtitleColorValue;
+  String get subtitleColorValue =>
+      colorSeed?.subtitleColor?.value ?? super.subtitleColorValue;
 
   @override
   String get selectedItemColorValue =>
@@ -2132,7 +2144,8 @@ class LightThemeData extends _LightModeTokens {
 
   @override
   String get selectedTextBgColorValue =>
-      colorSeed?.selectedTextBackgroundColor?.value ?? super.selectedTextBgColorValue;
+      colorSeed?.selectedTextBackgroundColor?.value ??
+      super.selectedTextBgColorValue;
 
   @override
   String get selectedTextColorValue =>
@@ -2140,29 +2153,36 @@ class LightThemeData extends _LightModeTokens {
 
   @override
   String get selectedItemBgColorValue =>
-      colorSeed?.selectedItemBackgroundColor?.value ?? super.selectedItemBgColorValue;
+      colorSeed?.selectedItemBackgroundColor?.value ??
+      super.selectedItemBgColorValue;
 
   @override
   String get backgroundColorValue =>
       colorSeed?.backgroundColor?.value ?? super.backgroundColorValue;
 
   @override
-  String get borderColorValue => borderWidth?.borderColor?.value ?? super.borderColorValue;
+  String get borderColorValue =>
+      borderWidth?.borderColor?.value ?? super.borderColorValue;
 
   @override
-  String get errorColorValue => colorSeed?.errorColor?.value ?? super.errorColorValue;
+  String get errorColorValue =>
+      colorSeed?.errorColor?.value ?? super.errorColorValue;
 
   @override
-  String get successColorValue => colorSeed?.successColor?.value ?? super.successColorValue;
+  String get successColorValue =>
+      colorSeed?.successColor?.value ?? super.successColorValue;
 
   @override
-  String get warningColorValue => colorSeed?.warningColor?.value ?? super.warningColorValue;
+  String get warningColorValue =>
+      colorSeed?.warningColor?.value ?? super.warningColorValue;
 
   @override
-  String get infoColorValue => colorSeed?.infoColor?.value ?? super.infoColorValue;
+  String get infoColorValue =>
+      colorSeed?.infoColor?.value ?? super.infoColorValue;
 
   @override
-  String get errorWeakColorValue => colorSeed?.errorWeakColor?.value ?? super.errorWeakColorValue;
+  String get errorWeakColorValue =>
+      colorSeed?.errorWeakColor?.value ?? super.errorWeakColorValue;
 
   @override
   String get successWeakColorValue =>
@@ -2173,7 +2193,8 @@ class LightThemeData extends _LightModeTokens {
       colorSeed?.warningWeakColor?.value ?? super.warningWeakColorValue;
 
   @override
-  String get infoWeakColorValue => colorSeed?.infoWeakColor?.value ?? super.infoWeakColorValue;
+  String get infoWeakColorValue =>
+      colorSeed?.infoWeakColor?.value ?? super.infoWeakColorValue;
 
   @override
   String get surfaceVariantColorValue =>
@@ -2184,7 +2205,8 @@ class LightThemeData extends _LightModeTokens {
       colorSeed?.surfaceMutedColor?.value ?? super.surfaceMutedColorValue;
 
   @override
-  String get shadowColorValue => elevation?.shadowColor?.value ?? super.shadowColorValue;
+  String get shadowColorValue =>
+      elevation?.shadowColor?.value ?? super.shadowColorValue;
 
   @override
   String get smallShadowColorValue =>
@@ -2207,10 +2229,12 @@ class LightThemeData extends _LightModeTokens {
       colorSeed?.disabledBackgroundColor?.value ?? super.disabledBgColorValue;
 
   @override
-  String get disabledColorValue => colorSeed?.disabledColor?.value ?? super.disabledColorValue;
+  String get disabledColorValue =>
+      colorSeed?.disabledColor?.value ?? super.disabledColorValue;
 
   @override
-  String get hoverColorValue => colorSeed?.hoverColor?.value ?? super.hoverColorValue;
+  String get hoverColorValue =>
+      colorSeed?.hoverColor?.value ?? super.hoverColorValue;
 
   // ===========================================================================
   // Border Tokens Overrides
@@ -2257,7 +2281,8 @@ class LightThemeData extends _LightModeTokens {
   // ===========================================================================
 
   @override
-  Token get fontFamily => typography?.fontFamily != null && typography!.fontFamily!.isNotEmpty
+  Token get fontFamily =>
+      typography?.fontFamily != null && typography!.fontFamily!.isNotEmpty
       ? Token(
           value: typography!.fontFamily!.join(','),
           name: super.fontFamily.name,
@@ -2393,7 +2418,8 @@ class LightThemeData extends _LightModeTokens {
       : super.fontWeightBold;
 
   @override
-  Token get fontWeightSectionHeader => typography?.fontWeightSectionHeader != null
+  Token get fontWeightSectionHeader =>
+      typography?.fontWeightSectionHeader != null
       ? Token(
           value: typography!.fontWeightSectionHeader.toString(),
           name: super.fontWeightSectionHeader.name,
@@ -2406,50 +2432,32 @@ class LightThemeData extends _LightModeTokens {
 
   @override
   Token get paddingSm => spacing?.paddingSm != null
-      ? Token(
-          value: spacing!.paddingSm!.cssText,
-          name: super.paddingSm.name,
-        )
+      ? Token(value: spacing!.paddingSm!.cssText, name: super.paddingSm.name)
       : super.paddingSm;
 
   @override
   Token get paddingMd => spacing?.paddingMd != null
-      ? Token(
-          value: spacing!.paddingMd!.cssText,
-          name: super.paddingMd.name,
-        )
+      ? Token(value: spacing!.paddingMd!.cssText, name: super.paddingMd.name)
       : super.paddingMd;
 
   @override
   Token get paddingLg => spacing?.paddingLg != null
-      ? Token(
-          value: spacing!.paddingLg!.cssText,
-          name: super.paddingLg.name,
-        )
+      ? Token(value: spacing!.paddingLg!.cssText, name: super.paddingLg.name)
       : super.paddingLg;
 
   @override
   Token get marginSm => spacing?.marginSm != null
-      ? Token(
-          value: spacing!.marginSm!.cssText,
-          name: super.marginSm.name,
-        )
+      ? Token(value: spacing!.marginSm!.cssText, name: super.marginSm.name)
       : super.marginSm;
 
   @override
   Token get marginMd => spacing?.marginMd != null
-      ? Token(
-          value: spacing!.marginMd!.cssText,
-          name: super.marginMd.name,
-        )
+      ? Token(value: spacing!.marginMd!.cssText, name: super.marginMd.name)
       : super.marginMd;
 
   @override
   Token get marginLg => spacing?.marginLg != null
-      ? Token(
-          value: spacing!.marginLg!.cssText,
-          name: super.marginLg.name,
-        )
+      ? Token(value: spacing!.marginLg!.cssText, name: super.marginLg.name)
       : super.marginLg;
 
   // ===========================================================================
@@ -2458,26 +2466,17 @@ class LightThemeData extends _LightModeTokens {
 
   @override
   Token get radiusSm => radius?.radiusSm != null
-      ? Token(
-          value: radius!.radiusSm!.cssText,
-          name: super.radiusSm.name,
-        )
+      ? Token(value: radius!.radiusSm!.cssText, name: super.radiusSm.name)
       : super.radiusSm;
 
   @override
   Token get radiusMd => radius?.radiusMd != null
-      ? Token(
-          value: radius!.radiusMd!.cssText,
-          name: super.radiusMd.name,
-        )
+      ? Token(value: radius!.radiusMd!.cssText, name: super.radiusMd.name)
       : super.radiusMd;
 
   @override
   Token get radiusLg => radius?.radiusLg != null
-      ? Token(
-          value: radius!.radiusLg!.cssText,
-          name: super.radiusLg.name,
-        )
+      ? Token(value: radius!.radiusLg!.cssText, name: super.radiusLg.name)
       : super.radiusLg;
 
   // ===========================================================================
@@ -2501,10 +2500,12 @@ class LightThemeData extends _LightModeTokens {
       : super.inputHeight;
 
   @override
-  String get inputTextColorValue => component?.inputTextColor?.value ?? super.inputTextColorValue;
+  String get inputTextColorValue =>
+      component?.inputTextColor?.value ?? super.inputTextColorValue;
 
   @override
-  String get labelColorValue => component?.labelColor?.value ?? super.labelColorValue;
+  String get labelColorValue =>
+      component?.labelColor?.value ?? super.labelColorValue;
 
   @override
   Token get fontSizeInput => component?.fontSizeInput != null
@@ -2524,10 +2525,12 @@ class LightThemeData extends _LightModeTokens {
 
   @override
   String get buttonBackgroundColorValue =>
-      component?.buttonBackgroundColor?.value ?? super.buttonBackgroundColorValue;
+      component?.buttonBackgroundColor?.value ??
+      super.buttonBackgroundColorValue;
 
   @override
-  String get buttonColorValue => component?.buttonColor?.value ?? super.buttonColorValue;
+  String get buttonColorValue =>
+      component?.buttonColor?.value ?? super.buttonColorValue;
 
   @override
   String get buttonHoverBgColorValue =>
@@ -2575,7 +2578,8 @@ class LightThemeData extends _LightModeTokens {
 
   @override
   String get dropdownMenuBgColorValue =>
-      component?.dropdownMenuBackgroundColor?.value ?? super.dropdownMenuBgColorValue;
+      component?.dropdownMenuBackgroundColor?.value ??
+      super.dropdownMenuBgColorValue;
 
   @override
   Token get dropdownOptionFontSize => component?.dropdownOptionFontSize != null
@@ -2646,7 +2650,8 @@ class LightThemeData extends _LightModeTokens {
       : super.radioBtnRadius;
 
   @override
-  String get radioBtnColorValue => component?.radioButtonColor?.value ?? super.radioBtnColorValue;
+  String get radioBtnColorValue =>
+      component?.radioButtonColor?.value ?? super.radioBtnColorValue;
 
   @override
   String get appbarBgColorValue =>
@@ -2662,7 +2667,8 @@ class LightThemeData extends _LightModeTokens {
 
   @override
   String get bottomNavbarBgColorValue =>
-      component?.bottomNavbarBackgroundColor?.value ?? super.bottomNavbarBgColorValue;
+      component?.bottomNavbarBackgroundColor?.value ??
+      super.bottomNavbarBgColorValue;
 
   @override
   Token get bottomNavbarHeight => component?.bottomNavbarHeight != null
@@ -2698,10 +2704,7 @@ class LightThemeData extends _LightModeTokens {
 
   @override
   Token get gridGap => component?.gridGap != null
-      ? Token(
-          value: component!.gridGap!.cssText,
-          name: super.gridGap.name,
-        )
+      ? Token(value: component!.gridGap!.cssText, name: super.gridGap.name)
       : super.gridGap;
 
   @override
@@ -2710,7 +2713,8 @@ class LightThemeData extends _LightModeTokens {
 
   @override
   String get snackbarForegroundColorValue =>
-      component?.snackbarForegroundColor?.value ?? super.snackbarForegroundColorValue;
+      component?.snackbarForegroundColor?.value ??
+      super.snackbarForegroundColorValue;
 
   @override
   Token get snackbarBorderRadius => component?.snackbarBorderRadius != null
@@ -2726,7 +2730,8 @@ class LightThemeData extends _LightModeTokens {
 
   @override
   String get bannerForegroundColorValue =>
-      component?.bannerForegroundColor?.value ?? super.bannerForegroundColorValue;
+      component?.bannerForegroundColor?.value ??
+      super.bannerForegroundColorValue;
 
   @override
   Token get bannerBorderRadius => component?.bannerBorderRadius != null
@@ -2798,7 +2803,8 @@ class LightThemeData extends _LightModeTokens {
 
   @override
   String get dialogBarrierBgValue =>
-      component?.dialogBarrierBackgroundColor?.value ?? super.dialogBarrierBgValue;
+      component?.dialogBarrierBackgroundColor?.value ??
+      super.dialogBarrierBgValue;
 
   @override
   String get drawerBgColorValue =>
@@ -2814,11 +2820,13 @@ class LightThemeData extends _LightModeTokens {
 
   @override
   String get drawerBarrierBgValue =>
-      component?.drawerBarrierBackgroundColor?.value ?? super.drawerBarrierBgValue;
+      component?.drawerBarrierBackgroundColor?.value ??
+      super.drawerBarrierBgValue;
 
   @override
   String get bottomSheetBgColorValue =>
-      component?.bottomSheetBackgroundColor?.value ?? super.bottomSheetBgColorValue;
+      component?.bottomSheetBackgroundColor?.value ??
+      super.bottomSheetBgColorValue;
 
   @override
   Token get bottomSheetMaxHeight => component?.bottomSheetMaxHeight != null
@@ -2830,7 +2838,8 @@ class LightThemeData extends _LightModeTokens {
 
   @override
   String get bottomSheetBarrierBgValue =>
-      component?.bottomSheetBarrierBackgroundColor?.value ?? super.bottomSheetBarrierBgValue;
+      component?.bottomSheetBarrierBackgroundColor?.value ??
+      super.bottomSheetBarrierBgValue;
 
   @override
   bool operator ==(Object other) {
@@ -2907,13 +2916,16 @@ class DarkThemeData extends _DarkModeTokens {
   // ===========================================================================
 
   @override
-  String get primaryColorValue => colorSeed?.primary?.value ?? super.primaryColorValue;
+  String get primaryColorValue =>
+      colorSeed?.primary?.value ?? super.primaryColorValue;
 
   @override
-  String get secondaryColorValue => colorSeed?.secondary?.value ?? super.secondaryColorValue;
+  String get secondaryColorValue =>
+      colorSeed?.secondary?.value ?? super.secondaryColorValue;
 
   @override
-  String get accentColorValue => colorSeed?.accent?.value ?? super.accentColorValue;
+  String get accentColorValue =>
+      colorSeed?.accent?.value ?? super.accentColorValue;
 
   @override
   String get greenValue => colorSeed?.green?.value ?? super.greenValue;
@@ -2925,17 +2937,20 @@ class DarkThemeData extends _DarkModeTokens {
   String get redValue => colorSeed?.red?.value ?? super.redValue;
 
   @override
-  String get baseTextColorValue => colorSeed?.baseTextColor?.value ?? super.baseTextColorValue;
+  String get baseTextColorValue =>
+      colorSeed?.baseTextColor?.value ?? super.baseTextColorValue;
 
   @override
   String get placeholderColorValue =>
       colorSeed?.placeholderColor?.value ?? super.placeholderColorValue;
 
   @override
-  String get mutedColorValue => colorSeed?.mutedColor?.value ?? super.mutedColorValue;
+  String get mutedColorValue =>
+      colorSeed?.mutedColor?.value ?? super.mutedColorValue;
 
   @override
-  String get subtitleColorValue => colorSeed?.subtitleColor?.value ?? super.subtitleColorValue;
+  String get subtitleColorValue =>
+      colorSeed?.subtitleColor?.value ?? super.subtitleColorValue;
 
   @override
   String get selectedItemColorValue =>
@@ -2943,7 +2958,8 @@ class DarkThemeData extends _DarkModeTokens {
 
   @override
   String get selectedTextBgColorValue =>
-      colorSeed?.selectedTextBackgroundColor?.value ?? super.selectedTextBgColorValue;
+      colorSeed?.selectedTextBackgroundColor?.value ??
+      super.selectedTextBgColorValue;
 
   @override
   String get selectedTextColorValue =>
@@ -2951,29 +2967,36 @@ class DarkThemeData extends _DarkModeTokens {
 
   @override
   String get selectedItemBgColorValue =>
-      colorSeed?.selectedItemBackgroundColor?.value ?? super.selectedItemBgColorValue;
+      colorSeed?.selectedItemBackgroundColor?.value ??
+      super.selectedItemBgColorValue;
 
   @override
   String get backgroundColorValue =>
       colorSeed?.backgroundColor?.value ?? super.backgroundColorValue;
 
   @override
-  String get borderColorValue => borderWidth?.borderColor?.value ?? super.borderColorValue;
+  String get borderColorValue =>
+      borderWidth?.borderColor?.value ?? super.borderColorValue;
 
   @override
-  String get errorColorValue => colorSeed?.errorColor?.value ?? super.errorColorValue;
+  String get errorColorValue =>
+      colorSeed?.errorColor?.value ?? super.errorColorValue;
 
   @override
-  String get successColorValue => colorSeed?.successColor?.value ?? super.successColorValue;
+  String get successColorValue =>
+      colorSeed?.successColor?.value ?? super.successColorValue;
 
   @override
-  String get warningColorValue => colorSeed?.warningColor?.value ?? super.warningColorValue;
+  String get warningColorValue =>
+      colorSeed?.warningColor?.value ?? super.warningColorValue;
 
   @override
-  String get infoColorValue => colorSeed?.infoColor?.value ?? super.infoColorValue;
+  String get infoColorValue =>
+      colorSeed?.infoColor?.value ?? super.infoColorValue;
 
   @override
-  String get errorWeakColorValue => colorSeed?.errorWeakColor?.value ?? super.errorWeakColorValue;
+  String get errorWeakColorValue =>
+      colorSeed?.errorWeakColor?.value ?? super.errorWeakColorValue;
 
   @override
   String get successWeakColorValue =>
@@ -2984,7 +3007,8 @@ class DarkThemeData extends _DarkModeTokens {
       colorSeed?.warningWeakColor?.value ?? super.warningWeakColorValue;
 
   @override
-  String get infoWeakColorValue => colorSeed?.infoWeakColor?.value ?? super.infoWeakColorValue;
+  String get infoWeakColorValue =>
+      colorSeed?.infoWeakColor?.value ?? super.infoWeakColorValue;
 
   @override
   String get surfaceVariantColorValue =>
@@ -2995,7 +3019,8 @@ class DarkThemeData extends _DarkModeTokens {
       colorSeed?.surfaceMutedColor?.value ?? super.surfaceMutedColorValue;
 
   @override
-  String get shadowColorValue => elevation?.shadowColor?.value ?? super.shadowColorValue;
+  String get shadowColorValue =>
+      elevation?.shadowColor?.value ?? super.shadowColorValue;
 
   @override
   String get smallShadowColorValue =>
@@ -3014,14 +3039,16 @@ class DarkThemeData extends _DarkModeTokens {
       colorSeed?.focusBorderColor?.value ?? super.focusBorderColorValue;
 
   @override
-  String get hoverColorValue => colorSeed?.hoverColor?.value ?? super.hoverColorValue;
+  String get hoverColorValue =>
+      colorSeed?.hoverColor?.value ?? super.hoverColorValue;
 
   @override
   String get disabledBgColorValue =>
       colorSeed?.disabledBackgroundColor?.value ?? super.disabledBgColorValue;
 
   @override
-  String get disabledColorValue => colorSeed?.disabledColor?.value ?? super.disabledColorValue;
+  String get disabledColorValue =>
+      colorSeed?.disabledColor?.value ?? super.disabledColorValue;
 
   // ===========================================================================
   // Border Tokens Overrides
@@ -3068,7 +3095,8 @@ class DarkThemeData extends _DarkModeTokens {
   // ===========================================================================
 
   @override
-  Token get fontFamily => typography?.fontFamily != null && typography!.fontFamily!.isNotEmpty
+  Token get fontFamily =>
+      typography?.fontFamily != null && typography!.fontFamily!.isNotEmpty
       ? Token(
           value: typography!.fontFamily!.join(','),
           name: super.fontFamily.name,
@@ -3204,7 +3232,8 @@ class DarkThemeData extends _DarkModeTokens {
       : super.fontWeightBold;
 
   @override
-  Token get fontWeightSectionHeader => typography?.fontWeightSectionHeader != null
+  Token get fontWeightSectionHeader =>
+      typography?.fontWeightSectionHeader != null
       ? Token(
           value: typography!.fontWeightSectionHeader.toString(),
           name: super.fontWeightSectionHeader.name,
@@ -3217,50 +3246,32 @@ class DarkThemeData extends _DarkModeTokens {
 
   @override
   Token get paddingSm => spacing?.paddingSm != null
-      ? Token(
-          value: spacing!.paddingSm!.cssText,
-          name: super.paddingSm.name,
-        )
+      ? Token(value: spacing!.paddingSm!.cssText, name: super.paddingSm.name)
       : super.paddingSm;
 
   @override
   Token get paddingMd => spacing?.paddingMd != null
-      ? Token(
-          value: spacing!.paddingMd!.cssText,
-          name: super.paddingMd.name,
-        )
+      ? Token(value: spacing!.paddingMd!.cssText, name: super.paddingMd.name)
       : super.paddingMd;
 
   @override
   Token get paddingLg => spacing?.paddingLg != null
-      ? Token(
-          value: spacing!.paddingLg!.cssText,
-          name: super.paddingLg.name,
-        )
+      ? Token(value: spacing!.paddingLg!.cssText, name: super.paddingLg.name)
       : super.paddingLg;
 
   @override
   Token get marginSm => spacing?.marginSm != null
-      ? Token(
-          value: spacing!.marginSm!.cssText,
-          name: super.marginSm.name,
-        )
+      ? Token(value: spacing!.marginSm!.cssText, name: super.marginSm.name)
       : super.marginSm;
 
   @override
   Token get marginMd => spacing?.marginMd != null
-      ? Token(
-          value: spacing!.marginMd!.cssText,
-          name: super.marginMd.name,
-        )
+      ? Token(value: spacing!.marginMd!.cssText, name: super.marginMd.name)
       : super.marginMd;
 
   @override
   Token get marginLg => spacing?.marginLg != null
-      ? Token(
-          value: spacing!.marginLg!.cssText,
-          name: super.marginLg.name,
-        )
+      ? Token(value: spacing!.marginLg!.cssText, name: super.marginLg.name)
       : super.marginLg;
 
   // ===========================================================================
@@ -3269,26 +3280,17 @@ class DarkThemeData extends _DarkModeTokens {
 
   @override
   Token get radiusSm => radius?.radiusSm != null
-      ? Token(
-          value: radius!.radiusSm!.cssText,
-          name: super.radiusSm.name,
-        )
+      ? Token(value: radius!.radiusSm!.cssText, name: super.radiusSm.name)
       : super.radiusSm;
 
   @override
   Token get radiusMd => radius?.radiusMd != null
-      ? Token(
-          value: radius!.radiusMd!.cssText,
-          name: super.radiusMd.name,
-        )
+      ? Token(value: radius!.radiusMd!.cssText, name: super.radiusMd.name)
       : super.radiusMd;
 
   @override
   Token get radiusLg => radius?.radiusLg != null
-      ? Token(
-          value: radius!.radiusLg!.cssText,
-          name: super.radiusLg.name,
-        )
+      ? Token(value: radius!.radiusLg!.cssText, name: super.radiusLg.name)
       : super.radiusLg;
 
   // ===========================================================================
@@ -3312,10 +3314,12 @@ class DarkThemeData extends _DarkModeTokens {
       : super.inputHeight;
 
   @override
-  String get inputTextColorValue => component?.inputTextColor?.value ?? super.inputTextColorValue;
+  String get inputTextColorValue =>
+      component?.inputTextColor?.value ?? super.inputTextColorValue;
 
   @override
-  String get labelColorValue => component?.labelColor?.value ?? super.labelColorValue;
+  String get labelColorValue =>
+      component?.labelColor?.value ?? super.labelColorValue;
 
   @override
   Token get fontSizeInput => component?.fontSizeInput != null
@@ -3335,10 +3339,12 @@ class DarkThemeData extends _DarkModeTokens {
 
   @override
   String get buttonBackgroundColorValue =>
-      component?.buttonBackgroundColor?.value ?? super.buttonBackgroundColorValue;
+      component?.buttonBackgroundColor?.value ??
+      super.buttonBackgroundColorValue;
 
   @override
-  String get buttonColorValue => component?.buttonColor?.value ?? super.buttonColorValue;
+  String get buttonColorValue =>
+      component?.buttonColor?.value ?? super.buttonColorValue;
 
   @override
   String get buttonHoverBgColorValue =>
@@ -3386,7 +3392,8 @@ class DarkThemeData extends _DarkModeTokens {
 
   @override
   String get dropdownMenuBgColorValue =>
-      component?.dropdownMenuBackgroundColor?.value ?? super.dropdownMenuBgColorValue;
+      component?.dropdownMenuBackgroundColor?.value ??
+      super.dropdownMenuBgColorValue;
 
   @override
   Token get dropdownOptionFontSize => component?.dropdownOptionFontSize != null
@@ -3457,7 +3464,8 @@ class DarkThemeData extends _DarkModeTokens {
       : super.radioBtnRadius;
 
   @override
-  String get radioBtnColorValue => component?.radioButtonColor?.value ?? super.radioBtnColorValue;
+  String get radioBtnColorValue =>
+      component?.radioButtonColor?.value ?? super.radioBtnColorValue;
 
   @override
   String get appbarBgColorValue =>
@@ -3473,7 +3481,8 @@ class DarkThemeData extends _DarkModeTokens {
 
   @override
   String get bottomNavbarBgColorValue =>
-      component?.bottomNavbarBackgroundColor?.value ?? super.bottomNavbarBgColorValue;
+      component?.bottomNavbarBackgroundColor?.value ??
+      super.bottomNavbarBgColorValue;
 
   @override
   Token get bottomNavbarHeight => component?.bottomNavbarHeight != null
@@ -3509,10 +3518,7 @@ class DarkThemeData extends _DarkModeTokens {
 
   @override
   Token get gridGap => component?.gridGap != null
-      ? Token(
-          value: component!.gridGap!.cssText,
-          name: super.gridGap.name,
-        )
+      ? Token(value: component!.gridGap!.cssText, name: super.gridGap.name)
       : super.gridGap;
 
   @override
@@ -3521,7 +3527,8 @@ class DarkThemeData extends _DarkModeTokens {
 
   @override
   String get snackbarForegroundColorValue =>
-      component?.snackbarForegroundColor?.value ?? super.snackbarForegroundColorValue;
+      component?.snackbarForegroundColor?.value ??
+      super.snackbarForegroundColorValue;
 
   @override
   Token get snackbarBorderRadius => component?.snackbarBorderRadius != null
@@ -3537,7 +3544,8 @@ class DarkThemeData extends _DarkModeTokens {
 
   @override
   String get bannerForegroundColorValue =>
-      component?.bannerForegroundColor?.value ?? super.bannerForegroundColorValue;
+      component?.bannerForegroundColor?.value ??
+      super.bannerForegroundColorValue;
 
   @override
   Token get bannerBorderRadius => component?.bannerBorderRadius != null
@@ -3609,7 +3617,8 @@ class DarkThemeData extends _DarkModeTokens {
 
   @override
   String get dialogBarrierBgValue =>
-      component?.dialogBarrierBackgroundColor?.value ?? super.dialogBarrierBgValue;
+      component?.dialogBarrierBackgroundColor?.value ??
+      super.dialogBarrierBgValue;
 
   @override
   String get drawerBgColorValue =>
@@ -3625,11 +3634,13 @@ class DarkThemeData extends _DarkModeTokens {
 
   @override
   String get drawerBarrierBgValue =>
-      component?.drawerBarrierBackgroundColor?.value ?? super.drawerBarrierBgValue;
+      component?.drawerBarrierBackgroundColor?.value ??
+      super.drawerBarrierBgValue;
 
   @override
   String get bottomSheetBgColorValue =>
-      component?.bottomSheetBackgroundColor?.value ?? super.bottomSheetBgColorValue;
+      component?.bottomSheetBackgroundColor?.value ??
+      super.bottomSheetBgColorValue;
 
   @override
   Token get bottomSheetMaxHeight => component?.bottomSheetMaxHeight != null
@@ -3641,7 +3652,8 @@ class DarkThemeData extends _DarkModeTokens {
 
   @override
   String get bottomSheetBarrierBgValue =>
-      component?.bottomSheetBarrierBackgroundColor?.value ?? super.bottomSheetBarrierBgValue;
+      component?.bottomSheetBarrierBackgroundColor?.value ??
+      super.bottomSheetBarrierBgValue;
 
   @override
   bool operator ==(Object other) {
@@ -3720,6 +3732,9 @@ final class ThemeConfig {
   /// Scroll bar configuration.
   final ScrollBarConfiguration? scrollBarConfiguration;
 
+  /// Custom styles to add to the theme
+  final List<StyleRule> styles;
+
   /// {@macro ThemeConfig}
   const ThemeConfig({
     this.initialMode = ThemeMode.system,
@@ -3727,38 +3742,31 @@ final class ThemeConfig {
     this.lightThemeData,
     this.darkThemeData,
     this.scrollBarConfiguration,
+    this.styles = const [],
   });
 
   /// The default styles for theme modes
   static final defaultStyles = [
-    css('').styles(
-      raw: {'-----default-naki-theme-tokens-----': '""'},
-    ),
+    css('').styles(raw: {'-----default-styles-----': '""'}),
 
     css(
       ':is(.naki-light-mode, html[data-naki-theme="light"])',
     ).styles(raw: const _LightModeTokens().variables),
 
-    css.media(
-      const MediaQuery.all(prefersColorScheme: ColorScheme.light),
-      [
-        css(
-          ':is(.naki-system-mode, html[data-naki-theme="system"])',
-        ).styles(raw: const _LightModeTokens().variables),
-      ],
-    ),
+    css.media(const MediaQuery.all(prefersColorScheme: ColorScheme.light), [
+      css(
+        ':is(.naki-system-mode, html[data-naki-theme="system"])',
+      ).styles(raw: const _LightModeTokens().variables),
+    ]),
 
     css(
       ':is(.naki-dark-mode, html[data-naki-theme="dark"])',
     ).styles(raw: const _DarkModeTokens().variables),
 
-    css.media(
-      const MediaQuery.all(prefersColorScheme: ColorScheme.dark),
-      [
-        css(
-          ':is(.naki-system-mode, html[data-naki-theme="system"])',
-        ).styles(raw: const _DarkModeTokens().variables),
-      ],
-    ),
+    css.media(const MediaQuery.all(prefersColorScheme: ColorScheme.dark), [
+      css(
+        ':is(.naki-system-mode, html[data-naki-theme="system"])',
+      ).styles(raw: const _DarkModeTokens().variables),
+    ]),
   ];
 }

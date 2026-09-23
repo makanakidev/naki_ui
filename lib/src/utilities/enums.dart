@@ -1,4 +1,5 @@
 import '../models/styling.dart';
+import 'constants.dart';
 
 /// Alias for [Placement].
 typedef Position = Placement;
@@ -508,19 +509,24 @@ enum ScrollDirection {
 /// Determines the scrolling physics behavior.
 enum ScrollPhysicsType {
   /// Standard browser scrolling behavior.
-  adaptive,
+  adaptive('adaptive'),
 
   /// Prevents scrolling.
-  neverScrollable,
+  neverScrollable('never_scrollable'),
 
   /// Allows scrolling beyond content bounds with bounce (iOS-like).
-  bouncing,
+  bouncing('bouncing'),
 
   /// Clamps scrolling strictly to content bounds (Android-like).
-  clamping,
+  clamping('clamping'),
 
   /// Snaps scrolling to the nearest item.
-  snapping,
+  snapping('snapping')
+  ;
+
+  /// The CSS value representing the scrolling physics type.
+  final String name;
+  const ScrollPhysicsType(this.name);
 }
 
 /// Defines the alignment of items in a carousel view.
@@ -658,7 +664,7 @@ enum BackdropFilterType {
   String cssText(Dim value) => '$cssName($value)';
 }
 
-/// Severity / intent type for [Banner] components.
+/// Severity / intent type for `Banner` component.
 enum BannerType {
   /// Informational alert (blue tint).
   info,
@@ -676,7 +682,7 @@ enum BannerType {
   neutral,
 }
 
-/// Screen positioning for [Snackbar] components.
+/// Screen positioning for `Snackbar` component.
 enum SnackbarPosition {
   /// Top center of the screen.
   top('sb-top'),
@@ -702,7 +708,7 @@ enum SnackbarPosition {
   const SnackbarPosition(this.className);
 }
 
-/// Slide direction / anchor for [Drawer] component.
+/// Slide direction / anchor for `Drawer` component.
 enum DrawerPosition {
   /// Drawer slides from the left edge.
   left,
@@ -711,7 +717,7 @@ enum DrawerPosition {
   right,
 }
 
-/// Placement position for [Tooltip] relative to its target.
+/// Placement position for `Tooltip` relative to its target.
 enum TooltipPosition {
   /// Tooltip appears above the target component.
   top,
@@ -728,7 +734,7 @@ enum TooltipPosition {
   right,
 }
 
-/// Placement position for [Popover] relative to its target.
+/// Placement position for `Popover` relative to its target.
 enum PopoverPosition {
   /// Popover appears above the target component.
   top,
@@ -768,7 +774,7 @@ enum PopoverPosition {
   };
 }
 
-/// Positioning / alignment option for [Dialog] components.
+/// Positioning / alignment option for `Dialog` component.
 enum DialogPosition {
   /// Aligns dialog at the center of the screen (default).
   center,
@@ -780,7 +786,7 @@ enum DialogPosition {
   bottom,
 }
 
-/// Defines the allowed input character types for [SegmentedInput].
+/// Defines the allowed input character types for `SegmentedInput` component.
 enum SegmentedInputType {
   /// Numeric input only (digits 0-9).
   /// Recommended for OTP/PIN fields.
@@ -794,7 +800,7 @@ enum SegmentedInputType {
 }
 
 /// Represents the visual shape of individual segment
-/// fields in [SegmentedInput].
+/// fields in `SegmentedInput` component.
 enum SegmentedInputShape {
   /// Standard rectangular/square box with rounded corners.
   box,
@@ -896,7 +902,7 @@ enum ValidationPattern {
   const ValidationPattern(this.value);
 }
 
-/// Defines [Calendar] type.
+/// Defines `Calendar` type.
 enum CalendarType {
   /// Shows date only.
   date,
@@ -924,7 +930,7 @@ enum Brightness {
   dark,
 }
 
-/// Defines [BottomNavigationBar] type.
+/// Defines `BottomNavigationBar` type.
 enum BottomNavigationBarType {
   /// The bottom navigation bar is elevated, centered on the screen,
   /// and has a smaller width than the screen width.
@@ -972,7 +978,7 @@ enum BottomNavigationBarLandscapeLayout {
   const BottomNavigationBarLandscapeLayout(this.className);
 }
 
-/// Defines [Card] type.
+/// Defines `Card` type.
 enum CardVariant {
   /// Default card with elevation shadow.
   elevated,
@@ -1086,4 +1092,238 @@ enum FileType {
   final String value;
   final String name;
   const FileType(this.value, this.name);
+}
+
+/// Defines BreakPoint sizes for responsive design.
+enum BreakPoint {
+  /// Extra small screens (less than 480px) e.g. mobile phones.
+  xs(kBreakpointXSmall, 'br-xs'),
+
+  /// Small screens (480px to 576px) e.g. larger phones.
+  sm(kBreakpointSmall, 'br-sm'),
+
+  /// Medium screens (576px to 768px) e.g. tablets.
+  md(kBreakpointMedium, 'br-md'),
+
+  /// Large screens (768px to 1024px) e.g. laptops.
+  lg(kBreakpointLarge, 'br-lg'),
+
+  /// Extra large screens (1024px and above) e.g. desktops.
+  xl(kBreakpointXLarge, 'br-xl')
+  ;
+
+  /// Breakpoint for mobile phones (less than 480px).
+  static BreakPoint get mobile => BreakPoint.xs;
+
+  /// Breakpoint for larger phones (480px to 576px).
+  static BreakPoint get largerPhone => BreakPoint.sm;
+
+  /// Breakpoint for tablets (576px to 768px).
+  static BreakPoint get tablet => BreakPoint.md;
+
+  /// Breakpoint for laptops (768px to 1024px).
+  static BreakPoint get laptop => BreakPoint.lg;
+
+  /// Breakpoint for desktops (1024px and above).
+  static BreakPoint get desktop => BreakPoint.xl;
+
+  /// The width in pixels.
+  final double value;
+
+  /// The CSS class name.
+  final String className;
+
+  /// Creates a new breakpoint instance.
+  const BreakPoint(this.value, this.className);
+
+  /// Returns the [BreakPoint] for the given width.
+  ///
+  /// ```dart
+  /// const width = 420;
+  /// final breakpoint = BreakPoint.from(width);
+  /// print(breakpoint); // BreakPoint.xs
+  /// ```
+  ///
+  /// [width]: The width in pixels.
+  factory BreakPoint.from(double width) {
+    if (width <= kBreakpointXSmall) {
+      return BreakPoint.xs;
+    } else if (width <= kBreakpointSmall) {
+      return BreakPoint.sm;
+    } else if (width <= kBreakpointMedium) {
+      return BreakPoint.md;
+    } else if (width <= kBreakpointLarge) {
+      return BreakPoint.lg;
+    } else {
+      return BreakPoint.xl;
+    }
+  }
+}
+
+/// Defines `Gradient` type.
+enum GradientType {
+  /// Linear gradient.
+  linear('linear-gradient'),
+
+  /// Radial gradient.
+  radial('radial-gradient'),
+
+  /// Conic gradient.
+  conic('conic-gradient'),
+
+  /// Repeating linear gradient.
+  repeatingLinear('repeating-linear-gradient'),
+
+  /// Repeating radial gradient.
+  repeatingRadial('repeating-radial-gradient'),
+
+  /// Repeating conic gradient.
+  repeatingConic('repeating-conic-gradient')
+  ;
+
+  /// The CSS class name representing the gradient style.
+  final String cssName;
+
+  /// Creates a new gradient type.
+  const GradientType(this.cssName);
+
+  /// Converts the gradient type and stops to a CSS string
+  /// (e.g., "linear-gradient(to right, red, blue)").
+  String cssText(List<String> stops) => '$cssName(${stops.join(", ")})';
+}
+
+/// Defines direction for linear gradients.
+enum LinearGradientDirection {
+  /// Gradients towards the top (`to top`).
+  toTop('to top'),
+
+  /// Gradients towards the bottom (`to bottom`).
+  toBottom('to bottom'),
+
+  /// Gradients towards the left (`to left`).
+  toLeft('to left'),
+
+  /// Gradients towards the right (`to right`).
+  toRight('to right'),
+
+  /// Gradients towards the top-left corner (`to top left`).
+  toTopLeft('to top left'),
+
+  /// Gradients towards the top-right corner (`to top right`).
+  toTopRight('to top right'),
+
+  /// Gradients towards the bottom-left corner (`to bottom left`).
+  toBottomLeft('to bottom left'),
+
+  /// Gradients towards the bottom-right corner (`to bottom right`).
+  toBottomRight('to bottom right')
+  ;
+
+  /// The standard CSS direction value.
+  final String value;
+
+  /// Creates a linear gradient direction.
+  const LinearGradientDirection(this.value);
+}
+
+/// Defines center position for radial gradients.
+enum RadialGradientPosition {
+  /// Centered position (`center`).
+  center('center'),
+
+  /// Top center position (`top`).
+  top('top'),
+
+  /// Bottom center position (`bottom`).
+  bottom('bottom'),
+
+  /// Left center position (`left`).
+  left('left'),
+
+  /// Right center position (`right`).
+  right('right'),
+
+  /// Top-left corner (`top left`).
+  topLeft('top left'),
+
+  /// Top-right corner (`top right`).
+  topRight('top right'),
+
+  /// Bottom-left corner (`bottom left`).
+  bottomLeft('bottom left'),
+
+  /// Bottom-right corner (`bottom right`).
+  bottomRight('bottom right')
+  ;
+
+  /// The standard CSS position value.
+  final String value;
+
+  /// Creates a radial gradient position.
+  const RadialGradientPosition(this.value);
+}
+
+/// Defines center position for conic gradients.
+enum ConicGradientPosition {
+  /// Centered position (`center`).
+  center('center'),
+
+  /// Top center position (`top`).
+  top('top'),
+
+  /// Bottom center position (`bottom`).
+  bottom('bottom'),
+
+  /// Left center position (`left`).
+  left('left'),
+
+  /// Right center position (`right`).
+  right('right'),
+
+  /// Top-left corner (`top left`).
+  topLeft('top left'),
+
+  /// Top-right corner (`top right`).
+  topRight('top right'),
+
+  /// Bottom-left corner (`bottom left`).
+  bottomLeft('bottom left'),
+
+  /// Bottom-right corner (`bottom right`).
+  bottomRight('bottom right')
+  ;
+
+  /// The standard CSS position value.
+  final String value;
+
+  /// Creates a conic gradient position.
+  const ConicGradientPosition(this.value);
+}
+
+/// Defines geometric shape types for components, gradients, and clippings.
+enum Shape {
+  /// Circular shape (`circle`).
+  circle('circle'),
+
+  /// Elliptical shape (`ellipse`).
+  ellipse('ellipse'),
+
+  /// Rectangular shape (`rectangle`).
+  rectangle('rectangle'),
+
+  /// Square shape (`square`).
+  square('square'),
+
+  /// Pill/capsule shape (`pill`).
+  pill('pill'),
+
+  /// Triangle shape (`triangle`).
+  triangle('triangle')
+  ;
+
+  /// The standard CSS value representing the shape.
+  final String value;
+
+  /// Creates a shape instance.
+  const Shape(this.value);
 }

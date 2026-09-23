@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'package:jaspr/dom.dart' hide AspectRatio;
 import 'package:jaspr/jaspr.dart';
-import 'package:universal_web/web.dart';
+import 'package:universal_web/web.dart' hide Document;
 
 import '../framework/framework.dart';
 import '../models/naki.dart' show ScrollBarConfiguration;
@@ -75,12 +75,19 @@ class ScrollBarWrapper extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
-    return configuration != null
-        ? .fragment([
-            Style(styles: Rules.buildScrollbarRules(selector, configuration!)),
+    return configuration == null
+        ? child
+        : .fragment([
+            Document.head(
+              children: [
+                StyleRules(
+                  Rules.buildScrollbarRules(selector, configuration!),
+                  id: selector.withoutSymbols,
+                ),
+              ],
+            ),
             child,
-          ])
-        : child;
+          ]);
   }
 }
 
@@ -164,11 +171,13 @@ class SingleChildScrollView extends StatefulComponent {
   );
 }
 
-class _SingleChildScrollViewState extends State<SingleChildScrollView> with NakiStatefulMixin {
+class _SingleChildScrollViewState extends State<SingleChildScrollView>
+    with NakiStatefulMixin {
   late final String _id = nakiDomId(context, 'scrollview');
 
   /// Returns the component's global key
-  GlobalNodeKey<HTMLElement>? get _key => component.key is GlobalNodeKey<HTMLElement>
+  GlobalNodeKey<HTMLElement>? get _key =>
+      component.key is GlobalNodeKey<HTMLElement>
       ? component.key as GlobalNodeKey<HTMLElement>
       : null;
 
@@ -176,7 +185,8 @@ class _SingleChildScrollViewState extends State<SingleChildScrollView> with Naki
   FutureOr<VoidCallback?> afterRender(
     BuildContext context,
   ) {
-    final element = _key?.currentNode ?? document.getElementById(_id) as HTMLElement?;
+    final element =
+        _key?.currentNode ?? document.getElementById(_id) as HTMLElement?;
 
     if (element != null && component.controller != null) {
       final controller = component.controller!;
@@ -204,7 +214,8 @@ class _SingleChildScrollViewState extends State<SingleChildScrollView> with Naki
     assert(
       (component.child is! Row && component.child is! Column) ||
           (component.child is Row && !(component.child as Row).scrollable) ||
-          (component.child is Column && !(component.child as Column).scrollable),
+          (component.child is Column &&
+              !(component.child as Column).scrollable),
       'SingleChildScrollView child cannot be scrollable',
     );
 
@@ -511,7 +522,8 @@ class _ListViewState extends State<ListView> with NakiStatefulMixin {
   late final String _id = nakiDomId(context, 'listview');
 
   /// Returns the component's global key
-  GlobalNodeKey<HTMLElement>? get _key => component.key is GlobalNodeKey<HTMLElement>
+  GlobalNodeKey<HTMLElement>? get _key =>
+      component.key is GlobalNodeKey<HTMLElement>
       ? component.key as GlobalNodeKey<HTMLElement>
       : null;
 
@@ -519,7 +531,8 @@ class _ListViewState extends State<ListView> with NakiStatefulMixin {
   FutureOr<VoidCallback?> afterRender(
     BuildContext context,
   ) {
-    final element = _key?.currentNode ?? document.getElementById(_id) as HTMLElement?;
+    final element =
+        _key?.currentNode ?? document.getElementById(_id) as HTMLElement?;
 
     if (element != null && component.controller != null) {
       final controller = component.controller!;
@@ -559,8 +572,12 @@ class _ListViewState extends State<ListView> with NakiStatefulMixin {
         (isHoriz ? 'width' : 'height'): '100%',
       ...?component.padding?.pProps,
       ...?component.physics?.props(component.direction),
-      '--naki-listview-item-extent-h': ?(!isHoriz && extent != null ? extent.cssText : null),
-      '--naki-listview-item-extent-w': ?(isHoriz && extent != null ? extent.cssText : null),
+      '--naki-listview-item-extent-h': ?(!isHoriz && extent != null
+          ? extent.cssText
+          : null),
+      '--naki-listview-item-extent-w': ?(isHoriz && extent != null
+          ? extent.cssText
+          : null),
     };
 
     const baseClass = 'naki-listview';
@@ -645,7 +662,8 @@ class _ListViewBuilder extends ListView {
   State<ListView> createState() => _ListViewBuilderState();
 }
 
-class _ListViewBuilderState extends State<_ListViewBuilder> with NakiStatefulMixin {
+class _ListViewBuilderState extends State<_ListViewBuilder>
+    with NakiStatefulMixin {
   late String _id;
   late int _renderedItemCount;
 
@@ -653,9 +671,15 @@ class _ListViewBuilderState extends State<_ListViewBuilder> with NakiStatefulMix
   bool _isLoadingMore = false;
 
   /// Returns the component's global key
-  GlobalNodeKey<HTMLElement>? get _key => component.key is GlobalNodeKey<HTMLElement>
+  GlobalNodeKey<HTMLElement>? get _key =>
+      component.key is GlobalNodeKey<HTMLElement>
       ? component.key as GlobalNodeKey<HTMLElement>
       : null;
+
+  @override
+  void setState(VoidCallback fn) {
+    if (mounted && kIsWeb) super.setState(fn);
+  }
 
   @override
   void initState() {
@@ -669,7 +693,8 @@ class _ListViewBuilderState extends State<_ListViewBuilder> with NakiStatefulMix
   FutureOr<VoidCallback?> afterRender(
     BuildContext context,
   ) {
-    final element = _key?.currentNode ?? document.getElementById(_id) as HTMLElement?;
+    final element =
+        _key?.currentNode ?? document.getElementById(_id) as HTMLElement?;
 
     if (element == null) return null;
 
@@ -723,7 +748,10 @@ class _ListViewBuilderState extends State<_ListViewBuilder> with NakiStatefulMix
 
   /// Loads more items if needed
   void _loadMoreIfNeeded(HTMLElement element) {
-    if (!mounted || !_isLazy || _isLoadingMore || _renderedItemCount >= component.itemCount) {
+    if (!mounted ||
+        !_isLazy ||
+        _isLoadingMore ||
+        _renderedItemCount >= component.itemCount) {
       return;
     }
 
@@ -735,8 +763,12 @@ class _ListViewBuilderState extends State<_ListViewBuilder> with NakiStatefulMix
     } else {
       remaining =
           (isVert
-                  ? element.scrollHeight - element.scrollTop - element.clientHeight
-                  : element.scrollWidth - element.scrollLeft - element.clientWidth)
+                  ? element.scrollHeight -
+                        element.scrollTop -
+                        element.clientHeight
+                  : element.scrollWidth -
+                        element.scrollLeft -
+                        element.clientWidth)
               .toDouble();
     }
 
@@ -763,7 +795,9 @@ class _ListViewBuilderState extends State<_ListViewBuilder> with NakiStatefulMix
 
         onComponentRendered(() {
           if (component.reverse && mounted) {
-            final newScrollExtent = isVert ? element.scrollHeight : element.scrollWidth;
+            final newScrollExtent = isVert
+                ? element.scrollHeight
+                : element.scrollWidth;
 
             final delta = newScrollExtent - oldScrollExtent;
 
@@ -894,7 +928,8 @@ class _ListViewSeparated extends ListView {
   State<ListView> createState() => _ListViewSeparatedState();
 }
 
-class _ListViewSeparatedState extends State<_ListViewSeparated> with NakiStatefulMixin {
+class _ListViewSeparatedState extends State<_ListViewSeparated>
+    with NakiStatefulMixin {
   late String _id;
   late int _renderedItemCount;
 
@@ -902,9 +937,15 @@ class _ListViewSeparatedState extends State<_ListViewSeparated> with NakiStatefu
   bool _isLoadingMore = false;
 
   /// Returns the component's global key
-  GlobalNodeKey<HTMLElement>? get _key => component.key is GlobalNodeKey<HTMLElement>
+  GlobalNodeKey<HTMLElement>? get _key =>
+      component.key is GlobalNodeKey<HTMLElement>
       ? component.key as GlobalNodeKey<HTMLElement>
       : null;
+
+  @override
+  void setState(VoidCallback fn) {
+    if (mounted && kIsWeb) super.setState(fn);
+  }
 
   @override
   void initState() {
@@ -918,7 +959,8 @@ class _ListViewSeparatedState extends State<_ListViewSeparated> with NakiStatefu
   FutureOr<VoidCallback?> afterRender(
     BuildContext context,
   ) {
-    final element = _key?.currentNode ?? document.getElementById(_id) as HTMLElement?;
+    final element =
+        _key?.currentNode ?? document.getElementById(_id) as HTMLElement?;
 
     if (element == null) return null;
 
@@ -972,7 +1014,10 @@ class _ListViewSeparatedState extends State<_ListViewSeparated> with NakiStatefu
 
   /// Loads more items if needed
   void _loadMoreIfNeeded(HTMLElement element) {
-    if (!mounted || !_isLazy || _isLoadingMore || _renderedItemCount >= component.itemCount) {
+    if (!mounted ||
+        !_isLazy ||
+        _isLoadingMore ||
+        _renderedItemCount >= component.itemCount) {
       return;
     }
 
@@ -984,8 +1029,12 @@ class _ListViewSeparatedState extends State<_ListViewSeparated> with NakiStatefu
     } else {
       remaining =
           (isVert
-                  ? element.scrollHeight - element.scrollTop - element.clientHeight
-                  : element.scrollWidth - element.scrollLeft - element.clientWidth)
+                  ? element.scrollHeight -
+                        element.scrollTop -
+                        element.clientHeight
+                  : element.scrollWidth -
+                        element.scrollLeft -
+                        element.clientWidth)
               .toDouble();
     }
 
@@ -1012,7 +1061,9 @@ class _ListViewSeparatedState extends State<_ListViewSeparated> with NakiStatefu
 
         onComponentRendered(() {
           if (component.reverse && mounted) {
-            final newScrollExtent = isVert ? element.scrollHeight : element.scrollWidth;
+            final newScrollExtent = isVert
+                ? element.scrollHeight
+                : element.scrollWidth;
 
             final delta = newScrollExtent - oldScrollExtent;
 
@@ -1425,7 +1476,8 @@ class _GridViewState extends State<GridView> with NakiStatefulMixin {
   late final String _id = nakiDomId(context, 'gridview');
 
   /// Returns the component's global key
-  GlobalNodeKey<HTMLElement>? get _key => component.key is GlobalNodeKey<HTMLElement>
+  GlobalNodeKey<HTMLElement>? get _key =>
+      component.key is GlobalNodeKey<HTMLElement>
       ? component.key as GlobalNodeKey<HTMLElement>
       : null;
 
@@ -1433,7 +1485,8 @@ class _GridViewState extends State<GridView> with NakiStatefulMixin {
   FutureOr<VoidCallback?> afterRender(
     BuildContext context,
   ) {
-    final element = _key?.currentNode ?? document.getElementById(_id) as HTMLElement?;
+    final element =
+        _key?.currentNode ?? document.getElementById(_id) as HTMLElement?;
 
     if (element != null && component.controller != null) {
       final controller = component.controller!;
@@ -1471,13 +1524,16 @@ class _GridViewState extends State<GridView> with NakiStatefulMixin {
     if (delegate is SliverGridDelegateWithFixedCrossAxisCount) {
       crossAxisCount = delegate.crossAxisCount;
       crossAxisTemplate = 'repeat($crossAxisCount, 1fr)';
-      gapStyle = '${delegate.mainAxisSpacing.cssText} ${delegate.crossAxisSpacing.cssText}';
+      gapStyle =
+          '${delegate.mainAxisSpacing.cssText} ${delegate.crossAxisSpacing.cssText}';
 
       childAspect = delegate.childAspectRatio;
       mainAxisExtent = delegate.mainAxisExtent;
     } else if (delegate is SliverGridDelegateWithMaxCrossAxisExtent) {
-      crossAxisTemplate = 'repeat(auto-fill, minmax(${delegate.maxCrossAxisExtent.cssText}, 1fr))';
-      gapStyle = '${delegate.mainAxisSpacing.cssText} ${delegate.crossAxisSpacing.cssText}';
+      crossAxisTemplate =
+          'repeat(auto-fill, minmax(${delegate.maxCrossAxisExtent.cssText}, 1fr))';
+      gapStyle =
+          '${delegate.mainAxisSpacing.cssText} ${delegate.crossAxisSpacing.cssText}';
 
       childAspect = delegate.childAspectRatio;
       mainAxisExtent = delegate.mainAxisExtent;
@@ -1493,7 +1549,8 @@ class _GridViewState extends State<GridView> with NakiStatefulMixin {
       } else
         'grid-template-columns': ?crossAxisTemplate,
       if (mainAxisExtent != null)
-        (isHoriz ? 'grid-auto-columns' : 'grid-auto-rows'): mainAxisExtent.cssText,
+        (isHoriz ? 'grid-auto-columns' : 'grid-auto-rows'):
+            mainAxisExtent.cssText,
       if (component.shrinkWrap)
         (isHoriz ? 'width' : 'height'): 'fit-content'
       else
@@ -1519,7 +1576,8 @@ class _GridViewState extends State<GridView> with NakiStatefulMixin {
       final colSpan = tile?.columnSpan;
       final rowSpan = tile?.rowSpan;
 
-      final spanLast = isLast && component.expandLastItem && isRowPartiallyFilled;
+      final spanLast =
+          isLast && component.expandLastItem && isRowPartiallyFilled;
       final isFullWidth = spanLast || (tile?.fullWidth ?? false);
 
       final hasGridSpan = isFullWidth || colSpan != null || rowSpan != null;
@@ -1633,7 +1691,8 @@ class _GridViewBuilder extends GridView {
   State<GridView> createState() => _GridViewBuilderState();
 }
 
-class _GridViewBuilderState extends State<_GridViewBuilder> with NakiStatefulMixin {
+class _GridViewBuilderState extends State<_GridViewBuilder>
+    with NakiStatefulMixin {
   late String _id;
   late int _renderedItemCount;
 
@@ -1641,9 +1700,15 @@ class _GridViewBuilderState extends State<_GridViewBuilder> with NakiStatefulMix
   bool _isLoadingMore = false;
 
   /// Returns the component's global key
-  GlobalNodeKey<HTMLElement>? get _key => component.key is GlobalNodeKey<HTMLElement>
+  GlobalNodeKey<HTMLElement>? get _key =>
+      component.key is GlobalNodeKey<HTMLElement>
       ? component.key as GlobalNodeKey<HTMLElement>
       : null;
+
+  @override
+  void setState(VoidCallback fn) {
+    if (mounted && kIsWeb) super.setState(fn);
+  }
 
   @override
   void initState() {
@@ -1657,7 +1722,8 @@ class _GridViewBuilderState extends State<_GridViewBuilder> with NakiStatefulMix
   FutureOr<VoidCallback?> afterRender(
     BuildContext context,
   ) {
-    final element = _key?.currentNode ?? document.getElementById(_id) as HTMLElement?;
+    final element =
+        _key?.currentNode ?? document.getElementById(_id) as HTMLElement?;
 
     if (element == null) return null;
 
@@ -1711,7 +1777,10 @@ class _GridViewBuilderState extends State<_GridViewBuilder> with NakiStatefulMix
 
   /// Loads more items if needed
   void _loadMoreIfNeeded(HTMLElement element) {
-    if (!mounted || !_isLazy || _isLoadingMore || _renderedItemCount >= component.itemCount) {
+    if (!mounted ||
+        !_isLazy ||
+        _isLoadingMore ||
+        _renderedItemCount >= component.itemCount) {
       return;
     }
 
@@ -1723,8 +1792,12 @@ class _GridViewBuilderState extends State<_GridViewBuilder> with NakiStatefulMix
     } else {
       remaining =
           (isVert
-                  ? element.scrollHeight - element.scrollTop - element.clientHeight
-                  : element.scrollWidth - element.scrollLeft - element.clientWidth)
+                  ? element.scrollHeight -
+                        element.scrollTop -
+                        element.clientHeight
+                  : element.scrollWidth -
+                        element.scrollLeft -
+                        element.clientWidth)
               .toDouble();
     }
 
@@ -1751,7 +1824,9 @@ class _GridViewBuilderState extends State<_GridViewBuilder> with NakiStatefulMix
 
         onComponentRendered(() {
           if (component.reverse && mounted) {
-            final newScrollExtent = isVert ? element.scrollHeight : element.scrollWidth;
+            final newScrollExtent = isVert
+                ? element.scrollHeight
+                : element.scrollWidth;
 
             final delta = newScrollExtent - oldScrollExtent;
 
@@ -1787,13 +1862,16 @@ class _GridViewBuilderState extends State<_GridViewBuilder> with NakiStatefulMix
     if (delegate is SliverGridDelegateWithFixedCrossAxisCount) {
       crossAxisCount = delegate.crossAxisCount;
       crossAxisTemplate = 'repeat($crossAxisCount, 1fr)';
-      gapStyle = '${delegate.mainAxisSpacing.cssText} ${delegate.crossAxisSpacing.cssText}';
+      gapStyle =
+          '${delegate.mainAxisSpacing.cssText} ${delegate.crossAxisSpacing.cssText}';
 
       childAspect = delegate.childAspectRatio;
       mainAxisExtent = delegate.mainAxisExtent;
     } else if (delegate is SliverGridDelegateWithMaxCrossAxisExtent) {
-      crossAxisTemplate = 'repeat(auto-fill, minmax(${delegate.maxCrossAxisExtent.cssText}, 1fr))';
-      gapStyle = '${delegate.mainAxisSpacing.cssText} ${delegate.crossAxisSpacing.cssText}';
+      crossAxisTemplate =
+          'repeat(auto-fill, minmax(${delegate.maxCrossAxisExtent.cssText}, 1fr))';
+      gapStyle =
+          '${delegate.mainAxisSpacing.cssText} ${delegate.crossAxisSpacing.cssText}';
 
       childAspect = delegate.childAspectRatio;
       mainAxisExtent = delegate.mainAxisExtent;
@@ -1809,7 +1887,8 @@ class _GridViewBuilderState extends State<_GridViewBuilder> with NakiStatefulMix
       } else
         'grid-template-columns': ?crossAxisTemplate,
       if (mainAxisExtent != null)
-        (isHoriz ? 'grid-auto-columns' : 'grid-auto-rows'): mainAxisExtent.cssText,
+        (isHoriz ? 'grid-auto-columns' : 'grid-auto-rows'):
+            mainAxisExtent.cssText,
       if (component.shrinkWrap)
         (isHoriz ? 'width' : 'height'): 'fit-content'
       else
@@ -1834,7 +1913,8 @@ class _GridViewBuilderState extends State<_GridViewBuilder> with NakiStatefulMix
       final colSpan = tile?.columnSpan;
       final rowSpan = tile?.rowSpan;
 
-      final isSpanLast = isLastOfTotal && component.expandLastItem && isRowPartiallyFilled;
+      final isSpanLast =
+          isLastOfTotal && component.expandLastItem && isRowPartiallyFilled;
       final isFullWidth = isSpanLast || (tile?.fullWidth ?? false);
       final hasGridSpan = isFullWidth || colSpan != null || rowSpan != null;
 
@@ -2092,7 +2172,8 @@ class _PageViewState extends State<PageView> with NakiStatefulMixin {
       ));
 
   /// Returns the component's global key
-  GlobalNodeKey<HTMLElement>? get _key => component.key is GlobalNodeKey<HTMLElement>
+  GlobalNodeKey<HTMLElement>? get _key =>
+      component.key is GlobalNodeKey<HTMLElement>
       ? component.key as GlobalNodeKey<HTMLElement>
       : null;
 
@@ -2121,7 +2202,8 @@ class _PageViewState extends State<PageView> with NakiStatefulMixin {
   FutureOr<VoidCallback?> afterRender(
     BuildContext context,
   ) {
-    final element = _key?.currentNode ?? document.getElementById(_id) as HTMLElement?;
+    final element =
+        _key?.currentNode ?? document.getElementById(_id) as HTMLElement?;
 
     if (element == null) return null;
 
@@ -2151,7 +2233,9 @@ class _PageViewState extends State<PageView> with NakiStatefulMixin {
     final effectiveStyles = {
       'overflow-x': isHoriz ? 'auto' : 'hidden',
       'overflow-y': !isHoriz ? 'auto' : 'hidden',
-      'scroll-snap-type': component.pageSnapping ? '${isHoriz ? 'x' : 'y'} mandatory' : 'none',
+      'scroll-snap-type': component.pageSnapping
+          ? '${isHoriz ? 'x' : 'y'} mandatory'
+          : 'none',
       'flex-direction': isHoriz
           ? (component.reverse ? 'row-reverse' : 'row')
           : (component.reverse ? 'column-reverse' : 'column'),
@@ -2206,7 +2290,8 @@ class _PageViewBuilder extends PageView {
   State<PageView> createState() => _PageViewBuilderState();
 }
 
-class _PageViewBuilderState extends State<_PageViewBuilder> with NakiStatefulMixin {
+class _PageViewBuilderState extends State<_PageViewBuilder>
+    with NakiStatefulMixin {
   late final String _id = nakiDomId(
     context,
     'pageview-builder',
@@ -2223,7 +2308,8 @@ class _PageViewBuilderState extends State<_PageViewBuilder> with NakiStatefulMix
       ));
 
   /// Returns the component's global key
-  GlobalNodeKey<HTMLElement>? get _key => component.key is GlobalNodeKey<HTMLElement>
+  GlobalNodeKey<HTMLElement>? get _key =>
+      component.key is GlobalNodeKey<HTMLElement>
       ? component.key as GlobalNodeKey<HTMLElement>
       : null;
 
@@ -2252,7 +2338,8 @@ class _PageViewBuilderState extends State<_PageViewBuilder> with NakiStatefulMix
   FutureOr<VoidCallback?> afterRender(
     BuildContext context,
   ) {
-    final element = _key?.currentNode ?? document.getElementById(_id) as HTMLElement?;
+    final element =
+        _key?.currentNode ?? document.getElementById(_id) as HTMLElement?;
 
     if (element == null) return null;
 
@@ -2282,7 +2369,9 @@ class _PageViewBuilderState extends State<_PageViewBuilder> with NakiStatefulMix
     final effectiveStyles = {
       'overflow-x': isHoriz ? 'auto' : 'hidden',
       'overflow-y': !isHoriz ? 'auto' : 'hidden',
-      'scroll-snap-type': component.pageSnapping ? '${isHoriz ? 'x' : 'y'} mandatory' : 'none',
+      'scroll-snap-type': component.pageSnapping
+          ? '${isHoriz ? 'x' : 'y'} mandatory'
+          : 'none',
       'flex-direction': isHoriz
           ? (component.reverse ? 'row-reverse' : 'row')
           : (component.reverse ? 'column-reverse' : 'column'),
@@ -2499,7 +2588,8 @@ class _CarouselViewState extends State<CarouselView> with NakiStatefulMixin {
   );
 
   /// Returns the component's global key
-  GlobalNodeKey<HTMLElement>? get _key => component.key is GlobalNodeKey<HTMLElement>
+  GlobalNodeKey<HTMLElement>? get _key =>
+      component.key is GlobalNodeKey<HTMLElement>
       ? component.key as GlobalNodeKey<HTMLElement>
       : null;
 
@@ -2507,7 +2597,8 @@ class _CarouselViewState extends State<CarouselView> with NakiStatefulMixin {
   FutureOr<VoidCallback?> afterRender(
     BuildContext context,
   ) {
-    final element = _key?.currentNode ?? document.getElementById(_id) as HTMLElement?;
+    final element =
+        _key?.currentNode ?? document.getElementById(_id) as HTMLElement?;
 
     if (element != null && component.controller != null) {
       final controller = component.controller!;
@@ -2535,7 +2626,9 @@ class _CarouselViewState extends State<CarouselView> with NakiStatefulMixin {
     final effectiveStyles = {
       'overflow-x': isHoriz ? 'auto' : 'hidden',
       'overflow-y': !isHoriz ? 'auto' : 'hidden',
-      'scroll-snap-type': component.itemSnapping ? '${isHoriz ? 'x' : 'y'} mandatory' : 'none',
+      'scroll-snap-type': component.itemSnapping
+          ? '${isHoriz ? 'x' : 'y'} mandatory'
+          : 'none',
       'flex-direction': isHoriz
           ? (component.reverse ? 'row-reverse' : 'row')
           : (component.reverse ? 'column-reverse' : 'column'),
@@ -2564,7 +2657,9 @@ class _CarouselViewState extends State<CarouselView> with NakiStatefulMixin {
               'cursor': component.onTap != null ? 'pointer' : 'default',
             },
           ),
-          attributes: component.onTap != null ? {'role': 'button', 'tabindex': '0'} : null,
+          attributes: component.onTap != null
+              ? {'role': 'button', 'tabindex': '0'}
+              : null,
           events: component.onTap == null
               ? null
               : {
@@ -2788,7 +2883,9 @@ class Table extends StatelessComponent {
       );
 
       for (int i = 0; i <= maxColIndex; i++) {
-        final width = columnWidths!.containsKey(i) ? columnWidths![i]!.cssWidth : null;
+        final width = columnWidths!.containsKey(i)
+            ? columnWidths![i]!.cssWidth
+            : null;
 
         colGroup.add(
           col(styles: Styles(raw: {'width': ?width})),
@@ -2839,7 +2936,9 @@ class Table extends StatelessComponent {
           tr(
             id: row.id,
             classes: row.classes,
-            attributes: row.onClick == null ? null : const {'role': 'button', 'tabindex': '0'},
+            attributes: row.onClick == null
+                ? null
+                : const {'role': 'button', 'tabindex': '0'},
             events: row.onClick == null
                 ? null
                 : {
@@ -2859,7 +2958,9 @@ class Table extends StatelessComponent {
     }
 
     const baseClass = 'naki-table';
-    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     final effectiveStyles = {
       Tokens.current.tableHeaderBg.name: ?headerBackgroundColor?.value,
@@ -3063,7 +3164,8 @@ class _StaggeredViewState extends State<StaggeredView> with NakiStatefulMixin {
   );
 
   /// Returns the component's global key
-  GlobalNodeKey<HTMLElement>? get _key => component.key is GlobalNodeKey<HTMLElement>
+  GlobalNodeKey<HTMLElement>? get _key =>
+      component.key is GlobalNodeKey<HTMLElement>
       ? component.key as GlobalNodeKey<HTMLElement>
       : null;
 
@@ -3071,7 +3173,8 @@ class _StaggeredViewState extends State<StaggeredView> with NakiStatefulMixin {
   FutureOr<VoidCallback?> afterRender(
     BuildContext context,
   ) {
-    final element = _key?.currentNode ?? document.getElementById(_id) as HTMLElement?;
+    final element =
+        _key?.currentNode ?? document.getElementById(_id) as HTMLElement?;
 
     if (element != null && component.controller != null) {
       final controller = component.controller!;
@@ -3104,7 +3207,8 @@ class _StaggeredViewState extends State<StaggeredView> with NakiStatefulMixin {
       } else ...{
         'display': 'grid',
         'grid-auto-flow': 'column',
-        'grid-template-rows': 'repeat(${component.crossAxisCount}, max-content)',
+        'grid-template-rows':
+            'repeat(${component.crossAxisCount}, max-content)',
         'column-gap': component.mainAxisSpacing.cssText,
         'row-gap': component.crossAxisSpacing.cssText,
         'width': 'max-content',
@@ -3127,7 +3231,8 @@ class _StaggeredViewState extends State<StaggeredView> with NakiStatefulMixin {
       final tile = c is StaggeredTile ? c : null;
       final child = tile != null ? tile.child : c;
 
-      final isSpanLast = isLast && component.expandLastItem && isRowPartiallyFilled;
+      final isSpanLast =
+          isLast && component.expandLastItem && isRowPartiallyFilled;
       final isFullWidth = isSpanLast || (tile?.fullWidth ?? false);
 
       items.add(

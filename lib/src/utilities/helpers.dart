@@ -5,6 +5,7 @@ import 'package:universal_web/js_interop.dart';
 import 'package:universal_web/web.dart';
 
 import '../framework/inherited.dart';
+import '../stub/index.dart';
 import '../styles/css.dart';
 
 import 'constants.dart';
@@ -80,6 +81,7 @@ Future<void> cacheImage(String src) async {
         reader.onLoadEnd.listen((_) {
           if (reader.result != null) {
             final data = reader.result.dartify();
+
             if (data is String && data.length <= 2 * 1024 * 1024) {
               NakiStorage.set(id, data);
               debugPrint('Image cached: $src');
@@ -170,7 +172,10 @@ bool showValidationError(
   if (fieldWrapper == null) return false;
 
   // link input element to validation error element
-  final inputElem = document.getElementById(isSegmentedInput ? '${id}_0' : id) as HTMLElement?;
+  final inputElem =
+      document.getElementById(isSegmentedInput ? '${id}_0' : id)
+          as HTMLElement?;
+
   <String, String>{
     'aria-describedby': validationId,
     'aria-invalid': 'true',
@@ -203,7 +208,8 @@ void removeValidationError(String id) {
     document.getElementById(validationId)?.remove();
 
     final rawId = id.replaceAll('_validation', '');
-    final targetInput = document.getElementById(rawId) ?? document.getElementById('${rawId}_0');
+    final targetInput =
+        document.getElementById(rawId) ?? document.getElementById('${rawId}_0');
 
     targetInput?.removeAttribute('aria-describedby');
     targetInput?.setAttribute('aria-invalid', 'false');
@@ -222,7 +228,9 @@ void clearAllValidationErrors() {
 
       if (elem != null) {
         final rawId = elem.id.replaceAll('_validation', '');
-        final targetInput = document.getElementById(rawId) ?? document.getElementById('${rawId}_0');
+        final targetInput =
+            document.getElementById(rawId) ??
+            document.getElementById('${rawId}_0');
 
         targetInput?.removeAttribute('aria-describedby');
         targetInput?.setAttribute('aria-invalid', 'false');
@@ -255,8 +263,10 @@ void updateRootTheme(String mode) {
       document.startViewTransition(applyTheme.toJS);
     } catch (_) {
       final root = document.documentElement as HTMLElement;
+
       root.classList.add('switching-theme');
       applyTheme();
+
       Future.delayed(const Duration(milliseconds: 500), () {
         root.classList.remove('switching-theme');
         if (root.classList.length < 1) root.removeAttribute('class');
@@ -347,7 +357,8 @@ HTMLElement? _findScrollableAncestor(HTMLElement elem) {
 
     // check if the parent element has scrollable content
     final hasScrollableContent =
-        parent.scrollHeight > parent.clientHeight || parent.scrollWidth > parent.clientWidth;
+        parent.scrollHeight > parent.clientHeight ||
+        parent.scrollWidth > parent.clientWidth;
 
     if (isScrollable && hasScrollableContent) {
       return parent as HTMLElement;
@@ -387,7 +398,9 @@ void hapticFeedback({
     }
 
     // default vibration duration
-    final durationMs = duration.inMilliseconds.clamp(0, double.infinity).toInt();
+    final durationMs = duration.inMilliseconds
+        .clamp(0, double.infinity)
+        .toInt();
 
     window.navigator.vibrate(durationMs.toJS);
   } catch (_) {}
@@ -420,4 +433,96 @@ void saveAsFile(
 
   // revoke the object URL to free up memory
   URL.revokeObjectURL(url);
+}
+
+/// Normalises a given link.
+String normaliseLink(String link, [String? siteUrl]) {
+  final trimmed = link.trim();
+  if (trimmed.isEmpty) return '';
+
+  // preserve special schemes, protocol-relative links,
+  // anchors, and query strings
+  if (trimmed.startsWith('//') ||
+      trimmed.startsWith('#') ||
+      trimmed.startsWith('?') ||
+      trimmed.startsWith('data:') ||
+      trimmed.startsWith('mailto:') ||
+      trimmed.startsWith('tel:') ||
+      trimmed.startsWith('sms:') ||
+      trimmed.startsWith('javascript:') ||
+      trimmed.startsWith('blob:')) {
+    return trimmed;
+  }
+
+  // check if link already contains a full URI
+  // scheme (e.g. https://, http://, file://)
+  final linkUri = Uri.tryParse(trimmed);
+  if (linkUri != null && linkUri.hasScheme) return trimmed;
+
+  siteUrl ??= PlatformData().baseUrl;
+  siteUrl = siteUrl.trim();
+
+  // if siteUrl is empty or just root, return cleaned link directly
+  if (siteUrl.isEmpty || siteUrl == '/') {
+    return trimmed.startsWith('/')
+        ? '/${trimmed.replaceFirst(RegExp(r'^/+'), '')}'
+        : (trimmed.startsWith('./') ? trimmed.substring(2) : trimmed);
+  }
+
+  final siteUri = Uri.tryParse(siteUrl);
+
+  // extract origin only when siteUrl has valid scheme and authority
+  final origin = (siteUri != null && siteUri.hasScheme && siteUri.hasAuthority)
+      ? siteUri.origin
+      : '';
+
+  // extract base path (e.g. '/app' from 'https://example.com/app/' or '/app/')
+  String basePath = '';
+  if (siteUri != null && siteUri.path.isNotEmpty && siteUri.path != '/') {
+    basePath = siteUri.path;
+  } else if (origin.isEmpty && siteUrl.isNotEmpty && siteUrl != '/') {
+    basePath = siteUrl;
+  }
+
+  // if basePath is not empty, normalise it
+  if (basePath.isNotEmpty) {
+    if (!basePath.startsWith('/')) basePath = '/$basePath';
+    basePath = basePath.replaceFirst(RegExp(r'/+$'), '');
+  }
+
+  // normalise the link
+  String cleanedLink = trimmed;
+  final isRootRelative = cleanedLink.startsWith('/');
+
+  // remove leading './'
+  if (cleanedLink.startsWith('./')) {
+    cleanedLink = cleanedLink.substring(2);
+  }
+
+  // handle root relative links
+  if (isRootRelative) {
+    cleanedLink = '/${cleanedLink.replaceFirst(RegExp(r'^/+'), '')}';
+
+    // prevent duplicate base path insertion if link already begins with it
+    if (basePath.isNotEmpty) {
+      final alreadyHasBase =
+          cleanedLink == basePath ||
+          cleanedLink.startsWith('$basePath/') ||
+          cleanedLink.startsWith('$basePath?') ||
+          cleanedLink.startsWith('$basePath#');
+
+      if (!alreadyHasBase) cleanedLink = '$basePath$cleanedLink';
+    }
+  } else {
+    // relative link without leading slash (e.g. 'about' or 'img.png')
+    if (basePath.isNotEmpty) {
+      cleanedLink = '$basePath/$cleanedLink';
+    } else if (origin.isNotEmpty) {
+      cleanedLink = '/$cleanedLink';
+    }
+  }
+
+  if (origin.isNotEmpty) return '$origin$cleanedLink';
+
+  return cleanedLink;
 }

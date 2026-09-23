@@ -26,7 +26,7 @@ void main() {
     test('extracts version dynamically from pubspec.yaml', () async {
       final version = await resolver.resolvePackageVersion();
       expect(version, isNotNull);
-      expect(version, '1.0.0');
+      expect(version, '1.0.1');
     });
   });
 }

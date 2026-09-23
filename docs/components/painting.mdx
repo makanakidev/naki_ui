@@ -1,20 +1,22 @@
 ---
 title: Painting & Visual Effects
-description: Background decorations, colored boxes, opacity, visibility, clipping, rotated boxes, and backdrop filters in Naki UI.
+description: Background decorations, gradients, colored boxes, filters, opacity, visibility, clipping, and 2D/3D transformations in Naki UI.
 ---
 
-Painting components provide visual modifications and effects exported from `package:naki_ui/naki_ui.dart`.
+Painting components provide visual modifications, background fills, gradients, clipping, filters, and matrix transformations. All components are exported directly from `package:naki_ui/naki_ui.dart`.
 
 ---
 
-## `DecoratedBox` & `ColoredBox`
+## `DecoratedBox`
 
-Applies styling, borders, corner radii, and drop shadows to a child component:
+Paints a styled box decoration with background color or gradient, borders, corner radii, and drop shadows around a child:
 
 ```dart
+import 'package:jaspr/dom.dart' hide Filter, Visibility;
 import 'package:jaspr/jaspr.dart';
 import 'package:naki_ui/naki_ui.dart';
 
+// 1. Solid color with border, radius, and elevation shadow
 DecoratedBox(
   color: const Color('#ffffff'),
   borderRadius: const BorderRadiusData.all(Dim.px(16)),
@@ -22,23 +24,26 @@ DecoratedBox(
     color: const Color('#e2e8f0'),
     width: const Dim.px(1),
   ),
-  shadow: ShadowData.medium,
+  shadow: Shadow.medium,
   child: const Padding(
     padding: EdgeInsets.all(Dim.px(24)),
-    child: NakiText('Decorated box surface'),
+    child: NakiText('Decorated card surface'),
   ),
 )
-```
 
-For solid color backgrounds:
-
-```dart
-ColoredBox(
-  color: const Color('#2563eb'),
+// 2. Linear gradient background with rounded corners
+DecoratedBox(
+  gradient: Gradient()
+    ..applyLinear(
+      colors: const [Color('#6366f1'), Color('#a855f7')],
+      direction: LinearGradientDirection.toBottomRight,
+    ),
+  borderRadius: const BorderRadiusData.all(Dim.px(12)),
+  shadow: Shadow.large,
   child: const Padding(
-    padding: EdgeInsets.all(Dim.px(16)),
+    padding: EdgeInsets.all(Dim.px(20)),
     child: NakiText(
-      'Primary colored box',
+      'Vibrant Gradient Card',
       style: TextStyle(color: Color('#ffffff')),
     ),
   ),
@@ -47,30 +52,189 @@ ColoredBox(
 
 ---
 
-## `BackdropFilter`
+## `ColoredBox`
 
-Applies CSS filter effects (such as frosted glass blurs):
+Paints an efficient background color or multi-stop gradient directly behind its child:
 
 ```dart
+// 1. Solid background color
+ColoredBox(
+  color: const Color('#0f766e'),
+  child: const Padding(
+    padding: EdgeInsets.all(Dim.px(16)),
+    child: NakiText(
+      'Solid Teal Background',
+      style: TextStyle(color: Color('#ffffff')),
+    ),
+  ),
+)
+
+// 2. Multi-color gradient fill
+ColoredBox(
+  gradient: Gradient()
+    ..applyLinear(
+      colors: const [Color('#0f766e'), Color('#14b8a6'), Color('#2dd4bf')],
+      angle: 135,
+    ),
+  child: const Padding(
+    padding: EdgeInsets.all(Dim.px(20)),
+    child: NakiText(
+      'Gradient Box Container',
+      style: TextStyle(color: Color('#ffffff'), fontWeight: FontWeight.bold),
+    ),
+  ),
+)
+```
+
+> [!TIP]
+> `ColoredBox` must be provided with either a `color` or a `gradient`. Use `DecoratedBox` or `Container` if you also need borders, padding, or shadow styling.
+
+---
+
+## `BackdropFilter`
+
+Applies CSS filter effects (such as frosted glass blurs, brightness, grayscale, and contrast) to the area behind its child:
+
+```dart
+// 1. Custom chained filter pipeline
 BackdropFilter(
-  filter: FilterBuilder().applyBlur(12),
+  filter: Filter()
+    ..applyBlur(12)
+    ..applyContrast(120)
+    ..applyBrightness(95),
   child: Container(
     decoration: BoxDecoration(
-      backgroundColor: const Color('rgba(255, 255, 255, 0.7)'),
-      padding: const EdgeInsets.all(Dim.px(20)),
+      backgroundColor: const Color('rgba(255, 255, 255, 0.6)'),
+      borderRadius: const BorderRadiusData.all(Dim.px(16)),
+      border: BorderData(
+        color: const Color('rgba(255, 255, 255, 0.3)'),
+        width: const Dim.px(1),
+      ),
     ),
-    child: const NakiText('Frosted Glass Panel'),
+    child: const Padding(
+      padding: EdgeInsets.all(Dim.px(24)),
+      child: NakiText('Frosted Glass Modal'),
+    ),
+  ),
+)
+
+// 2. Pre-configured frosted glass preset
+BackdropFilter(
+  filter: Filter.frostedGlass,
+  child: const Padding(
+    padding: EdgeInsets.all(Dim.px(16)),
+    child: NakiText('Frosted surface'),
   ),
 )
 ```
 
 ---
 
-## Clipping & Transformations
+## `Opacity`
 
-- **`ClipRect`**: Clips child content to rectangular bounds.
-- **`ClipOval`**: Clips child content to an oval/circular silhouette.
-- **`Opacity`**: Controls transparency (`opacity: 0.75`).
-- **`Visibility`**: Conditionally displays or hides elements (`visible: bool`).
-- **`RotatedBox`**: Rotates child by quarter turns (`quarterTurns: 1`).
+Controls the transparency of a child component without altering layout geometry:
 
+```dart
+Opacity(
+  opacity: 0.65,
+  child: const NakiText('Subtle muted metadata text'),
+)
+```
+
+---
+
+## `Visibility`
+
+Conditionally renders or hides a component with optional state maintenance:
+
+```dart
+Visibility(
+  visible: isAuthenticated,
+  maintainState: true,
+  replacement: const NakiText('Please sign in to access your dashboard.'),
+  child: const UserProfileSection(),
+)
+```
+
+---
+
+## `ClipRect` & `ClipOval`
+
+Clips child content to rectangular or oval silhouettes:
+
+```dart
+// Rectangular clipping with optional corner radii
+ClipRect(
+  borderRadius: const BorderRadiusData.all(Dim.px(12)),
+  child: Image(
+    'images/banner.webp',
+    fit: BoxFit.cover,
+  ),
+)
+
+// Oval or circular clipping
+ClipOval(
+  child: Image(
+    'images/avatar.webp',
+    alt: 'User profile avatar',
+    size: const SizeConstraints(
+      width: Dim.px(64),
+      height: Dim.px(64),
+    ),
+    fit: BoxFit.cover,
+  ),
+)
+```
+
+---
+
+## `RotatedBox`
+
+Rotates its child by integral 90-degree quarter turns, updating the layout geometry accordingly:
+
+```dart
+RotatedBox(
+  quarterTurns: 1, // Rotates 90 degrees clockwise (quarterTurns: 2 = 180°, 3 = 270°)
+  child: NakiText('VERTICAL TEXT'),
+)
+```
+
+---
+
+## `Transform`
+
+Applies 2D and 3D CSS matrix transformations with alignment origin control:
+
+```dart
+// 1. Rotation by degrees
+Transform.rotate(
+  -15,
+  alignment: Alignment.center,
+  child: const Card(
+    child: NakiText('Tilted Card'),
+  ),
+)
+
+// 2. Scaling
+Transform.scale(
+  1.15,
+  alignment: Alignment.center,
+  child: Button.text('Hover Action'),
+)
+
+// 3. Pixel translation
+Transform.translate(
+  offsetX: 16,
+  offsetY: -8,
+  child: const NakiText('Displaced text element'),
+)
+
+// 4. Custom CSS transform expression
+Transform(
+  transform: 'skewX(-10deg) perspective(500px) rotateY(15deg)',
+  alignment: Alignment.center,
+  child: const Card(
+    child: NakiText('3D Perspective Box'),
+  ),
+)
+```

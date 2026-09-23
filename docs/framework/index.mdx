@@ -3,25 +3,25 @@ title: Naki UI Framework
 description: Architecture of the Naki UI framework, lifecycle mixins, animation curves, controllers, and utilities.
 ---
 
-`package:naki_ui/framework.dart` provides runtime building blocks, responsive query providers, lifecycle management, gesture handlers, and state controllers.
+`package:naki_ui/framework.dart` provides runtime building blocks, platform detection utilities, media query providers, lifecycle management, gesture handlers, and state controllers.
 
 ---
 
 ## What's Included
 
-- 📱 **Responsive Engine**: `MediaQueryProvider` with viewport width, height, and orientation query utilities.
+- 📱 **Viewport Engine**: `MediaQueryProvider` with viewport width, height, and orientation query utilities.
 - 🎮 **Controllers**: `OverlayController` (for dialogs, sheets, drawers, and snackbars), `ScrollController`, and `PageController`.
 - 🌐 **Lifecycle & Browser**: `NakiStatefulMixin` (`afterRender`) and `BrowserLifecycleListeners` (visibility, resize, and component size observation).
 - 👆 **Gestures & Animation**: `GestureDetector`, `Gestures`, `Events`, `GestureRecognizer`, and easing `Curves`.
-- 🛠️ **Utilities**: `NakiDebounce` and typed `BuildContext` extensions.
+- 🛠️ **Utilities**: `PlatformData`, `NakiDebounce` and typed `BuildContext` extensions.
 
 ---
 
 ## Explore Framework Topics
 
 <CardGroup cols={2}>
-  <Card title="Responsive & Viewport" icon="mobile-screen" href="/framework/responsive">
-    MediaQueryProvider and adaptive layout utilities.
+  <Card title="Layout & Viewport" icon="mobile-screen" href="/framework/viewport">
+    MediaQueryProvider and layout utilities.
   </Card>
   <Card title="Controllers & State" icon="gamepad" href="/framework/controllers">
     Scroll, page, and overlay controllers.
@@ -33,7 +33,7 @@ description: Architecture of the Naki UI framework, lifecycle mixins, animation 
     GestureDetector, Events, and animation curves.
   </Card>
   <Card title="Utilities & Extensions" icon="wrench" href="/framework/utilities">
-    NakiDebounce and BuildContext extension helpers.
+    PlatformData, NakiDebounce and BuildContext extension helpers.
   </Card>
 </CardGroup>
 

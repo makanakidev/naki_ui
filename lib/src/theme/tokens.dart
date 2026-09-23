@@ -755,18 +755,19 @@ abstract class Tokens {
   );
 
   /// Medium elevation shadow rule
-  /// (default: `0 10px 24px var(--naki-medium-shadow-color)`,
+  /// (default: `0 0 24px var(--naki-medium-shadow-color)`,
   /// CSS variable: `--naki-medium-shadow`).
   Token get mediumShadow => Token(
-    value: '0 10px 24px var(${mediumShadowColor.name}, ${mediumShadowColor.value})',
+    value:
+        '0 0 24px var(${mediumShadowColor.name}, ${mediumShadowColor.value})',
     name: '--naki-medium-shadow',
   );
 
   /// Large elevation shadow rule
-  /// (default: `0 16px 36px var(--naki-large-shadow-color)`,
+  /// (default: `0 0 36px var(--naki-large-shadow-color)`,
   /// CSS variable: `--naki-large-shadow`).
   Token get largeShadow => Token(
-    value: '0 16px 36px var(${largeShadowColor.name}, ${largeShadowColor.value})',
+    value: '0 0 36px var(${largeShadowColor.name}, ${largeShadowColor.value})',
     name: '--naki-large-shadow',
   );
 
@@ -944,7 +945,8 @@ abstract class Tokens {
   );
 
   /// Default value for [sliderTrackColor].
-  String get sliderTrackColorValue => Css.applyOpacity(const Color('currentcolor'), 70).value;
+  String get sliderTrackColorValue =>
+      Css.applyOpacity(const Color('currentcolor'), 70).value;
 
   /// Slider track color
   /// (default: `70% of current color`,

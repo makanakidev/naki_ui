@@ -1,9 +1,113 @@
 ---
 title: Utilities & Context Extensions
-description: Debouncing and BuildContext extension helpers for concise UI code in Naki UI.
+description: Platform detection, debouncing, and BuildContext extension helpers for concise UI code in Naki UI.
 ---
 
-`package:naki_ui/framework.dart` and `package:naki_ui/theme.dart` provide developer ergonomics through debounce helpers and typed context extensions.
+`package:naki_ui/framework.dart` and `package:naki_ui/theme.dart` provide developer ergonomics through platform data inspection, debounce helpers, and typed context extensions.
+
+---
+
+## `PlatformData`
+
+Access device, browser environment, operating system, and viewport information safely across both client and server (SSR / SSG) environments:
+
+```dart
+import 'package:naki_ui/framework.dart';
+
+// Uses ambient browser window/location on web, or default server values on SSR
+final platform = PlatformData();
+
+// Device & OS detection
+final isApple = platform.isiOS || platform.isMacOS;
+final isMobile = platform.isMobile;
+final isDesktop = platform.isDesktop;
+final deviceName = platform.device; // 'iPhone', 'iPad', 'MacOS', 'Windows', 'Android', 'Linux'
+
+// PWA & Browser environment
+final isPWA = platform.isPWA; // Running as an installed Progressive Web App
+final isMobileBrowser = platform.isMobileBrowser; // Mobile browser (not running as standalone PWA)
+
+// Viewport dimensions & locale
+final width = platform.width;
+final height = platform.height;
+final locale = platform.language; // e.g. 'en'
+
+// URL & Base Origin
+final currentPath = platform.currentUrl; // e.g. '/dashboard'
+final baseOrigin = platform.baseUrl; // e.g. 'https://example.com'
+```
+
+`PlatformData` automatically resolves to the client-side implementation on web browsers and the server-side implementation during SSR/SSG pre-rendering or testing.
+
+The constructor accepts optional override parameters, which is particularly useful for server-side rendering, testing, or custom URL resolution:
+
+```dart
+final customPlatform = PlatformData(
+  baseUrl: 'https://example.com',
+  currentUrl: '/settings',
+  userAgent: 'Mozilla/5.0...',
+  width: 1440,
+  height: 900,
+  language: 'en',
+);
+```
+
+| Parameter | Type | Default (Client) | Default (Server) | Description |
+| --- | --- | --- | --- | --- |
+| `baseUrl` | `String?` | `window.location.origin` | `'/'` | Base URL origin of the application |
+| `currentUrl` | `String?` | Path without `baseUrl` | `'/'` | Current URL path with leading slash |
+| `userAgent` | `String?` | `navigator.userAgent` | `''` | User agent header string |
+| `width` | `int?` | `window.innerWidth` | `0` | Viewport width in pixels |
+| `height` | `int?` | `window.innerHeight` | `0` | Viewport height in pixels |
+| `language` | `String?` | `navigator.language` | `Platform.localeName` / `'en'` | Preferred locale or language code |
+
+### Common Use Cases
+
+#### 1. Conditional UI for Mobile / Desktop
+
+```dart
+import 'package:jaspr/jaspr.dart';
+import 'package:naki_ui/framework.dart';
+import 'package:naki_ui/naki_ui.dart';
+
+class AdaptiveShortcutHint extends StatelessComponent {
+  const AdaptiveShortcutHint({super.key});
+
+  @override
+  Component build(BuildContext context) {
+    final platform = PlatformData();
+
+    if (platform.isMobile) {
+      return const NakiText('Tap search icon above');
+    }
+
+    final shortcut = platform.isMacOS ? '⌘K' : 'Ctrl+K';
+    return NakiText('Press $shortcut to search');
+  }
+}
+```
+
+#### 2. PWA Installation Prompt
+
+```dart
+class PwaPromotionBanner extends StatelessComponent {
+  const PwaPromotionBanner({super.key});
+
+  @override
+  Component build(BuildContext context) {
+    final platform = PlatformData();
+
+    // Display banner only on mobile browsers when not already installed as standalone PWA
+    if (platform.isMobileBrowser) {
+      return const Banner(
+        text: 'Install this app on your device for a full-screen experience!',
+      );
+    }
+
+    return .empty();
+  }
+}
+```
 
 ---
 

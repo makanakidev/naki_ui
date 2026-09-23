@@ -84,7 +84,7 @@ Add space outside a child.
 
 ```dart
 const Margin(
-  margin: EdgeInsets(bottom: Dim.px(16)),
+  margin: EdgeInsets.only(bottom: Dim.px(16)),
   child: Card(child: NakiText('Card with outer spacing')),
 )
 ```

@@ -2,7 +2,7 @@
 name: naki-ui-theming
 description: Configure, extend, review, and troubleshoot Naki UI themes, design tokens, text styles, dimensions, decorations, and component schemes. Use for package:naki_ui/theme.dart, NakiThemeProvider, ThemeConfig, LightThemeData, DarkThemeData, ColorSeed, theme switching, context.themeTokens, or Naki styling models.
 metadata:
-  version: "1.0.0"
+  version: "1.0.1"
   author: "makanakidev"
 ---
 

@@ -46,7 +46,9 @@ class Bold extends StatelessComponent with NakiTextScope {
     final effectiveStyles = baseStyle.combineWith(style).props;
 
     const baseClass = 'naki-bold naki-text';
-    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     return strong(
       key: key,
@@ -57,7 +59,8 @@ class Bold extends StatelessComponent with NakiTextScope {
   }
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('Text', [Rules.nakiTextRules]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('Text', [Rules.nakiTextRules]);
 }
 
 /// {@template Italic}
@@ -94,7 +97,9 @@ class Italic extends StatelessComponent with NakiTextScope {
     final effectiveStyles = baseStyle.combineWith(style).props;
 
     const baseClass = 'naki-italic naki-text';
-    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     return em(
       key: key,
@@ -105,7 +110,8 @@ class Italic extends StatelessComponent with NakiTextScope {
   }
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('Text', [Rules.nakiTextRules]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('Text', [Rules.nakiTextRules]);
 }
 
 /// {@template Underline}
@@ -142,7 +148,9 @@ class Underline extends StatelessComponent with NakiTextScope {
     final effectiveStyles = baseStyle.combineWith(style).props;
 
     const baseClass = 'naki-underline naki-text';
-    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     return u(
       key: key,
@@ -153,7 +161,8 @@ class Underline extends StatelessComponent with NakiTextScope {
   }
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('Text', [Rules.nakiTextRules]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('Text', [Rules.nakiTextRules]);
 }
 
 /// {@template Strikethrough}
@@ -190,7 +199,9 @@ class Strikethrough extends StatelessComponent with NakiTextScope {
     final effectiveStyles = baseStyle.combineWith(style).props;
 
     const baseClass = 'naki-strikethrough naki-text';
-    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     return s(
       key: key,
@@ -201,7 +212,8 @@ class Strikethrough extends StatelessComponent with NakiTextScope {
   }
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('Text', [Rules.nakiTextRules]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('Text', [Rules.nakiTextRules]);
 }
 
 /// {@template Heading}
@@ -246,10 +258,15 @@ class Heading extends StatelessComponent with NakiTextScope {
   @override
   Component build(BuildContext context) {
     final baseStyle = DefaultTextStyle.of(context);
-    final effectiveStyles = baseStyle.copyWith(margin: EdgeInsets.zero).combineWith(style).props;
+    final effectiveStyles = baseStyle
+        .copyWith(margin: EdgeInsets.zero)
+        .combineWith(style)
+        .props;
 
     final baseClass = 'naki-text naki-heading-$level';
-    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     switch (level) {
       case 1:
@@ -299,7 +316,8 @@ class Heading extends StatelessComponent with NakiTextScope {
   }
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('Text', [Rules.nakiTextRules]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('Text', [Rules.nakiTextRules]);
 }
 
 /// {@template SubHeading}
@@ -343,7 +361,9 @@ class SubHeading extends StatelessComponent with NakiTextScope {
         .props;
 
     const baseClass = 'naki-subheading naki-text';
-    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     return h4(
       key: key,
@@ -354,5 +374,6 @@ class SubHeading extends StatelessComponent with NakiTextScope {
   }
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('Text', [Rules.nakiTextRules]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('Text', [Rules.nakiTextRules]);
 }

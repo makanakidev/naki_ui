@@ -62,9 +62,11 @@ class ScrollController {
     if (_attachedElement == null) return 0.0;
 
     if (direction == ScrollDirection.vertical) {
-      return (_attachedElement!.scrollHeight - _attachedElement!.clientHeight).toDouble();
+      return (_attachedElement!.scrollHeight - _attachedElement!.clientHeight)
+          .toDouble();
     } else {
-      return (_attachedElement!.scrollWidth - _attachedElement!.clientWidth).toDouble();
+      return (_attachedElement!.scrollWidth - _attachedElement!.clientWidth)
+          .toDouble();
     }
   }
 
@@ -112,12 +114,14 @@ class ScrollController {
     }
 
     // listen to scroll events
-    _subscription = EventStreamProviders.scrollEvent.forTarget(_attachedElement!).listen((_) {
-      _offset = (direction == ScrollDirection.vertical
-          ? _attachedElement!.scrollTop
-          : _attachedElement!.scrollLeft);
-      notifyListeners();
-    });
+    _subscription = EventStreamProviders.scrollEvent
+        .forTarget(_attachedElement!)
+        .listen((_) {
+          _offset = (direction == ScrollDirection.vertical
+              ? _attachedElement!.scrollTop
+              : _attachedElement!.scrollLeft);
+          notifyListeners();
+        });
   }
 
   /// Detaches the controller from the HTML element.
@@ -410,14 +414,18 @@ class PageController extends ScrollController {
 
     // calculate page size based on scroll direction and viewport fraction
     final pageSize =
-        (isHoriz ? _attachedElement!.clientWidth : _attachedElement!.clientHeight) *
+        (isHoriz
+            ? _attachedElement!.clientWidth
+            : _attachedElement!.clientHeight) *
         viewportFraction;
 
     // avoid division by zero
     if (pageSize <= 0) return initialPage.toDouble();
 
     // get current scroll offset
-    final currentOffset = isHoriz ? _attachedElement!.scrollLeft : _attachedElement!.scrollTop;
+    final currentOffset = isHoriz
+        ? _attachedElement!.scrollLeft
+        : _attachedElement!.scrollTop;
 
     // calculate current page index
     return currentOffset / pageSize;
@@ -448,7 +456,9 @@ class PageController extends ScrollController {
 
     // calculate page size
     final pageSize =
-        (isHoriz ? _attachedElement!.clientWidth : _attachedElement!.clientHeight) *
+        (isHoriz
+            ? _attachedElement!.clientWidth
+            : _attachedElement!.clientHeight) *
         viewportFraction;
 
     // calculate target scroll offset
@@ -461,7 +471,9 @@ class PageController extends ScrollController {
     }
 
     // calculate starting offset and change
-    final startOffset = isHoriz ? _attachedElement!.scrollLeft : _attachedElement!.scrollTop;
+    final startOffset = isHoriz
+        ? _attachedElement!.scrollLeft
+        : _attachedElement!.scrollTop;
 
     // calculate change in scroll offset
     final change = targetOffset - startOffset;
@@ -521,7 +533,9 @@ class PageController extends ScrollController {
 
     // calculate page size
     final pageSize =
-        (isHoriz ? _attachedElement!.clientWidth : _attachedElement!.clientHeight) *
+        (isHoriz
+            ? _attachedElement!.clientWidth
+            : _attachedElement!.clientHeight) *
         viewportFraction;
 
     // calculate target scroll offset
@@ -608,7 +622,7 @@ abstract class ScrollPhysics {
 
 /// Scroll physics that prevents user scrolling.
 class NeverScrollableScrollPhysics extends ScrollPhysics {
-  /// Creates a [NeverScrollableScrollPhysics] instance.
+  /// Creates a scroll physics that prevents user scrolling.
   const NeverScrollableScrollPhysics();
 
   @override
@@ -617,7 +631,8 @@ class NeverScrollableScrollPhysics extends ScrollPhysics {
 
 /// Scroll physics that allows bounce effect at boundaries (iOS-style).
 class BouncingScrollPhysics extends ScrollPhysics {
-  /// Creates a [BouncingScrollPhysics] instance.
+  /// Creates a scroll physics that allows bounce effect
+  /// at boundaries (iOS-style).
   const BouncingScrollPhysics();
 
   @override
@@ -627,7 +642,8 @@ class BouncingScrollPhysics extends ScrollPhysics {
 /// Scroll physics that clamps content strictly inside
 /// boundaries (Android-style).
 class ClampingScrollPhysics extends ScrollPhysics {
-  /// Creates a [ClampingScrollPhysics] instance.
+  /// Creates a scroll physics that clamps content strictly inside
+  /// boundaries (Android-style).
   const ClampingScrollPhysics();
 
   @override
@@ -636,7 +652,8 @@ class ClampingScrollPhysics extends ScrollPhysics {
 
 /// Scroll physics that always allows scrolling even if content fits.
 class AlwaysScrollableScrollPhysics extends ScrollPhysics {
-  /// Creates an [AlwaysScrollableScrollPhysics] instance.
+  /// Creates a scroll physics that always allows scrolling
+  /// even if content fits.
   const AlwaysScrollableScrollPhysics();
 
   @override
@@ -645,7 +662,7 @@ class AlwaysScrollableScrollPhysics extends ScrollPhysics {
 
 /// Scroll physics that snaps scrolling to the nearest item.
 class SnappingScrollPhysics extends ScrollPhysics {
-  /// Creates a [SnappingScrollPhysics] instance.
+  /// Creates a scroll physics that snaps scrolling to the nearest item.
   const SnappingScrollPhysics();
 
   @override
@@ -716,7 +733,8 @@ class SliverGridDelegateWithMaxCrossAxisExtent extends SliverGridDelegate {
   /// - If scroll direction is `horizontal`, this is the `width` of each item.
   final Dim? mainAxisExtent;
 
-  /// Creates a [SliverGridDelegateWithMaxCrossAxisExtent].
+  /// Creates a [SliverGridDelegateWithMaxCrossAxisExtent] that creates grid
+  /// layouts with tiles each having a maximum cross-axis extent.
   const SliverGridDelegateWithMaxCrossAxisExtent({
     required this.maxCrossAxisExtent,
     this.mainAxisSpacing = const Dim.px(16),
@@ -726,20 +744,18 @@ class SliverGridDelegateWithMaxCrossAxisExtent extends SliverGridDelegate {
   });
 }
 
-/// Base class for specifying column width behavior
-/// in a TableView component.
+/// Base class for specifying column width behavior in a TableView component.
 abstract class TableColumnWidth {
   /// Base const constructor.
   const TableColumnWidth();
 
-  /// Returns the CSS width string corresponding
-  /// to this column width rule.
+  /// Returns the CSS width string corresponding to this column width rule.
   String get cssWidth;
 }
 
 /// Column width that expands based on flex factor.
 class FlexColumnWidth extends TableColumnWidth {
-  /// Creates a [FlexColumnWidth].
+  /// Creates a column width that expands based on flex factor.
   const FlexColumnWidth();
 
   @override
@@ -751,7 +767,7 @@ class FixedColumnWidth extends TableColumnWidth {
   /// The fixed width.
   final Dim width;
 
-  /// Creates a [FixedColumnWidth].
+  /// Creates a column width fixed to a specific size.
   const FixedColumnWidth(this.width);
 
   @override
@@ -760,7 +776,7 @@ class FixedColumnWidth extends TableColumnWidth {
 
 /// Column width based on the intrinsic content width.
 class IntrinsicColumnWidth extends TableColumnWidth {
-  /// Creates an [IntrinsicColumnWidth].
+  /// Creates a column width based on the intrinsic content width.
   const IntrinsicColumnWidth();
 
   @override
@@ -772,7 +788,7 @@ class FractionColumnWidth extends TableColumnWidth {
   /// Fraction value between 0.0 and 1.0.
   final double value;
 
-  /// Creates a [FractionColumnWidth].
+  /// Creates a column width calculated as a fraction of the total table width.
   const FractionColumnWidth(this.value);
 
   @override

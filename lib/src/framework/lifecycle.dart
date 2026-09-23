@@ -120,7 +120,8 @@ class BrowserLifecycleListeners {
 
   /// {@macro BrowserLifecycle}
   /// - Callback fired when the device's system theme changes.
-  LifecycleValueCallback<ThemeMode>? get whenSystemThemeChanged => _whenSystemThemeChanged;
+  LifecycleValueCallback<ThemeMode>? get whenSystemThemeChanged =>
+      _whenSystemThemeChanged;
   set whenSystemThemeChanged(
     LifecycleValueCallback<ThemeMode>? callback,
   ) {
@@ -132,7 +133,8 @@ class BrowserLifecycleListeners {
 
   /// {@macro BrowserLifecycle}
   /// - Callback fired when the browser gains or loses internet connectivity.
-  LifecycleValueCallback<bool>? get whenConnectivityChanged => _whenConnectivityChanged;
+  LifecycleValueCallback<bool>? get whenConnectivityChanged =>
+      _whenConnectivityChanged;
   set whenConnectivityChanged(
     LifecycleValueCallback<bool>? callback,
   ) {
@@ -144,7 +146,8 @@ class BrowserLifecycleListeners {
 
   /// {@macro BrowserLifecycle}
   /// - Callback fired when the device screen orientation changes.
-  LifecycleValueCallback<Orientation>? get whenOrientationChanged => _whenOrientationChanged;
+  LifecycleValueCallback<Orientation>? get whenOrientationChanged =>
+      _whenOrientationChanged;
   set whenOrientationChanged(
     LifecycleValueCallback<Orientation>? callback,
   ) {
@@ -207,7 +210,9 @@ class BrowserLifecycleListeners {
     }
 
     onComponentRendered(() {
-      final element = id.isNotNullAndEmpty ? document.getElementById(id!) : key?.currentNode;
+      final element = id.isNotNullAndEmpty
+          ? document.getElementById(id!)
+          : key?.currentNode;
 
       if (element == null) {
         debugPrint(
@@ -242,7 +247,9 @@ class BrowserLifecycleListeners {
       return;
     }
 
-    final element = id.isNotNullAndEmpty ? document.getElementById(id!) : key?.currentNode;
+    final element = id.isNotNullAndEmpty
+        ? document.getElementById(id!)
+        : key?.currentNode;
 
     if (element != null) {
       _elementResizeCallbacks.remove(element);
@@ -271,7 +278,9 @@ class BrowserLifecycleListeners {
     }
 
     onComponentRendered(() {
-      final element = id.isNotNullAndEmpty ? document.getElementById(id!) : key?.currentNode;
+      final element = id.isNotNullAndEmpty
+          ? document.getElementById(id!)
+          : key?.currentNode;
 
       if (element == null) {
         debugPrint(
@@ -306,7 +315,9 @@ class BrowserLifecycleListeners {
       return;
     }
 
-    final element = id.isNotNullAndEmpty ? document.getElementById(id!) : key?.currentNode;
+    final element = id.isNotNullAndEmpty
+        ? document.getElementById(id!)
+        : key?.currentNode;
 
     if (element != null) {
       _elementVisibilityCallbacks.remove(element);
@@ -346,11 +357,13 @@ class BrowserLifecycleListeners {
 
   /// Called when the system theme changes.
   @protected
-  void handleSystemThemeChange(ThemeMode mode) => whenSystemThemeChanged?.call(mode);
+  void handleSystemThemeChange(ThemeMode mode) =>
+      whenSystemThemeChanged?.call(mode);
 
   /// Called when the device comes online or offline.
   @protected
-  void handleConnectivityChanged(bool isOnline) => whenConnectivityChanged?.call(isOnline);
+  void handleConnectivityChanged(bool isOnline) =>
+      whenConnectivityChanged?.call(isOnline);
 
   /// Called when the device screen orientation changes.
   @protected
@@ -376,7 +389,8 @@ class BrowserLifecycleListeners {
 
   IntersectionObserver? _intersectionObserver;
   final Map<Element, bool> _lastElementVisibility = {};
-  final Map<Element, LifecycleValueCallback<bool>> _elementVisibilityCallbacks = {};
+  final Map<Element, LifecycleValueCallback<bool>> _elementVisibilityCallbacks =
+      {};
 
   double? _lastWindowWidth;
   double? _lastWindowHeight;
@@ -479,7 +493,9 @@ class BrowserLifecycleListeners {
     _lastWindowWidth = width;
     _lastWindowHeight = height;
 
-    final orientation = width >= height ? Orientation.landscape : Orientation.portrait;
+    final orientation = width >= height
+        ? Orientation.landscape
+        : Orientation.portrait;
 
     handleResize(
       Dim.px(height),
@@ -590,7 +606,9 @@ class BrowserLifecycleListeners {
       );
 
       handleOrientationChange(
-        _orientationQuery!.matches ? Orientation.landscape : Orientation.portrait,
+        _orientationQuery!.matches
+            ? Orientation.landscape
+            : Orientation.portrait,
       );
 
       _orientationListener = ((MediaQueryList event) {
@@ -604,7 +622,8 @@ class BrowserLifecycleListeners {
         _orientationListener!,
       );
       _cleanups.add(_unlistenOrientation);
-    } else if (_whenOrientationChanged == null && _orientationListener != null) {
+    } else if (_whenOrientationChanged == null &&
+        _orientationListener != null) {
       _unlistenOrientation();
     }
   }
@@ -718,24 +737,26 @@ class BrowserLifecycleListeners {
 
           final lastSize = _lastElementSizes[element];
 
-          if (lastSize != null && lastSize.$1 == width && lastSize.$2 == height) {
+          if (lastSize != null &&
+              lastSize.$1 == width &&
+              lastSize.$2 == height) {
             continue;
           }
 
           _lastElementSizes[element] = (width, height);
 
-          final orientation = width >= height ? Orientation.landscape : Orientation.portrait;
+          final orientation = width >= height
+              ? Orientation.landscape
+              : Orientation.portrait;
 
           NakiDebounce.run(
             'element_resize_${element.hashCode}',
             const Duration(milliseconds: 150),
             () {
+              final fn = _elementResizeCallbacks[element];
+              if (fn == null) return;
               onComponentRendered(() {
-                _elementResizeCallbacks[element]?.call(
-                  Dim.px(height),
-                  Dim.px(width),
-                  orientation,
-                );
+                fn(Dim.px(height), Dim.px(width), orientation);
               });
             },
           );

@@ -113,7 +113,9 @@ class Column extends StatelessComponent {
     );
 
     const baseClass = 'naki-column';
-    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     final effectiveStyles = {
       'display': 'flex',
@@ -236,7 +238,9 @@ class Row extends StatelessComponent {
     );
 
     const baseClass = 'naki-row';
-    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     final effectiveStyles = {
       'display': 'flex',
@@ -320,11 +324,22 @@ class Image extends StatelessComponent with NakiStatelessMixin {
   /// Background color applied to the image container.
   final Color? backgroundColor;
 
+  /// Background gradient applied to the image container.
+  ///
+  /// ### Example
+  /// ```dart
+  /// Image(
+  ///   'https://example.com/avatar.png',
+  ///   gradient: Gradient()..applyLinear(colors: [Colors.purple, Colors.blue]),
+  /// )
+  /// ```
+  final Gradient? gradient;
+
   /// When `true`, image loading will be deferred until it is scrolled
   /// into view.
   final bool lazyLoad;
 
-  /// Padding applied to the image container when [backgroundColor] is set.
+  /// Padding applied to the image container when [backgroundColor] or [gradient] is set.
   final EdgeInsets? padding;
 
   /// {@macro Image}
@@ -338,6 +353,7 @@ class Image extends StatelessComponent with NakiStatelessMixin {
     this.fit,
     this.classes,
     this.backgroundColor,
+    this.gradient,
     this.radius,
     this.padding,
   });
@@ -355,10 +371,13 @@ class Image extends StatelessComponent with NakiStatelessMixin {
     final _id = nakiStableKey('image', src);
     final cachedSource = NakiStorage.get<String>(_id);
 
-    final shouldWrap = backgroundColor != null || padding != null;
+    final shouldWrap =
+        backgroundColor != null || gradient != null || padding != null;
 
     const baseClass = 'naki-image';
-    final effectiveClasses = classes != null ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes != null
+        ? '$baseClass $classes'
+        : baseClass;
 
     final image = img(
       key: shouldWrap ? null : key,
@@ -382,6 +401,7 @@ class Image extends StatelessComponent with NakiStatelessMixin {
             decoration: BoxDecoration(
               borderRadius: radius,
               backgroundColor: backgroundColor,
+              gradient: gradient,
               padding: padding,
               alignment: Alignment.center,
             ),
@@ -432,7 +452,9 @@ class NakiText extends StatelessComponent with NakiTextScope {
     final effectiveStyles = defaultStyle.combineWith(style);
 
     const baseClass = 'naki-text';
-    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     return .element(
       key: key,
@@ -444,7 +466,8 @@ class NakiText extends StatelessComponent with NakiTextScope {
   }
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('Text', [Rules.nakiTextRules]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('Text', [Rules.nakiTextRules]);
 }
 
 /// {@template Button}
@@ -486,6 +509,9 @@ class Button extends StatefulComponent {
 
   /// Background color of the button.
   final Color? backgroundColor;
+
+  /// Background gradient of the button.
+  final Gradient? gradient;
 
   /// Color applied to the button content.
   final Color? foregroundColor;
@@ -547,6 +573,7 @@ class Button extends StatefulComponent {
     this.type = ButtonType.button,
     this.ios = false,
     this.backgroundColor,
+    this.gradient,
     this.foregroundColor,
     this.classes,
     this.border,
@@ -570,6 +597,7 @@ class Button extends StatefulComponent {
   /// Button.filled(
   ///   Colors.blue,
   ///   child: NakiText('Add'),
+  ///   gradient: Gradient()..applyLinear(colors: [Colors.blue, Colors.red]),
   ///   onTap: () {},
   /// );
   /// ```
@@ -584,6 +612,7 @@ class Button extends StatefulComponent {
     this.type = ButtonType.button,
     this.ios = false,
     this.onTap,
+    this.gradient,
     this.foregroundColor,
     this.hoverColor,
     this.classes,
@@ -627,6 +656,7 @@ class Button extends StatefulComponent {
     this.type = ButtonType.button,
     this.ios = false,
     this.onTap,
+    this.gradient,
     this.foregroundColor,
     this.backgroundColor,
     this.hoverColor,
@@ -667,6 +697,7 @@ class Button extends StatefulComponent {
     this.ios = false,
     this.onTap,
     this.backgroundColor,
+    this.gradient,
     this.foregroundColor,
     this.hoverColor,
     this.classes,
@@ -721,6 +752,7 @@ class Button extends StatefulComponent {
     this.ios = false,
     this.onTap,
     this.backgroundColor,
+    this.gradient,
     this.foregroundColor,
     this.hoverColor,
     this.classes,
@@ -780,6 +812,7 @@ class Button extends StatefulComponent {
     this.type = ButtonType.button,
     this.ios = false,
     this.backgroundColor,
+    this.gradient,
     this.foregroundColor,
     this.hoverColor,
     this.classes,
@@ -811,7 +844,7 @@ class _ButtonState extends State<Button> {
 
   @override
   void setState(VoidCallback fn) {
-    if (mounted) super.setState(fn);
+    if (mounted && kIsWeb) super.setState(fn);
   }
 
   /// Handles button click.
@@ -842,15 +875,14 @@ class _ButtonState extends State<Button> {
 
   @override
   Component build(BuildContext context) {
-    final form = FormScope.of(context);
-
     const String baseClass = 'naki-button';
     final String effectiveClasses = component.classes.isNotNullAndEmpty
         ? '$baseClass ${component.classes}'
         : baseClass;
 
-    final effectiveStyles = {
-      Tokens.current.buttonBackgroundColor.name: ?component.backgroundColor?.value,
+    final Map<String, String> effectiveStyles = {
+      Tokens.current.buttonBackgroundColor.name:
+          ?component.backgroundColor?.value,
       Tokens.current.buttonColor.name: ?component.foregroundColor?.value,
       Tokens.current.disabledBgColor.name: ?component.disabledColor?.value,
       Tokens.current.buttonHoverBgColor.name: ?component.hoverColor?.value,
@@ -859,9 +891,10 @@ class _ButtonState extends State<Button> {
       ...?component.border?.props,
       ...?component.padding?.pProps,
       ...?component.margin?.mProps,
+      ...?component.gradient?.props,
     };
 
-    final ButtonType effectiveType = form != null
+    final ButtonType effectiveType = FormScope.of(context) != null
         ? ButtonType.button
         : component.resetForm
         ? ButtonType.reset
@@ -877,7 +910,10 @@ class _ButtonState extends State<Button> {
       styles: Styles(raw: effectiveStyles),
       disabled: component.disabled,
       attributes: {'hvr': ?(canHover ? '' : null), ...?component.attributes},
-      onClick: component.onTap != null || component.validateForm || component.resetForm
+      onClick:
+          component.onTap != null ||
+              component.validateForm ||
+              component.resetForm
           ? _onClick
           : null,
       [
@@ -957,7 +993,9 @@ class Icon extends StatelessComponent {
   @override
   Component build(BuildContext context) {
     const String baseClass = 'naki-icon';
-    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     final child = SvgIcon(
       icon,
@@ -965,16 +1003,22 @@ class Icon extends StatelessComponent {
       size: size,
       color: color,
       classes: effectiveClasses,
-      attributes: semanticLabel.isNotNullAndEmpty ? {'aria-label': semanticLabel!} : null,
+      attributes: semanticLabel.isNotNullAndEmpty
+          ? {'aria-label': semanticLabel!}
+          : null,
       onClick: onTap,
     );
 
-    return onTap != null ? span(classes: 'naki-control-hitbox', [child]) : child;
+    return onTap != null
+        ? span(classes: 'naki-control-hitbox', [child])
+        : child;
   }
 
   @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('Icon', [Rules.nakiIconRules, Rules.nakiHitboxRules]);
+  static List<StyleRule> get styles => NakiStyleRegistry.once('Icon', [
+    Rules.nakiIconRules,
+    Rules.nakiHitboxRules,
+  ]);
 }
 
 /// {@template Spinner}
@@ -1068,7 +1112,9 @@ class Spinner extends StatelessComponent {
     final morphismClass = surfaceColor != null && !ios ? ' morphism' : '';
 
     final baseClass = 'naki-spinner$iosClass$morphismClass';
-    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     final effectiveStyles = {
       Tokens.current.spinnerSize.name: size.cssText,
@@ -1158,9 +1204,13 @@ class RichText extends StatelessComponent with NakiTextScope {
     final effectiveStyles = defaultStyle.combineWith(style).props;
 
     const baseClass = 'naki-richtext';
-    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
-    final child = text is Component ? text as Component : const Component.empty();
+    final child = text is Component
+        ? text as Component
+        : const Component.empty();
 
     return .element(
       key: key,
@@ -1177,7 +1227,8 @@ class RichText extends StatelessComponent with NakiTextScope {
   }
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('Text', [Rules.nakiTextRules]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('Text', [Rules.nakiTextRules]);
 }
 
 /// {@template TextSpan}
@@ -1273,7 +1324,9 @@ class TextSpan extends StatelessComponent implements InlineSpan {
     final defaultStyle = DefaultTextStyle.of(context);
 
     const baseClass = 'naki-text-span';
-    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     final effectiveStyles = {
       'display': 'inline',
@@ -1308,7 +1361,8 @@ class TextSpan extends StatelessComponent implements InlineSpan {
   }
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('Text', [Rules.nakiTextRules]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('Text', [Rules.nakiTextRules]);
 }
 
 /// {@template ComponentSpan}
@@ -1375,7 +1429,9 @@ class ComponentSpan extends StatelessComponent implements InlineSpan {
     final mergedStyle = defaultStyle.combineWith(style).props;
 
     const baseClass = 'naki-component-span';
-    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     final effectiveStyles = {
       ...mergedStyle,
@@ -1399,7 +1455,8 @@ class ComponentSpan extends StatelessComponent implements InlineSpan {
   }
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('Text', [Rules.nakiTextRules]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('Text', [Rules.nakiTextRules]);
 }
 
 /// {@template GestureDetector}
@@ -1448,7 +1505,9 @@ class GestureDetector extends StatelessComponent {
   @override
   Component build(BuildContext context) {
     const baseClass = 'naki-gesture-detector';
-    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     final isClickable = gestures.onClick != null;
     final handlers = gestures.toMap;
@@ -1525,6 +1584,17 @@ class Banner extends StatelessComponent {
   /// Background color of the banner.
   final Color? backgroundColor;
 
+  /// Background gradient of the banner.
+  ///
+  /// ### Example
+  /// ```dart
+  /// Banner(
+  ///   primary: NakiText('Welcome!'),
+  ///   gradient: Gradient()..applyLinear(colors: [Colors.indigo, Colors.teal]),
+  /// )
+  /// ```
+  final Gradient? gradient;
+
   /// Color applied on the banner content.
   final Color? foregroundColor;
 
@@ -1551,6 +1621,7 @@ class Banner extends StatelessComponent {
     this.icon,
     this.onClose,
     this.backgroundColor,
+    this.gradient,
     this.foregroundColor,
     this.border,
     this.padding,
@@ -1570,10 +1641,13 @@ class Banner extends StatelessComponent {
       Tokens.current.bannerPadding.name: ?padding?.value,
       ...?sizeConstraints?.props,
       ...?border?.props,
+      ...?gradient?.props,
     };
 
     final baseClass = 'naki-banner banner-${severity.name}';
-    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     final List<Component> effectiveChildren = [
       // leading icon

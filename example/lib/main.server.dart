@@ -21,6 +21,9 @@ void main() {
     // not required.
     const Document(
       base: basePath,
+      lang: null,
+      charset: null,
+      viewport: null,
       body: TodoApp(base: basePath),
     ),
   );

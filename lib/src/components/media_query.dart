@@ -122,39 +122,48 @@ class MediaQueryProvider extends StatefulComponent {
   /// Returns height (in px) from the nearest [MediaQueryProvider] ancestor.
   ///
   /// Returns `null` if no [MediaQueryProvider] is in the component tree.
-  static double? height(BuildContext context) => _maybeOf(context)?.height?.value;
+  static double? height(BuildContext context) =>
+      _maybeOf(context)?.height?.value;
 
   /// Returns orientation from the nearest [MediaQueryProvider] ancestor.
   ///
   /// Returns `null` if no [MediaQueryProvider] is in the component tree.
-  static Orientation? orientation(BuildContext context) => _maybeOf(context)?.orientation;
+  static Orientation? orientation(BuildContext context) =>
+      _maybeOf(context)?.orientation;
 
   /// Returns width (in px) of the nearest [MediaQueryProvider] ancestor whose
   /// child is identified by [MediaQueryProvider.id].
   ///
   /// Returns `null` if no such [MediaQueryProvider] is found.
   static double? widthOf(BuildContext context) =>
-      _maybeOf(context)?.isComponent ?? false ? _maybeOf(context)?.width?.value : null;
+      _maybeOf(context)?.isComponent ?? false
+      ? _maybeOf(context)?.width?.value
+      : null;
 
   /// Returns height (in px) of the nearest [MediaQueryProvider] ancestor whose
   /// child is identified by [MediaQueryProvider.id].
   ///
   /// Returns `null` if no such [MediaQueryProvider] is found.
   static double? heightOf(BuildContext context) =>
-      _maybeOf(context)?.isComponent ?? false ? _maybeOf(context)?.height?.value : null;
+      _maybeOf(context)?.isComponent ?? false
+      ? _maybeOf(context)?.height?.value
+      : null;
 
   /// Returns orientation of the nearest [MediaQueryProvider] ancestor whose
   /// child is identified by [MediaQueryProvider.id].
   ///
   /// Returns `null` if no such [MediaQueryProvider] is found.
   static Orientation? orientationOf(BuildContext context) =>
-      _maybeOf(context)?.isComponent ?? false ? _maybeOf(context)?.orientation : null;
+      _maybeOf(context)?.isComponent ?? false
+      ? _maybeOf(context)?.orientation
+      : null;
 
   @override
   State createState() => _MediaQueryState();
 }
 
-class _MediaQueryState extends State<MediaQueryProvider> with NakiStatefulMixin {
+class _MediaQueryState extends State<MediaQueryProvider>
+    with NakiStatefulMixin {
   Dim? _width, _height;
 
   Orientation? _orientation, _componentOrientation;
@@ -162,6 +171,11 @@ class _MediaQueryState extends State<MediaQueryProvider> with NakiStatefulMixin 
   final BrowserLifecycleListeners _lifecycle = BrowserLifecycleListeners();
 
   bool get _isObservingComponent => component.id.isNotNullAndEmpty;
+
+  @override
+  void setState(VoidCallback fn) {
+    if (mounted && kIsWeb) super.setState(fn);
+  }
 
   @override
   FutureOr<VoidCallback?> afterRender(
@@ -191,7 +205,7 @@ class _MediaQueryState extends State<MediaQueryProvider> with NakiStatefulMixin 
 
     _lifecycle.register();
 
-    return null;
+    return _lifecycle.dispose;
   }
 
   @override
@@ -211,7 +225,7 @@ class _MediaQueryState extends State<MediaQueryProvider> with NakiStatefulMixin 
 
   @override
   Component build(BuildContext context) {
-    final Component child = component.id.isNotNullAndEmpty
+    final Component child = _isObservingComponent
         ? .wrapElement(
             id: component.id!,
             child: Builder(builder: component.builder),
@@ -253,11 +267,8 @@ class MediaQueryData extends InheritedComponent {
   });
 
   @override
-  bool updateShouldNotify(
-    covariant MediaQueryData oldComponent,
-  ) {
-    return width != oldComponent.width ||
-        height != oldComponent.height ||
-        orientation != oldComponent.orientation;
-  }
+  bool updateShouldNotify(MediaQueryData oldComponent) =>
+      width != oldComponent.width ||
+      height != oldComponent.height ||
+      orientation != oldComponent.orientation;
 }

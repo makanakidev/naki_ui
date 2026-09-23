@@ -166,7 +166,9 @@ class DropdownItem<T> {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is DropdownItem<T> && value == other.value && label == other.label;
+    return other is DropdownItem<T> &&
+        value == other.value &&
+        label == other.label;
   }
 }
 

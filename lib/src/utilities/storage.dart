@@ -8,8 +8,12 @@ class NakiStorage {
   /// Stores data in localStorage.
   static void set(String key, dynamic value) {
     if (kIsServer) return;
+
     try {
-      final _value = value is String ? value : const JsonEncoder().convert(value);
+      final _value = value is String
+          ? value
+          : const JsonEncoder().convert(value);
+
       window.localStorage.setItem('naki-$key', _value);
     } catch (e) {
       debugPrint('NakiStorage.set Error: $e');
@@ -19,12 +23,14 @@ class NakiStorage {
   /// Retrieves data from localStorage.
   static T? get<T>(String key) {
     if (kIsServer) return null;
+
     try {
-      final value = window.localStorage.getItem(
-        'naki-$key',
-      );
+      final value = window.localStorage.getItem('naki-$key');
+
       if (value == null) return null;
+
       if (T == String) return value as T;
+
       return const JsonDecoder().convert(value) as T;
     } catch (e) {
       debugPrint('NakiStorage.get Error: $e');
@@ -41,6 +47,7 @@ class NakiStorage {
   /// Clears all Naki-owned data from localStorage.
   static void clearAll() {
     if (kIsServer) return;
+
     final keys = <String>[];
 
     for (var i = 0; i < window.localStorage.length; i++) {

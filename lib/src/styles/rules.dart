@@ -1,10 +1,59 @@
 import 'package:jaspr/dom.dart';
+import 'package:jaspr/jaspr.dart';
 
 import '../models/naki.dart' show ScrollBarConfiguration;
 import '../theme/tokens.dart';
+import '../utilities/constants.dart';
 import '../utilities/extensions.dart';
 
 import 'css.dart';
+
+extension StyleRulesExtension on Iterable<StyleRule> {
+  /// Converts a list of style rules into raw css.
+  String toCss() {
+    final imports = StringBuffer();
+    final rules = StringBuffer();
+    const indent = kDebugMode || kGenerateMode ? '\n' : ' ';
+
+    for (final rule in this) {
+      final css = rule.toCss() + indent;
+
+      if (css.trim().startsWith('@import')) {
+        imports.write(css);
+      } else {
+        rules.write(css);
+      }
+    }
+
+    return (imports.toString() + rules.toString()).trimRight();
+  }
+}
+
+/// A component utility for rendering a list of [StyleRule] objects
+/// into a `<style>` element.
+class StyleRules extends StatelessComponent {
+  /// The style rules to render.
+  final List<StyleRule> rules;
+
+  /// An optional id for the style element.
+  final String? id;
+
+  /// Optional attributes to set on the style element.
+  final Map<String, String>? attributes;
+
+  /// Creates a new instance of [StyleRules].
+  const StyleRules(this.rules, {super.key, this.id, this.attributes});
+
+  @override
+  Component build(BuildContext context) {
+    return .element(
+      tag: 'style',
+      id: id,
+      attributes: attributes,
+      children: [RawText(rules.toCss())],
+    );
+  }
+}
 
 /// Central registry to ensure style rules are registered
 /// exactly once per document tree or component type.
@@ -21,6 +70,9 @@ final class NakiStyleRegistry {
     List<StyleRule> rules,
   ) => global.register(key, rules);
 
+  /// Static helper to dedupe rules.
+  static List<StyleRule> dedupe(List<StyleRule> rules) => global._dedupe(rules);
+
   /// Registers [rules] once per [key] within this registry instance.
   List<StyleRule> register(
     String key,
@@ -36,10 +88,9 @@ final class NakiStyleRegistry {
     final uniqueRules = <StyleRule>[];
 
     for (final rule in rules) {
-      final raw = rule.toCss();
-
-      if (_generatedCss.contains(raw)) continue;
-      _generatedCss.add(raw);
+      final css = rule.toCss();
+      if (_generatedCss.contains(css)) continue;
+      _generatedCss.add(css);
       uniqueRules.add(rule);
     }
 
@@ -195,11 +246,73 @@ class Rules {
       raw: {
         'background-color':
             'var(${Tokens.current.backgroundColor}, ${Tokens.current.backgroundColor.value})',
-        'color': 'var(${Tokens.current.baseTextColor}, ${Tokens.current.baseTextColor.value})',
-        'font-family': 'var(${Tokens.current.fontFamily}, ${Tokens.current.fontFamily.value})',
-        'font-size': 'var(${Tokens.current.fontSizeMd}, ${Tokens.current.fontSizeMd.value})',
+        'color':
+            'var(${Tokens.current.baseTextColor}, ${Tokens.current.baseTextColor.value})',
+        'font-family':
+            'var(${Tokens.current.fontFamily}, ${Tokens.current.fontFamily.value})',
+        'font-size':
+            'var(${Tokens.current.fontSizeMd}, ${Tokens.current.fontSizeMd.value})',
         'scrollbar-width': 'none',
       },
+    ),
+  ];
+
+  /// Breakpoint rules
+  static final nakiBreakpointRules = [
+    // Hide all by default
+    css('.br-xs, .br-sm, .br-md, .br-lg, .br-xl').styles(
+      raw: {'display': 'none !important'},
+    ),
+
+    // xs: <= 480px
+    css.media(
+      const MediaQuery.screen(maxWidth: Unit.pixels(kBreakpointXSmall)),
+      [
+        css('.br-xs').styles(raw: {'display': 'revert !important'}),
+      ],
+    ),
+
+    // sm: 480px - 576px
+    css.media(
+      const MediaQuery.screen(
+        minWidth: Unit.pixels(kBreakpointXSmall + 0.02),
+        maxWidth: Unit.pixels(kBreakpointSmall),
+      ),
+      [
+        css('.br-sm').styles(raw: {'display': 'revert !important'}),
+      ],
+    ),
+
+    // md: 576px - 768px
+    css.media(
+      const MediaQuery.screen(
+        minWidth: Unit.pixels(kBreakpointSmall + 0.02),
+        maxWidth: Unit.pixels(kBreakpointMedium),
+      ),
+      [
+        css('.br-md').styles(raw: {'display': 'revert !important'}),
+      ],
+    ),
+
+    // lg: 768px - 1024px
+    css.media(
+      const MediaQuery.screen(
+        minWidth: Unit.pixels(kBreakpointMedium + 0.02),
+        maxWidth: Unit.pixels(kBreakpointLarge),
+      ),
+      [
+        css('.br-lg').styles(raw: {'display': 'revert !important'}),
+      ],
+    ),
+
+    // xl: 1024px and above
+    css.media(
+      const MediaQuery.screen(
+        minWidth: Unit.pixels(kBreakpointLarge + 0.02),
+      ),
+      [
+        css('.br-xl').styles(raw: {'display': 'revert !important'}),
+      ],
     ),
   ];
 
@@ -476,7 +589,7 @@ class Rules {
                 'text-align': 'center',
                 'padding': '0',
                 'margin': '0',
-                'background': 'transparent',
+                'background-color': 'transparent',
                 'border-left': 'unset',
                 'border-right': 'unset',
                 'border-top':
@@ -495,7 +608,7 @@ class Rules {
                 'width': '100%',
                 'border': 'none',
                 'padding': '0',
-                'background': 'transparent',
+                'background-color': 'transparent',
                 'cursor': 'pointer',
                 'color':
                     'var(${Tokens.current.borderColor}, '
@@ -592,7 +705,9 @@ class Rules {
   ]);
 
   /// Helper text rules
-  static final nakiHelperRules = css('.naki-helper').styles(raw: Css.nakiHelperTextStyle.props);
+  static final nakiHelperRules = css(
+    '.naki-helper',
+  ).styles(raw: Css.nakiHelperTextStyle.props);
 
   /// Checkbox rules
   static final nakiCheckboxRules = css('naki-checkbox', [
@@ -809,13 +924,13 @@ class Rules {
     // disabled state
     css('&:disabled').styles(
       raw: Css.nakiDisabledStyle.combine({
-        'background': 'var(${Tokens.current.disabledBgColor})',
+        'background-color': 'var(${Tokens.current.disabledBgColor})',
       }),
     ),
 
     // hover state
     css('&[hvr]:hover').styles(
-      raw: {'background': 'var(${Tokens.current.buttonHoverBgColor})'},
+      raw: {'background-color': 'var(${Tokens.current.buttonHoverBgColor})'},
     ),
 
     // tap / pressed state
@@ -826,6 +941,11 @@ class Rules {
 
   /// Icon rules
   static final nakiIconRules = css('.naki-icon').styles(raw: Css.nakiIconStyle);
+
+  /// Fragment rules
+  static final nakiFragmentRules = css(
+    '.naki-fragment',
+  ).styles(raw: {'display': 'contents'});
 
   /// Scaffold rules
   static final nakiScaffoldRules = css('.naki-scaffold', [
@@ -894,7 +1014,9 @@ class Rules {
   ]);
 
   /// Stack rules
-  static final nakiStackRules = css('.naki-stack').styles(raw: Css.nakiStackStyle);
+  static final nakiStackRules = css(
+    '.naki-stack',
+  ).styles(raw: Css.nakiStackStyle);
 
   /// Align rules
   static final nakiAlignRules = css(
@@ -989,7 +1111,7 @@ class Rules {
 
       css(
         '&:disabled',
-      ).styles(raw: {'background': 'transparent'}),
+      ).styles(raw: {'background-color': 'transparent'}),
     ]),
 
     css('.naki-expansion-panel__chevron', [
@@ -1407,7 +1529,8 @@ class Rules {
         'background-color': 'var(${Tokens.current.tableHeaderBg})',
         'padding': '12px 16px',
         'font-weight': '600',
-        'border-bottom': '1px solid var(${Tokens.current.tableHeaderBorderColor})',
+        'border-bottom':
+            '1px solid var(${Tokens.current.tableHeaderBorderColor})',
       },
     ),
 

@@ -26,6 +26,16 @@ class _ContentState extends State<Content> {
   List<TodoItem> _todos = [];
   TodoFilter _filter = TodoFilter.all;
 
+  List<ScrollPhysics> _scrollPhysics = [
+    const ClampingScrollPhysics(),
+    const BouncingScrollPhysics(),
+  ];
+
+  @override
+  void setState(VoidCallback fn) {
+    if (mounted && kIsWeb) super.setState(fn);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -73,33 +83,43 @@ class _ContentState extends State<Content> {
     _save();
   }
 
-  void _clearCompleted() {
-    final completedCount = _todos.where((t) => t.isCompleted).length;
-    if (completedCount == 0) return;
-
-    _todos = _todos.where((t) => !t.isCompleted).toList();
-
+  void _toggleScrollPhysics() {
+    setState(() => _scrollPhysics = _scrollPhysics.reversed.toList());
     _showFeedback(
-      'Cleared $completedCount completed ${completedCount == 1 ? 'task' : 'tasks'}',
+      '${_scrollPhysics.first.type.name} scroll physics',
     );
-    _save();
   }
+
+  // void _clearCompleted() {
+  //   final completedCount = _todos.where((t) => t.isCompleted).length;
+  //   if (completedCount == 0) return;
+
+  //   _todos = _todos.where((t) => !t.isCompleted).toList();
+
+  //   _showFeedback(
+  //     'Cleared $completedCount completed ${completedCount == 1 ? 'task' : 'tasks'}',
+  //   );
+  //   _save();
+  // }
 
   @override
   Component build(BuildContext context) {
     return SingleChildScrollView(
-      physics: const ClampingScrollPhysics(),
+      physics: _scrollPhysics.first,
       padding: const EdgeInsets.symmetric(
         horizontal: Dim.px(16),
         vertical: Dim.px(24),
       ),
       child: Align(
         alignment: Alignment.topCenter,
-        child: Builder(
+        child: MediaQueryProvider(
+          id: 'todo-container',
           builder: (context) {
             final totalCount = _todos.length;
             final completedCount = _todos.where((t) => t.isCompleted).length;
             final activeCount = totalCount - completedCount;
+
+            final mqHeight = MediaQueryProvider.heightOf(context) ?? 0;
 
             final filteredTodos = _todos.where((todo) {
               switch (_filter) {
@@ -135,7 +155,7 @@ class _ContentState extends State<Content> {
                       currentFilter: _filter,
                       onFilterChanged: (f) => setState(() => _filter = f),
                       hasCompleted: completedCount > 0,
-                      onClearCompleted: _clearCompleted,
+                      toggle: mqHeight >= PlatformData().height ? _toggleScrollPhysics : null,
                     ),
 
                   // items
@@ -178,7 +198,7 @@ class _ContentState extends State<Content> {
                   Snackbar(
                     controller: _snackbarController,
                     duration: const Duration(seconds: 5),
-                    position: SnackbarPosition.bottom,
+                    position: SnackbarPosition.top,
                     content: NakiText(_snackbarMessage),
                     showCloseIcon: true,
                     backgroundColor: context.primaryColor,

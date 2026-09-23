@@ -107,7 +107,9 @@ class Checkbox extends StatelessComponent {
     final List<Component> children = [];
 
     const String baseClass = 'naki-checkbox';
-    final String effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final String effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     // Add checkbox
     children.add(
@@ -133,7 +135,9 @@ class Checkbox extends StatelessComponent {
 
     // Add label
     if (label.isNotNullAndEmpty) {
-      final cleanedStyle = (labelStyle ?? const TextStyle()).copyWith(margin: .zero);
+      final cleanedStyle = (labelStyle ?? const TextStyle()).copyWith(
+        margin: .zero,
+      );
       final labelUi = Label(
         label!,
         fieldId: _id,
@@ -155,8 +159,10 @@ class Checkbox extends StatelessComponent {
   }
 
   @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('Checkbox', [Rules.nakiCheckboxRules, Rules.nakiHitboxRules]);
+  static List<StyleRule> get styles => NakiStyleRegistry.once('Checkbox', [
+    Rules.nakiCheckboxRules,
+    Rules.nakiHitboxRules,
+  ]);
 }
 
 /// {@template Switch}
@@ -242,7 +248,9 @@ class Switch extends StatelessComponent {
     final List<Component> children = [];
 
     const String baseClass = 'naki-switch';
-    final String effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final String effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     // Add switch
     children.add(
@@ -272,7 +280,9 @@ class Switch extends StatelessComponent {
 
     // Add label
     if (label.isNotNullAndEmpty) {
-      final cleanedStyle = (labelStyle ?? const TextStyle()).copyWith(margin: .zero);
+      final cleanedStyle = (labelStyle ?? const TextStyle()).copyWith(
+        margin: .zero,
+      );
       final labelUi = Label(
         label!,
         fieldId: _id,
@@ -294,8 +304,10 @@ class Switch extends StatelessComponent {
   }
 
   @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('Switch', [Rules.nakiSwitchRules, Rules.nakiHitboxRules]);
+  static List<StyleRule> get styles => NakiStyleRegistry.once('Switch', [
+    Rules.nakiSwitchRules,
+    Rules.nakiHitboxRules,
+  ]);
 }
 
 /// {@template Slider}
@@ -406,7 +418,9 @@ class Slider extends StatelessComponent {
     final String position = 'calc($percent% + (${8 - percent * 0.15}px))';
 
     const String baseClass = 'naki-slider';
-    final String effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final String effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     final _style = {
       Tokens.current.sliderThumbSize.name: height.cssText,
@@ -441,7 +455,9 @@ class Slider extends StatelessComponent {
                   if (showTooltip) updateSliderTooltip(_id, hide: false);
                 }
               : null,
-          events: showTooltip ? {'blur': (_) => updateSliderTooltip(_id)} : null,
+          events: showTooltip
+              ? {'blur': (_) => updateSliderTooltip(_id)}
+              : null,
         ),
 
         // Tooltip
@@ -549,7 +565,9 @@ class RadioButton extends StatelessComponent {
     final List<Component> children = [];
 
     const String baseClass = 'naki-radio-btn';
-    final String effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final String effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     final styles = {
       Tokens.current.radioBtnRadius.name: ?size?.cssText,
@@ -579,7 +597,9 @@ class RadioButton extends StatelessComponent {
 
     // Add label
     if (label.isNotNullAndEmpty) {
-      final cleanedStyle = (labelStyle ?? const TextStyle()).copyWith(margin: .zero);
+      final cleanedStyle = (labelStyle ?? const TextStyle()).copyWith(
+        margin: .zero,
+      );
       final labelUi = Label(
         label!,
         fieldId: _id,
@@ -601,8 +621,10 @@ class RadioButton extends StatelessComponent {
   }
 
   @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('RadioButton', [Rules.nakiRadioBtnRules, Rules.nakiHitboxRules]);
+  static List<StyleRule> get styles => NakiStyleRegistry.once('RadioButton', [
+    Rules.nakiRadioBtnRules,
+    Rules.nakiHitboxRules,
+  ]);
 }
 
 /// {@template Dropdown}
@@ -778,7 +800,7 @@ class _DropdownState<T> extends State<Dropdown<T>> with NakiStatefulMixin {
 
   @override
   void setState(VoidCallback fn) {
-    if (mounted) super.setState(fn);
+    if (mounted && kIsWeb) super.setState(fn);
   }
 
   @override
@@ -798,25 +820,27 @@ class _DropdownState<T> extends State<Dropdown<T>> with NakiStatefulMixin {
     BuildContext context,
   ) {
     // listener that checks if an outside click occurred
-    final clickSubscription = EventStreamProviders.clickEvent.forTarget(window).listen((event) {
-      if (!_isOpen) return;
+    final clickSubscription = EventStreamProviders.clickEvent
+        .forTarget(window)
+        .listen((event) {
+          if (!_isOpen) return;
 
-      final target = event.target as Node?;
-      final parent =
-          document.querySelector(
-                '#${_id}__dropdown[open]',
-              )
-              as HTMLElement?;
+          final target = event.target as Node?;
+          final parent =
+              document.querySelector(
+                    '#${_id}__dropdown[open]',
+                  )
+                  as HTMLElement?;
 
-      if (parent != null && target != null && !parent.contains(target)) {
-        event.stopPropagation();
+          if (parent != null && target != null && !parent.contains(target)) {
+            event.stopPropagation();
 
-        setState(() {
-          _isOpen = false;
-          _activeOption = null;
+            setState(() {
+              _isOpen = false;
+              _activeOption = null;
+            });
+          }
         });
-      }
-    });
 
     return clickSubscription.cancel;
   }
@@ -825,7 +849,8 @@ class _DropdownState<T> extends State<Dropdown<T>> with NakiStatefulMixin {
   void didUpdateComponent(Dropdown<T> oldComponent) {
     super.didUpdateComponent(oldComponent);
 
-    if (_compareOptions(oldComponent.options) || oldComponent.id != component.id) {
+    if (_compareOptions(oldComponent.options) ||
+        oldComponent.id != component.id) {
       _isOpen = false;
       _isSearching = false;
       _showUpward = false;
@@ -935,7 +960,9 @@ class _DropdownState<T> extends State<Dropdown<T>> with NakiStatefulMixin {
     // toggle dropdown menu
     _isOpen = willOpen;
     _activeOption = willOpen
-        ? (_selectedOption.value != null ? _selectedOption : _firstSelectable(_options))
+        ? (_selectedOption.value != null
+              ? _selectedOption
+              : _firstSelectable(_options))
         : null;
 
     // update the component state
@@ -961,7 +988,8 @@ class _DropdownState<T> extends State<Dropdown<T>> with NakiStatefulMixin {
     return null;
   }
 
-  List<DropdownItem<T>> get _visibleOptions => _isSearching ? _filteredOptions.value : _options;
+  List<DropdownItem<T>> get _visibleOptions =>
+      _isSearching ? _filteredOptions.value : _options;
 
   /// Move active option up or down using arrow keys
   void _moveActiveOption(int delta) {
@@ -1057,8 +1085,9 @@ class _DropdownState<T> extends State<Dropdown<T>> with NakiStatefulMixin {
   }
 
   /// Returns the ID of the selected item
-  String? get _selectedItemId =>
-      _selectedOption.value != null ? '${_id}_item_${_options.indexOf(_selectedOption)}' : null;
+  String? get _selectedItemId => _selectedOption.value != null
+      ? '${_id}_item_${_options.indexOf(_selectedOption)}'
+      : null;
 
   /// Returns the current label of the dropdown
   String get _currentLabel => _selectedOption.label ?? component.placeholder;
@@ -1092,7 +1121,9 @@ class _DropdownState<T> extends State<Dropdown<T>> with NakiStatefulMixin {
     final sectionFontSize = sectionStyle?.fontSize?.cssText;
     final sectionFontWeight = sectionStyle?.fontWeight?.value;
 
-    final extraMenuClasses = component.classes.isNotNullAndEmpty ? ' ${component.classes}' : '';
+    final extraMenuClasses = component.classes.isNotNullAndEmpty
+        ? ' ${component.classes}'
+        : '';
 
     // Default trigger container
     final Component defaultTrigger = div(
@@ -1119,7 +1150,8 @@ class _DropdownState<T> extends State<Dropdown<T>> with NakiStatefulMixin {
         'aria-controls': '${_id}_options',
         'aria-disabled': '${component.disabled}',
         if (_activeOption != null)
-          'aria-activedescendant': '${_id}_item_${_options.indexOf(_activeOption!)}',
+          'aria-activedescendant':
+              '${_id}_item_${_options.indexOf(_activeOption!)}',
       },
       events: Events(
         onClick: (_) => _toggleDropdown(),
@@ -1189,7 +1221,8 @@ class _DropdownState<T> extends State<Dropdown<T>> with NakiStatefulMixin {
     // Options menu
     final Component dropdownMenu = section(
       key: _optionsKey,
-      classes: 'naki-dropdown-menu${_showUpward ? ' upward' : ''}$extraMenuClasses',
+      classes:
+          'naki-dropdown-menu${_showUpward ? ' upward' : ''}$extraMenuClasses',
       id: '${_id}_options',
       attributes: {
         'role': 'listbox',
@@ -1242,7 +1275,8 @@ class _DropdownState<T> extends State<Dropdown<T>> with NakiStatefulMixin {
                       'role': item.section ? 'presentation' : 'option',
                       'data-value': ?item.value?.toString(),
                       'aria-disabled': ?(item.disabled ? 'true' : null),
-                      'aria-selected': ?(!item.disabled && _currentLabel == item.label
+                      'aria-selected':
+                          ?(!item.disabled && _currentLabel == item.label
                           ? 'true'
                           : null),
                     },

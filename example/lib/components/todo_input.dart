@@ -1,4 +1,4 @@
-import 'package:jaspr/dom.dart';
+import 'package:jaspr/dom.dart' hide Filter;
 import 'package:jaspr/jaspr.dart';
 import 'package:jaspr_icons_pack/jaspr_icons_pack.dart' show MaterialIcons;
 import 'package:naki_ui/framework.dart';
@@ -16,16 +16,12 @@ class TodoInput extends StatefulComponent {
 
 class _TodoInputState extends State<TodoInput> {
   String _currentText = '';
-  int _inputKeyVersion = 0;
 
   void _submit() {
     final trimmed = _currentText.trim();
     if (trimmed.isNotEmpty) {
       component.onAdd(trimmed);
-      setState(() {
-        _currentText = '';
-        _inputKeyVersion++;
-      });
+      _currentText = '';
     }
   }
 
@@ -44,17 +40,19 @@ class _TodoInputState extends State<TodoInput> {
         children: [
           Expanded(
             child: TextField(
-              key: ValueKey(_inputKeyVersion),
-              id: 'todo-text-input-$_inputKeyVersion',
+              id: 'todo-text-input',
               type: InputType.text,
               decoration: InputDecoration(
-                border: BorderData(color: context.borderColor.withOpacity(0.3)),
+                border: BorderData(
+                  color: context.borderColor.withOpacity(0.3),
+                ),
                 placeholderText: 'What needs to be done?',
               ),
               onTyping: (value) => _currentText = value,
               onSubmit: (_) => _submit(),
             ),
           ),
+
           Button.filled(
             context.primaryColor,
             id: 'add-task-submit-button',

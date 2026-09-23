@@ -33,10 +33,7 @@ mixin _AccessibleOverlay<T extends StatefulComponent> on State<T> {
 
   final overlaySurfaceKey = GlobalNodeKey<HTMLElement>();
 
-  void syncOverlayAccessibility(
-    bool open,
-    VoidCallback close,
-  ) {
+  void syncOverlayAccessibility(bool open, VoidCallback close) {
     if (_requestedOpen == open) return;
 
     _requestedOpen = open;
@@ -51,9 +48,7 @@ mixin _AccessibleOverlay<T extends StatefulComponent> on State<T> {
     });
   }
 
-  List<HTMLElement> _focusableElements(
-    HTMLElement surface,
-  ) {
+  List<HTMLElement> _focusableElements(HTMLElement surface) {
     final nodes = surface.querySelectorAll(
       'a[href], button:not([disabled]), input:not([disabled]), '
       'select:not([disabled]), textarea:not([disabled]), '
@@ -80,36 +75,38 @@ mixin _AccessibleOverlay<T extends StatefulComponent> on State<T> {
     (focusable.isNotEmpty ? focusable.first : surface).focus();
 
     _keyboardSubscription?.cancel();
-    _keyboardSubscription = EventStreamProviders.keyDownEvent.forTarget(document).listen((event) {
-      if (event.key == 'Escape') {
-        event.preventDefault();
-        close();
-        return;
-      }
+    _keyboardSubscription = EventStreamProviders.keyDownEvent
+        .forTarget(document)
+        .listen((event) {
+          if (event.key == 'Escape') {
+            event.preventDefault();
+            close();
+            return;
+          }
 
-      if (event.key != 'Tab') return;
+          if (event.key != 'Tab') return;
 
-      final currentFocusable = _focusableElements(
-        surface,
-      );
-      if (currentFocusable.isEmpty) {
-        event.preventDefault();
-        surface.focus();
-        return;
-      }
+          final currentFocusable = _focusableElements(surface);
+          if (currentFocusable.isEmpty) {
+            event.preventDefault();
+            surface.focus();
+            return;
+          }
 
-      final first = currentFocusable.first;
-      final last = currentFocusable.last;
-      final active = document.activeElement;
+          final first = currentFocusable.first;
+          final last = currentFocusable.last;
+          final active = document.activeElement;
 
-      if (event.shiftKey && (active == first || !surface.contains(active))) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && (active == last || !surface.contains(active))) {
-        event.preventDefault();
-        first.focus();
-      }
-    });
+          if (event.shiftKey &&
+              (active == first || !surface.contains(active))) {
+            event.preventDefault();
+            last.focus();
+          } else if (!event.shiftKey &&
+              (active == last || !surface.contains(active))) {
+            event.preventDefault();
+            first.focus();
+          }
+        });
   }
 
   void _deactivateOverlay() {
@@ -180,6 +177,18 @@ class Snackbar extends StatefulComponent {
   /// Snackbar background color.
   final Color? backgroundColor;
 
+  /// Snackbar background gradient.
+  ///
+  /// ### Example
+  /// ```dart
+  /// Snackbar(
+  ///   content: NakiText('Gradient Snackbar'),
+  ///   controller: controller,
+  ///   gradient: Gradient()..applyLinear(colors: [Colors.purple, Colors.indigo]),
+  /// )
+  /// ```
+  final Gradient? gradient;
+
   /// Color applied on the snackbar [content].
   final Color? foregroundColor;
 
@@ -209,6 +218,7 @@ class Snackbar extends StatefulComponent {
     this.sizeConstraints,
     this.onClose,
     this.backgroundColor,
+    this.gradient,
     this.foregroundColor,
     this.closeIconColor,
     this.borderRadius,
@@ -220,9 +230,8 @@ class Snackbar extends StatefulComponent {
   State<Snackbar> createState() => _SnackbarState();
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('Snackbar', [
-    Rules.nakiSnackbarRules,
-  ]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('Snackbar', [Rules.nakiSnackbarRules]);
 }
 
 class _SnackbarState extends State<Snackbar> {
@@ -298,10 +307,12 @@ class _SnackbarState extends State<Snackbar> {
     final scaffold = Scaffold.maybeOf(context);
 
     if (scaffold != null) {
-      final appBarHeight = scaffold.appBarHeight ?? Tokens.current.appbarHeight.value;
+      final appBarHeight =
+          scaffold.appBarHeight ?? Tokens.current.appbarHeight.value;
 
       final bottomNavbarHeight =
-          scaffold.bottomNavbarHeight ?? Tokens.current.bottomNavbarHeight.value;
+          scaffold.bottomNavbarHeight ??
+          Tokens.current.bottomNavbarHeight.value;
 
       final isTopPosition =
           component.position == .top ||
@@ -316,14 +327,14 @@ class _SnackbarState extends State<Snackbar> {
       if (isTopPosition && scaffold.hasAppbar) {
         return {
           Tokens.current.snackbarOffset.name:
-              'calc($appBarHeight + env(--safe-area-inset-top, 0px))',
+              'calc($appBarHeight + env(--safe-area-inset-top, 0px) + 5px)',
         };
       }
 
       if (isBottomPosition && scaffold.hasBottomNavbar) {
         return {
           Tokens.current.snackbarOffset.name:
-              'calc($bottomNavbarHeight + env(--safe-area-inset-bottom, 0px))',
+              'calc($bottomNavbarHeight + env(--safe-area-inset-bottom, 0px) + 5px)',
         };
       }
     }
@@ -337,11 +348,13 @@ class _SnackbarState extends State<Snackbar> {
 
     final effectiveStyles = {
       Tokens.current.snackbarBgColor.name: ?component.backgroundColor?.value,
-      Tokens.current.snackbarForegroundColor.name: ?component.foregroundColor?.value,
+      Tokens.current.snackbarForegroundColor.name:
+          ?component.foregroundColor?.value,
       Tokens.current.snackbarBorderRadius.name: ?component.borderRadius?.value,
       Tokens.current.snackbarPadding.name: ?component.padding?.value,
       ...?component.sizeConstraints?.props,
       ...?_offsetProps,
+      ...?component.gradient?.props,
     };
 
     final baseClass = 'naki-snackbar ${component.position.className}';
@@ -370,10 +383,7 @@ class _SnackbarState extends State<Snackbar> {
       tag: 'naki-snackbar',
       key: component.key,
       classes: effectiveClasses,
-      attributes: const {
-        'role': 'status',
-        'aria-live': 'polite',
-      },
+      attributes: const {'role': 'status', 'aria-live': 'polite'},
       styles: Styles(raw: effectiveStyles),
       children: effectiveChildren,
     );
@@ -409,6 +419,18 @@ class Tooltip extends StatelessComponent with NakiStatelessMixin {
   /// Tooltip background color.
   final Color? backgroundColor;
 
+  /// Tooltip background gradient.
+  ///
+  /// ### Example
+  /// ```dart
+  /// Tooltip(
+  ///   text: 'Info tooltip',
+  ///   gradient: Gradient()..applyLinear(colors: [Colors.blue, Colors.teal]),
+  ///   child: Icon(Icons.info),
+  /// )
+  /// ```
+  final Gradient? gradient;
+
   /// Color applied to the tooltip content.
   final Color? foregroundColor;
 
@@ -435,6 +457,7 @@ class Tooltip extends StatelessComponent with NakiStatelessMixin {
     this.text,
     this.content,
     this.backgroundColor,
+    this.gradient,
     this.foregroundColor,
     this.borderRadius,
     this.padding,
@@ -447,9 +470,7 @@ class Tooltip extends StatelessComponent with NakiStatelessMixin {
        );
 
   @override
-  FutureOr<VoidCallback?> afterRender(
-    BuildContext context,
-  ) {
+  FutureOr<VoidCallback?> afterRender(BuildContext context) {
     final tooltipId = nakiDomId(context, 'tooltip', id: id);
     final root = document.getElementById(tooltipId) as HTMLElement?;
     final target =
@@ -504,10 +525,13 @@ class Tooltip extends StatelessComponent with NakiStatelessMixin {
       Tokens.current.tooltipTextColor.name: ?foregroundColor?.value,
       Tokens.current.tooltipBorderRadius.name: ?borderRadius?.value,
       Tokens.current.tooltipPadding.name: ?padding?.value,
+      ...?gradient?.props,
     };
 
     final baseClass = 'naki-tooltip-content tooltip-${position.name}';
-    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     final effectiveContent = content ?? .text(text!);
 
@@ -519,10 +543,7 @@ class Tooltip extends StatelessComponent with NakiStatelessMixin {
       styles: Styles(raw: effectiveStyles),
       children: [
         // Target
-        .wrapElement(
-          child: child,
-          classes: 'naki-tooltip-target',
-        ),
+        .wrapElement(child: child, classes: 'naki-tooltip-target'),
 
         // Content
         div(
@@ -537,9 +558,8 @@ class Tooltip extends StatelessComponent with NakiStatelessMixin {
   }
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('Tooltip', [
-    Rules.nakiTooltipRules,
-  ]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('Tooltip', [Rules.nakiTooltipRules]);
 }
 
 /// {@template Dialog}
@@ -614,6 +634,18 @@ class Dialog extends StatefulComponent {
   /// Dialog background color.
   final Color? backgroundColor;
 
+  /// Dialog background gradient.
+  ///
+  /// ### Example
+  /// ```dart
+  /// Dialog(
+  ///   controller: controller,
+  ///   title: 'Gradient Dialog',
+  ///   gradient: Gradient()..applyLinear(colors: [Colors.purple, Colors.blue]),
+  /// )
+  /// ```
+  final Gradient? gradient;
+
   /// Dialog border radius.
   final BorderRadiusData? borderRadius;
 
@@ -643,6 +675,7 @@ class Dialog extends StatefulComponent {
     this.content,
     this.sizeConstraints,
     this.backgroundColor,
+    this.gradient,
     this.borderRadius,
     this.padding,
     this.classes,
@@ -653,10 +686,8 @@ class Dialog extends StatefulComponent {
   State<Dialog> createState() => _DialogState();
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once(
-    'Dialog',
-    Rules.nakiDialogRules,
-  );
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('Dialog', Rules.nakiDialogRules);
 }
 
 class _DialogState extends State<Dialog> with _AccessibleOverlay<Dialog> {
@@ -679,12 +710,8 @@ class _DialogState extends State<Dialog> with _AccessibleOverlay<Dialog> {
     super.didUpdateComponent(oldComponent);
 
     if (oldComponent.controller != component.controller) {
-      oldComponent.controller.removeListener(
-        _onControllerChanged,
-      );
-      component.controller.addListener(
-        _onControllerChanged,
-      );
+      oldComponent.controller.removeListener(_onControllerChanged);
+      component.controller.addListener(_onControllerChanged);
     }
 
     _localIsOpen = component.controller.isOpen;
@@ -692,17 +719,13 @@ class _DialogState extends State<Dialog> with _AccessibleOverlay<Dialog> {
 
   @override
   void dispose() {
-    component.controller.removeListener(
-      _onControllerChanged,
-    );
+    component.controller.removeListener(_onControllerChanged);
     super.dispose();
   }
 
   /// Handles controller changes
   void _onControllerChanged() {
-    setState(
-      () => _localIsOpen = component.controller.isOpen,
-    );
+    setState(() => _localIsOpen = component.controller.isOpen);
   }
 
   /// Closes dialog
@@ -721,6 +744,7 @@ class _DialogState extends State<Dialog> with _AccessibleOverlay<Dialog> {
       Tokens.current.dialogBgColor.name: ?component.backgroundColor?.value,
       Tokens.current.dialogBorderRadius.name: ?component.borderRadius?.value,
       Tokens.current.dialogPadding.name: ?component.padding?.value,
+      ...?component.gradient?.props,
     };
 
     final baseClass = 'naki-dialog dialog-${component.position.name}';
@@ -743,7 +767,7 @@ class _DialogState extends State<Dialog> with _AccessibleOverlay<Dialog> {
             style: const TextStyle(
               fontSize: Dim.px(18),
               fontWeight: FontWeight.w600,
-              padding: EdgeInsets(bottom: Dim.px(8)),
+              padding: EdgeInsets.only(bottom: Dim.px(8)),
             ),
           ),
 
@@ -752,7 +776,7 @@ class _DialogState extends State<Dialog> with _AccessibleOverlay<Dialog> {
           SubHeading(
             component.subtitle!,
             style: const TextStyle(
-              padding: EdgeInsets(bottom: Dim.px(16)),
+              padding: EdgeInsets.only(bottom: Dim.px(16)),
             ),
           ),
       ],
@@ -780,13 +804,12 @@ class _DialogState extends State<Dialog> with _AccessibleOverlay<Dialog> {
           attributes: {
             'role': 'dialog',
             'aria-modal': 'true',
-            'aria-label': component.semanticLabel ?? component.title ?? 'Dialog',
+            'aria-label':
+                component.semanticLabel ?? component.title ?? 'Dialog',
             'tabindex': '-1',
           },
           events: {'click': (e) => e.stopPropagation()},
-          styles: Styles(
-            raw: component.sizeConstraints?.props,
-          ),
+          styles: Styles(raw: component.sizeConstraints?.props),
           dialogChildren,
         ),
       ],
@@ -854,6 +877,17 @@ class Drawer extends StatefulComponent {
   /// Drawer's background color.
   final Color? backgroundColor;
 
+  /// Drawer's background gradient.
+  ///
+  /// ### Example
+  /// ```dart
+  /// Drawer(
+  ///   gradient: Gradient()..applyLinear(colors: [Colors.indigo, Colors.purple]),
+  ///   child: NakiText('Drawer Menu'),
+  /// )
+  /// ```
+  final Gradient? gradient;
+
   /// Drawer's barrier color.
   final Color? barrierColor;
 
@@ -874,6 +908,7 @@ class Drawer extends StatefulComponent {
     this.controller,
     this.width,
     this.backgroundColor,
+    this.gradient,
     this.barrierColor,
     this.classes,
   }) : modal = true;
@@ -894,6 +929,7 @@ class Drawer extends StatefulComponent {
     this.semanticLabel = 'Navigation drawer',
     this.width,
     this.backgroundColor,
+    this.gradient,
     this.classes,
   }) : modal = false,
        barrierDismissible = false,
@@ -913,6 +949,7 @@ class Drawer extends StatefulComponent {
     OverlayController? controller,
     Dim? width,
     Color? backgroundColor,
+    Gradient? gradient,
     Color? barrierColor,
     String? classes,
   }) {
@@ -927,6 +964,7 @@ class Drawer extends StatefulComponent {
             controller: controller ?? this.controller,
             width: width ?? this.width,
             backgroundColor: backgroundColor ?? this.backgroundColor,
+            gradient: gradient ?? this.gradient,
             barrierColor: barrierColor ?? this.barrierColor,
             classes: classes ?? this.classes,
           )
@@ -937,6 +975,7 @@ class Drawer extends StatefulComponent {
             semanticLabel: semanticLabel ?? this.semanticLabel,
             width: width ?? this.width,
             backgroundColor: backgroundColor ?? this.backgroundColor,
+            gradient: gradient ?? this.gradient,
             classes: classes ?? this.classes,
           );
   }
@@ -945,10 +984,8 @@ class Drawer extends StatefulComponent {
   State<Drawer> createState() => _DrawerState();
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once(
-    'Drawer',
-    Rules.nakiDrawerRules,
-  );
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('Drawer', Rules.nakiDrawerRules);
 }
 
 class _DrawerState extends State<Drawer> with _AccessibleOverlay<Drawer> {
@@ -962,7 +999,9 @@ class _DrawerState extends State<Drawer> with _AccessibleOverlay<Drawer> {
   @override
   void initState() {
     super.initState();
-    _localIsOpen = component.modal ? (component.controller?.isOpen ?? false) : true;
+    _localIsOpen = component.modal
+        ? (component.controller?.isOpen ?? false)
+        : true;
     component.controller?.addListener(_onControllerChanged);
   }
 
@@ -971,22 +1010,18 @@ class _DrawerState extends State<Drawer> with _AccessibleOverlay<Drawer> {
     super.didUpdateComponent(oldComponent);
 
     if (oldComponent.controller != component.controller) {
-      oldComponent.controller?.removeListener(
-        _onControllerChanged,
-      );
-      component.controller?.addListener(
-        _onControllerChanged,
-      );
+      oldComponent.controller?.removeListener(_onControllerChanged);
+      component.controller?.addListener(_onControllerChanged);
     }
 
-    _localIsOpen = component.modal ? (component.controller?.isOpen ?? false) : true;
+    _localIsOpen = component.modal
+        ? (component.controller?.isOpen ?? false)
+        : true;
   }
 
   @override
   void dispose() {
-    component.controller?.removeListener(
-      _onControllerChanged,
-    );
+    component.controller?.removeListener(_onControllerChanged);
     super.dispose();
   }
 
@@ -1009,10 +1044,7 @@ class _DrawerState extends State<Drawer> with _AccessibleOverlay<Drawer> {
 
   @override
   Component build(BuildContext context) {
-    syncOverlayAccessibility(
-      component.modal && _localIsOpen,
-      _close,
-    );
+    syncOverlayAccessibility(component.modal && _localIsOpen, _close);
 
     if (!_localIsOpen) return const .empty();
 
@@ -1020,9 +1052,12 @@ class _DrawerState extends State<Drawer> with _AccessibleOverlay<Drawer> {
       Tokens.current.drawerBgColor.name: ?component.backgroundColor?.value,
       Tokens.current.drawerWidth.name: ?component.width?.cssText,
       Tokens.current.drawerBarrierBg.name: ?component.barrierColor?.value,
+      ...?component.gradient?.props,
     };
 
-    final baseClass = component.modal ? 'naki-drawer' : 'naki-drawer persistent';
+    final baseClass = component.modal
+        ? 'naki-drawer'
+        : 'naki-drawer persistent';
     final effectiveClasses = component.classes.isNotNullAndEmpty
         ? '$baseClass ${component.classes}'
         : baseClass;
@@ -1053,7 +1088,9 @@ class _DrawerState extends State<Drawer> with _AccessibleOverlay<Drawer> {
             'aria-label': component.semanticLabel,
             if (component.modal) 'tabindex': '-1',
           },
-          events: component.modal ? {'click': (e) => e.stopPropagation()} : null,
+          events: component.modal
+              ? {'click': (e) => e.stopPropagation()}
+              : null,
           [component.child],
         ),
       ],
@@ -1115,6 +1152,18 @@ class BottomSheet extends StatefulComponent {
   /// Background color of the bottom sheet.
   final Color? backgroundColor;
 
+  /// Background gradient of the bottom sheet.
+  ///
+  /// ### Example
+  /// ```dart
+  /// BottomSheet(
+  ///   controller: controller,
+  ///   gradient: Gradient()..applyLinear(colors: [Colors.purple, Colors.blue]),
+  ///   child: NakiText('Sheet Content'),
+  /// )
+  /// ```
+  final Gradient? gradient;
+
   /// Border radius of the bottom sheet.
   final BorderRadiusData? borderRadius;
 
@@ -1136,6 +1185,7 @@ class BottomSheet extends StatefulComponent {
     this.maxHeight,
     this.maxWidth,
     this.backgroundColor,
+    this.gradient,
     this.borderRadius,
     this.classes,
   });
@@ -1144,13 +1194,12 @@ class BottomSheet extends StatefulComponent {
   State<BottomSheet> createState() => _BottomSheetState();
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once(
-    'BottomSheet',
-    Rules.nakiBottomSheetRules,
-  );
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('BottomSheet', Rules.nakiBottomSheetRules);
 }
 
-class _BottomSheetState extends State<BottomSheet> with _AccessibleOverlay<BottomSheet> {
+class _BottomSheetState extends State<BottomSheet>
+    with _AccessibleOverlay<BottomSheet> {
   bool _localIsOpen = false;
 
   @override
@@ -1170,12 +1219,8 @@ class _BottomSheetState extends State<BottomSheet> with _AccessibleOverlay<Botto
     super.didUpdateComponent(oldComponent);
 
     if (oldComponent.controller != component.controller) {
-      oldComponent.controller.removeListener(
-        _onControllerChanged,
-      );
-      component.controller.addListener(
-        _onControllerChanged,
-      );
+      oldComponent.controller.removeListener(_onControllerChanged);
+      component.controller.addListener(_onControllerChanged);
     }
 
     _localIsOpen = component.controller.isOpen;
@@ -1183,17 +1228,13 @@ class _BottomSheetState extends State<BottomSheet> with _AccessibleOverlay<Botto
 
   @override
   void dispose() {
-    component.controller.removeListener(
-      _onControllerChanged,
-    );
+    component.controller.removeListener(_onControllerChanged);
     super.dispose();
   }
 
   /// Handles controller open/close changes.
   void _onControllerChanged() {
-    setState(
-      () => _localIsOpen = component.controller.isOpen,
-    );
+    setState(() => _localIsOpen = component.controller.isOpen);
   }
 
   /// Closes the bottom sheet.
@@ -1211,7 +1252,8 @@ class _BottomSheetState extends State<BottomSheet> with _AccessibleOverlay<Botto
     final effectiveStyles = {
       Tokens.current.bottomSheetBgColor.name: ?component.backgroundColor?.value,
       Tokens.current.bottomSheetMaxHeight.name: ?component.maxHeight?.cssText,
-      Tokens.current.bottomSheetBorderRadius.name: ?component.borderRadius?.value,
+      Tokens.current.bottomSheetBorderRadius.name:
+          ?component.borderRadius?.value,
     };
 
     const baseClass = 'naki-bottom-sheet';
@@ -1220,7 +1262,8 @@ class _BottomSheetState extends State<BottomSheet> with _AccessibleOverlay<Botto
         : baseClass;
 
     final effectiveChildren = [
-      if (component.showHandle) const div(classes: 'naki-bottom-sheet-handle', []),
+      if (component.showHandle)
+        const div(classes: 'naki-bottom-sheet-handle', []),
       component.child,
     ];
 
@@ -1244,6 +1287,7 @@ class _BottomSheetState extends State<BottomSheet> with _AccessibleOverlay<Botto
           styles: Styles(
             raw: {
               'max-width': ?component.maxWidth?.cssText,
+              ...?component.gradient?.props,
             },
           ),
           effectiveChildren,
@@ -1299,6 +1343,18 @@ class Popover extends StatelessComponent {
   /// Background color of the popover content.
   final Color? backgroundColor;
 
+  /// Background gradient of the popover content.
+  ///
+  /// ### Example
+  /// ```dart
+  /// Popover(
+  ///   content: NakiText('Gradient Popover'),
+  ///   gradient: Gradient()..applyLinear(colors: [Colors.blue, Colors.purple]),
+  ///   child: Button.text('Open', onTap: () {}),
+  /// )
+  /// ```
+  final Gradient? gradient;
+
   /// Color applied to the popover content.
   final Color? foregroundColor;
 
@@ -1327,6 +1383,7 @@ class Popover extends StatelessComponent {
     this.semanticLabel = 'Popover',
     this.onClose,
     this.backgroundColor,
+    this.gradient,
     this.foregroundColor,
     this.borderRadius,
     this.padding,
@@ -1342,10 +1399,13 @@ class Popover extends StatelessComponent {
       Tokens.current.popoverBorderRadius.name: ?borderRadius?.value,
       Tokens.current.popoverPadding.name: ?padding?.value,
       ...?size?.props,
+      ...?gradient?.props,
     };
 
     final baseClass = 'naki-popover-content popover-${position.value}';
-    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     return .element(
       tag: 'naki-popover',
@@ -1369,18 +1429,13 @@ class Popover extends StatelessComponent {
         .wrapElement(
           child: child,
           classes: 'naki-popover-trigger',
-          attributes: {
-            'canfocus': ?(!visible && onClose == null ? '' : null),
-          },
+          attributes: {'canfocus': ?(!visible && onClose == null ? '' : null)},
         ),
 
         // Popover content
         .wrapElement(
           classes: effectiveClasses,
-          attributes: {
-            'role': 'dialog',
-            'aria-label': semanticLabel,
-          },
+          attributes: {'role': 'dialog', 'aria-label': semanticLabel},
           styles: Styles(raw: effectiveStyles),
           child: content,
         ),
@@ -1389,8 +1444,6 @@ class Popover extends StatelessComponent {
   }
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once(
-    'Popover',
-    Rules.nakiPopoverRules,
-  );
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('Popover', Rules.nakiPopoverRules);
 }

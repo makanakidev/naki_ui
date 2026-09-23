@@ -1,6 +1,6 @@
 # Naki UI
 
-Naki UI is a Material-inspired library of 75+ reusable UI components and design
+Naki UI is a Material-inspired library of 80+ reusable UI components and design
 utilities for building fast, responsive web applications with Jaspr.
 
 <p align="center">
@@ -16,13 +16,12 @@ utilities for building fast, responsive web applications with Jaspr.
   <a href="https://makanakidev.github.io/naki_ui"><strong>Live Demo</strong></a>
 </p>
 
-
 ## Features
 
 - 🎨 **Design tokens and theming:** Light, dark, and system theme modes, custom
   token overrides, and CSS variable management.
 - 📦 **Component library:** Layouts, accordions, cards, buttons, inputs,
-  selection controls, overlays, navigation bars, and asynchronous builders.
+  selection controls, overlays, navigation bars, responsive layout builders, and asynchronous builders.
 - 🚀 **Built for Jaspr:** Jaspr components with type-safe CSS-in-Dart styling
   and DOM event binding.
 - 🧩 **Modular barrel exports:** Separate entry points for UI components,
@@ -37,7 +36,7 @@ Add `naki_ui` to your `pubspec.yaml`:
 ```yaml
 dependencies:
   jaspr: ^0.23.4
-  naki_ui: ^1.0.0
+  naki_ui: ^1.0.1
 ```
 
 Then fetch the dependencies:
@@ -78,21 +77,22 @@ from your target agent directory. Use `--no-jaspr` to skip Jaspr skills installa
 
 <br>
 
-| Agent | CLI Flag | Option (`--agent`) | Destination Directory |
-| :--- | :--- | :--- | :--- |
-| **Antigravity** | `--antigravity` | `antigravity` | `.agents/skills` |
-| **Cursor** | `--cursor` | `cursor` | `.cursor/skills` |
-| **Claude Code** | `--claude-code`, `--claude` | `claude-code` | `.claude/skills` |
-| **Cline** | `--cline` | `cline` | `.cline/skills` |
-| **Codex** | `--codex` | `codex` | `.agents/skills` |
-| **GitHub Copilot** | `--copilot` | `copilot` | `.github/skills` |
-| **Command Code** | `--command-code` | `command-code` | `.commandcode/skills` |
-| **OpenCode** | `--opencode` | `opencode` | `.opencode/skills` |
-| **Continue** | `--continue` | `continue` | `.continue/skills` |
-| **Windsurf** | `--windsurf` | `windsurf` | `.windsurf/skills` |
-| **General** | `--general`, `--generic` | `general` | `.agents/skills` |
+| Agent              | CLI Flag                    | Option (`--agent`) | Destination Directory |
+| :----------------- | :-------------------------- | :----------------- | :-------------------- |
+| **Antigravity**    | `--antigravity`             | `antigravity`      | `.agents/skills`      |
+| **Cursor**         | `--cursor`                  | `cursor`           | `.cursor/skills`      |
+| **Claude Code**    | `--claude-code`, `--claude` | `claude-code`      | `.claude/skills`      |
+| **Cline**          | `--cline`                   | `cline`            | `.cline/skills`       |
+| **Codex**          | `--codex`                   | `codex`            | `.agents/skills`      |
+| **GitHub Copilot** | `--copilot`                 | `copilot`          | `.github/skills`      |
+| **Command Code**   | `--command-code`            | `command-code`     | `.commandcode/skills` |
+| **OpenCode**       | `--opencode`                | `opencode`         | `.opencode/skills`    |
+| **Continue**       | `--continue`                | `continue`         | `.continue/skills`    |
+| **Windsurf**       | `--windsurf`                | `windsurf`         | `.windsurf/skills`    |
+| **General**        | `--general`, `--generic`    | `general`          | `.agents/skills`      |
 
 **Additional CLI Options:**
+
 - `--list` / `-l`: List all available Naki UI skills and their descriptions.
 - `--skill <name>`: Install or remove only a specific skill by name (e.g. `naki-ui-theming`).
 - `--target <path>`: Custom destination directory for skills.
@@ -125,7 +125,6 @@ when you need a localized theme override.
 >     `Snackbar`, `BottomSheet`, `Drawer`), controller hooks, dynamic theme
 >     switching (`context.toggleTheme()`), and single-page routing
 >     (`NakiApp.router`).
->
 > - **When not to use `@client`:**
 >   - **Static, content-first pages:** Marketing pages, articles, documentation,
 >     and non-interactive layouts can render entirely on the server for a zero-JS
@@ -271,8 +270,8 @@ import 'package:naki_ui/naki_ui.dart';
 ```
 
 This barrel includes Flutter-style compositional components such as `NakiApp`,
-`Card`, `ExpansionPanelList`, `ExpansionPanel`, `ExpansionTile`, `Button`,
-`TextField`, `Scaffold`, `Column`, `Row`, `Dialog`, `Dropdown`, `Switch`, and
+`ResponsiveBuilder`, `BreakPointWrapper`, `Card`, `ExpansionPanelList`, `ExpansionPanel`, `ExpansionTile`,
+`Button`, `TextField`, `Scaffold`, `Column`, `Row`, `Dialog`, `Dropdown`, `Switch`, and
 `ListView`.
 
 ### 2. Theme and styling barrel
@@ -284,8 +283,8 @@ theme-related extensions:
 import 'package:naki_ui/theme.dart';
 ```
 
-This barrel includes `NakiThemeProvider`, `ThemeConfig`, `EdgeInsets`, and
-related styling utilities.
+This barrel includes `NakiThemeProvider`, `ThemeConfig`, `EdgeInsets`, `Filter`,
+`Gradient` and related styling utilities.
 
 ### 3. Framework and utilities barrel
 
@@ -296,14 +295,14 @@ animation curves, and extensions:
 import 'package:naki_ui/framework.dart';
 ```
 
-This barrel includes `GestureRecognizer`, `OverlayController`, `DropdownItem`,
+This barrel includes `PlatformData`, `GestureRecognizer`, `OverlayController`, `DropdownItem`,
 `Curves`, `NakiDebounce`, `NakiStatelessMixin`, `NakiStatefulMixin`, and more.
 
 ---
 
 ## Core component categories
 
-Naki UI provides 75+ components grouped into intuitive categories:
+Naki UI provides 80+ components grouped into intuitive categories:
 
 <details open>
 <summary><b>📐 Layout and structure</b></summary>
@@ -313,7 +312,7 @@ Naki UI provides 75+ components grouped into intuitive categories:
 Build responsive web application layouts:
 
 - `NakiApp`, `Scaffold`, `AppBar`, `Drawer`, `BottomNavigationBar`
-- `MediaQueryProvider`, `Align`, `Expanded`, `Flexible`, `SizedBox`
+- `ResponsiveBuilder`, `BreakPointWrapper`, `MediaQueryProvider`, `Align`, `Expanded`, `Flexible`, `SizedBox`
 - `ExpansionPanelList`, `ExpansionPanelList.radio`, `ExpansionTile`
 - `Card`, `Card.outlined`, `Card.filled`
 - `Column`, `Row`, `Container`
@@ -563,40 +562,107 @@ class OtpVerificationForm extends StatelessComponent {
 
 ---
 
-## Responsive design and dimensions
+## Responsive layouts and platform detection
 
-Use `MediaQueryProvider` to observe either the viewport or a specific component.
+Naki UI provides declarative, zero-runtime CSS responsive builders and cross-platform detection utilities.
 
-### Observe the viewport
+### 1. Declarative CSS breakpoints with `ResponsiveBuilder`
+
+`ResponsiveBuilder` renders different component hierarchies for discrete screen sizes using pure CSS media queries, ensuring zero layout shift and static SSR compatibility without requiring `@client` hydration:
 
 ```dart
 import 'package:jaspr/jaspr.dart';
 import 'package:naki_ui/naki_ui.dart';
 
-@client
-class ResponsiveLayout extends StatelessComponent {
-  const ResponsiveLayout({super.key});
+class AdaptiveNavigation extends StatelessComponent {
+  const AdaptiveNavigation({super.key});
 
   @override
   Component build(BuildContext context) {
-    return MediaQueryProvider(
-      builder: (context) {
-        final width = MediaQueryProvider.width(context) ?? 0;
-        final isMobile = width < 768;
-
-        return isMobile
-            ? const Column(children: [NakiText('Mobile view (single column)')])
-            : const Row(children: [NakiText('Desktop view (multiple columns)')]);
-      },
+    return ResponsiveBuilder(
+      mobile: const BottomNavigationBar(
+        items: [
+          BottomNavigationBarItem(icon: LucideIcons.icon_house, label: 'Home'),
+          BottomNavigationBarItem(icon: LucideIcons.icon_search, label: 'Search'),
+        ],
+      ),
+      tablet: const NavigationRail(
+        items: [
+          NavigationRailItem(icon: LucideIcons.icon_house, label: 'Home'),
+          NavigationRailItem(icon: LucideIcons.icon_search, label: 'Search'),
+        ],
+      ),
+      desktop: const HeaderNavigationBar(
+        titleText: 'Admin Dashboard',
+        actions: [
+          Button.text('Overview'),
+          Button.text('Reports'),
+          Button.text('Settings'),
+        ],
+      ),
     );
   }
 }
 ```
 
-### Observe a component
+You can also target a single breakpoint tier:
 
-Set `id` to observe the provider's rendered wrapper instead of the viewport.
-Read its measurements with the `*Of` helpers:
+```dart
+ResponsiveBuilder(
+  breakpoint: BreakPoint.mobile,
+  child: const Banner(
+    severity: BannerType.info,
+    primary: NakiText('Download our mobile app for a faster experience.'),
+  ),
+)
+```
+
+### 2. Custom pixel ranges with `BreakPointWrapper`
+
+When layouts require arbitrary pixel boundaries, use `BreakPointWrapper` to inject scoped CSS media queries into the document `<head>`:
+
+```dart
+BreakPointWrapper(
+  minWidth: 640,
+  maxWidth: 1024,
+  child: const Card(
+    child: NakiText('Visible only on viewports between 640px and 1024px wide.'),
+  ),
+)
+```
+
+### 3. Platform and device detection with `PlatformData`
+
+`PlatformData` provides SSR-safe, unified access to OS type, browser environment, mobile/desktop form factor, language, and current URL path:
+
+```dart
+import 'package:jaspr/jaspr.dart';
+import 'package:naki_ui/framework.dart';
+import 'package:naki_ui/naki_ui.dart';
+
+class DeviceGreeting extends StatelessComponent {
+  const DeviceGreeting({super.key});
+
+  @override
+  Component build(BuildContext context) {
+    final platform = PlatformData();
+
+    if (platform.isMobile) {
+      return NakiText('Mobile Browser (${platform.isIphone ? "iPhone" : "Android"})');
+    }
+
+    if (platform.isDesktop) {
+      return NakiText('Desktop App (${platform.isMacOS ? "macOS" : "Windows/Linux"})');
+    }
+
+    return NakiText('Language: ${platform.language}');
+  }
+}
+```
+
+### 4. Dynamic observation with `MediaQueryProvider`
+
+For dynamic runtime pixel math or measuring a specific DOM component with a browser `ResizeObserver`, wrap the subtree in `MediaQueryProvider`:
 
 ```dart
 import 'package:jaspr/jaspr.dart';
@@ -634,9 +700,6 @@ class ObservedCard extends StatelessComponent {
   }
 }
 ```
-
-`MediaQueryProvider` applies the supplied `id` to its wrapper. Do not apply a
-different `id` to the component returned by `builder`.
 
 > **`MediaQueryProvider` static helpers:**
 >

@@ -47,13 +47,19 @@ class Dim {
   static const Dim defaultFontSize = Dim(14, unit: 'px');
 
   /// Max content.
-  const Dim.maxContent([this.important = false]) : value = null, unit = 'max-content';
+  const Dim.maxContent([this.important = false])
+    : value = null,
+      unit = 'max-content';
 
   /// Min content.
-  const Dim.minContent([this.important = false]) : value = null, unit = 'min-content';
+  const Dim.minContent([this.important = false])
+    : value = null,
+      unit = 'min-content';
 
   /// Fit content.
-  const Dim.fitContent([this.important = false]) : value = null, unit = 'fit-content';
+  const Dim.fitContent([this.important = false])
+    : value = null,
+      unit = 'fit-content';
 
   /// Zero.
   const Dim.zero([this.important = false]) : value = 0, unit = '';
@@ -76,6 +82,11 @@ class Dim {
        unit = defaultValue != null && defaultValue != ''
            ? 'var($variableName, $defaultValue)'
            : 'var($variableName)';
+
+  /// Raw expression (e.g. `calc(100% - 48px)`).
+  const Dim.raw(String expression, [this.important = false])
+    : value = null,
+      unit = expression;
 
   /// Pixels unit.
   const Dim.px(this.value, [this.important = false]) : unit = 'px';
@@ -195,7 +206,7 @@ class Dim {
   String get cssText {
     final formattedValue = value == null ? '' : value!.toCleanString;
     final suffix = important ? ' !important' : '';
-    return '$formattedValue$unit$suffix'.trim();
+    return '$formattedValue${unit.trim()}$suffix';
   }
 
   /// String representation of this dimension.
@@ -260,7 +271,8 @@ class BorderRadiusData implements NakiStylable {
   );
 
   /// iOS-style squircle border radius.
-  static BorderRadiusData get squircle => BorderRadiusData.all(const Dim.percent(22.5));
+  static BorderRadiusData get squircle =>
+      BorderRadiusData.all(const Dim.percent(22.5));
 
   /// A radius with all corners set to zero.
   static const none = BorderRadiusData(
@@ -460,7 +472,10 @@ class BorderData implements NakiStylable {
   Map<String, String> get props => {
     if (_isNone) ...{
       'border': 'unset',
-    } else if (top != null || right != null || bottom != null || left != null) ...{
+    } else if (top != null ||
+        right != null ||
+        bottom != null ||
+        left != null) ...{
       'border-top': ?top?.value,
       'border-right': ?right?.value,
       'border-bottom': ?bottom?.value,
@@ -745,7 +760,11 @@ class EdgeInsets {
   final Dim? left;
 
   /// Creates spacing where all four sides have the same `value`.
-  const EdgeInsets.all(Dim value) : top = value, right = value, bottom = value, left = value;
+  const EdgeInsets.all(Dim value)
+    : top = value,
+      right = value,
+      bottom = value,
+      left = value;
 
   /// Creates spacing with symmetrical vertical and horizontal offsets.
   const EdgeInsets.symmetric({
@@ -756,8 +775,8 @@ class EdgeInsets {
        left = horizontal,
        right = horizontal;
 
-  /// Creates spacing with customized values for each side.
-  const EdgeInsets({
+  /// Creates spacing with only the specified sides set.
+  const EdgeInsets.only({
     this.top,
     this.right,
     this.bottom,
@@ -769,9 +788,16 @@ class EdgeInsets {
 
   /// Converts padding attributes to a CSS style map.
   Map<String, String> get pProps => {
-    if (top != null && top == right && bottom == left && top == bottom && right == left) ...{
+    if (top != null &&
+        top == right &&
+        bottom == left &&
+        top == bottom &&
+        right == left) ...{
       'padding': top!.cssText,
-    } else if (top != null && right != null && top == bottom && right == left) ...{
+    } else if (top != null &&
+        right != null &&
+        top == bottom &&
+        right == left) ...{
       'padding': '${top!.cssText} ${right!.cssText}',
     } else ...{
       'padding-top': ?top?.cssText,
@@ -783,9 +809,16 @@ class EdgeInsets {
 
   /// Converts margin attributes to a CSS style map.
   Map<String, String> get mProps => {
-    if (top != null && top == right && bottom == left && top == bottom && right == left) ...{
+    if (top != null &&
+        top == right &&
+        bottom == left &&
+        top == bottom &&
+        right == left) ...{
       'margin': top!.cssText,
-    } else if (top != null && right != null && top == bottom && right == left) ...{
+    } else if (top != null &&
+        right != null &&
+        top == bottom &&
+        right == left) ...{
       'margin': '${top!.cssText} ${right!.cssText}',
     } else ...{
       'margin-top': ?top?.cssText,
@@ -804,7 +837,7 @@ class EdgeInsets {
   ///
   /// Example:
   /// ```dart
-  /// const EdgeInsets(top: 10, right: 20, bottom: 30, left: 40).value;
+  /// const EdgeInsets.only(top: 10, right: 20, bottom: 30, left: 40).value;
   /// // Returns '10px 20px 30px 40px'
   /// ```
   String? get value {
@@ -858,6 +891,9 @@ class BoxDecoration implements NakiStylable {
   /// The background color of the box.
   final Color? backgroundColor;
 
+  /// The background gradient of the box.
+  final Gradient? gradient;
+
   /// The color of the box content.
   final Color? color;
 
@@ -883,7 +919,7 @@ class BoxDecoration implements NakiStylable {
   final PositionData? position;
 
   /// The shadow of the box.
-  final ShadowData? shadow;
+  final Shadow? shadow;
 
   /// The opacity of the box.
   final double? opacity;
@@ -891,6 +927,7 @@ class BoxDecoration implements NakiStylable {
   /// Create a new box decoration.
   const BoxDecoration({
     this.backgroundColor,
+    this.gradient,
     this.display,
     this.color,
     this.border,
@@ -916,6 +953,7 @@ class BoxDecoration implements NakiStylable {
     ...?margin?.mProps,
     ...?position?.props,
     ...?shadow?.props,
+    ...?gradient?.props,
     if (alignment != null) ...{
       ...NakiAlignProps.mapAlignment(alignment!),
       'display': 'inline-flex',
@@ -931,6 +969,7 @@ class BoxDecoration implements NakiStylable {
       other is BoxDecoration &&
           runtimeType == other.runtimeType &&
           backgroundColor == other.backgroundColor &&
+          gradient == other.gradient &&
           color == other.color &&
           display == other.display &&
           border == other.border &&
@@ -945,6 +984,7 @@ class BoxDecoration implements NakiStylable {
   @override
   int get hashCode => Object.hashAll([
     backgroundColor,
+    gradient,
     color,
     display,
     border,
@@ -959,24 +999,24 @@ class BoxDecoration implements NakiStylable {
 }
 
 /// Shadow attributes of a component.
-class ShadowData implements NakiStylable {
-  /// The x-offset of the shadow.
-  final Dim? offsetX;
+class Shadow implements NakiStylable {
+  /// The x-offset of the shadow (in pixels).
+  final double? offsetX;
 
-  /// The y-offset of the shadow.
-  final Dim? offsetY;
+  /// The y-offset of the shadow (in pixels).
+  final double? offsetY;
 
-  /// The blur radius of the shadow (in px).
+  /// The blur radius of the shadow (in pixels).
   final double? blurRadius;
 
-  /// The spread radius of the shadow (in px).
+  /// The spread radius of the shadow (in pixels).
   final double? spreadRadius;
 
   /// The color of the shadow.
   final Color? color;
 
   /// Create a new shadow.
-  const ShadowData({
+  const Shadow({
     this.offsetX,
     this.offsetY,
     this.blurRadius,
@@ -985,48 +1025,48 @@ class ShadowData implements NakiStylable {
   });
 
   /// Small shadow
-  static const small = ShadowData(
-    offsetX: Dim.zero(),
-    offsetY: Dim.px(2),
+  static const small = Shadow(
+    offsetX: 0,
+    offsetY: 2,
     blurRadius: 8.0,
     color: Colors.black,
   );
 
   /// Medium shadow
-  static const medium = ShadowData(
-    offsetX: Dim.zero(),
-    offsetY: Dim.px(4),
+  static const medium = Shadow(
+    offsetX: 0,
+    offsetY: 4,
     blurRadius: 16.0,
     color: Colors.black,
   );
 
   /// Large shadow
-  static const large = ShadowData(
-    offsetX: Dim.zero(),
-    offsetY: Dim.px(8),
+  static const large = Shadow(
+    offsetX: 0,
+    offsetY: 8,
     blurRadius: 32.0,
     spreadRadius: 2.0,
     color: Colors.black,
   );
 
   /// Extra large shadow
-  static const extraLarge = ShadowData(
-    offsetX: Dim.zero(),
-    offsetY: Dim.px(16),
+  static const extraLarge = Shadow(
+    offsetX: 0,
+    offsetY: 16,
     blurRadius: 64.0,
     spreadRadius: 4.0,
     color: Colors.black,
   );
 
   /// Creates a copy of the current shadow with optional new values.
-  ShadowData copyWith({
-    Dim? offsetX,
-    Dim? offsetY,
+  Shadow copyWith({
+    double? offsetX,
+    double? offsetY,
     double? blurRadius,
     double? spreadRadius,
     Color? color,
   }) {
-    return ShadowData(
+    return Shadow(
       offsetX: offsetX ?? this.offsetX,
       offsetY: offsetY ?? this.offsetY,
       blurRadius: blurRadius ?? this.blurRadius,
@@ -1038,8 +1078,8 @@ class ShadowData implements NakiStylable {
   /// Converts shadow attributes to a CSS style map.
   @override
   Map<String, String> get props {
-    final x = (offsetX ?? const Dim.zero()).cssText;
-    final y = (offsetY ?? const Dim.zero()).cssText;
+    final x = (offsetX ?? 0).toPx;
+    final y = (offsetY ?? 0).toPx;
     final blur = blurRadius?.toPx ?? (spreadRadius != null ? '0px' : null);
     final spread = spreadRadius?.toPx;
     final c = color?.value;
@@ -1058,10 +1098,10 @@ class ShadowData implements NakiStylable {
   ///
   /// Example:
   /// ```dart
-  /// const ShadowData(
-  ///   offsetX: Dim.px(2),
-  ///   offsetY: Dim.px(4),
-  ///   blurRadius: Dim.px(8),
+  /// const Shadow(
+  ///   offsetX: 2,
+  ///   offsetY: 4,
+  ///   blurRadius: 8,
   ///   color: Colors.black,
   /// ).value;
   /// // Returns '2px 4px 8px 0px #000000'
@@ -1071,7 +1111,7 @@ class ShadowData implements NakiStylable {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is ShadowData &&
+      other is Shadow &&
           runtimeType == other.runtimeType &&
           offsetX == other.offsetX &&
           offsetY == other.offsetY &&
@@ -1281,7 +1321,8 @@ class ComponentStatesColor implements NakiStylable {
     hoverColor: hoverColor ?? this.hoverColor,
     hoverBackgroundColor: hoverBackgroundColor ?? this.hoverBackgroundColor,
     errorTextColor: errorTextColor ?? this.errorTextColor,
-    disabledBackgroundColor: disabledBackgroundColor ?? this.disabledBackgroundColor,
+    disabledBackgroundColor:
+        disabledBackgroundColor ?? this.disabledBackgroundColor,
     disabledColor: disabledColor ?? this.disabledColor,
   );
 
@@ -1349,7 +1390,8 @@ class BorderSideData {
   );
 
   /// Get the border side CSS value.
-  String get value => style == BorderStyle.none && width == const Dim.zero() && color == null
+  String get value =>
+      style == BorderStyle.none && width == const Dim.zero() && color == null
       ? 'unset'
       : '${width.cssText} ${style.value} ${color?.value ?? 'currentcolor'}';
 
@@ -1366,14 +1408,14 @@ class BorderSideData {
   int get hashCode => Object.hash(color, width, style);
 }
 
-/// A builder class for creating CSS backdrop filter values.
+/// A builder for creating CSS backdrop filter values.
 ///
 /// It is used to create a backdrop filter that is applied to
 /// the backdrop of a component.
 ///
 /// ### Example
 /// ```dart
-/// const filters = FilterBuilder()
+/// const filters = Filter()
 ///   ..applyBlur(10)
 ///   ..applyBrightness(50)
 ///   ..applyContrast(50)
@@ -1384,13 +1426,13 @@ class BorderSideData {
 ///   ..applySaturation(Dim.percent(50))
 ///   ..applySepia(Dim(0.5));
 /// ```
-class FilterBuilder implements NakiStylable {
+class Filter implements NakiStylable {
   final List<String> _filters = [];
 
   /// Adds a blur filter effect.
   ///
   /// `value` must be between 0 and 100px.
-  FilterBuilder applyBlur(double value) {
+  Filter applyBlur(double value) {
     value = value.clamp(0, 100);
     _filters.add(
       BackdropFilterType.blur.cssText(.px(value)),
@@ -1401,7 +1443,7 @@ class FilterBuilder implements NakiStylable {
   /// Adds a brightness filter effect.
   ///
   /// `value` must be between 0 and 100%.
-  FilterBuilder applyBrightness(double value) {
+  Filter applyBrightness(double value) {
     value = value.clamp(0, 100);
     _filters.add(
       BackdropFilterType.brightness.cssText(
@@ -1414,7 +1456,7 @@ class FilterBuilder implements NakiStylable {
   /// Adds a contrast filter effect.
   ///
   /// `value` must be between 0 and 100%.
-  FilterBuilder applyContrast(double value) {
+  Filter applyContrast(double value) {
     value = value.clamp(0, 100);
     _filters.add(
       BackdropFilterType.contrast.cssText(.percent(value)),
@@ -1425,7 +1467,7 @@ class FilterBuilder implements NakiStylable {
   /// Adds a grayscale filter effect.
   ///
   /// `value` must be between 0 and 100%.
-  FilterBuilder applyGrayscale(double value) {
+  Filter applyGrayscale(double value) {
     value = value.clamp(0, 100);
     _filters.add(
       BackdropFilterType.grayscale.cssText(.percent(value)),
@@ -1436,7 +1478,7 @@ class FilterBuilder implements NakiStylable {
   /// Adds a hue-rotate filter effect.
   ///
   /// `value` must be between 0 and 360 degrees.
-  FilterBuilder applyHueRotate(double value) {
+  Filter applyHueRotate(double value) {
     value = value.clamp(0, 360);
     _filters.add(
       BackdropFilterType.hueRotate.cssText(.deg(value)),
@@ -1447,7 +1489,7 @@ class FilterBuilder implements NakiStylable {
   /// Adds a invert filter effect.
   ///
   /// `value` can be 'Dim.percent(50)' or 'Dim(0.5)'.
-  FilterBuilder applyInvert(Dim value) {
+  Filter applyInvert(Dim value) {
     _filters.add(BackdropFilterType.invert.cssText(value));
     return this;
   }
@@ -1455,7 +1497,7 @@ class FilterBuilder implements NakiStylable {
   /// Adds a opacity filter effect.
   ///
   /// `value` can be 'Dim.percent(50)' or 'Dim(0.5)'.
-  FilterBuilder applyOpacity(Dim value) {
+  Filter applyOpacity(Dim value) {
     _filters.add(BackdropFilterType.opacity.cssText(value));
     return this;
   }
@@ -1463,7 +1505,7 @@ class FilterBuilder implements NakiStylable {
   /// Adds a saturation filter effect.
   ///
   /// `value` can be 'Dim.percent(50)' or 'Dim(0.5)'.
-  FilterBuilder applySaturation(Dim value) {
+  Filter applySaturation(Dim value) {
     _filters.add(
       BackdropFilterType.saturate.cssText(value),
     );
@@ -1473,13 +1515,13 @@ class FilterBuilder implements NakiStylable {
   /// Adds a sepia filter effect.
   ///
   /// `value` can be 'Dim.percent(50)' or 'Dim(0.5)'.
-  FilterBuilder applySepia(Dim value) {
+  Filter applySepia(Dim value) {
     _filters.add(BackdropFilterType.sepia.cssText(value));
     return this;
   }
 
   /// Removes all filters.
-  FilterBuilder clear() {
+  Filter clear() {
     _filters.clear();
     return this;
   }
@@ -1489,7 +1531,7 @@ class FilterBuilder implements NakiStylable {
   /// Applied `blur` (3px), `brightness` (50%), `contrast` (50%),
   /// `grayscale` (50%), `hue-rotate` (50%), `invert` (1.5),
   /// `opacity` (0.5), `saturation` (50%), `sepia` (50%)
-  static final frostedGlass = FilterBuilder()
+  static final frostedGlass = Filter()
     ..applyBlur(3)
     ..applyBrightness(50)
     ..applyContrast(50)
@@ -1503,14 +1545,14 @@ class FilterBuilder implements NakiStylable {
   /// Dramatic overlay effect.
   ///
   /// Applied contrast (250%), grayscale (100%)
-  static final dramaticOverlay = FilterBuilder()
+  static final dramaticOverlay = Filter()
     ..applyContrast(250)
     ..applyGrayscale(100);
 
   /// Dim blur effect.
   ///
   /// Applied blur (10px), opacity (0.5)
-  static final dimBlur = FilterBuilder()
+  static final dimBlur = Filter()
     ..applyBlur(10)
     ..applyOpacity(const Dim(0.5));
 
@@ -1518,7 +1560,7 @@ class FilterBuilder implements NakiStylable {
   @override
   String get cssText => _filters.join(' ');
 
-  /// Generates a CSS map entry for backdrop-filter.
+  /// Generates a CSS map entry for the filter.
   @override
   Map<String, String> get props => {
     'backdrop-filter': cssText,
@@ -1528,7 +1570,7 @@ class FilterBuilder implements NakiStylable {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is FilterBuilder &&
+      other is Filter &&
           runtimeType == other.runtimeType &&
           _listEquals(_filters, other._filters);
 
@@ -1626,7 +1668,8 @@ class SegmentedInputStyle {
       focusBorderColor: focusBorderColor ?? this.focusBorderColor,
       errorBorderColor: errorBorderColor ?? this.errorBorderColor,
       backgroundColor: backgroundColor ?? this.backgroundColor,
-      filledBackgroundColor: filledBackgroundColor ?? this.filledBackgroundColor,
+      filledBackgroundColor:
+          filledBackgroundColor ?? this.filledBackgroundColor,
       textStyle: textStyle ?? this.textStyle,
       shape: shape ?? this.shape,
       margin: margin ?? this.margin,
@@ -1671,4 +1714,390 @@ class SegmentedInputStyle {
     margin,
     padding,
   ]);
+}
+
+/// A builder for creating CSS background gradients.
+///
+/// Supports linear, radial, conic, and repeating gradient types.
+///
+/// ### Color Stop Specifications:
+/// - **Linear & Radial gradients**: Color stops accept only length and percentage units
+///   (e.g., `Dim.percent(50)`, `Dim.px(20)`, `Dim.rem(1.5)`). Unitless numbers
+///   are not valid in CSS.
+/// - **Conic gradients**: Color stops accept only angle and percentage units
+///   (e.g., `Dim.deg(90)`, `Dim.percent(50)`). Length units (`px`, `rem`) are not
+///   valid for conic gradients.
+///
+/// ### Example
+/// ```dart
+/// final gradient = Gradient()
+///   ..applyLinear(
+///     colors: [Colors.blue, Colors.purple],
+///     direction: LinearGradientDirection.toRight,
+///   );
+/// ```
+class Gradient implements NakiStylable {
+  final List<String> _gradients = [];
+
+  /// Adds a linear gradient.
+  ///
+  /// If both [angle] and [direction] are provided, [angle] takes precedence.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final gradient = Gradient()
+  ///   ..applyLinear(
+  ///     colors: const [Color('#3b82f6'), Colors.purple],
+  ///     direction: LinearGradientDirection.toRight,
+  ///     stops: const [Dim.px(20), Dim.percent(80)],
+  ///     angle: 90,
+  ///   );
+  /// ```
+  ///
+  /// - [colors]: List of stop colors (minimum of 2 recommended).
+  /// - [angle]: Angle of the gradient. It will be normalized to be within
+  ///   the 1-360 range (e.g., 400° becomes 40°, -10° becomes 350°).
+  /// - [direction]: Linear gradient direction.
+  /// - [stops]: Optional stops corresponding to [colors]. Accepts length or percentage
+  ///   units (e.g., `Dim.percent(50)`, `Dim.px(20)`, `Dim.rem(1.5)`). Unitless numbers
+  ///   are not valid CSS.
+  Gradient applyLinear({
+    required List<Color> colors,
+    double? angle,
+    LinearGradientDirection? direction,
+    List<Dim>? stops,
+  }) {
+    final List<String> parts = [];
+
+    if (angle != null) {
+      angle = angle % 360;
+      parts.add('${angle}deg');
+    } else if (direction != null) {
+      parts.add(direction.value);
+    }
+
+    for (int i = 0; i < colors.length; i++) {
+      final colorStr = colors[i].value;
+
+      if (stops != null && i < stops.length) {
+        parts.add('$colorStr ${stops[i]}');
+      } else {
+        parts.add(colorStr);
+      }
+    }
+
+    _gradients.add(GradientType.linear.cssText(parts));
+
+    return this;
+  }
+
+  /// Adds a radial gradient.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final gradient = Gradient()
+  ///   ..applyRadial(
+  ///     colors: const [Colors.red, Color('#feb47b')],
+  ///     shape: Shape.circle,
+  ///     position: RadialGradientPosition.center,
+  ///     stops: const [Dim.px(20), Dim.percent(80)],
+  ///   );
+  /// ```
+  ///
+  /// - [colors]: List of stop colors.
+  /// - [shape]: Shape of the gradient.
+  /// - [position]: Position of the gradient center.
+  /// - [stops]: Optional stops corresponding to [colors]. Accepts length or percentage
+  ///   units (e.g., `Dim.percent(50)`, `Dim.px(20)`, `Dim.rem(1.5)`). Unitless numbers
+  ///   are not valid CSS.
+  Gradient applyRadial({
+    required List<Color> colors,
+    Shape? shape,
+    RadialGradientPosition? position,
+    List<Dim>? stops,
+  }) {
+    final List<String> parts = [];
+
+    if (shape != null && position != null) {
+      parts.add('${shape.value} at ${position.value}');
+    } else if (shape != null) {
+      parts.add(shape.value);
+    } else if (position != null) {
+      parts.add('at ${position.value}');
+    }
+
+    for (int i = 0; i < colors.length; i++) {
+      final colorStr = colors[i].value;
+
+      if (stops != null && i < stops.length) {
+        parts.add('$colorStr ${stops[i]}');
+      } else {
+        parts.add(colorStr);
+      }
+    }
+
+    _gradients.add(GradientType.radial.cssText(parts));
+
+    return this;
+  }
+
+  /// Adds a conic gradient.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final gradient = Gradient()
+  ///   ..applyConic(
+  ///     colors: const [Color('#ff0000'), Color('#00ff00'), Color('#0000ff')],
+  ///     angle: 45,
+  ///     position: ConicGradientPosition.center,
+  ///     stops: const [Dim.deg(0), Dim.deg(180), Dim.deg(360)],
+  ///   );
+  /// ```
+  ///
+  /// - [colors]: List of stop colors.
+  /// - [angle]: Starting angle of rotation between 0 and 360.
+  /// - [position]: Position of the gradient center (e.g., `ConicGradientPosition.center`).
+  /// - [stops]: Optional stops corresponding to [colors]. Accepts angle or percentage
+  ///   units (e.g., `Dim.deg(90)`, `Dim.percent(50)`). Length units (`px`, `rem`) are not
+  ///   valid for conic gradients.
+  Gradient applyConic({
+    required List<Color> colors,
+    double? angle,
+    ConicGradientPosition? position,
+    List<Dim>? stops,
+  }) {
+    final List<String> parts = [];
+
+    if (angle != null && position != null) {
+      angle = angle % 360;
+      parts.add('from ${angle}deg at ${position.value}');
+    } else if (angle != null) {
+      angle = angle % 360;
+      parts.add('from ${angle}deg');
+    } else if (position != null) {
+      parts.add('at ${position.value}');
+    }
+
+    for (int i = 0; i < colors.length; i++) {
+      final colorStr = colors[i].value;
+
+      if (stops != null && i < stops.length) {
+        parts.add('$colorStr ${stops[i]}');
+      } else {
+        parts.add(colorStr);
+      }
+    }
+
+    _gradients.add(GradientType.conic.cssText(parts));
+
+    return this;
+  }
+
+  /// Adds a repeating linear gradient.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final stripes = Gradient()
+  ///   ..applyRepeatingLinear(
+  ///     colors: const [Color('#000000'), Color('#ffffff')],
+  ///     angle: 45,
+  ///     stops: const [Dim.px(0), Dim.px(20)],
+  ///   );
+  /// ```
+  ///
+  /// - [colors]: List of stop colors.
+  /// - [angle]: Angle of the gradient. It will be normalized to be within the 0-360 range.
+  /// - [direction]: Linear gradient direction (e.g., `LinearGradientDirection.toRight`).
+  /// - [stops]: Optional stops corresponding to [colors]. Accepts length or percentage
+  ///   units (e.g., `Dim.percent(50)`, `Dim.px(20)`, `Dim.rem(1.5)`). Unitless numbers
+  ///   are not valid CSS.
+  Gradient applyRepeatingLinear({
+    required List<Color> colors,
+    double? angle,
+    LinearGradientDirection? direction,
+    List<Dim>? stops,
+  }) {
+    final List<String> parts = [];
+
+    if (angle != null) {
+      angle = angle % 360;
+      parts.add('${angle}deg');
+    } else if (direction != null) {
+      parts.add(direction.value);
+    }
+
+    for (int i = 0; i < colors.length; i++) {
+      final colorStr = colors[i].value;
+
+      if (stops != null && i < stops.length) {
+        parts.add('$colorStr ${stops[i]}');
+      } else {
+        parts.add(colorStr);
+      }
+    }
+
+    _gradients.add(GradientType.repeatingLinear.cssText(parts));
+
+    return this;
+  }
+
+  /// Adds a repeating radial gradient.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final ripple = Gradient()
+  ///   ..applyRepeatingRadial(
+  ///     colors: const [Color('#ff0000'), Color('#0000ff')],
+  ///     shape: Shape.circle,
+  ///     position: RadialGradientPosition.center,
+  ///     stops: const [Dim.px(0), Dim.px(15)],
+  ///   );
+  /// ```
+  ///
+  /// - [colors]: List of stop colors.
+  /// - [shape]: Shape of the gradient (e.g., `Shape.circle`, `Shape.ellipse`).
+  /// - [position]: Position of the gradient center (e.g., `RadialGradientPosition.center`).
+  /// - [stops]: Optional stops corresponding to [colors]. Accepts length or percentage
+  ///   units (e.g., `Dim.percent(50)`, `Dim.px(20)`, `Dim.rem(1.5)`). Unitless numbers
+  ///   are not valid CSS.
+  Gradient applyRepeatingRadial({
+    required List<Color> colors,
+    Shape? shape,
+    RadialGradientPosition? position,
+    List<Dim>? stops,
+  }) {
+    final List<String> parts = [];
+
+    if (shape != null && position != null) {
+      parts.add('${shape.value} at ${position.value}');
+    } else if (shape != null) {
+      parts.add(shape.value);
+    } else if (position != null) {
+      parts.add('at ${position.value}');
+    }
+
+    for (int i = 0; i < colors.length; i++) {
+      final colorStr = colors[i].value;
+
+      if (stops != null && i < stops.length) {
+        parts.add('$colorStr ${stops[i]}');
+      } else {
+        parts.add(colorStr);
+      }
+    }
+
+    _gradients.add(GradientType.repeatingRadial.cssText(parts));
+
+    return this;
+  }
+
+  /// Adds a repeating conic gradient.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final pinwheel = Gradient()
+  ///   ..applyRepeatingConic(
+  ///     colors: const [Color('#ff0000'), Color('#00ff00'), Color('#0000ff')],
+  ///     angle: 0,
+  ///     position: ConicGradientPosition.center,
+  ///     stops: const [Dim.deg(0), Dim.deg(20), Dim.deg(40)],
+  ///   );
+  /// ```
+  ///
+  /// - [colors]: List of stop colors.
+  /// - [angle]: Starting angle of rotation between 0 and 360.
+  /// - [position]: Position of the gradient center (e.g., `ConicGradientPosition.center`).
+  /// - [stops]: Optional stops corresponding to [colors]. Accepts angle or percentage
+  ///   units (e.g., `Dim.deg(90)`, `Dim.percent(50)`). Length units (`px`, `rem`) are not
+  ///   valid for conic gradients.
+  Gradient applyRepeatingConic({
+    required List<Color> colors,
+    double? angle,
+    ConicGradientPosition? position,
+    List<Dim>? stops,
+  }) {
+    final List<String> parts = [];
+
+    if (angle != null && position != null) {
+      angle = angle % 360;
+      parts.add('from ${angle}deg at ${position.value}');
+    } else if (angle != null) {
+      angle = angle % 360;
+      parts.add('from ${angle}deg');
+    } else if (position != null) {
+      parts.add('at ${position.value}');
+    }
+
+    for (int i = 0; i < colors.length; i++) {
+      final colorStr = colors[i].value;
+
+      if (stops != null && i < stops.length) {
+        parts.add('$colorStr ${stops[i]}');
+      } else {
+        parts.add(colorStr);
+      }
+    }
+
+    _gradients.add(GradientType.repeatingConic.cssText(parts));
+
+    return this;
+  }
+
+  /// Adds a raw CSS gradient string.
+  Gradient applyRaw(String gradient) {
+    _gradients.add(gradient);
+    return this;
+  }
+
+  /// Removes all gradients.
+  Gradient clear() {
+    _gradients.clear();
+    return this;
+  }
+
+  /// Sunset gradient preset.
+  static final sunset = Gradient()
+    ..applyLinear(
+      colors: const [Color('#ff7e5f'), Color('#feb47b')],
+      angle: 135,
+    );
+
+  /// Ocean breeze gradient preset.
+  static final oceanBreeze = Gradient()
+    ..applyLinear(
+      colors: const [Color('#2b5876'), Color('#4e4376')],
+      direction: LinearGradientDirection.toRight,
+    );
+
+  /// Lush gradient preset.
+  static final lush = Gradient()
+    ..applyLinear(
+      colors: const [Color('#56ab2f'), Color('#a8e063')],
+      direction: LinearGradientDirection.toRight,
+    );
+
+  /// Purple haze gradient preset.
+  static final purpleHaze = Gradient()
+    ..applyLinear(
+      colors: const [Color('#7303c0'), Color('#ec38bc'), Color('#fdeff9')],
+      direction: LinearGradientDirection.toRight,
+    );
+
+  /// Generates a CSS string by concatenating all gradients.
+  @override
+  String get cssText => _gradients.join(', ');
+
+  /// Generates a CSS map entry for the gradient.
+  @override
+  Map<String, String> get props => {'background-image': cssText};
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Gradient &&
+          runtimeType == other.runtimeType &&
+          _listEquals(_gradients, other._gradients);
+
+  @override
+  int get hashCode => Object.hashAll(_gradients);
 }

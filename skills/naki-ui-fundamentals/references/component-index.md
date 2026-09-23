@@ -32,6 +32,7 @@ Use this index to load the smallest relevant reference file. Every component exp
 | `Wrap` | Multi-run flex layout | [layout.md](components/layout.md) |
 | `SafeArea` | Browser safe-area insets | [layout.md](components/layout.md) |
 | `Container`, `Card` | Sized and decorated surfaces | [layout.md](components/layout.md) |
+| `ResponsiveBuilder`, `BreakPointWrapper` | Declarative CSS responsive breakpoints | [responsive.md](components/responsive.md) |
 | `ExpansionPanel`, `ExpansionPanelList`, `ExpansionTile` | Disclosure and accordion UI | [layout.md](components/layout.md) |
 | `Snackbar`, `Tooltip`, `Dialog`, `Drawer`, `BottomSheet`, `Popover` | Overlay UI | [overlays.md](components/overlays.md) |
 | `Opacity`, `Visibility`, `ClipRect`, `DecoratedBox`, `ClipOval` | Paint and clipping | [painting.md](components/painting.md) |

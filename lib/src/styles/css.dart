@@ -84,7 +84,8 @@ class Css {
   static final nakiTextClampStyle = {
     'display': '-webkit-box',
     '-webkit-box-orient': 'vertical',
-    'line-clamp': 'var(${Tokens.current.textMaxLines}, ${Tokens.current.textMaxLines.value})',
+    'line-clamp':
+        'var(${Tokens.current.textMaxLines}, ${Tokens.current.textMaxLines.value})',
     '-webkit-line-clamp':
         'var(${Tokens.current.textMaxLines}, ${Tokens.current.textMaxLines.value})',
     'overflow': 'hidden',
@@ -103,7 +104,7 @@ class Css {
       '${Tokens.current.labelColor}, ${Tokens.current.labelColor.value}',
     ),
     width: const .fitContent(),
-    margin: const EdgeInsets(bottom: .px(12)),
+    margin: const EdgeInsets.only(bottom: Dim.px(12)),
   );
 
   /// Default text style for helper/hint text.
@@ -115,7 +116,7 @@ class Css {
     color: .variable(
       '${Tokens.current.mutedColor}, ${Tokens.current.mutedColor.value}',
     ),
-    margin: const EdgeInsets(top: .px(5)),
+    margin: const EdgeInsets.only(top: Dim.px(5)),
     extra: {'white-space': 'pre-wrap', 'word-break': 'break-word'},
   );
 
@@ -154,7 +155,8 @@ class Css {
 
   /// Default placeholder text styling rule inside inputs.
   static final nakiPlaceholderStyle = {
-    'color': 'var(${Tokens.current.placeholderColor}, ${Tokens.current.placeholderColor.value})',
+    'color':
+        'var(${Tokens.current.placeholderColor}, ${Tokens.current.placeholderColor.value})',
     'opacity': '1',
   };
 
@@ -167,9 +169,12 @@ class Css {
 
   /// Default styling rules for single-line text inputs.
   static final nakiInputStyle = {
-    'height': 'var(${Tokens.current.inputHeight}, ${Tokens.current.inputHeight.value})',
-    'color': 'var(${Tokens.current.inputTextColor}, ${Tokens.current.inputTextColor.value})',
-    'font-size': 'var(${Tokens.current.fontSizeInput}, ${Tokens.current.fontSizeInput.value})',
+    'height':
+        'var(${Tokens.current.inputHeight}, ${Tokens.current.inputHeight.value})',
+    'color':
+        'var(${Tokens.current.inputTextColor}, ${Tokens.current.inputTextColor.value})',
+    'font-size':
+        'var(${Tokens.current.fontSizeInput}, ${Tokens.current.fontSizeInput.value})',
     'background-color':
         'var(${Tokens.current.fieldBackgroundColor}, ${Tokens.current.fieldBackgroundColor.value})',
     'border-radius': '12px',
@@ -192,15 +197,17 @@ class Css {
       'width': '45px',
       'height': '45px',
       'text-align': 'center',
-      'font-size': 'var(${Tokens.current.fontSizeInput}, ${Tokens.current.fontSizeInput.value})',
+      'font-size':
+          'var(${Tokens.current.fontSizeInput}, ${Tokens.current.fontSizeInput.value})',
       'font-weight': '600',
-      'color': 'var(${Tokens.current.inputTextColor}, ${Tokens.current.inputTextColor.value})',
+      'color':
+          'var(${Tokens.current.inputTextColor}, ${Tokens.current.inputTextColor.value})',
       'background-color':
           'var(${Tokens.current.fieldBackgroundColor}, ${Tokens.current.fieldBackgroundColor.value})',
       'border': Tokens.current.border.value,
       'border-radius': '12px',
       'outline': 'none',
-      'transition': 'border-color 0.2s, box-shadow 0.2s, background-color 0.2s',
+      'transition': 'border-color 0.2s, box-shadow 0.2s, background 0.2s',
       'box-sizing': 'border-box',
       'padding': '0',
       'margin': '0',
@@ -218,9 +225,12 @@ class Css {
 
   /// Default styling rules for multi-line textareas.
   static final nakiTextareaStyle = {
-    'min-height': 'var(${Tokens.current.inputHeight}, ${Tokens.current.inputHeight.value})',
-    'color': 'var(${Tokens.current.inputTextColor}, ${Tokens.current.inputTextColor.value})',
-    'font-size': 'var(${Tokens.current.fontSizeInput}, ${Tokens.current.fontSizeInput.value})',
+    'min-height':
+        'var(${Tokens.current.inputHeight}, ${Tokens.current.inputHeight.value})',
+    'color':
+        'var(${Tokens.current.inputTextColor}, ${Tokens.current.inputTextColor.value})',
+    'font-size':
+        'var(${Tokens.current.fontSizeInput}, ${Tokens.current.fontSizeInput.value})',
     'background-color':
         'var(${Tokens.current.fieldBackgroundColor}, ${Tokens.current.fieldBackgroundColor.value})',
     'display': 'block',
@@ -260,7 +270,7 @@ class Css {
       'padding': '4px',
       'vertical-align': 'middle',
       'color': 'currentcolor',
-      'transition': 'background-color 0.2s, box-shadow 0.2s',
+      'transition': 'background 0.2s, box-shadow 0.2s',
       'width': '24px',
       'height': '24px',
       'margin': '0',
@@ -276,13 +286,15 @@ class Css {
       'opacity': '0%',
       'transition': 'clip-path 0.3s, opacity 0.1s, rotate 0.3s, translate 0.3s',
       'transition-delay': '0.1s',
-      'clip-path': 'polygon(20% 100%, 20% 80%, 50% 80%, 50% 80%, 70% 80%, 70% 100%)',
+      'clip-path':
+          'polygon(20% 100%, 20% 80%, 50% 80%, 50% 80%, 70% 80%, 70% 100%)',
       'font-size': '15px',
       'line-height': '0.75',
     },
 
     'checked:before': {
-      'clip-path': 'polygon(20% 100%, 20% 80%, 50% 80%, 50% 0%, 70% 0%, 70% 100%)',
+      'clip-path':
+          'polygon(20% 100%, 20% 80%, 50% 80%, 50% 0%, 70% 0%, 70% 100%)',
       'opacity': '100%',
     },
 
@@ -319,7 +331,8 @@ class Css {
     },
 
     'not-checked': {
-      'color': 'var(${Tokens.current.subtitleColor}, ${Tokens.current.subtitleColor.value})',
+      'color':
+          'var(${Tokens.current.subtitleColor}, ${Tokens.current.subtitleColor.value})',
     },
 
     'before': {
@@ -332,12 +345,13 @@ class Css {
       'border-radius': '12px',
       'background-color': 'currentcolor',
       'translate': '0',
-      'transition': 'background-color 0.1s, translate 0.2s, inset-inline-start 0.2s',
+      'transition': 'background 0.1s, translate 0.2s, inset-inline-start 0.2s',
     },
 
     'checked': {
       'grid-template-columns': '1fr 1fr 0fr',
-      'color': 'var(${Tokens.current.switchThumbColor}, ${Tokens.current.switchThumbColor.value})',
+      'color':
+          'var(${Tokens.current.switchThumbColor}, ${Tokens.current.switchThumbColor.value})',
       'background-color': 'color-mix(in srgb, currentcolor 15%, transparent)',
     },
 
@@ -366,7 +380,8 @@ class Css {
       'transform': 'translateX(-50%)',
       'background-color':
           'var(${Tokens.current.baseTextColor}, ${Tokens.current.baseTextColor.value})',
-      'color': 'var(${Tokens.current.backgroundColor}, ${Tokens.current.backgroundColor.value})',
+      'color':
+          'var(${Tokens.current.backgroundColor}, ${Tokens.current.backgroundColor.value})',
       'padding': '7px',
       'pointer-events': 'none',
       'border-radius': '50%',
@@ -380,10 +395,11 @@ class Css {
       'appearance': 'none',
       '-webkit-appearance': 'none',
       'border-radius': '12px',
-      'background': 'transparent',
+      'background-color': 'transparent',
       'vertical-align': 'middle',
       'margin': '0',
-      'height': 'var(${Tokens.current.sliderThumbSize}, ${Tokens.current.sliderThumbSize.value})',
+      'height':
+          'var(${Tokens.current.sliderThumbSize}, ${Tokens.current.sliderThumbSize.value})',
     },
 
     'webkit-track': {
@@ -398,10 +414,12 @@ class Css {
       'position': 'relative',
       'box-sizing': 'border-box',
       'border-radius': '50%',
-      'background':
+      'background-color':
           'var(${Tokens.current.sliderTrackColor}, ${Tokens.current.sliderTrackColor.value})',
-      'height': 'var(${Tokens.current.sliderThumbSize}, ${Tokens.current.sliderThumbSize.value})',
-      'width': 'var(${Tokens.current.sliderThumbSize}, ${Tokens.current.sliderThumbSize.value})',
+      'height':
+          'var(${Tokens.current.sliderThumbSize}, ${Tokens.current.sliderThumbSize.value})',
+      'width':
+          'var(${Tokens.current.sliderThumbSize}, ${Tokens.current.sliderThumbSize.value})',
       'border':
           '5px solid var(${Tokens.current.sliderThumbColor}, ${Tokens.current.sliderThumbColor.value})',
       'appearance': 'none',
@@ -424,10 +442,12 @@ class Css {
       'position': 'relative',
       'box-sizing': 'border-box',
       'border-radius': '50%',
-      'background':
+      'background-color':
           'var(${Tokens.current.sliderTrackColor}, ${Tokens.current.sliderTrackColor.value})',
-      'height': 'var(${Tokens.current.sliderThumbSize}, ${Tokens.current.sliderThumbSize.value})',
-      'width': 'var(${Tokens.current.sliderThumbSize}, ${Tokens.current.sliderThumbSize.value})',
+      'height':
+          'var(${Tokens.current.sliderThumbSize}, ${Tokens.current.sliderThumbSize.value})',
+      'width':
+          'var(${Tokens.current.sliderThumbSize}, ${Tokens.current.sliderThumbSize.value})',
       'border':
           '5px solid var(${Tokens.current.sliderThumbColor}, ${Tokens.current.sliderThumbColor.value})',
       'top': '50%',
@@ -520,7 +540,8 @@ class Css {
           'color-mix(in srgb, var(${Tokens.current.bottomNavbarBgColor}, ${Tokens.current.bottomNavbarBgColor.value}) 75%, transparent)',
       'backdrop-filter': 'blur(20px) saturate(180%)',
       '-webkit-backdrop-filter': 'blur(20px) saturate(180%)',
-      'border': '1px solid var(${Tokens.current.borderColor}, rgba(255, 255, 255, 0.2))',
+      'border':
+          '1px solid var(${Tokens.current.borderColor}, rgba(255, 255, 255, 0.2))',
       'box-shadow': '0px 8px 24px rgba(0, 0, 0, 0.12)',
     },
 
@@ -528,7 +549,7 @@ class Css {
       'padding': '0 5px',
       'border-radius': '12px',
       'transition':
-          'transform 0.15s ease, color 0.15s ease, background-color 0.2s ease, box-shadow 0.2s ease',
+          'transform 0.15s ease, color 0.15s ease, background 0.2s ease, box-shadow 0.2s ease',
     },
 
     'frosted-glass-hover-tile': {
@@ -594,7 +615,7 @@ class Css {
     'border': 'none',
     'cursor': 'pointer',
     'border-radius': '12px',
-    'background':
+    'background-color':
         'var(${Tokens.current.buttonBackgroundColor}, '
         '${Tokens.current.buttonBackgroundColor.value})',
     'justify-content': 'center',
@@ -699,9 +720,12 @@ class Css {
       'vertical-align': 'middle',
       'border': '1px solid',
       'border-color': 'color-mix(in srgb, currentcolor 20%, #0000)',
-      'width': 'var(${Tokens.current.radioBtnRadius}, ${Tokens.current.radioBtnRadius.value})',
-      'height': 'var(${Tokens.current.radioBtnRadius}, ${Tokens.current.radioBtnRadius.value})',
-      'color': 'var(${Tokens.current.radioBtnColor}, ${Tokens.current.radioBtnColor.value})',
+      'width':
+          'var(${Tokens.current.radioBtnRadius}, ${Tokens.current.radioBtnRadius.value})',
+      'height':
+          'var(${Tokens.current.radioBtnRadius}, ${Tokens.current.radioBtnRadius.value})',
+      'color':
+          'var(${Tokens.current.radioBtnColor}, ${Tokens.current.radioBtnColor.value})',
       'transition': 'border-color 0.2s',
       'margin': '0',
     },
@@ -713,7 +737,7 @@ class Css {
       'height': '100%',
       'border-radius': '50%',
       'background-color': 'transparent',
-      'transition': 'background-color 0.2s ease-out',
+      'transition': 'background 0.2s ease-out',
     },
 
     'checked': {
@@ -732,7 +756,8 @@ class Css {
   static final nakiDropdownStyle = {
     'wrapper': {
       'position': 'relative',
-      'width': 'var(${Tokens.current.dropdownWidth}, ${Tokens.current.dropdownWidth.value})',
+      'width':
+          'var(${Tokens.current.dropdownWidth}, ${Tokens.current.dropdownWidth.value})',
     },
 
     'trigger': {
@@ -741,15 +766,18 @@ class Css {
       'align-items': 'center',
       'box-sizing': 'border-box',
       'cursor': 'pointer',
-      'color': 'var(${Tokens.current.inputTextColor}, ${Tokens.current.inputTextColor.value})',
-      'font-size': 'var(${Tokens.current.fontSizeInput}, ${Tokens.current.fontSizeInput.value})',
+      'color':
+          'var(${Tokens.current.inputTextColor}, ${Tokens.current.inputTextColor.value})',
+      'font-size':
+          'var(${Tokens.current.fontSizeInput}, ${Tokens.current.fontSizeInput.value})',
       'background-color':
           'var(${Tokens.current.fieldBackgroundColor}, ${Tokens.current.fieldBackgroundColor.value})',
       'border-radius': '12px',
       'border': Tokens.current.border.value,
       'padding': '0 15px',
       'width': '100%',
-      'height': 'var(${Tokens.current.dropdownHeight}, ${Tokens.current.dropdownHeight.value})',
+      'height':
+          'var(${Tokens.current.dropdownHeight}, ${Tokens.current.dropdownHeight.value})',
       'text-overflow': 'ellipsis',
       'overflow': 'hidden',
       'white-space': 'nowrap',
@@ -773,7 +801,8 @@ class Css {
     },
 
     'placeholder.option': {
-      'color': 'var(${Tokens.current.placeholderColor}, ${Tokens.current.placeholderColor.value})',
+      'color':
+          'var(${Tokens.current.placeholderColor}, ${Tokens.current.placeholderColor.value})',
       'pointer-events': 'none',
     },
 
@@ -854,7 +883,8 @@ class Css {
       'padding': '20px',
       'font-size': '13px',
       'text-align': 'center',
-      'color': 'var(${Tokens.current.placeholderColor}, ${Tokens.current.placeholderColor.value})',
+      'color':
+          'var(${Tokens.current.placeholderColor}, ${Tokens.current.placeholderColor.value})',
       'user-select': 'none',
       'margin': '0 auto',
     },
@@ -863,8 +893,10 @@ class Css {
   /// Default CSS styles map for styling spinner.
   static final nakiSpinnerStyle = {
     'default': {
-      'width': 'var(${Tokens.current.spinnerSize}, ${Tokens.current.spinnerSize.value})',
-      'height': 'var(${Tokens.current.spinnerSize}, ${Tokens.current.spinnerSize.value})',
+      'width':
+          'var(${Tokens.current.spinnerSize}, ${Tokens.current.spinnerSize.value})',
+      'height':
+          'var(${Tokens.current.spinnerSize}, ${Tokens.current.spinnerSize.value})',
       'border-radius': '50%',
       'border': Tokens.current.spinnerBorder.value,
       'border-top-color':
@@ -875,7 +907,7 @@ class Css {
     },
 
     'glass': {
-      'background':
+      'background-color':
           'color-mix(in srgb, var(${Tokens.current.spinnerSurfaceColor}, ${Tokens.current.spinnerSurfaceColor.value}) 85%, grey)',
       'backdrop-filter': 'blur(6px)',
       'padding': '6px',
@@ -998,6 +1030,7 @@ class Css {
     'align-items': 'center',
     'justify-content': 'space-between',
     'max-width': '600px',
+    'width': 'max-content',
     'gap': '10px',
     'background-color':
         'var(${Tokens.current.snackbarBgColor}, ${Tokens.current.snackbarBgColor.value})',
@@ -1005,8 +1038,10 @@ class Css {
         'var(${Tokens.current.snackbarForegroundColor}, ${Tokens.current.snackbarForegroundColor.value})',
     'border-radius':
         'var(${Tokens.current.snackbarBorderRadius}, ${Tokens.current.snackbarBorderRadius.value})',
-    'padding': 'var(${Tokens.current.snackbarPadding}, ${Tokens.current.snackbarPadding.value})',
-    'box-shadow': 'var(${Tokens.current.largeShadow}, ${Tokens.current.largeShadow.value})',
+    'padding':
+        'var(${Tokens.current.snackbarPadding}, ${Tokens.current.snackbarPadding.value})',
+    'box-shadow':
+        'var(${Tokens.current.largeShadow}, ${Tokens.current.largeShadow.value})',
     'box-sizing': 'border-box',
     'line-height': '1',
     'transition': 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -1023,7 +1058,8 @@ class Css {
         'var(${Tokens.current.bannerForegroundColor}, ${Tokens.current.bannerForegroundColor.value})',
     'border-radius':
         'var(${Tokens.current.bannerBorderRadius}, ${Tokens.current.bannerBorderRadius.value})',
-    'padding': 'var(${Tokens.current.bannerPadding}, ${Tokens.current.bannerPadding.value})',
+    'padding':
+        'var(${Tokens.current.bannerPadding}, ${Tokens.current.bannerPadding.value})',
     'border':
         '1px solid var(${Tokens.current.bannerBorderColor}, ${Tokens.current.bannerBorderColor.value})',
     'box-sizing': 'border-box',
@@ -1043,10 +1079,12 @@ class Css {
       'z-index': _tooltipZindex,
       'background-color':
           'var(${Tokens.current.tooltipBgColor}, ${Tokens.current.tooltipBgColor.value})',
-      'color': 'var(${Tokens.current.tooltipTextColor}, ${Tokens.current.tooltipTextColor.value})',
+      'color':
+          'var(${Tokens.current.tooltipTextColor}, ${Tokens.current.tooltipTextColor.value})',
       'border-radius':
           'var(${Tokens.current.tooltipBorderRadius}, ${Tokens.current.tooltipBorderRadius.value})',
-      'padding': 'var(${Tokens.current.tooltipPadding}, ${Tokens.current.tooltipPadding.value})',
+      'padding':
+          'var(${Tokens.current.tooltipPadding}, ${Tokens.current.tooltipPadding.value})',
       'font-size':
           'var(${Tokens.current.tooltipFontSize}, ${Tokens.current.tooltipFontSize.value})',
       'pointer-events': 'none',
@@ -1074,7 +1112,7 @@ class Css {
       'position': 'fixed',
       'inset': '0',
       'z-index': _popoverBarrierZindex,
-      'background': 'transparent',
+      'background-color': 'transparent',
       'cursor': 'default',
     },
 
@@ -1085,13 +1123,16 @@ class Css {
       'height': 'fit-content',
       'background-color':
           'var(${Tokens.current.popoverBgColor}, ${Tokens.current.popoverBgColor.value})',
-      'color': 'var(${Tokens.current.popoverTextColor}, ${Tokens.current.popoverTextColor.value})',
+      'color':
+          'var(${Tokens.current.popoverTextColor}, ${Tokens.current.popoverTextColor.value})',
       'border-radius':
           'var(${Tokens.current.popoverBorderRadius}, ${Tokens.current.popoverBorderRadius.value})',
       'border':
           '1px solid var(${Tokens.current.popoverBorderColor}, ${Tokens.current.popoverBorderColor.value})',
-      'box-shadow': 'var(${Tokens.current.popoverShadow}, ${Tokens.current.popoverShadow.value})',
-      'padding': 'var(${Tokens.current.popoverPadding}, ${Tokens.current.popoverPadding.value})',
+      'box-shadow':
+          'var(${Tokens.current.popoverShadow}, ${Tokens.current.popoverShadow.value})',
+      'padding':
+          'var(${Tokens.current.popoverPadding}, ${Tokens.current.popoverPadding.value})',
     },
 
     'popup': {
@@ -1123,7 +1164,8 @@ class Css {
       'backdrop-filter': 'blur(5px)',
       'overscroll-behavior': 'none',
       'touch-action': 'none',
-      'animation': 'nakiDialogFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+      'animation':
+          'nakiDialogFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards',
     },
 
     'container': {
@@ -1136,12 +1178,14 @@ class Css {
           'var(${Tokens.current.dialogBgColor}, ${Tokens.current.dialogBgColor.value})',
       'border-radius':
           'var(${Tokens.current.dialogBorderRadius}, ${Tokens.current.dialogBorderRadius.value})',
-      'padding': 'var(${Tokens.current.dialogPadding}, ${Tokens.current.dialogPadding.value})',
+      'padding':
+          'var(${Tokens.current.dialogPadding}, ${Tokens.current.dialogPadding.value})',
       'width': 'fit-content',
       'height': 'fit-content',
       'box-shadow': Tokens.current.largeShadow.value,
       'box-sizing': 'border-box',
-      'animation': 'nakiDialogPopIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+      'animation':
+          'nakiDialogPopIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards',
     },
   };
 
@@ -1153,7 +1197,8 @@ class Css {
       'overscroll-behavior': 'none',
       'z-index': _drawerZindex,
       'display': 'inline-flex',
-      'animation': 'nakiDrawerFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+      'animation':
+          'nakiDrawerFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards',
     },
 
     'barrier': {
@@ -1175,7 +1220,9 @@ class Css {
       'top': '0',
       'bottom': '0',
       'overflow': 'auto',
-      'width': 'var(${Tokens.current.drawerWidth}, ${Tokens.current.drawerWidth.value})',
+      'z-index': _drawerZindex,
+      'width':
+          'var(${Tokens.current.drawerWidth}, ${Tokens.current.drawerWidth.value})',
       'background-color':
           'var(${Tokens.current.drawerBgColor}, ${Tokens.current.drawerBgColor.value})',
       'box-shadow': Tokens.current.largeShadow.value,
@@ -1201,7 +1248,8 @@ class Css {
       'backdrop-filter': 'blur(5px)',
       'overscroll-behavior': 'none',
       'touch-action': 'none',
-      'animation': 'nakiDrawerFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+      'animation':
+          'nakiDrawerFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards',
     },
 
     'container': {
@@ -1218,7 +1266,8 @@ class Css {
       'box-shadow': Tokens.current.largeShadow.value,
       'box-sizing': 'border-box',
       'overflow-y': 'auto',
-      'animation': 'nakiBottomSheetSlideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+      'animation':
+          'nakiBottomSheetSlideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards',
     },
 
     'handle': {
@@ -1239,10 +1288,13 @@ class Css {
     'wrapper': {'position': 'relative'},
 
     'default-trigger': {
-      'height': 'var(${Tokens.current.buttonHeight}, ${Tokens.current.buttonHeight.value})',
-      'color': 'var(${Tokens.current.inputTextColor}, ${Tokens.current.inputTextColor.value})',
-      'font-size': 'var(${Tokens.current.fontSizeInput}, ${Tokens.current.fontSizeInput.value})',
-      'background':
+      'height':
+          'var(${Tokens.current.buttonHeight}, ${Tokens.current.buttonHeight.value})',
+      'color':
+          'var(${Tokens.current.inputTextColor}, ${Tokens.current.inputTextColor.value})',
+      'font-size':
+          'var(${Tokens.current.fontSizeInput}, ${Tokens.current.fontSizeInput.value})',
+      'background-color':
           'var(${Tokens.current.fieldBackgroundColor}, ${Tokens.current.fieldBackgroundColor.value})',
       'border-radius': '12px',
       'padding': '0 15px',
@@ -1287,7 +1339,7 @@ class Css {
 
     'selected': {
       'color': 'white',
-      'background':
+      'background-color':
           'var(${Tokens.current.primaryColor}, '
           '${Tokens.current.primaryColor.value})',
     },
@@ -1295,7 +1347,7 @@ class Css {
     'disabled': {
       'opacity': '0.6',
       'pointer-events': 'none',
-      'background': 'none',
+      'background-color': 'none',
     },
   };
 
@@ -1314,9 +1366,12 @@ class Css {
       'box-sizing': 'border-box',
       'background-color':
           'var(${Tokens.current.backgroundColor}, ${Tokens.current.backgroundColor.value})',
-      'color': 'var(${Tokens.current.baseTextColor}, ${Tokens.current.baseTextColor.value})',
-      'border-radius': 'var(${Tokens.current.radiusMd}, ${Tokens.current.radiusMd.value})',
-      'transition': 'box-shadow 200ms ease, transform 200ms ease, border-color 200ms ease',
+      'color':
+          'var(${Tokens.current.baseTextColor}, ${Tokens.current.baseTextColor.value})',
+      'border-radius':
+          'var(${Tokens.current.radiusMd}, ${Tokens.current.radiusMd.value})',
+      'transition':
+          'box-shadow 200ms ease, transform 200ms ease, border-color 200ms ease',
     },
 
     'elevated': {
@@ -1325,7 +1380,8 @@ class Css {
     },
 
     'outlined': {
-      'border': '1px solid var(${Tokens.current.borderColor}, ${Tokens.current.borderColor.value})',
+      'border':
+          '1px solid var(${Tokens.current.borderColor}, ${Tokens.current.borderColor.value})',
       'box-shadow': 'none',
     },
 
@@ -1352,7 +1408,7 @@ class Css {
       'display': 'block',
       'position': 'relative',
       'box-sizing': 'border-box',
-      'transition': 'background-color 200ms ease',
+      'transition': 'background 200ms ease',
     },
 
     'header': {
@@ -1371,7 +1427,7 @@ class Css {
       'font-family': 'inherit',
       'font-size': 'inherit',
       'color': 'inherit',
-      'transition': 'background-color 200ms ease',
+      'transition': 'background 200ms ease',
     },
 
     'chevron': {
@@ -1379,7 +1435,8 @@ class Css {
       'align-items': 'center',
       'justify-content': 'center',
       'transition': 'transform 250ms cubic-bezier(0.2, 0.8, 0.2, 1)',
-      'color': 'var(${Tokens.current.mutedColor}, ${Tokens.current.mutedColor.value})',
+      'color':
+          'var(${Tokens.current.mutedColor}, ${Tokens.current.mutedColor.value})',
     },
 
     'body-wrapper': {

@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
 
-import '../styles/css.dart';
 import '../theme/theme.dart';
 import '../theme/tokens.dart';
 
@@ -59,9 +58,7 @@ extension CssPropsExtension on Map<String, String> {
   /// ```
   Map<String, String> without(List<String> keys) {
     final map = Map<String, String>.of(this);
-    for (final key in keys) {
-      map.remove(key);
-    }
+    for (final key in keys) map.remove(key);
     return map;
   }
 }
@@ -100,9 +97,12 @@ extension StringExtension on String {
         .map((s) {
           s = s.withoutSymbols;
           if (s.isEmpty) return '';
+
           if (s.length == 1) return s.toUpperCase();
+
           final first = s[0].toUpperCase();
           final rest = s.substring(1).toLowerCase();
+
           return '$first$rest';
         })
         .join(' ')
@@ -162,9 +162,7 @@ extension StringExtension on String {
 
     String mathFunc(Match match) => '${match[1]},';
 
-    final RegExp reg = RegExp(
-      r'(\d{1,3})(?=(\d{3})+(?!\d))',
-    );
+    final RegExp reg = RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))');
     final result = parts[0].replaceAllMapped(reg, mathFunc);
 
     return parts[1] == '00' ? '$symbol$result' : '$symbol$result.${parts[1]}';
@@ -188,9 +186,8 @@ extension StringExtension on String {
   /// final url = text.extractLink;
   /// // returns: 'https://example.com'
   /// ```
-  String? get extractLink => RegExp(
-    r'(https?://[^\s]+)',
-  ).firstMatch(this)?.group(0);
+  String? get extractLink =>
+      RegExp(r'(https?://[^\s]+)').firstMatch(this)?.group(0);
 
   /// Returns true if this is a valid url.
   ///
@@ -201,10 +198,10 @@ extension StringExtension on String {
   /// // returns: true
   /// ```
   bool get isUrl => RegExp(
-    r'^(?:(?:https?|ftp):\/\/)?' // Optional scheme
-    r'(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}' // Domain
-    r'(?::\d{1,5})?' // Optional port
-    r'(?:[/?#][^\s]*)?$', // Optional path, query, or fragment
+    r'^(?:(?:https?|ftp):\/\/)?' // optional scheme
+    r'(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}' // domain
+    r'(?::\d{1,5})?' // optional port
+    r'(?:[/?#][^\s]*)?$', // optional path, query, or fragment
     caseSensitive: false,
   ).hasMatch(trim());
 
@@ -230,7 +227,7 @@ extension StringExtension on String {
   /// // returns: 'JD'
   /// ```
   String get initials {
-    // Check if the string is empty or just whitespace
+    // check if the string is empty or just whitespace
     if (trim().isEmpty) return '-';
 
     try {
@@ -421,12 +418,14 @@ extension ContextExtension on BuildContext {
   /// Returns the active theme mode for this context.
   ///
   /// Defaults to [ThemeMode.system] if no [NakiThemeProvider] ancestor is found.
-  ThemeMode get themeMode => NakiThemeProvider.of(this)?.mode ?? ThemeMode.system;
+  ThemeMode get themeMode =>
+      NakiThemeProvider.of(this)?.mode ?? ThemeMode.system;
 
   /// Returns the design tokens for the active theme in this context.
   ///
   /// Defaults to global tokens if no [NakiThemeProvider] ancestor is found.
-  Tokens get themeTokens => NakiThemeProvider.of(this)?.tokens ?? Tokens.current;
+  Tokens get themeTokens =>
+      NakiThemeProvider.of(this)?.tokens ?? Tokens.current;
 
   // /////////////////////
   // ACCESS COLOR TOKEN VALUES
@@ -440,7 +439,7 @@ extension ContextExtension on BuildContext {
   /// final withOpacity = context.withOpacity(color, 0.5);
   /// // returns: Color(0x80FF0000) (50% opacity)
   /// ```
-  Color withOpacity(Color color, double opacity) => Css.applyOpacity(color, opacity);
+  Color withOpacity(Color color, double opacity) => color.withOpacity(opacity);
 
   // Brand Colors
 
@@ -628,7 +627,8 @@ extension ContextExtension on BuildContext {
   Color get snackbarBgColor => themeTokens.snackbarBgColor.color!;
 
   /// Snackbar foreground color.
-  Color get snackbarForegroundColor => themeTokens.snackbarForegroundColor.color!;
+  Color get snackbarForegroundColor =>
+      themeTokens.snackbarForegroundColor.color!;
 
   /// Banner background color.
   Color get bannerBgColor => themeTokens.bannerBgColor.color!;
@@ -699,13 +699,13 @@ extension DateTimeExtension on DateTime {
     final day = this.day;
     final month = monthNameShort;
     final year = this.year;
-
     return '$day$_suffix, $month $year';
   }
 
   /// Returns day suffix (st, nd, rd, th).
   String get _suffix {
     if (day >= 11 && day <= 13) return 'th';
+
     switch (day % 10) {
       case 1:
         return 'st';
@@ -726,23 +726,20 @@ extension DateTimeExtension on DateTime {
   /// final month = date.monthName;
   /// // returns: 'February'
   /// ```
-  String get monthName {
-    final months = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ];
-    return months[month - 1];
-  }
+  String get monthName => [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ][month - 1];
 
   /// Returns full day name.
   ///
@@ -865,10 +862,7 @@ extension DateTimeExtension on DateTime {
   String get toTimeAmPm {
     final amPm = hour < 12 ? 'AM' : 'PM';
     final formattedHour = hour % 12 == 0 ? 12 : hour % 12;
-    final formattedMinute = minute.toString().padLeft(
-      2,
-      '0',
-    );
+    final formattedMinute = minute.toString().padLeft(2, '0');
     return '$formattedHour:$formattedMinute $amPm';
   }
 
@@ -882,10 +876,7 @@ extension DateTimeExtension on DateTime {
   /// ```
   String get toTime {
     final formattedHour = hour.toString().padLeft(2, '0');
-    final formattedMinute = minute.toString().padLeft(
-      2,
-      '0',
-    );
+    final formattedMinute = minute.toString().padLeft(2, '0');
     return '$formattedHour:$formattedMinute';
   }
 
@@ -900,14 +891,8 @@ extension DateTimeExtension on DateTime {
   String get toFullTimeAmPm {
     final amPm = hour < 12 ? 'AM' : 'PM';
     final formattedHour = hour % 12 == 0 ? 12 : hour % 12;
-    final formattedMinute = minute.toString().padLeft(
-      2,
-      '0',
-    );
-    final formattedSecond = second.toString().padLeft(
-      2,
-      '0',
-    );
+    final formattedMinute = minute.toString().padLeft(2, '0');
+    final formattedSecond = second.toString().padLeft(2, '0');
     return '$formattedHour:$formattedMinute:$formattedSecond $amPm';
   }
 
@@ -954,7 +939,9 @@ extension DateTimeExtension on DateTime {
   String timeRemainingUntil([DateTime? now]) {
     now ??= DateTime.now();
 
-    final d = difference(now).inSeconds > 0 ? difference(now) : const Duration(seconds: 0);
+    final d = difference(now).inSeconds > 0
+        ? difference(now)
+        : const Duration(seconds: 0);
 
     if (d.inSeconds <= 0) return '0';
 
@@ -1019,7 +1006,8 @@ extension DateTimeExtension on DateTime {
   /// final isSame = date1.isSameAs(date2);
   /// // returns: true
   /// ```
-  bool isSameAs(DateTime date) => millisecondsSinceEpoch == date.millisecondsSinceEpoch;
+  bool isSameAs(DateTime date) =>
+      millisecondsSinceEpoch == date.millisecondsSinceEpoch;
 
   /// Returns true if this date is before or same as the given date.
   ///

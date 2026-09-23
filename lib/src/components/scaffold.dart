@@ -74,6 +74,17 @@ class AppBar extends StatelessComponent {
   /// Background color of the app bar.
   final Color? backgroundColor;
 
+  /// Background gradient of the app bar.
+  ///
+  /// ### Example
+  /// ```dart
+  /// AppBar(
+  ///   titleText: 'Gradient AppBar',
+  ///   gradient: Gradient()..applyLinear(colors: [Colors.blue, Colors.purple]),
+  /// )
+  /// ```
+  final Gradient? gradient;
+
   /// Custom CSS classes applied to the app bar.
   final String? classes;
 
@@ -89,6 +100,7 @@ class AppBar extends StatelessComponent {
     this.leading,
     this.actions,
     this.backgroundColor,
+    this.gradient,
     this.classes,
     this.titleText,
     this.titleStyle,
@@ -102,21 +114,20 @@ class AppBar extends StatelessComponent {
         : null;
 
     final effectiveTitle = titleText.isNotNullAndEmpty
-        ? NakiText(
-            titleText!,
-            classes: 'naki-appbar-title',
-            style: titleStyle,
-          )
+        ? NakiText(titleText!, classes: 'naki-appbar-title', style: titleStyle)
         : title;
 
     const baseClass = 'naki-appbar';
-    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     final effectiveStyles = {
       Tokens.current.appbarBgColor.name: ?backgroundColor?.value,
       Tokens.current.appbarHeight.name: ?height?.cssText,
       'width': ?width?.cssText,
       'box-shadow': ?(removeShadow == true ? 'none' : null),
+      ...?gradient?.props,
     };
 
     return .element(
@@ -125,18 +136,13 @@ class AppBar extends StatelessComponent {
       classes: effectiveClasses,
       attributes: const {'role': 'banner'},
       styles: Styles(raw: effectiveStyles),
-      children: [
-        ?leading,
-        ?effectiveTitle,
-        ?effectiveActions,
-      ],
+      children: [?leading, ?effectiveTitle, ?effectiveActions],
     );
   }
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('AppBar', [
-    Rules.nakiAppBarRules,
-  ]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('AppBar', [Rules.nakiAppBarRules]);
 }
 
 class _BottomNavBarTile extends StatelessComponent {
@@ -177,7 +183,8 @@ class _BottomNavBarTile extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
-    final isLandscape = MediaQueryProvider.orientation(context) == Orientation.landscape;
+    final isLandscape =
+        MediaQueryProvider.orientation(context) == Orientation.landscape;
 
     final effectiveSelectedLabelStyle = TextStyle(
       color: context.primaryColor,
@@ -188,8 +195,10 @@ class _BottomNavBarTile extends StatelessComponent {
     ).combineWith(unselectedLabelStyle);
 
     final selectedFontSize = effectiveSelectedLabelStyle.fontSize?.value ?? 12;
-    final selectedFontColor = effectiveSelectedLabelStyle.color ?? context.primaryColor;
-    final unselectedFontColor = effectiveUnselectedLabelStyle.color ?? context.secondaryColor;
+    final selectedFontColor =
+        effectiveSelectedLabelStyle.color ?? context.primaryColor;
+    final unselectedFontColor =
+        effectiveUnselectedLabelStyle.color ?? context.secondaryColor;
 
     final _selectedIconSize = selectedIconSize ?? iconSize;
     final _unselectedIconSize = unselectedIconSize ?? iconSize - 2.0;
@@ -197,7 +206,8 @@ class _BottomNavBarTile extends StatelessComponent {
     final _unselectedIconColor = unselectedIconColor ?? unselectedFontColor;
 
     final double fontHalf = selectedFontSize / 2.0;
-    final double iconDiffHalf = max(_selectedIconSize - _unselectedIconSize, 0.0) / 2.0;
+    final double iconDiffHalf =
+        max(_selectedIconSize - _unselectedIconSize, 0.0) / 2.0;
 
     double topPadding;
     double bottomPadding;
@@ -221,7 +231,9 @@ class _BottomNavBarTile extends StatelessComponent {
       bottomPadding = fontHalf;
     }
 
-    Component? label = item.label.isNotNullAndEmpty ? NakiText(item.label!) : item.labelComponent;
+    Component? label = item.label.isNotNullAndEmpty
+        ? NakiText(item.label!)
+        : item.labelComponent;
 
     if (!showSelectedLabel && !showUnselectedLabel) {
       // hide label
@@ -237,13 +249,12 @@ class _BottomNavBarTile extends StatelessComponent {
     if (label != null) {
       label = DefaultTextStyle(
         child: label,
-        style: selected ? effectiveSelectedLabelStyle : effectiveUnselectedLabelStyle,
+        style: selected
+            ? effectiveSelectedLabelStyle
+            : effectiveUnselectedLabelStyle,
       );
 
-      label = .wrapElement(
-        classes: 'naki-navbar-label',
-        child: label,
-      );
+      label = .wrapElement(classes: 'naki-navbar-label', child: label);
     }
 
     final Component icon = Icon(
@@ -253,7 +264,8 @@ class _BottomNavBarTile extends StatelessComponent {
       color: selected ? _selectedIconColor : _unselectedIconColor,
     );
 
-    final Component tile = isLandscape && layout == BottomNavigationBarLandscapeLayout.linear
+    final Component tile =
+        isLandscape && layout == BottomNavigationBarLandscapeLayout.linear
         ? Row(spacing: 8, children: [icon, ?label])
         : Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -262,12 +274,10 @@ class _BottomNavBarTile extends StatelessComponent {
 
     Component result = GestureDetector(
       semanticLabel: item.tooltip ?? item.label,
-      attributes: {
-        'aria-current': ?(selected ? 'page' : null),
-      },
+      attributes: {'aria-current': ?(selected ? 'page' : null)},
       child: Padding(
         child: tile,
-        padding: EdgeInsets(
+        padding: EdgeInsets.only(
           top: Dim.px(topPadding),
           bottom: Dim.px(bottomPadding),
         ),
@@ -275,9 +285,7 @@ class _BottomNavBarTile extends StatelessComponent {
       gestures: Events(
         onClick: (_) {
           if (enableFeedback) {
-            hapticFeedback(
-              duration: const Duration(milliseconds: 50),
-            );
+            hapticFeedback(duration: const Duration(milliseconds: 50));
           }
           onTap();
         },
@@ -347,6 +355,17 @@ class BottomNavigationBar extends StatefulComponent {
   /// Background color of the bottom navigation bar.
   final Color? backgroundColor;
 
+  /// Background gradient of the bottom navigation bar.
+  ///
+  /// ### Example
+  /// ```dart
+  /// BottomNavigationBar(
+  ///   items: [...],
+  ///   gradient: Gradient()..applyLinear(colors: [Colors.purple, Colors.blue]),
+  /// )
+  /// ```
+  final Gradient? gradient;
+
   /// Color of selected icons.
   final Color? selectedIconColor;
 
@@ -409,6 +428,7 @@ class BottomNavigationBar extends StatefulComponent {
     this.width,
     this.landscapeLayout,
     this.backgroundColor,
+    this.gradient,
     this.selectedIconColor,
     this.unSelectedIconColor,
     this.selectedLabelStyle,
@@ -424,9 +444,8 @@ class BottomNavigationBar extends StatefulComponent {
   State<BottomNavigationBar> createState() => _BottomNavigationBarState();
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('BottomNavBar', [
-    Rules.nakiBottomNavBarRules,
-  ]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('BottomNavBar', [Rules.nakiBottomNavBarRules]);
 }
 
 class _BottomNavigationBarState extends State<BottomNavigationBar> {
@@ -434,7 +453,7 @@ class _BottomNavigationBarState extends State<BottomNavigationBar> {
 
   @override
   void setState(VoidCallback fn) {
-    if (mounted) super.setState(fn);
+    if (mounted && kIsWeb) super.setState(fn);
   }
 
   @override
@@ -452,9 +471,7 @@ class _BottomNavigationBarState extends State<BottomNavigationBar> {
   }
 
   @override
-  void didUpdateComponent(
-    BottomNavigationBar oldComponent,
-  ) {
+  void didUpdateComponent(BottomNavigationBar oldComponent) {
     super.didUpdateComponent(oldComponent);
     if (oldComponent.selectedIndex != component.selectedIndex) {
       _currentIndex = component.selectedIndex;
@@ -470,10 +487,12 @@ class _BottomNavigationBarState extends State<BottomNavigationBar> {
   @override
   Component build(BuildContext context) {
     final effectiveStyles = {
-      Tokens.current.bottomNavbarBgColor.name: ?component.backgroundColor?.value,
+      Tokens.current.bottomNavbarBgColor.name:
+          ?component.backgroundColor?.value,
       Tokens.current.bottomNavbarHeight.name: ?component.height?.cssText,
       'width': ?component.width?.cssText,
       'box-shadow': ?(component.removeShadow ? 'none' : null),
+      ...?component.gradient?.props,
     };
 
     final effectiveType =
@@ -482,7 +501,8 @@ class _BottomNavigationBarState extends State<BottomNavigationBar> {
             ? BottomNavigationBarType.fixed
             : BottomNavigationBarType.floating);
 
-    final effectiveLayout = component.landscapeLayout ?? BottomNavigationBarLandscapeLayout.spread;
+    final effectiveLayout =
+        component.landscapeLayout ?? BottomNavigationBarLandscapeLayout.spread;
 
     final unselectedLabelStyle = TextStyle(
       fontSize: Dim.px(component.unSelectedLabelFontSize),
@@ -540,6 +560,10 @@ class _BottomNavigationBarState extends State<BottomNavigationBar> {
 /// an app bar, seo tags, body, modal drawer, persistent sidebar/navigation
 /// rail, bottom navigation bar, and floating action button.
 ///
+/// > **NOTE**: Scaffold is wrapped in a [MediaQueryProvider]. This allows the
+/// > use of `MediaQueryProvider.of(context)` when a [Builder] component is used
+/// > inside [Scaffold.body] or its descendants.
+///
 /// ### Example
 /// ```dart
 /// Scaffold(
@@ -581,6 +605,10 @@ class Scaffold extends StatefulComponent {
   /// Modal drawer to display when opened.
   final Drawer? drawer;
 
+  /// Additional components (such as script, link) for font loading,
+  /// analytics, etc. that are to be added to the application's head.
+  final List<Component> head;
+
   /// Persistent sidebar or navigation rail (non-modal) displayed
   /// beside the [body] content.
   final Component? sideBar;
@@ -605,6 +633,7 @@ class Scaffold extends StatefulComponent {
     this.floatingActionButton,
     this.classes,
     this.seo,
+    this.head = const [],
   });
 
   /// Finds the [ScaffoldState] from the closest [Scaffold] ancestor,
@@ -617,9 +646,8 @@ class Scaffold extends StatefulComponent {
   State<Scaffold> createState() => ScaffoldState();
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('Scaffold', [
-    Rules.nakiScaffoldRules,
-  ]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('Scaffold', [Rules.nakiScaffoldRules]);
 }
 
 /// State for a [Scaffold].
@@ -627,7 +655,8 @@ class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
   late final _drawerController = OverlayController();
 
   /// Controller managing the scaffold's modal drawer open/close state.
-  OverlayController get drawerController => _drawerController;
+  OverlayController get drawerController =>
+      component.drawer?.controller ?? _drawerController;
 
   /// Whether the scaffold has an app bar.
   bool get hasAppbar => component.appBar != null;
@@ -642,7 +671,8 @@ class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
   String? get appBarHeight => component.appBar?.height?.cssText;
 
   /// Returns the computed height of the bottom navigation bar.
-  String? get bottomNavbarHeight => component.bottomNavigationBar?.height?.cssText;
+  String? get bottomNavbarHeight =>
+      component.bottomNavigationBar?.height?.cssText;
 
   /// Whether the scaffold has a bottom navigation bar.
   bool get hasBottomNavbar => component.bottomNavigationBar != null;
@@ -651,153 +681,109 @@ class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
   bool get hasFloatingActionButton => component.floatingActionButton != null;
 
   /// Whether the drawer is currently open.
-  bool get isDrawerOpen => _drawerController.isOpen;
+  bool get isDrawerOpen => drawerController.isOpen;
 
   /// Opens the scaffold's drawer.
-  void openDrawer() {
-    if (hasDrawer) _drawerController.open();
-  }
+  void openDrawer() => hasDrawer ? drawerController.open() : null;
 
   /// Closes the scaffold's drawer.
-  void closeDrawer() {
-    if (hasDrawer) _drawerController.close();
-  }
+  void closeDrawer() => hasDrawer ? drawerController.close() : null;
 
   /// Toggles the scaffold's drawer open or closed.
-  void toggleDrawer() {
-    if (hasDrawer) _drawerController.toggle();
-  }
-
-  /// Normalises a given URL string.
-  String normaliseUrl(String value) {
-    final trimmed = value.trim();
-    if (trimmed.isEmpty) return '';
-
-    if (trimmed.startsWith('http://') ||
-        trimmed.startsWith('https://') ||
-        trimmed.startsWith('//') ||
-        trimmed.startsWith('data:')) {
-      return trimmed;
-    }
-
-    final seoUrl = component.seo?.url?.trim() ?? '';
-    if (trimmed.startsWith('/') && seoUrl.isNotEmpty) {
-      final uri = Uri.tryParse(seoUrl);
-      final origin = (uri != null && uri.hasScheme && uri.hasAuthority)
-          ? uri.origin
-          : seoUrl.replaceFirst(RegExp(r'/+$'), '');
-
-      if (origin.isNotEmpty) {
-        String base = (uri?.path.isNotEmpty == true && uri!.path != '/' ? uri.path : '');
-
-        if (base.isNotEmpty) {
-          if (!base.startsWith('/')) base = '/$base';
-          base = base.replaceFirst(RegExp(r'/+$'), '');
-        }
-
-        if (base.isNotEmpty && !trimmed.startsWith('$base/') && trimmed != base) {
-          return '$origin$base$trimmed';
-        }
-
-        return '$origin$trimmed';
-      }
-    }
-
-    return trimmed.startsWith('/') ? trimmed.substring(1) : trimmed;
-  }
+  void toggleDrawer() => hasDrawer ? drawerController.toggle() : null;
 
   /// Returns SEO meta tags for the scaffold
-  List<Component> get buildSEO {
+  List<Component> get seoTags {
     final seo = component.seo;
-    if (seo == null) return [];
+    if (seo == null) return const <Component>[];
 
-    final pageUrl = normaliseUrl(seo.url ?? '');
-    final logoUrl = normaliseUrl(seo.logo ?? '');
+    final pageUrl = normaliseLink(seo.url ?? '');
+    final logoUrl = normaliseLink(seo.logo ?? '', seo.url);
     final pageTitle = seo.title ?? '';
 
     final smTitle = seo.socialMediaTitle ?? pageTitle;
     final smDesc = seo.socialMediaDescription ?? seo.description ?? '';
-    final smImg = normaliseUrl(seo.socialMediaBanner ?? logoUrl);
+    final smImg = normaliseLink(seo.socialMediaBanner ?? logoUrl, seo.url);
+
+    final isValidLogo = logoUrl.isNotEmpty && logoUrl.startsWith('http');
+    final isValidSmImg = smImg.isNotEmpty && smImg.startsWith('http');
+    final isValidPageUrl = pageUrl.isNotEmpty && pageUrl.startsWith('http');
 
     return [
-      if (pageUrl.isNotEmpty) link(href: pageUrl, rel: 'canonical'),
-
-      if (seo.description.isNotNullAndEmpty) meta(name: 'description', content: seo.description),
-
-      if (seo.keywords != null && seo.keywords!.isNotEmpty)
-        meta(
-          name: 'keywords',
-          content: seo.keywords!.join(', '),
-        ),
-
-      if (seo.robots != null && seo.robots!.isNotEmpty)
-        meta(
-          name: 'robots',
-          content: seo.robots!.join(', '),
-        ),
-
-      if (pageTitle.isNotEmpty)
-        meta(
-          attributes: const {'property': 'og:title'},
-          content: pageTitle,
-        ),
-
-      if (pageTitle.isNotEmpty)
-        meta(
-          attributes: const {'property': 'og:site_name'},
-          content: pageTitle,
-        ),
+      if (isValidPageUrl) link(href: pageUrl, rel: 'canonical'),
 
       if (seo.description.isNotNullAndEmpty)
-        meta(
-          attributes: const {'property': 'og:description'},
-          content: seo.description,
-        ),
+        meta(name: 'description', content: seo.description),
 
-      const meta(
-        attributes: {'property': 'og:type'},
-        content: 'website',
-      ),
+      if (seo.keywords != null && seo.keywords!.isNotEmpty)
+        meta(name: 'keywords', content: seo.keywords!.join(', ')),
 
-      if (pageUrl.isNotEmpty)
-        meta(
-          attributes: const {'property': 'og:url'},
-          content: pageUrl,
-        ),
+      if (seo.robots != null && seo.robots!.isNotEmpty)
+        meta(name: 'robots', content: seo.robots!.join(', ')),
 
-      if (logoUrl.isNotEmpty) ...[
-        meta(
-          attributes: const {'property': 'og:image'},
-          content: logoUrl,
-        ),
-
-        if (pageTitle.isNotEmpty)
+      // Open Graph Tags
+      ...[
+        if (pageTitle.isNotEmpty) ...[
           meta(
-            attributes: const {'property': 'og:image:alt'},
+            attributes: const {'property': 'og:title'},
             content: pageTitle,
+            id: 'ogtitle',
           ),
-      ],
-
-      if (smImg.isNotEmpty) ...[
-        if (smTitle.isNotEmpty) meta(name: 'twitter:title', content: smTitle),
-
-        if (smDesc.isNotEmpty)
           meta(
-            name: 'twitter:description',
-            content: smDesc,
+            attributes: const {'property': 'og:site_name'},
+            content: pageTitle,
+            id: 'ogsitename',
           ),
+        ],
 
-        meta(
-          attributes: const {'name': 'twitter:image'},
-          content: smImg,
-        ),
-
-        if (smTitle.isNotEmpty) meta(name: 'twitter:image:alt', content: smTitle),
+        if (seo.description.isNotNullAndEmpty)
+          meta(
+            attributes: const {'property': 'og:description'},
+            content: seo.description,
+            id: 'ogdesc',
+          ),
 
         const meta(
-          name: 'twitter:card',
-          content: 'summary_large_image',
+          attributes: {'property': 'og:type'},
+          content: 'website',
+          id: 'ogtype',
         ),
+
+        if (isValidPageUrl)
+          meta(
+            attributes: const {'property': 'og:url'},
+            content: pageUrl,
+            id: 'ogurl',
+          ),
+
+        if (isValidLogo) ...[
+          meta(
+            attributes: const {'property': 'og:image'},
+            content: logoUrl,
+            id: 'ogimg',
+          ),
+
+          if (pageTitle.isNotEmpty)
+            meta(
+              attributes: const {'property': 'og:image:alt'},
+              content: pageTitle,
+              id: 'ogimgalt',
+            ),
+        ],
+      ],
+
+      // Social Media Graph Tags
+      if (smTitle.isNotEmpty) ...[
+        if (smTitle.isNotEmpty) meta(name: 'twitter:title', content: smTitle),
+        if (smDesc.isNotEmpty)
+          meta(name: 'twitter:description', content: smDesc),
+
+        if (isValidSmImg) ...[
+          meta(name: 'twitter:image', content: smImg),
+          if (smTitle.isNotEmpty)
+            meta(name: 'twitter:image:alt', content: smTitle),
+          const meta(name: 'twitter:card', content: 'summary_large_image'),
+        ],
       ],
     ];
   }
@@ -814,7 +800,9 @@ class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
 
     // Ensure non-modal mode if Drawer is passed as sideBar
     final effectiveSideBar = hasSideBar
-        ? (sideBar is Drawer && sideBar.modal ? sideBar.copyWith(modal: false) : sideBar)
+        ? (sideBar is Drawer && sideBar.modal
+              ? sideBar.copyWith(modal: false)
+              : sideBar)
         : null;
 
     final Component bodyContent = hasSideBar
@@ -825,14 +813,10 @@ class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
             ),
 
             if (component.body != null)
-              div(classes: 'naki-scaffold-body', [
-                component.body!,
-              ]),
+              div(classes: 'naki-scaffold-body', [component.body!]),
           ])
         : (component.body != null
-              ? main_(classes: 'naki-scaffold-body', [
-                  component.body!,
-                ])
+              ? main_(classes: 'naki-scaffold-body', [component.body!])
               : const .empty());
 
     return ScaffoldScope(
@@ -844,8 +828,8 @@ class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
             tag: 'naki-scaffold',
             classes: effectiveClasses,
             children: [
-              // SEO meta tags
-              Document.head(children: buildSEO),
+              // Head components with SEO meta tags
+              Document.head(children: [...component.head, ...seoTags]),
 
               // App bar
               if (component.appBar != null)
@@ -872,12 +856,7 @@ class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
                 ),
 
               // Modal Drawer
-              if (drawer != null)
-                drawer.controller == null
-                    ? drawer.copyWith(
-                        controller: _drawerController,
-                      )
-                    : drawer,
+              if (drawer != null) drawer.copyWith(controller: drawerController),
             ],
           );
         },

@@ -1,9 +1,16 @@
 import 'package:jaspr/dom.dart'
-    show Color, Display, FontFamily, FontWeight, TextAlign, TextDecorationLine, TextOverflow;
+    show
+        Color,
+        Display,
+        FontFamily,
+        FontWeight,
+        TextAlign,
+        TextDecorationLine,
+        TextOverflow;
 import 'package:jaspr/jaspr.dart';
 
 import '../models/naki.dart' show NakiStylable;
-import '../models/styling.dart' show Dim, EdgeInsets;
+import '../models/styling.dart' show Dim, EdgeInsets, Gradient;
 import '../styles/css.dart' show Css;
 import '../theme/tokens.dart' show Tokens;
 import '../utilities/enums.dart' show FontStyle, TextDecorationStyle;
@@ -20,6 +27,9 @@ class TextStyle implements NakiStylable {
 
   /// Background color of text.
   final Color? backgroundColor;
+
+  /// Background gradient of text.
+  final Gradient? gradient;
 
   /// Size of glyphs when painting the text.
   final Dim? fontSize;
@@ -102,6 +112,7 @@ class TextStyle implements NakiStylable {
     this.color,
     this.fontSize,
     this.backgroundColor,
+    this.gradient,
     this.fontWeight,
     this.fontStyle,
     this.fontFamily,
@@ -130,6 +141,7 @@ class TextStyle implements NakiStylable {
     Display? display,
     Color? color,
     Color? backgroundColor,
+    Gradient? gradient,
     bool? softWrap,
     Dim? fontSize,
     FontWeight? fontWeight,
@@ -158,6 +170,7 @@ class TextStyle implements NakiStylable {
       display: display ?? this.display,
       color: color ?? this.color,
       backgroundColor: backgroundColor ?? this.backgroundColor,
+      gradient: gradient ?? this.gradient,
       fontSize: fontSize ?? this.fontSize,
       fontWeight: fontWeight ?? this.fontWeight,
       fontStyle: fontStyle ?? this.fontStyle,
@@ -177,7 +190,8 @@ class TextStyle implements NakiStylable {
       maxLines: maxLines ?? this.maxLines,
       padding: padding ?? this.padding,
       margin: margin ?? this.margin,
-      selectionBackgroundColor: selectionBackgroundColor ?? this.selectionBackgroundColor,
+      selectionBackgroundColor:
+          selectionBackgroundColor ?? this.selectionBackgroundColor,
       selectionTextColor: selectionTextColor ?? this.selectionTextColor,
       overflow: overflow ?? this.overflow,
       extra: (this.extra ?? {}).combine(extra ?? {}),
@@ -196,6 +210,7 @@ class TextStyle implements NakiStylable {
       color: other.color ?? color,
       fontSize: other.fontSize ?? fontSize,
       backgroundColor: other.backgroundColor ?? backgroundColor,
+      gradient: other.gradient ?? gradient,
       fontWeight: other.fontWeight ?? fontWeight,
       fontStyle: other.fontStyle ?? fontStyle,
       fontFamily: other.fontFamily ?? fontFamily,
@@ -211,7 +226,8 @@ class TextStyle implements NakiStylable {
       maxLines: other.maxLines ?? maxLines,
       padding: other.padding ?? padding,
       margin: other.margin ?? margin,
-      selectionBackgroundColor: other.selectionBackgroundColor ?? selectionBackgroundColor,
+      selectionBackgroundColor:
+          other.selectionBackgroundColor ?? selectionBackgroundColor,
       selectionTextColor: other.selectionTextColor ?? selectionTextColor,
       overflow: other.overflow ?? overflow,
       extra: (extra ?? {}).combine(other.extra ?? {}),
@@ -249,6 +265,7 @@ class TextStyle implements NakiStylable {
     'user-select': selectable ? 'text' : 'none',
     'text-wrap-mode': ?(softWrap && !_shouldTruncate ? 'wrap' : null),
     'text-overflow': ?overflow?.value,
+    ...?gradient?.props,
     ...?padding?.pProps,
     ...?margin?.mProps,
     ...?extra,
@@ -290,5 +307,6 @@ class DefaultTextStyle extends InheritedComponent {
   }
 
   @override
-  bool updateShouldNotify(DefaultTextStyle oldComponent) => style != oldComponent.style;
+  bool updateShouldNotify(DefaultTextStyle oldComponent) =>
+      style != oldComponent.style;
 }

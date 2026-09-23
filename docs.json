@@ -19,13 +19,7 @@
     "showName": true,
     "showThemeToggle": true,
     "showGitHubCard": true,
-    "links": [
-      {
-        "title": "Sample App",
-        "href": "https://makanakidev.github.io/naki_ui",
-        "cta": true
-      }
-    ]
+    "links": []
   },
   "tabs": [
     {
@@ -109,6 +103,10 @@
           "href": "/components/scaffold"
         },
         {
+          "title": "📱 Responsive & Breakpoints",
+          "href": "/components/responsive"
+        },
+        {
           "title": "📐 Layout & Containers",
           "href": "/components/layout"
         },
@@ -189,8 +187,8 @@
           "href": "/framework"
         },
         {
-          "title": "📱 Responsive & Breakpoints",
-          "href": "/framework/responsive"
+          "title": "🖥️ Layout & Viewport",
+          "href": "/framework/viewport"
         },
         {
           "title": "🎮 Controllers & State",

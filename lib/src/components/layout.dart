@@ -98,7 +98,7 @@ class _AlignState extends State<Align> with NakiStatefulMixin {
 
   @override
   void setState(VoidCallback fn) {
-    if (mounted) super.setState(fn);
+    if (mounted && kIsWeb) super.setState(fn);
   }
 
   @override
@@ -163,7 +163,8 @@ class _AlignState extends State<Align> with NakiStatefulMixin {
     final width = _width != null ? '${_width!.toCleanString}px' : null;
     final height = _height != null ? '${_height!.toCleanString}px' : null;
 
-    final hasFactor = component.heightFactor != null || component.widthFactor != null;
+    final hasFactor =
+        component.heightFactor != null || component.widthFactor != null;
 
     const baseClass = 'naki-align';
     final effectiveClasses = component.classes.isNotNullAndEmpty
@@ -224,7 +225,9 @@ class AspectRatio extends StatelessComponent {
   @override
   Component build(BuildContext context) {
     const baseClass = 'naki-aspectratio';
-    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     return .element(
       key: key,
@@ -303,10 +306,14 @@ class Flexible extends StatelessComponent {
     );
 
     final baseClass = fit == FlexFit.tight ? 'naki-expanded' : 'naki-flexible';
-    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     final flexValue = fit == FlexFit.tight ? '$flex 1 0%' : '0 $flex auto';
-    final effectiveTag = fit == FlexFit.tight ? 'naki-expanded' : 'naki-flexible';
+    final effectiveTag = fit == FlexFit.tight
+        ? 'naki-expanded'
+        : 'naki-flexible';
 
     return .element(
       tag: effectiveTag,
@@ -388,7 +395,9 @@ class Padding extends StatelessComponent {
   @override
   Component build(BuildContext context) {
     const baseClass = 'naki-padding';
-    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     return .element(
       tag: 'naki-padding',
@@ -434,7 +443,9 @@ class Margin extends StatelessComponent {
   @override
   Component build(BuildContext context) {
     const baseClass = 'naki-margin';
-    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     return .element(
       tag: 'naki-margin',
@@ -491,15 +502,23 @@ class SizedBox extends StatelessComponent {
        height = size;
 
   /// Creates a SizedBox that is an empty spacer of the given height.
-  const SizedBox.height(this.height) : width = null, child = null, classes = null;
+  const SizedBox.height(this.height)
+    : width = null,
+      child = null,
+      classes = null;
 
   /// Creates a SizedBox that is an empty spacer of the given width.
-  const SizedBox.width(this.width) : height = null, child = null, classes = null;
+  const SizedBox.width(this.width)
+    : height = null,
+      child = null,
+      classes = null;
 
   @override
   Component build(BuildContext context) {
     const baseClass = 'naki-sizedbox';
-    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     return .element(
       tag: 'naki-sizedbox',
@@ -553,7 +572,9 @@ class Stack extends StatelessComponent {
   @override
   Component build(BuildContext context) {
     const baseClass = 'naki-stack';
-    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     return StackScope(
       child: .element(
@@ -633,7 +654,9 @@ class Positioned extends StatelessComponent {
     assert(stack != null, 'Positioned must be a direct child of Stack.');
 
     const baseClass = 'naki-positioned';
-    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     return .element(
       tag: 'naki-positioned',
@@ -714,7 +737,9 @@ class Wrap extends StatelessComponent {
   @override
   Component build(BuildContext context) {
     const baseClass = 'naki-wrap';
-    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     final justify = NakiAlignProps.mapMainAxisAlignment(
       alignment,
@@ -724,8 +749,12 @@ class Wrap extends StatelessComponent {
     );
     final isHoriz = direction == Direction.horizontal;
 
-    final effectiveSpacing = spacing != null ? '${spacing!.toCleanString}px' : null;
-    final effectiveRunSpacing = runSpacing != null ? '${runSpacing!.toCleanString}px' : null;
+    final effectiveSpacing = spacing != null
+        ? '${spacing!.toCleanString}px'
+        : null;
+    final effectiveRunSpacing = runSpacing != null
+        ? '${runSpacing!.toCleanString}px'
+        : null;
 
     return .element(
       tag: 'naki-wrap',
@@ -745,7 +774,8 @@ class Wrap extends StatelessComponent {
   }
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('Wrap', [Rules.nakiWrapRules]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('Wrap', [Rules.nakiWrapRules]);
 }
 
 /// {@template SafeArea}
@@ -792,7 +822,9 @@ class SafeArea extends StatelessComponent {
   @override
   Component build(BuildContext context) {
     const baseClass = 'naki-safearea';
-    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     return .element(
       tag: 'naki-safearea',
@@ -828,11 +860,11 @@ class SafeArea extends StatelessComponent {
 ///       color: Colors.black,
 ///       radius: BorderRadiusData.all(Dim.px(10)),
 ///     ),
-///     shadow: ShadowData(
-///       offsetX: Dim.px(0),
-///       offsetY: Dim.px(10),
-///       blurRadius: Dim.px(10),
-///       spreadRadius: Dim.px(5),
+///     shadow: Shadow(
+///       offsetX: 0,
+///       offsetY: 10,
+///       blurRadius: 10,
+///       spreadRadius: 5,
 ///       color: Colors.black,
 ///     ),
 ///   ),
@@ -882,7 +914,9 @@ class Container extends StatelessComponent {
   @override
   Component build(BuildContext context) {
     const baseClass = 'naki-container';
-    final effectiveClasses = classes.isNotNullAndEmpty ? '$baseClass $classes' : baseClass;
+    final effectiveClasses = classes.isNotNullAndEmpty
+        ? '$baseClass $classes'
+        : baseClass;
 
     final effectiveStyles = {
       'display': ?(blockBox ? 'block' : null),
@@ -937,13 +971,24 @@ class Card extends StatelessComponent {
   /// The background color of the card.
   final Color? color;
 
+  /// The background gradient of the card.
+  ///
+  /// ### Example
+  /// ```dart
+  /// Card(
+  ///   gradient: Gradient()..applyLinear(colors: [Colors.blue, Colors.purple]),
+  ///   child: NakiText('Gradient Card'),
+  /// )
+  /// ```
+  final Gradient? gradient;
+
   /// The elevation of the card, controlling its shadow depth.
   ///
   /// Set to `0` or use [Card.outlined] / [Card.filled] for a flat card.
   final double? elevation;
 
   /// Explicit custom shadow. If provided, overrides [elevation].
-  final ShadowData? shadow;
+  final Shadow? shadow;
 
   /// Color override for the elevation shadow.
   final Color? shadowColor;
@@ -988,6 +1033,7 @@ class Card extends StatelessComponent {
     super.key,
     required this.child,
     this.color,
+    this.gradient,
     this.elevation = 1.0,
     this.shadow,
     this.shadowColor,
@@ -1010,6 +1056,7 @@ class Card extends StatelessComponent {
     super.key,
     required this.child,
     this.color,
+    this.gradient,
     this.border,
     this.borderRadius,
     this.margin,
@@ -1033,6 +1080,7 @@ class Card extends StatelessComponent {
     super.key,
     required this.child,
     this.color,
+    this.gradient,
     this.border,
     this.borderRadius,
     this.margin,
@@ -1056,7 +1104,8 @@ class Card extends StatelessComponent {
 
     if (elevation <= 0) return 'none';
 
-    final col = shadowColor?.value ?? 'var(--naki-shadow-color, rgba(0, 0, 0, 0.1))';
+    final col =
+        shadowColor?.value ?? 'var(--naki-shadow-color, rgba(0, 0, 0, 0.1))';
     final y = (elevation * 2).clamp(1, 24).toInt();
     final blur = (elevation * 4).clamp(2, 48).toInt();
     final spread = (elevation * 0.5).clamp(0, 8).toInt();
@@ -1088,6 +1137,7 @@ class Card extends StatelessComponent {
       ...?margin?.mProps,
       ...?constraints?.props,
       ...?shadow?.props,
+      ...?gradient?.props,
       if (shadow == null &&
           elevation != null &&
           _variant == CardVariant.elevated &&
@@ -1096,7 +1146,8 @@ class Card extends StatelessComponent {
           elevation,
           shadowColor,
         ),
-      if (elevation == 0 && _variant == CardVariant.elevated) 'box-shadow': 'none',
+      if (elevation == 0 && _variant == CardVariant.elevated)
+        'box-shadow': 'none',
     };
 
     return .element(
@@ -1118,13 +1169,16 @@ class Card extends StatelessComponent {
               },
             ).toMap
           : null,
-      attributes: isInteractive ? {'tabindex': '0', 'role': 'button', 'hvr': ''} : null,
+      attributes: isInteractive
+          ? {'tabindex': '0', 'role': 'button', 'hvr': ''}
+          : null,
       children: [child],
     );
   }
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('Card', [Rules.nakiCardRules]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('Card', [Rules.nakiCardRules]);
 }
 
 /// Signature for [ExpansionPanel] header builder.
@@ -1172,6 +1226,18 @@ class ExpansionPanel {
   /// Background color for this panel.
   final Color? backgroundColor;
 
+  /// Background gradient for this panel.
+  ///
+  /// ### Example
+  /// ```dart
+  /// ExpansionPanel(
+  ///   header: NakiText('Gradient Panel'),
+  ///   body: NakiText('Panel content'),
+  ///   gradient: Gradient()..applyLinear(colors: [Colors.purple, Colors.pink]),
+  /// )
+  /// ```
+  final Gradient? gradient;
+
   /// Optional leading component in the header (e.g. an icon).
   final Component? leading;
 
@@ -1204,6 +1270,7 @@ class ExpansionPanel {
     this.canTapOnHeader = true,
     this.disabled = false,
     this.backgroundColor,
+    this.gradient,
     this.leading,
     this.trailing,
     this.headerPadding,
@@ -1224,6 +1291,7 @@ class ExpansionPanel {
     this.canTapOnHeader = true,
     this.disabled = false,
     this.backgroundColor,
+    this.gradient,
     this.leading,
     this.trailing,
     this.headerPadding,
@@ -1355,7 +1423,7 @@ class _ExpansionPanelListState extends State<ExpansionPanelList> {
 
   @override
   void setState(VoidCallback fn) {
-    if (mounted) super.setState(fn);
+    if (mounted && kIsWeb) super.setState(fn);
   }
 
   @override
@@ -1380,7 +1448,8 @@ class _ExpansionPanelListState extends State<ExpansionPanelList> {
       final child = component.children[i];
 
       final isInitialPanel =
-          component.initialOpenPanelValue != null && child.value == component.initialOpenPanelValue;
+          component.initialOpenPanelValue != null &&
+          child.value == component.initialOpenPanelValue;
 
       if (child.isExpanded || isInitialPanel) {
         _openIndices.add(i);
@@ -1412,7 +1481,8 @@ class _ExpansionPanelListState extends State<ExpansionPanelList> {
     return Icon(
       LucideIcons.icon_chevron_down,
       size: 20,
-      classes: 'naki-expansion-panel__chevron${isExpanded ? " is-expanded" : ""}',
+      classes:
+          'naki-expansion-panel__chevron${isExpanded ? " is-expanded" : ""}',
     );
   }
 
@@ -1461,6 +1531,7 @@ class _ExpansionPanelListState extends State<ExpansionPanelList> {
             raw: {
               'background-color': ?panel.backgroundColor?.value,
               'border-bottom-color': ?component.dividerColor?.value,
+              ...?panel.gradient?.props,
             },
           ),
           [
@@ -1489,7 +1560,9 @@ class _ExpansionPanelListState extends State<ExpansionPanelList> {
                   'aria-expanded': isExpanded ? 'true' : 'false',
                   'aria-controls': bodyId,
                 },
-                onTap: panel.canTapOnHeader && !panel.disabled ? () => _handleToggle(i) : null,
+                onTap: panel.canTapOnHeader && !panel.disabled
+                    ? () => _handleToggle(i)
+                    : null,
               ),
               styles: Styles(
                 raw: panel.headerPadding?.pProps,
@@ -1580,6 +1653,21 @@ class ExpansionTile extends StatefulComponent {
   /// Background color of the tile when collapsed.
   final Color? collapsedBackgroundColor;
 
+  /// Background gradient of the tile when expanded.
+  ///
+  /// ### Example
+  /// ```dart
+  /// ExpansionTile(
+  ///   title: NakiText('Gradient ExpansionTile'),
+  ///   gradient: Gradient()..applyLinear(colors: [Colors.blue, Colors.teal]),
+  ///   children: [NakiText('Expanded content')],
+  /// )
+  /// ```
+  final Gradient? gradient;
+
+  /// Background gradient of the tile when collapsed.
+  final Gradient? collapsedGradient;
+
   /// Color of the title and leading icon when hovered.
   final Color? hoverColor;
 
@@ -1612,6 +1700,8 @@ class ExpansionTile extends StatefulComponent {
     this.initiallyExpanded = false,
     this.backgroundColor,
     this.collapsedBackgroundColor,
+    this.gradient,
+    this.collapsedGradient,
     this.onExpansionChanged,
     this.hoverColor,
     this.shape,
@@ -1637,7 +1727,7 @@ class _ExpansionTileState extends State<ExpansionTile> {
 
   @override
   void setState(VoidCallback fn) {
-    if (mounted) super.setState(fn);
+    if (mounted && kIsWeb) super.setState(fn);
   }
 
   @override
@@ -1663,9 +1753,17 @@ class _ExpansionTileState extends State<ExpansionTile> {
 
   @override
   Component build(BuildContext context) {
-    final activeBg = _isExpanded ? component.backgroundColor : component.collapsedBackgroundColor;
+    final activeBg = _isExpanded
+        ? component.backgroundColor
+        : component.collapsedBackgroundColor;
 
-    final activeShape = _isExpanded ? component.shape : component.collapsedShape;
+    final activeGradient = _isExpanded
+        ? component.gradient
+        : component.collapsedGradient;
+
+    final activeShape = _isExpanded
+        ? component.shape
+        : component.collapsedShape;
 
     final effectiveClasses = [
       'naki-expansion-tile',
@@ -1678,6 +1776,7 @@ class _ExpansionTileState extends State<ExpansionTile> {
       'background-color': ?activeBg?.value,
       ...?component.borderRadius?.props,
       ...?activeShape?.props,
+      ...?activeGradient?.props,
     };
 
     final trailing =

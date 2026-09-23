@@ -36,7 +36,7 @@ All schemes are selective. Omitted fields retain the mode's Naki defaults.
 ## Styling value objects
 
 - Dimensions and geometry: `Dim`, `EdgeInsets`, `BorderRadiusData`, `SizeConstraints`, `PositionData`.
-- Decoration: `BorderData`, `BorderSideData`, `BoxDecoration`, `ShadowData`, `FilterBuilder`.
+- Decoration: `BorderData`, `BorderSideData`, `BoxDecoration`, `Shadow`, `Filter`, `Gradient`.
 - Forms and states: `InputDecoration`, `ComponentStatesColor`, `SegmentedInputStyle`.
 - Typography: `TextStyle`, `DefaultTextStyle`.
 

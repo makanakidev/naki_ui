@@ -1,8 +1,8 @@
 ---
 name: naki-ui-framework
-description: Use when implementing, reviewing, or troubleshooting Naki UI behavior with package:naki_ui/framework.dart, including lifecycle mixins, browser listeners, gestures, input events, overlay and scroll controllers, animation curves, scrolling models, shared data models, enums, and debounce utilities.
+description: Use when implementing, reviewing, or troubleshooting Naki UI behavior with package:naki_ui/framework.dart, including platform detection, lifecycle mixins, browser listeners, gestures, input events, overlay and scroll controllers, animation curves, scrolling models, shared data models, enums, and debounce utilities.
 metadata:
-  version: "1.0.0"
+  version: "1.0.1"
   author: "makanakidev"
 ---
 
@@ -54,6 +54,35 @@ Read [controllers.md](references/controllers.md) for overlay, scrolling, paging,
 - Add semantics and keyboard behavior when a gesture makes a non-control interactive.
 - Use `DropdownItem`, `SEO`, calendar models, `BottomNavigationBarItem`, table models, and grid delegates rather than parallel application-specific shapes at the component boundary.
 - Use a stable tag with static `NakiDebounce.run`, and cancel that tag when the owning feature is disposed.
+
+## Platform detection and environment queries
+
+Access device, browser, and viewport information safely across both client and server (SSR / SSG) environments:
+
+```dart
+import 'package:naki_ui/framework.dart';
+
+final platform = PlatformData();
+
+// Device & OS detection
+final isApple = platform.isiOS || platform.isMacOS;
+final isMobile = platform.isMobile;
+final isDesktop = platform.isDesktop;
+final deviceName = platform.device; // 'iPhone', 'iPad', 'MacOS', 'Windows', 'Android', 'Linux'
+
+// PWA & Browser environment
+final isPWA = platform.isPWA; // Running as an installed Progressive Web App
+final isMobileBrowser = platform.isMobileBrowser; // Mobile browser (not running as standalone PWA)
+
+// Viewport dimensions & locale
+final width = platform.width;
+final height = platform.height;
+final locale = platform.language; // e.g. 'en'
+
+// URL & Base Origin
+final currentPath = platform.currentUrl; // e.g. '/dashboard'
+final baseOrigin = platform.baseUrl; // e.g. 'https://example.com'
+```
 
 Read [events-models-and-utilities.md](references/events-models-and-utilities.md) for examples and the public enum map.
 

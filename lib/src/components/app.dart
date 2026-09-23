@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_literals_to_create_immutables
+
 import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
 import 'package:jaspr_router/jaspr_router.dart';
@@ -5,6 +7,7 @@ import 'package:jaspr_router/jaspr_router.dart';
 import '../framework/inherited.dart' show AppScope;
 import '../models/naki.dart';
 import '../models/styling.dart';
+import '../styles/rules.dart';
 import '../styles/text_style.dart';
 import '../theme/theme.dart';
 import '../theme/tokens.dart';
@@ -24,7 +27,8 @@ const String _defaultBasePath = '/';
 
 /// A builder that builds a component given a child.
 /// The child should typically be part of the returned component tree.
-typedef NakiPageBuilder<T extends Component> = T Function(BuildContext context, T? child);
+typedef NakiPageBuilder<T extends Component> =
+    T Function(BuildContext context, T? child);
 
 /// {@template NakiApp}
 /// [NakiApp] is the root component of a Jaspr application.
@@ -156,7 +160,7 @@ class NakiApp extends StatefulComponent {
   /// Additional meta tags to be added to the application's head.
   final Map<String, String> metaTags;
 
-  /// Additional components (such as script, link, etc.) for fonts,
+  /// Additional components (such as script, link) for font loading,
   /// analytics, etc. that are to be added to the application's head.
   final List<Component> head;
 
@@ -437,7 +441,8 @@ class NakiApp extends StatefulComponent {
 class _NakiAppState extends State<NakiApp> {
   late ThemeConfig _themeConfig;
 
-  bool get _useRouter => (component.routes ?? []).isNotEmpty || component.builder != null;
+  bool get _useRouter =>
+      (component.routes ?? []).isNotEmpty || component.builder != null;
 
   @override
   void initState() {
@@ -463,7 +468,8 @@ class _NakiAppState extends State<NakiApp> {
         oldComponent.darkTheme != component.darkTheme ||
         oldComponent.cacheThemeMode != component.cacheThemeMode ||
         oldComponent.themeMode != component.themeMode ||
-        oldComponent.scrollBarConfiguration != component.scrollBarConfiguration) {
+        oldComponent.scrollBarConfiguration !=
+            component.scrollBarConfiguration) {
       _syncThemeConfig();
     }
   }
@@ -485,9 +491,7 @@ class _NakiAppState extends State<NakiApp> {
           key: component.navigatorKey,
           errorBuilder: (_, state) =>
               component.errorPage ??
-              PageNotFound(
-                errorText: state.error?.toString(),
-              ),
+              PageNotFound(errorText: state.error?.toString()),
         );
       }
 
@@ -518,10 +522,7 @@ class _NakiAppState extends State<NakiApp> {
           }
 
           if (component.builder != null) {
-            effectiveChild = component.builder!(
-              themeCtx,
-              effectiveChild,
-            );
+            effectiveChild = component.builder!(themeCtx, effectiveChild);
           }
 
           return effectiveChild ??
@@ -564,10 +565,7 @@ class _NakiAppState extends State<NakiApp> {
         }
 
         if (component.pageBuilder != null) {
-          effectiveChild = component.pageBuilder!(
-            themeCtx,
-            effectiveChild,
-          );
+          effectiveChild = component.pageBuilder!(themeCtx, effectiveChild);
         }
 
         return effectiveChild ??
@@ -585,13 +583,15 @@ class _NakiAppState extends State<NakiApp> {
   String? get fontFamily {
     return component.fontFamily
         ?.map(
-          (f) => f.contains(' ') && !f.startsWith('"') && !f.startsWith("'") ? '"$f"' : f,
+          (f) => f.contains(' ') && !f.startsWith('"') && !f.startsWith("'")
+              ? '"$f"'
+              : f,
         )
         .join(', ');
   }
 
   (String, String)? get favicon {
-    final favico = normaliseUrl(component.favicon ?? '');
+    final favico = normaliseLink(component.favicon ?? '');
     String? type;
 
     if (favico.isNotEmpty) {
@@ -619,137 +619,97 @@ class _NakiAppState extends State<NakiApp> {
     return base;
   }
 
-  String normaliseUrl(String value) {
-    final trimmed = value.trim();
-    if (trimmed.isEmpty) return '';
-
-    if (trimmed.startsWith('http://') ||
-        trimmed.startsWith('https://') ||
-        trimmed.startsWith('//') ||
-        trimmed.startsWith('data:')) {
-      return trimmed;
-    }
-
-    // from '/naki_ui/docs' to 'https://xyz.com/naki_ui/docs'
-    final seoUrl = component.seo?.url?.trim() ?? '';
-    if (trimmed.startsWith('/') && seoUrl.isNotEmpty) {
-      final uri = Uri.tryParse(seoUrl);
-      final origin = (uri != null && uri.hasScheme && uri.hasAuthority)
-          ? uri.origin
-          : seoUrl.replaceFirst(RegExp(r'/+$'), '');
-
-      if (origin.isNotEmpty) {
-        String base =
-            component.basePath?.trim() ??
-            (uri?.path.isNotEmpty == true && uri!.path != '/' ? uri.path : '');
-
-        if (base.isNotEmpty) {
-          if (!base.startsWith('/')) base = '/$base';
-          base = base.replaceFirst(RegExp(r'/+$'), '');
-        }
-
-        if (base.isNotEmpty && !trimmed.startsWith('$base/') && trimmed != base) {
-          return '$origin$base$trimmed';
-        }
-
-        return '$origin$trimmed';
-      }
-    }
-
-    return trimmed.startsWith('/') ? trimmed.substring(1) : trimmed;
-  }
-
   List<Component> get seoTags {
     final seo = component.seo;
     if (seo == null) return [];
 
-    final pageUrl = normaliseUrl(seo.url ?? '');
-    final logoUrl = normaliseUrl(seo.logo ?? '');
+    final pageUrl = normaliseLink(seo.url ?? '');
+    final logoUrl = normaliseLink(seo.logo ?? '', seo.url);
     final pageTitle = seo.title ?? component.title ?? '';
 
     final smTitle = seo.socialMediaTitle ?? pageTitle;
     final smDesc = seo.socialMediaDescription ?? seo.description ?? '';
-    final smImg = normaliseUrl(seo.socialMediaBanner ?? logoUrl);
+    final smImg = normaliseLink(seo.socialMediaBanner ?? logoUrl, seo.url);
+
+    final isValidLogo = logoUrl.isNotEmpty && logoUrl.startsWith('http');
+    final isValidSmImg = smImg.isNotEmpty && smImg.startsWith('http');
+    final isValidPageUrl = pageUrl.isNotEmpty && pageUrl.startsWith('http');
 
     return [
-      if (pageUrl.isNotEmpty) link(href: pageUrl, rel: 'canonical'),
-
-      if (seo.description.isNotNullAndEmpty) meta(name: 'description', content: seo.description),
-
-      if (seo.keywords != null && seo.keywords!.isNotEmpty)
-        meta(
-          name: 'keywords',
-          content: seo.keywords!.join(', '),
-        ),
-
-      if (seo.robots != null && seo.robots!.isNotEmpty)
-        meta(
-          name: 'robots',
-          content: seo.robots!.join(', '),
-        ),
-
-      if (pageTitle.isNotEmpty)
-        meta(
-          attributes: const {'property': 'og:title'},
-          content: pageTitle,
-        ),
-
-      if (pageTitle.isNotEmpty)
-        meta(
-          attributes: const {'property': 'og:site_name'},
-          content: pageTitle,
-        ),
+      if (isValidPageUrl) link(href: pageUrl, rel: 'canonical'),
 
       if (seo.description.isNotNullAndEmpty)
-        meta(
-          attributes: const {'property': 'og:description'},
-          content: seo.description,
-        ),
+        meta(name: 'description', content: seo.description),
 
-      const meta(
-        attributes: {'property': 'og:type'},
-        content: 'website',
-      ),
+      if (seo.keywords != null && seo.keywords!.isNotEmpty)
+        meta(name: 'keywords', content: seo.keywords!.join(', ')),
 
-      if (pageUrl.isNotEmpty)
-        meta(
-          attributes: const {'property': 'og:url'},
-          content: pageUrl,
-        ),
+      if (seo.robots != null && seo.robots!.isNotEmpty)
+        meta(name: 'robots', content: seo.robots!.join(', ')),
 
-      if (logoUrl.isNotEmpty) ...[
-        meta(
-          attributes: const {'property': 'og:image'},
-          content: logoUrl,
-        ),
-
-        if (pageTitle.isNotEmpty)
+      // Open Graph Tags
+      ...[
+        if (pageTitle.isNotEmpty) ...[
           meta(
-            attributes: const {'property': 'og:image:alt'},
+            attributes: const {'property': 'og:title'},
             content: pageTitle,
+            id: 'ogtitle',
           ),
-      ],
-
-      if (smImg.isNotEmpty) ...[
-        if (smTitle.isNotEmpty) meta(name: 'twitter:title', content: smTitle),
-
-        if (smDesc.isNotEmpty)
           meta(
-            name: 'twitter:description',
-            content: smDesc,
+            attributes: const {'property': 'og:site_name'},
+            content: pageTitle,
+            id: 'ogsitename',
           ),
+        ],
 
-        meta(
-          attributes: const {'name': 'twitter:image'},
-          content: smImg,
-        ),
-
-        if (smTitle.isNotEmpty) meta(name: 'twitter:image:alt', content: smTitle),
+        if (seo.description.isNotNullAndEmpty)
+          meta(
+            attributes: const {'property': 'og:description'},
+            content: seo.description,
+            id: 'ogdesc',
+          ),
 
         const meta(
-          name: 'twitter:card',
-          content: 'summary_large_image',
+          attributes: {'property': 'og:type'},
+          content: 'website',
+          id: 'ogtype',
         ),
+
+        if (isValidPageUrl)
+          meta(
+            attributes: const {'property': 'og:url'},
+            content: pageUrl,
+            id: 'ogurl',
+          ),
+
+        if (isValidLogo) ...[
+          meta(
+            attributes: const {'property': 'og:image'},
+            content: logoUrl,
+            id: 'ogimg',
+          ),
+
+          if (pageTitle.isNotEmpty)
+            meta(
+              attributes: const {'property': 'og:image:alt'},
+              content: pageTitle,
+              id: 'ogimgalt',
+            ),
+        ],
+      ],
+
+      // Social Media Graph Tags
+      if (smTitle.isNotEmpty) ...[
+        if (smTitle.isNotEmpty) meta(name: 'twitter:title', content: smTitle),
+        if (smDesc.isNotEmpty)
+          meta(name: 'twitter:description', content: smDesc),
+
+        if (isValidSmImg) ...[
+          meta(name: 'twitter:image', content: smImg),
+          if (smTitle.isNotEmpty)
+            meta(name: 'twitter:image:alt', content: smTitle),
+          const meta(name: 'twitter:card', content: 'summary_large_image'),
+        ],
       ],
     ];
   }
@@ -757,7 +717,7 @@ class _NakiAppState extends State<NakiApp> {
   @override
   Component build(BuildContext context) {
     final fontFamilyVar = Tokens.current.fontFamily.name;
-    final fontFamilyCSS = css('html').styles(raw: {fontFamilyVar: ?fontFamily});
+    final fontFamilyCSS = css('body').styles(raw: {fontFamilyVar: ?fontFamily});
     final effectiveTitle = component.seo?.title ?? component.title ?? '';
 
     final themeScript = themeSwitchingScript(
@@ -767,47 +727,42 @@ class _NakiAppState extends State<NakiApp> {
 
     return AppScope(
       child: .fragment([
-        Document.html(attributes: {'lang': component.locale ?? _defaultLocale}),
-
         // meta tags
         Document.head(
           title: effectiveTitle.isEmpty ? null : effectiveTitle,
           meta: {
             'viewport': component.viewport ?? _defaultViewport,
-            //'naki-ui': 'https://naki-ui.web.app',
+            'designed-with': 'https://pub.dev/packages/naki_ui',
+            'charset': component.charset ?? _defaultCharset,
             ...component.metaTags,
           },
           children: [
-            // base path
-            .element(
-              tag: 'base',
-              attributes: {'href': normalisedBasePath},
+            // html lang
+            Document.html(
+              attributes: {'lang': component.locale ?? _defaultLocale},
             ),
 
-            // meta charset
-            meta(charset: component.charset ?? _defaultCharset),
+            // base path
+            .element(tag: 'base', attributes: {'href': normalisedBasePath}),
 
             // default theme tokens
-            .wrapElement(
-              id: 'tokens',
-              child: Style(
-                styles: ThemeConfig.defaultStyles,
-              ),
-            ),
+            StyleRules(ThemeConfig.defaultStyles, id: 'tokens'),
 
             // theme script
             script(content: themeScript, id: 'nts'),
 
             // icon
-            if (favicon case (final href, final type)) link(href: href, rel: 'icon', type: type),
+            if (favicon case (final href, final type))
+              link(href: href, rel: 'icon', type: type),
 
             // seo tags
             ...seoTags,
 
             // set font family
-            if (fontFamily.isNotNullAndEmpty) Style(styles: [fontFamilyCSS]),
+            if (fontFamily.isNotNullAndEmpty)
+              StyleRules([fontFamilyCSS], attributes: {'type': 'text/css'}),
 
-            // custom head components
+            // additional head components
             ...component.head,
           ],
         ),
@@ -824,11 +779,7 @@ class PageNotFound extends StatelessComponent {
   final String? errorTitle;
   final String? errorText;
 
-  const PageNotFound({
-    super.key,
-    this.errorText,
-    this.errorTitle,
-  });
+  const PageNotFound({super.key, this.errorText, this.errorTitle});
 
   @override
   Component build(BuildContext context) {

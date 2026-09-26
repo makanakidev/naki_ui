@@ -2,7 +2,7 @@
 name: naki-ui-fundamentals
 description: Use when building, editing, reviewing, or troubleshooting Jaspr interfaces with Naki UI components, including application setup, layout, text, inputs, selection, overlays, scrolling, painting, responsive behavior, and async rendering through package:naki_ui/naki_ui.dart.
 metadata:
-  version: "1.0.1"
+  version: "1.0.2"
   author: "makanakidev"
 ---
 

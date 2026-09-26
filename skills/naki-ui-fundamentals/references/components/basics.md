@@ -40,7 +40,7 @@ Set `scrollable: true` for an intentional horizontal rail. Use `Wrap` when items
 
 ## Image
 
-Render a network, asset, data, or SVG source with sizing and fit controls.
+Render a network, asset, data, or SVG source with sizing, fit, and position controls.
 
 ```dart
 Image(
@@ -50,7 +50,8 @@ Image(
     width: Dim.px(96),
     height: Dim.px(96),
   ),
-  fit: BoxFit.cover,
+  fit: ObjectFit.cover,
+  position: ObjectPosition.topCenter,
   radius: BorderRadiusData.all(Dim.percent(50)),
 )
 ```

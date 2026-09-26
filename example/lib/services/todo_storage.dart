@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:jaspr/jaspr.dart';
+import 'package:naki_ui/framework.dart' show window;
 import 'package:naki_ui/theme.dart';
-import 'package:universal_web/web.dart';
 
 import '../models/todo_item.dart';
 
@@ -82,7 +82,8 @@ class TodoStorage {
       if (decoded is Iterable) {
         return decoded
             .map(
-              (item) => TodoItem.fromJson(Map<String, dynamic>.from(item as Map)),
+              (item) =>
+                  TodoItem.fromJson(Map<String, dynamic>.from(item as Map)),
             )
             .toList();
       }

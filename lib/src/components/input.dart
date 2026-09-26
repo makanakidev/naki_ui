@@ -18,8 +18,7 @@ import '../utilities/constants.dart';
 import '../utilities/debounce.dart';
 import '../utilities/enums.dart';
 import '../utilities/extensions.dart';
-import '../utilities/helpers.dart'
-    show nakiDomId, onComponentRendered, showValidationError;
+import '../utilities/helpers.dart';
 
 import 'basics.dart';
 import 'layout.dart';
@@ -59,12 +58,7 @@ class Label extends StatelessComponent {
   final TextStyle? style;
 
   /// {@macro Label}
-  const Label(
-    this.text, {
-    super.key,
-    this.fieldId,
-    this.style,
-  });
+  const Label(this.text, {super.key, this.fieldId, this.style});
 
   @override
   Component build(BuildContext context) {
@@ -78,9 +72,8 @@ class Label extends StatelessComponent {
   }
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('Label', [
-    Rules.nakiLabelRules,
-  ]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('Label', [Rules.nakiLabelRules]);
 }
 
 /// {@template TextField}
@@ -140,10 +133,16 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
   /// Text field height.
   final Dim? height;
 
-  /// Function called when the user is typing into the field.
+  /// Icon shown at the left edge of the input field.
+  final Component? leadingIcon;
+
+  /// Icon shown at the right edge of the input field.
+  final Component? trailingIcon;
+
+  /// Callback function invoked when the user types into the field.
   final ValueChanged<String>? onTyping;
 
-  /// Function called when the user submits the field
+  /// Callback function invoked when the user submits the field
   /// (e.g., by pressing `Enter` key).
   final ValueChanged<String>? onSubmit;
 
@@ -249,6 +248,8 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
     this.height,
     this.validator,
     this.backgroundColor,
+    this.leadingIcon,
+    this.trailingIcon,
     this.decoration,
   }) : assert(
          kInputTypes.contains(type.name),
@@ -266,9 +267,7 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
       : document.getElementById(id) as HTMLElement?;
 
   @override
-  FutureOr<VoidCallback?> afterRender(
-    BuildContext context,
-  ) {
+  FutureOr<VoidCallback?> afterRender(BuildContext context) {
     if (autoFocus && inputNode != null) {
       if (isMultiline) {
         (inputNode as HTMLTextAreaElement).focus();
@@ -315,9 +314,7 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
       if (isMultiline) {
         (inputNode as HTMLTextAreaElement).setCustomValidity(error);
       } else {
-        (inputNode as HTMLInputElement).setCustomValidity(
-          error,
-        );
+        (inputNode as HTMLInputElement).setCustomValidity(error);
       }
     }
   }
@@ -352,7 +349,6 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
     if (event.key == 'Enter' && !isMultiline) {
       event.preventDefault();
       _validate();
-
       final inputValue = currentValue ?? '';
       if (inputValue.isNotEmpty) onSubmit?.call(inputValue);
     }
@@ -360,21 +356,19 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
 
   @override
   Component build(BuildContext context) {
-    final baseClass = 'naki-${isMultiline ? 'textarea' : 'input'}';
-    final effectiveClasses = classes.isNotNullAndEmpty
-        ? '$baseClass $classes'
-        : baseClass;
+    final effectiveWidth = expand ? null : width;
+    final hasIcon = leadingIcon != null || trailingIcon != null;
 
-    final effectiveWidth = expand ? '100%' : width?.cssText;
-    final effectiveHeight = height?.cssText;
+    final baseClass = 'naki-${isMultiline ? 'textarea' : 'input'}';
+    final effectiveClasses = joinClasses([?classes, baseClass]);
 
     final labelText = decoration?.labelText ?? '';
     final placeholderText = decoration?.placeholderText;
     final helperText = decoration?.helperText ?? '';
 
-    final border = decoration?.border?.props;
-    final margin = decoration?.margin?.mProps;
-    final padding = decoration?.padding?.pProps;
+    final border = decoration?.border;
+    final margin = decoration?.margin;
+    final padding = decoration?.padding;
 
     final hoverColor = decoration?.hoverBorderColor;
     final focusColor = decoration?.focusBorderColor;
@@ -388,12 +382,6 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
     final allowHover = hoverColor != null && !disable && !readOnly;
     final allowFocus = focusColor != null && !disable && !readOnly;
 
-    final effectiveStyles = {
-      'width': ?effectiveWidth,
-      ...?border,
-      ...?padding,
-    };
-
     final defaultEvents = InputEvents(
       onFocusOut: (_) => _validate(),
       onInvalid: _invalid,
@@ -402,13 +390,110 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
 
     final effectiveEvents = events?.merge(defaultEvents) ?? defaultEvents;
 
+    final effectiveInputStyles = {
+      'width': ?effectiveWidth?.cssText,
+      if (hasIcon) ...{'border': 'none', 'border-radius': '0'},
+      if (!hasIcon) ...?border?.props,
+      ...?padding?.pProps,
+    };
+
+    Component inputArea = isMultiline
+        ? textarea(
+            key: key,
+            id: id,
+            name: id,
+            classes: hasIcon ? null : effectiveClasses,
+            styles: Styles(raw: effectiveInputStyles),
+            disabled: disable,
+            required: required,
+            placeholder: placeholderText,
+            readonly: readOnly,
+            wrap: TextWrap.soft,
+            rows: visibleLines,
+            spellCheck: enableSpellCheck
+                ? SpellCheck.isTrue
+                : SpellCheck.isFalse,
+            attributes: {
+              ...?attributes,
+              'pattern': ?pattern?.value,
+              'autocomplete': ?autofill?.value,
+              'maxlength': ?maxLength?.toString(),
+              'minlength': ?minLength?.toString(),
+              'hvr': ?(allowHover && !hasIcon ? '' : null),
+              'fcs': ?(allowFocus && !hasIcon ? '' : null),
+              'autofocus': ?(autoFocus ? '' : null),
+            },
+            onInput: _handleInput,
+            events: effectiveEvents.toMap,
+            [if (initialValue.isNotNullAndEmpty) .text(initialValue!)],
+          )
+        : input(
+            key: key,
+            id: id,
+            name: id,
+            classes: hasIcon ? null : effectiveClasses,
+            styles: Styles(raw: effectiveInputStyles),
+            type: type,
+            disabled: disable,
+            attributes: {
+              ...?attributes,
+              'required': ?(required ? '' : null),
+              'placeholder': ?placeholderText,
+              'pattern': ?pattern?.value,
+              'readonly': ?(readOnly ? '' : null),
+              'maxlength': ?maxLength?.toString(),
+              'minlength': ?minLength?.toString(),
+              'min': ?minValueAllowed?.toCleanString,
+              'max': ?maxValueAllowed?.toCleanString,
+              'autocomplete': ?autofill?.value,
+              'spellcheck': enableSpellCheck ? 'true' : 'false',
+              'hvr': ?(allowHover && !hasIcon ? '' : null),
+              'fcs': ?(allowFocus && !hasIcon ? '' : null),
+              'autofocus': ?(autoFocus ? '' : null),
+              'inputmode': ?(type == InputType.number || type == InputType.tel
+                  ? 'numeric'
+                  : null),
+            },
+            value: initialValue,
+            onInput: _handleInput,
+            events: effectiveEvents.toMap,
+          );
+
+    if (hasIcon) {
+      if (expand) inputArea = Expanded(child: inputArea);
+
+      inputArea = .wrapElement(
+        classes: effectiveClasses,
+        attributes: {
+          'hvr': ?(allowHover ? '' : null),
+          'fcs': ?(allowFocus ? '' : null),
+          'disabled': ?(disable ? '' : null),
+          'has-icon': '',
+        },
+        child: Card.filled(
+          decoration: BoxDecoration(border: border),
+          height: height,
+          width: effectiveWidth,
+          color: backgroundColor,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ?leadingIcon,
+              inputArea,
+              ?trailingIcon,
+            ],
+          ),
+        ),
+      );
+    }
+
     return .element(
       tag: 'naki-textfield',
       id: '${id}__textfield',
       classes: 'naki-form-field',
       styles: Styles(
         raw: {
-          Tokens.current.inputHeight.name: ?effectiveHeight,
+          Tokens.current.inputHeight.name: ?height?.cssText,
           Tokens.current.inputTextColor.name: ?inputTextStyle?.color?.value,
           Tokens.current.fieldBackgroundColor.name: ?backgroundColor?.value,
           Tokens.current.fontSizeInput.name: ?inputTextStyle?.fontSize?.cssText,
@@ -419,7 +504,7 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
           Tokens.current.placeholderColor.name: ?placeholderColor?.value,
           Tokens.current.fieldHoverColor.name: ?hoverColor?.value,
           Tokens.current.focusBorderColor.name: ?focusColor?.value,
-          ...?margin,
+          ...?margin?.mProps,
         },
       ),
       children: [
@@ -427,81 +512,14 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
         if (labelText.isNotEmpty)
           Label(labelText, fieldId: id, style: labelStyle),
 
-        // Field
-        isMultiline
-            ? textarea(
-                key: key,
-                id: id,
-                name: id,
-                classes: effectiveClasses,
-                styles: Styles(raw: effectiveStyles),
-                disabled: disable,
-                required: required,
-                placeholder: placeholderText,
-                readonly: readOnly,
-                wrap: .soft,
-                rows: visibleLines,
-                spellCheck: enableSpellCheck
-                    ? SpellCheck.isTrue
-                    : SpellCheck.isFalse,
-                attributes: {
-                  ...?attributes,
-                  'pattern': ?pattern?.value,
-                  'autocomplete': ?autofill?.value,
-                  'maxlength': ?maxLength?.toString(),
-                  'minlength': ?minLength?.toString(),
-                  'hvr': ?(allowHover ? '' : null),
-                  'fcs': ?(allowFocus ? '' : null),
-                  'autofocus': ?(autoFocus ? '' : null),
-                },
-                onInput: _handleInput,
-                events: effectiveEvents.toMap,
-                [
-                  if (initialValue.isNotNullAndEmpty) .text(initialValue!),
-                ],
-              )
-            : input(
-                key: key,
-                id: id,
-                name: id,
-                classes: effectiveClasses,
-                styles: Styles(raw: effectiveStyles),
-                type: type,
-                disabled: disable,
-                attributes: {
-                  ...?attributes,
-                  'required': ?(required ? '' : null),
-                  'placeholder': ?placeholderText,
-                  'pattern': ?pattern?.value,
-                  'readonly': ?(readOnly ? '' : null),
-                  'maxlength': ?maxLength?.toString(),
-                  'minlength': ?minLength?.toString(),
-                  'min': ?minValueAllowed?.toCleanString,
-                  'max': ?maxValueAllowed?.toCleanString,
-                  'autocomplete': ?autofill?.value,
-                  'spellcheck': enableSpellCheck ? 'true' : 'false',
-                  'hvr': ?(allowHover ? '' : null),
-                  'fcs': ?(allowFocus ? '' : null),
-                  'autofocus': ?(autoFocus ? '' : null),
-                  'inputmode':
-                      ?(type == InputType.number || type == InputType.tel
-                      ? 'numeric'
-                      : null),
-                },
-                value: initialValue,
-                onInput: _handleInput,
-                events: effectiveEvents.toMap,
-              ),
+        // Input
+        inputArea,
 
         // Helper text
         if (helperText.isNotEmpty)
-          p(
-            classes: 'naki-helper',
-            styles: Styles(raw: helperStyle?.props),
-            [
-              .text(helperText),
-            ],
-          ),
+          p(classes: 'naki-helper', styles: Styles(raw: helperStyle?.props), [
+            .text(helperText),
+          ]),
       ],
     );
   }
@@ -560,46 +578,50 @@ class FormBuilder extends StatelessComponent {
   /// Space in pixels between [children] components.
   final double? spacing;
 
-  /// Set this to `true` if you want the form to automatically validate
-  /// when a [Button] in [children] is clicked.
+  /// If `true`, the native browser form validation is disabled when a descendant
+  /// button with type `submit` is clicked. Otherwise, the browser blocks form
+  /// submission and shows validation errors when a descendant button with type
+  /// `submit` is clicked.
+  final bool bypassValidation;
+
+  /// Use [bypassValidation] instead.
+  @Deprecated(
+    'Use bypassValidation instead, this will be removed in v1.0.3 and later.',
+  )
   final bool autoValidate;
+
+  /// Key used to identify and control the form.
+  final GlobalNodeKey<HTMLFormElement> formKey;
 
   /// {@macro FormBuilder}
   FormBuilder({
-    required GlobalNodeKey<HTMLFormElement> super.key,
+    required this.formKey,
     required this.children,
     this.direction = Direction.vertical,
+    this.bypassValidation = false,
     this.autoValidate = false,
     this.spacing,
     this.classes,
     this.name,
     this.attributes,
-  }) : assert(
-         children.isNotEmpty,
-         'FormBuilder must have at least one child',
-       );
+  }) : assert(children.isNotEmpty, 'FormBuilder must have at least one child');
 
   @override
   Component build(BuildContext context) {
     const baseClass = 'naki-form';
-    final effectiveClasses = classes.isNotNullAndEmpty
-        ? '$baseClass $classes'
-        : baseClass;
+    final effectiveClasses = joinClasses([?classes, baseClass]);
 
     final effectiveSyles = {
-      'flex-direction': ?(direction == Direction.horizontal ? 'row' : null),
+      'flex-direction': direction == Direction.horizontal ? 'row' : 'column',
       'gap': ?spacing?.toPx,
     };
 
     return FormScope(
-      allowValidation: autoValidate,
       child: form(
-        key: key as GlobalNodeKey<HTMLFormElement>,
+        key: formKey,
         name: name,
         classes: effectiveClasses,
-        // when autoValidate is true, the native browser form validation is
-        // disabled and Button is responsible for the validation
-        noValidate: autoValidate,
+        noValidate: bypassValidation || autoValidate,
         attributes: attributes,
         styles: Styles(raw: effectiveSyles),
         children,
@@ -608,9 +630,8 @@ class FormBuilder extends StatelessComponent {
   }
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('FormBuilder', [
-    Rules.nakiFormRules,
-  ]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('FormBuilder', [Rules.nakiFormRules]);
 }
 
 /// {@template AutoCompleteField}
@@ -704,10 +725,7 @@ class AutoCompleteField extends StatefulComponent {
     this.optionStyle,
     this.dropdownBackgroundColor,
     this.dropdownMaxHeight,
-  }) : assert(
-         options.isNotEmpty,
-         'options must have at least 1 option',
-       ),
+  }) : assert(options.isNotEmpty, 'options must have at least 1 option'),
        assert(
          !autoValidate || validator != null,
          'validator is required when autoValidate is true',
@@ -754,9 +772,7 @@ class _AutoCompleteFieldState extends State<AutoCompleteField>
       : document.getElementById(_id) as HTMLInputElement?;
 
   @override
-  FutureOr<VoidCallback?> afterRender(
-    BuildContext context,
-  ) {
+  FutureOr<VoidCallback?> afterRender(BuildContext context) {
     if (component.autoFocus) inputNode?.focus();
     return null;
   }
@@ -778,11 +794,7 @@ class _AutoCompleteFieldState extends State<AutoCompleteField>
       const Duration(milliseconds: 150),
       () {
         final filtered = component.options
-            .where(
-              (o) => o.toLowerCase().contains(
-                value.toLowerCase(),
-              ),
-            )
+            .where((o) => o.toLowerCase().contains(value.toLowerCase()))
             .toList();
 
         setState(() {
@@ -908,9 +920,7 @@ class _AutoCompleteFieldState extends State<AutoCompleteField>
                       'aria-selected': (_activeOptionIndex == entry.$1)
                           .toString(),
                     },
-                    events: Events(
-                      onClick: (_) => _onSelect(entry.$2),
-                    ).toMap,
+                    events: Events(onClick: (_) => _onSelect(entry.$2)).toMap,
                     [.text(entry.$2)],
                   ),
                 )
@@ -1077,9 +1087,7 @@ class _SegmentedInputState extends State<SegmentedInput>
   }
 
   @override
-  FutureOr<VoidCallback?> afterRender(
-    BuildContext context,
-  ) {
+  FutureOr<VoidCallback?> afterRender(BuildContext context) {
     if (component.autoFocus) _focusSegment(0);
     return null;
   }
@@ -1171,11 +1179,7 @@ class _SegmentedInputState extends State<SegmentedInput>
 
       // show validation message when autoValidate enabled
       if (shouldValidate) {
-        showValidationError(
-          _fieldId,
-          error,
-          isSegmentedInput: true,
-        );
+        showValidationError(_fieldId, error, isSegmentedInput: true);
       }
 
       // set validation constraint for browser validity
@@ -1236,9 +1240,7 @@ class _SegmentedInputState extends State<SegmentedInput>
           i < cleanChars.length && (index + i) < component.length;
           i++
         ) {
-          setState(
-            () => _segmentValues[index + i] = cleanChars[i],
-          );
+          setState(() => _segmentValues[index + i] = cleanChars[i]);
         }
 
         _notifyChange();
@@ -1324,9 +1326,7 @@ class _SegmentedInputState extends State<SegmentedInput>
       i < cleanChars.length && (startIndex + i) < component.length;
       i++
     ) {
-      setState(
-        () => _segmentValues[startIndex + i] = cleanChars[i],
-      );
+      setState(() => _segmentValues[startIndex + i] = cleanChars[i]);
     }
 
     _notifyChange();
@@ -1377,9 +1377,10 @@ class _SegmentedInputState extends State<SegmentedInput>
 
     const baseClass = 'naki-segmented-input';
     final effectiveSegmentClasses = 'input-segment shape-${shape.name}';
-    final effectiveContainerClasses = component.classes.isNotNullAndEmpty
-        ? '$baseClass ${component.classes}'
-        : baseClass;
+    final effectiveContainerClasses = joinClasses([
+      ?component.classes,
+      baseClass,
+    ]);
 
     final effectiveContainerStyles = {
       Tokens.current.fieldHoverColor.name: ?hoverColor?.value,
@@ -1418,11 +1419,7 @@ class _SegmentedInputState extends State<SegmentedInput>
       children: [
         // Label
         if (labelText.isNotEmpty)
-          Label(
-            labelText,
-            fieldId: '${_fieldId}_0',
-            style: labelStyle,
-          ),
+          Label(labelText, fieldId: '${_fieldId}_0', style: labelStyle),
 
         // Segments
         div(
@@ -1447,10 +1444,7 @@ class _SegmentedInputState extends State<SegmentedInput>
               classes:
                   '$effectiveSegmentClasses${isFilled ? ' is-filled' : ''}',
               styles: Styles(
-                raw: {
-                  ...effectiveInputStyles,
-                  'background-color': ?bgColor,
-                },
+                raw: {...effectiveInputStyles, 'background-color': ?bgColor},
               ),
               type: effectiveType,
               disabled: component.disable,
@@ -1485,13 +1479,9 @@ class _SegmentedInputState extends State<SegmentedInput>
 
         // Helper / Hint
         if (helperText.isNotEmpty)
-          p(
-            classes: 'naki-helper',
-            styles: Styles(raw: helperStyle?.props),
-            [
-              .text(helperText),
-            ],
-          ),
+          p(classes: 'naki-helper', styles: Styles(raw: helperStyle?.props), [
+            .text(helperText),
+          ]),
       ],
     );
   }
@@ -1663,11 +1653,7 @@ class Calendar extends StatefulComponent {
 
 class _CalendarState extends State<Calendar> with NakiStatefulMixin {
   late DateTime _visibleMonth;
-  late final String _calendarId = nakiDomId(
-    context,
-    'ncp',
-    id: component.id,
-  );
+  late final String _calendarId = nakiDomId(context, 'ncp', id: component.id);
 
   final _dialogKey = GlobalNodeKey<HTMLElement>();
 
@@ -1715,9 +1701,7 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
       : document.getElementById('${_calendarId}__calendar') as HTMLElement?;
 
   @override
-  FutureOr<VoidCallback?> afterRender(
-    BuildContext context,
-  ) {
+  FutureOr<VoidCallback?> afterRender(BuildContext context) {
     if (component.autoFocus && component.child == null) {
       final triggerId = '${_calendarId}_default_trigger';
       (document.getElementById(triggerId) as HTMLButtonElement?)?.focus();
@@ -1740,9 +1724,7 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
 
           // if dropdown menu is open, let dropdown handle closing
           final dropdownMenu =
-              calendarNode?.querySelector(
-                    'naki-dropdown[open]',
-                  )
+              calendarNode?.querySelector('naki-dropdown[open]')
                   as HTMLElement? ??
               document.querySelector('naki-dropdown[open]') as HTMLElement?;
 
@@ -1797,11 +1779,7 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
   /// Builds the calendar month component
   CalendarMonth _buildCalendarMonth(DateTime month) {
     final first = DateTime(month.year, month.month, 1);
-    final days = DateTime(
-      month.year,
-      month.month + 1,
-      0,
-    ).day;
+    final days = DateTime(month.year, month.month + 1, 0).day;
 
     final daysInMonth = [
       // leading nulls to align with first day of week
@@ -1816,14 +1794,8 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
               _selectedDate?.year == month.year &&
               _selectedDate?.month == month.month &&
               _selectedDate?.day == day,
-          isToday: DateTime(
-            month.year,
-            month.month,
-            day,
-          ).isToday,
-          isDisabled: _isOutsideBounds(
-            DateTime(month.year, month.month, day),
-          ),
+          isToday: DateTime(month.year, month.month, day).isToday,
+          isDisabled: _isOutsideBounds(DateTime(month.year, month.month, day)),
         ),
     ];
 
@@ -1872,9 +1844,7 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
     });
   }
 
-  List<HTMLElement> _focusableElements(
-    HTMLElement surface,
-  ) {
+  List<HTMLElement> _focusableElements(HTMLElement surface) {
     final nodes = surface.querySelectorAll(
       'button:not([disabled]), input:not([disabled]), '
       '[tabindex]:not([tabindex="-1"])',
@@ -1904,15 +1874,10 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
 
     _keyboardSubscription = EventStreamProviders.keyDownEvent
         .forTarget(document)
-        .listen(
-          (event) => _handleDialogKeyDown(event, surface),
-        );
+        .listen((event) => _handleDialogKeyDown(event, surface));
   }
 
-  void _handleDialogKeyDown(
-    KeyboardEvent event,
-    HTMLElement surface,
-  ) {
+  void _handleDialogKeyDown(KeyboardEvent event, HTMLElement surface) {
     if (event.key == 'Escape') {
       event.preventDefault();
 
@@ -1950,11 +1915,7 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
         if (current != -1 && dates.isNotEmpty) {
           event.preventDefault();
 
-          dates[(current + delta).clamp(
-                0,
-                dates.length - 1,
-              )]
-              .focus();
+          dates[(current + delta).clamp(0, dates.length - 1)].focus();
         }
         return;
       }
@@ -2075,11 +2036,7 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
 
       // show custom validation message if enabled
       if (_shouldValidate) {
-        showValidationError(
-          _calendarId,
-          error,
-          isCalendar: true,
-        );
+        showValidationError(_calendarId, error, isCalendar: true);
       }
 
       // set browser-default validity
@@ -2114,21 +2071,13 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
       // Move to next month, respecting max year boundary
       if (currentYear == _years.last && currentMonth == 12) return;
       setState(() {
-        _visibleMonth = DateTime(
-          currentYear,
-          currentMonth + 1,
-          1,
-        );
+        _visibleMonth = DateTime(currentYear, currentMonth + 1, 1);
       });
     } else {
       // Move to previous month, respecting min year boundary
       if (currentYear == _years.first && currentMonth == 1) return;
       setState(() {
-        _visibleMonth = DateTime(
-          currentYear,
-          currentMonth - 1,
-          1,
-        );
+        _visibleMonth = DateTime(currentYear, currentMonth - 1, 1);
       });
     }
   }
@@ -2161,9 +2110,10 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
     final allowFocus =
         focusColor != null && !component.disable && !component.readOnly;
 
-    final effectiveClasses = component.classes.isNotNullAndEmpty
-        ? 'naki-calendar ${component.classes}'
-        : 'naki-calendar';
+    final effectiveClasses = joinClasses([
+      ?component.classes,
+      'naki-calendar',
+    ]);
 
     final content = currentValue != null
         ? _displayedValue(currentValue!)
@@ -2180,9 +2130,7 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
 
     _syncDialogAccessibility(pickerOpen);
 
-    final daysInMonth = _buildCalendarMonth(
-      _visibleMonth,
-    ).days;
+    final daysInMonth = _buildCalendarMonth(_visibleMonth).days;
     final triggerIcon = showDatePickerOnly || showBoth
         ? LucideIcons.icon_calendar
         : LucideIcons.icon_clock;
@@ -2221,9 +2169,7 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
         : GestureDetector(
             semanticLabel: triggerLabel,
             attributes: triggerAttributes,
-            gestures: Gestures(
-              onClick: (_) => _togglePicker(),
-            ),
+            gestures: Gestures(onClick: (_) => _togglePicker()),
             child: component.child!,
           );
 
@@ -2248,11 +2194,7 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
       children: [
         // Label
         if (labelText.isNotEmpty)
-          Label(
-            labelText,
-            fieldId: _calendarId,
-            style: labelStyle,
-          ),
+          Label(labelText, fieldId: _calendarId, style: labelStyle),
 
         // Wrapper
         div(classes: effectiveClasses, [
@@ -2338,9 +2280,8 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
                               attributes: {
                                 'showyear': ?(_showYear ? '' : null),
                               },
-                              onTap: () => setState(
-                                () => _showYear = !_showYear,
-                              ),
+                              onTap: () =>
+                                  setState(() => _showYear = !_showYear),
                             ),
                             content: _showYear
                                 ? _yearMonthPopover()
@@ -2351,14 +2292,10 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
                                         'naki-dropdown[open]',
                                       )
                                       as HTMLElement? ??
-                                  document.querySelector(
-                                        'naki-dropdown[open]',
-                                      )
+                                  document.querySelector('naki-dropdown[open]')
                                       as HTMLElement?;
                               if (dropdownMenu != null) return;
-                              setState(
-                                () => _showYear = false,
-                              );
+                              setState(() => _showYear = false);
                             },
                             position: PopoverPosition.bottom,
                           ),
@@ -2386,9 +2323,7 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
                             NakiText(
                               day,
                               classes: 'naki-calendar-body__header',
-                              style: TextStyle(
-                                color: context.placeholderColor,
-                              ),
+                              style: TextStyle(color: context.placeholderColor),
                             ),
                         ],
                         rows: _buildCalendarRows(
@@ -2402,9 +2337,7 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
                         SizedBox(
                           width: const Dim.percent(100),
                           child: Padding(
-                            padding: const EdgeInsets.all(
-                              Dim.px(10),
-                            ),
+                            padding: const EdgeInsets.all(Dim.px(10)),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               mainAxisSize: MainAxisSize.max,
@@ -2423,9 +2356,8 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
                                     final _hr = time.inHours % 24;
                                     final _mins = time.inMinutes % 60;
 
-                                    String twoDigits(
-                                      int value,
-                                    ) => value.toString().padLeft(2, '0');
+                                    String twoDigits(int value) =>
+                                        value.toString().padLeft(2, '0');
 
                                     return '${twoDigits(_hr)}:${twoDigits(_mins)}';
                                   }(),
@@ -2453,9 +2385,7 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
                           Button.text(
                             'Cancel',
                             classes: 'naki-calendar-action__button',
-                            style: const TextStyle(
-                              color: Colors.red,
-                            ),
+                            style: const TextStyle(color: Colors.red),
                             backgroundColor: Colors.transparent,
                             onTap: () {
                               _selectedDate ??= component.initialValue;
@@ -2499,9 +2429,7 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
                             'Submit',
                             classes: 'naki-calendar-action__button',
                             disabled: _selectedDate == null,
-                            style: const TextStyle(
-                              color: Colors.green,
-                            ),
+                            style: const TextStyle(color: Colors.green),
                             backgroundColor: Colors.transparent,
                             onTap: () => _updateValue(close: true),
                           ),
@@ -2523,18 +2451,9 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
                         classes: 'naki-time-picker-steppers',
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          _buildTimeStepper(
-                            id: _calendarId,
-                            hour: true,
-                          ),
-                          const NakiText(
-                            ':',
-                            classes: 'naki-time-separator',
-                          ),
-                          _buildTimeStepper(
-                            id: _calendarId,
-                            hour: false,
-                          ),
+                          _buildTimeStepper(id: _calendarId, hour: true),
+                          const NakiText(':', classes: 'naki-time-separator'),
+                          _buildTimeStepper(id: _calendarId, hour: false),
                         ],
                       ),
 
@@ -2551,9 +2470,7 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
                           Button.text(
                             'Cancel',
                             classes: 'naki-calendar-action__button',
-                            style: const TextStyle(
-                              color: Colors.red,
-                            ),
+                            style: const TextStyle(color: Colors.red),
                             backgroundColor: Colors.transparent,
                             onTap: () {
                               if (showBoth) {
@@ -2596,9 +2513,7 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
                             'Submit',
                             classes: 'naki-calendar-action__button',
                             disabled: _selectedTime == null,
-                            style: const TextStyle(
-                              color: Colors.green,
-                            ),
+                            style: const TextStyle(color: Colors.green),
                             backgroundColor: Colors.transparent,
                             onTap: () => _updateValue(close: true),
                           ),
@@ -2612,13 +2527,9 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
 
         // Helper
         if (helperText.isNotEmpty)
-          p(
-            classes: 'naki-helper',
-            styles: Styles(raw: helperStyle?.props),
-            [
-              .text(helperText),
-            ],
-          ),
+          p(classes: 'naki-helper', styles: Styles(raw: helperStyle?.props), [
+            .text(helperText),
+          ]),
       ],
     );
   }
@@ -2671,21 +2582,13 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
           )
           .toList();
 
-      rows.add(
-        TableRow(
-          children: cells,
-          classes: 'naki-calendar-week',
-        ),
-      );
+      rows.add(TableRow(children: cells, classes: 'naki-calendar-week'));
     }
 
     return rows;
   }
 
-  Component _buildTimeStepper({
-    required String id,
-    required bool hour,
-  }) {
+  Component _buildTimeStepper({required String id, required bool hour}) {
     final now = DateTime.now();
     final time =
         _selectedTime ?? Duration(hours: now.hour, minutes: now.minute);
@@ -2700,12 +2603,8 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
 
     String twoDigits(int value) => value.toString().padLeft(2, '0');
 
-    void _updateTime() => setState(
-      () => _selectedTime = Duration(
-        hours: _hr,
-        minutes: _mins,
-      ),
-    );
+    void _updateTime() =>
+        setState(() => _selectedTime = Duration(hours: _hr, minutes: _mins));
 
     void _updateMinsInputValue(int value) =>
         minsInputElem?.value = twoDigits(value);
@@ -2841,9 +2740,7 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
                   )
                   .toList(),
               onSelected: (item) {
-                setState(
-                  () => selectedYear = int.parse(item.value!),
-                );
+                setState(() => selectedYear = int.parse(item.value!));
                 _visibleMonth = _visibleMonth.copyWith(
                   year: selectedYear,
                   month: 1,
@@ -2881,10 +2778,7 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
                             : null),
                       },
                       onTap: () => _jumpToMonth(
-                        DateTime(
-                          selectedYear,
-                          kMonths.indexOf(month) + 1,
-                        ),
+                        DateTime(selectedYear, kMonths.indexOf(month) + 1),
                       ),
                     ),
                   )

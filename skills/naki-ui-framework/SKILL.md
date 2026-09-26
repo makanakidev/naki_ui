@@ -2,7 +2,7 @@
 name: naki-ui-framework
 description: Use when implementing, reviewing, or troubleshooting Naki UI behavior with package:naki_ui/framework.dart, including platform detection, lifecycle mixins, browser listeners, gestures, input events, overlay and scroll controllers, animation curves, scrolling models, shared data models, enums, and debounce utilities.
 metadata:
-  version: "1.0.1"
+  version: "1.0.2"
   author: "makanakidev"
 ---
 

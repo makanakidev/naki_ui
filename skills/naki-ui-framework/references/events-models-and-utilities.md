@@ -89,12 +89,13 @@ Use `fire(tag)` to immediately run pending work and `cancelAll()` only when the 
 
 ## Enum groups
 
-- Layout: `Placement`, `Position`, `AspectRatioType`, `Direction`, `Orientation`, `MainAxisAlignment`, `CrossAxisAlignment`, `MainAxisSize`, `FlexFit`, `BoxFit`, `Alignment`, `Baseline`.
+- Layout: `Placement`, `Position`, `AspectRatioType`, `Direction`, `Orientation`, `MainAxisAlignment`, `CrossAxisAlignment`, `MainAxisSize`, `FlexFit`, `ObjectFit`, `ObjectPosition`, `Alignment`, `Baseline`, `BreakPoint`, `Shape`.
 - Text: `FontStyle`, `TextDecorationStyle`.
 - Forms: `Autofill`, `ValidationPattern`, `SegmentedInputType`, `SegmentedInputShape`, `CalendarType`, `FileType`.
 - Scrolling and data: `ScrollDirection`, `ScrollPhysicsType`, `CarouselAlignment`, `TableRowCellAlignment`, `TableHeaderCellAlignment`.
 - Theme and feedback: `ThemeMode`, `Brightness`, `BannerType`.
 - Overlays: `SnackbarPosition`, `DrawerPosition`, `TooltipPosition`, `PopoverPosition`, `DialogPosition`.
 - Navigation: `BottomNavigationBarType`, `BottomNavigationBarLandscapeLayout`.
+- Painting: `Filter`, `Gradient`, `LinearGradientDirection`, `RadialGradientPosition`, `ConicGradientPosition`.
 
 Use enum values instead of hand-written strings so generated code remains aligned with the package API.

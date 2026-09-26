@@ -169,18 +169,64 @@ class Css {
 
   /// Default styling rules for single-line text inputs.
   static final nakiInputStyle = {
-    'height':
-        'var(${Tokens.current.inputHeight}, ${Tokens.current.inputHeight.value})',
-    'color':
-        'var(${Tokens.current.inputTextColor}, ${Tokens.current.inputTextColor.value})',
-    'font-size':
-        'var(${Tokens.current.fontSizeInput}, ${Tokens.current.fontSizeInput.value})',
-    'background-color':
-        'var(${Tokens.current.fieldBackgroundColor}, ${Tokens.current.fieldBackgroundColor.value})',
-    'border-radius': '12px',
-    'padding': '0 15px',
-    'border': Tokens.current.border.value,
-    'margin': '0',
+    'icon-wrapper': {
+      'height':
+          'var(${Tokens.current.inputHeight}, ${Tokens.current.inputHeight.value})',
+      'background-color':
+          'var(${Tokens.current.fieldBackgroundColor}, ${Tokens.current.fieldBackgroundColor.value})',
+      'border-radius': '12px',
+      'border': Tokens.current.border.value,
+      'overflow': 'clip',
+    },
+
+    'input': {
+      'padding': '0 15px',
+      'background-color':
+          'var(${Tokens.current.fieldBackgroundColor}, '
+          '${Tokens.current.fieldBackgroundColor.value})',
+      'color':
+          'var(${Tokens.current.inputTextColor}, ${Tokens.current.inputTextColor.value})',
+      'font-size':
+          'var(${Tokens.current.fontSizeInput}, ${Tokens.current.fontSizeInput.value})',
+      'margin': '0',
+      'border-radius': '12px',
+      'height':
+          'var(${Tokens.current.inputHeight}, ${Tokens.current.inputHeight.value})',
+      'border': Tokens.current.border.value,
+      'overflow': 'clip',
+    },
+  };
+
+  /// Default styling rules for multi-line textareas.
+  static final nakiTextareaStyle = {
+    'icon-wrapper': {
+      'min-height':
+          'var(${Tokens.current.inputHeight}, ${Tokens.current.inputHeight.value})',
+      'background-color':
+          'var(${Tokens.current.fieldBackgroundColor}, ${Tokens.current.fieldBackgroundColor.value})',
+      'border-radius': '12px',
+      'border': Tokens.current.border.value,
+      'overflow': 'clip',
+    },
+
+    'input': {
+      'min-height':
+          'var(${Tokens.current.inputHeight}, ${Tokens.current.inputHeight.value})',
+      'color':
+          'var(${Tokens.current.inputTextColor}, ${Tokens.current.inputTextColor.value})',
+      'font-size':
+          'var(${Tokens.current.fontSizeInput}, ${Tokens.current.fontSizeInput.value})',
+      'background-color':
+          'var(${Tokens.current.fieldBackgroundColor}, ${Tokens.current.fieldBackgroundColor.value})',
+      'border': Tokens.current.border.value,
+      'max-height': '250px',
+      'padding': '10px 15px',
+      'line-height': '1.5',
+      'border-radius': '12px',
+      'width': 'fit-content',
+      'margin': '0',
+      'overflow': 'clip',
+    },
   };
 
   /// Default styling rules for segmented input fields.
@@ -221,25 +267,6 @@ class Css {
       'border-radius': '0',
       'background-color': 'transparent',
     },
-  };
-
-  /// Default styling rules for multi-line textareas.
-  static final nakiTextareaStyle = {
-    'min-height':
-        'var(${Tokens.current.inputHeight}, ${Tokens.current.inputHeight.value})',
-    'color':
-        'var(${Tokens.current.inputTextColor}, ${Tokens.current.inputTextColor.value})',
-    'font-size':
-        'var(${Tokens.current.fontSizeInput}, ${Tokens.current.fontSizeInput.value})',
-    'background-color':
-        'var(${Tokens.current.fieldBackgroundColor}, ${Tokens.current.fieldBackgroundColor.value})',
-    'display': 'block',
-    'max-height': '250px',
-    'padding': '10px 15px',
-    'line-height': '1.5',
-    'border-radius': '12px',
-    'width': 'fit-content',
-    'margin': '0',
   };
 
   /// Default CSS styles map for stacked layers.
@@ -1065,6 +1092,7 @@ class Css {
     'box-sizing': 'border-box',
     'width': '100%',
     'line-height': '1',
+    'overflow': 'clip',
   };
 
   /// Default CSS styles map for Tooltip.
@@ -1356,13 +1384,14 @@ class Css {
     'height': 'auto',
     'width': 'auto',
     'box-sizing': 'border-box',
+    'overflow': 'clip',
   };
 
   /// Default CSS styles map for Card component.
   static final nakiCardStyle = {
     'root': {
       'display': 'block',
-      'position': 'relative',
+      // 'position': 'relative',
       'box-sizing': 'border-box',
       'background-color':
           'var(${Tokens.current.backgroundColor}, ${Tokens.current.backgroundColor.value})',
@@ -1370,6 +1399,7 @@ class Css {
           'var(${Tokens.current.baseTextColor}, ${Tokens.current.baseTextColor.value})',
       'border-radius':
           'var(${Tokens.current.radiusMd}, ${Tokens.current.radiusMd.value})',
+      'overflow': 'clip',
       'transition':
           'box-shadow 200ms ease, transform 200ms ease, border-color 200ms ease',
     },

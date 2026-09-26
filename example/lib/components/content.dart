@@ -72,7 +72,9 @@ class _ContentState extends State<Content> {
   }
 
   void _toggleTodo(String id, bool completed) {
-    _todos = _todos.map((t) => t.id == id ? t.copyWith(isCompleted: completed) : t).toList();
+    _todos = _todos
+        .map((t) => t.id == id ? t.copyWith(isCompleted: completed) : t)
+        .toList();
     _showFeedback(completed ? 'Task completed' : 'Task marked active');
     _save();
   }
@@ -155,7 +157,9 @@ class _ContentState extends State<Content> {
                       currentFilter: _filter,
                       onFilterChanged: (f) => setState(() => _filter = f),
                       hasCompleted: completedCount > 0,
-                      toggle: mqHeight >= PlatformData().height ? _toggleScrollPhysics : null,
+                      toggle: mqHeight > PlatformData().height
+                          ? _toggleScrollPhysics
+                          : null,
                     ),
 
                   // items
@@ -170,7 +174,8 @@ class _ContentState extends State<Content> {
                             (todo) => TodoItemTile(
                               key: ValueKey(todo.id),
                               todo: todo,
-                              onToggle: (checked) => _toggleTodo(todo.id, checked),
+                              onToggle: (checked) =>
+                                  _toggleTodo(todo.id, checked),
                               onDelete: () => _deleteTodo(todo.id),
                             ),
                           )

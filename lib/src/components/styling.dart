@@ -6,7 +6,7 @@ import '../models/styling.dart';
 import '../styles/rules.dart';
 import '../styles/text_style.dart';
 import '../theme/tokens.dart';
-import '../utilities/extensions.dart';
+import '../utilities/helpers.dart';
 
 // /////////////////////////////////////////////////////////////////////////////
 // STYLING COMPONENTS
@@ -46,9 +46,7 @@ class Bold extends StatelessComponent with NakiTextScope {
     final effectiveStyles = baseStyle.combineWith(style).props;
 
     const baseClass = 'naki-bold naki-text';
-    final effectiveClasses = classes.isNotNullAndEmpty
-        ? '$baseClass $classes'
-        : baseClass;
+    final effectiveClasses = joinClasses([?classes, baseClass]);
 
     return strong(
       key: key,
@@ -97,9 +95,7 @@ class Italic extends StatelessComponent with NakiTextScope {
     final effectiveStyles = baseStyle.combineWith(style).props;
 
     const baseClass = 'naki-italic naki-text';
-    final effectiveClasses = classes.isNotNullAndEmpty
-        ? '$baseClass $classes'
-        : baseClass;
+    final effectiveClasses = joinClasses([?classes, baseClass]);
 
     return em(
       key: key,
@@ -148,9 +144,7 @@ class Underline extends StatelessComponent with NakiTextScope {
     final effectiveStyles = baseStyle.combineWith(style).props;
 
     const baseClass = 'naki-underline naki-text';
-    final effectiveClasses = classes.isNotNullAndEmpty
-        ? '$baseClass $classes'
-        : baseClass;
+    final effectiveClasses = joinClasses([?classes, baseClass]);
 
     return u(
       key: key,
@@ -199,9 +193,7 @@ class Strikethrough extends StatelessComponent with NakiTextScope {
     final effectiveStyles = baseStyle.combineWith(style).props;
 
     const baseClass = 'naki-strikethrough naki-text';
-    final effectiveClasses = classes.isNotNullAndEmpty
-        ? '$baseClass $classes'
-        : baseClass;
+    final effectiveClasses = joinClasses([?classes, baseClass]);
 
     return s(
       key: key,
@@ -264,9 +256,7 @@ class Heading extends StatelessComponent with NakiTextScope {
         .props;
 
     final baseClass = 'naki-text naki-heading-$level';
-    final effectiveClasses = classes.isNotNullAndEmpty
-        ? '$baseClass $classes'
-        : baseClass;
+    final effectiveClasses = joinClasses([?classes, baseClass]);
 
     switch (level) {
       case 1:
@@ -361,9 +351,7 @@ class SubHeading extends StatelessComponent with NakiTextScope {
         .props;
 
     const baseClass = 'naki-subheading naki-text';
-    final effectiveClasses = classes.isNotNullAndEmpty
-        ? '$baseClass $classes'
-        : baseClass;
+    final effectiveClasses = joinClasses([?classes, baseClass]);
 
     return h4(
       key: key,

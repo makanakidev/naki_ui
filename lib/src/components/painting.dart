@@ -6,6 +6,7 @@ import '../models/styling.dart';
 import '../styles/rules.dart';
 import '../utilities/enums.dart';
 import '../utilities/extensions.dart';
+import '../utilities/helpers.dart';
 
 // /////////////////////////////////////////////////////////////////////////////
 // PAINTING COMPONENTS
@@ -43,17 +44,13 @@ class Opacity extends StatelessComponent {
   @override
   Component build(BuildContext context) {
     const baseClass = 'naki-opacity';
-    final effectiveClasses = classes.isNotNullAndEmpty
-        ? '$baseClass $classes'
-        : baseClass;
+    final effectiveClasses = joinClasses([?classes, baseClass]);
 
     return .element(
       tag: 'naki-opacity',
       key: key,
       classes: effectiveClasses,
-      styles: Styles(
-        raw: {'opacity': opacity.clamp(0.0, 1.0).toCleanString},
-      ),
+      styles: Styles(raw: {'opacity': opacity.clamp(0.0, 1.0).toCleanString}),
       children: [child],
     );
   }
@@ -99,37 +96,26 @@ class Visibility extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
-    Component effectiveChild = child;
+    if (!visible && !maintainState) return replacement;
 
     const baseClass = 'naki-visibility';
-    final effectiveClasses = classes.isNotNullAndEmpty
-        ? '$baseClass $classes'
-        : baseClass;
+    final effectiveClasses = joinClasses([?classes, baseClass]);
 
-    if (!visible) {
-      if (maintainState) {
-        effectiveChild = .wrapElement(
-          classes: 'naki-hide',
-          child: child,
-        );
-      } else {
-        effectiveChild = replacement;
-      }
-    }
+    final Component effectiveChild = !visible && maintainState
+        ? .wrapElement(classes: 'naki-hide', child: child)
+        : child;
 
-    return effectiveChild == replacement
-        ? replacement
-        : .element(
-            tag: 'naki-visibility',
-            classes: effectiveClasses,
-            children: [effectiveChild],
-          );
+    return .element(
+      tag: 'naki-visibility',
+      key: key,
+      classes: effectiveClasses,
+      children: [effectiveChild],
+    );
   }
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('Visibility', [
-    Rules.nakiHide,
-  ]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('Visibility', [Rules.nakiHide]);
 }
 
 /// {@template ClipRect}
@@ -164,9 +150,7 @@ class ClipRect extends StatelessComponent {
   @override
   Component build(BuildContext context) {
     const baseClass = 'naki-cliprect';
-    final effectiveClasses = classes.isNotNullAndEmpty
-        ? '$baseClass $classes'
-        : baseClass;
+    final effectiveClasses = joinClasses([?classes, baseClass]);
 
     final effectiveStyles = {...?borderRadius?.props};
 
@@ -180,9 +164,8 @@ class ClipRect extends StatelessComponent {
   }
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('ClipRect', [
-    Rules.nakiClipRectRules,
-  ]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('ClipRect', [Rules.nakiClipRectRules]);
 }
 
 /// {@template DecoratedBox}
@@ -241,9 +224,7 @@ class DecoratedBox extends StatelessComponent {
   @override
   Component build(BuildContext context) {
     const baseClass = 'naki-decoratedbox';
-    final effectiveClasses = classes.isNotNullAndEmpty
-        ? '$baseClass $classes'
-        : baseClass;
+    final effectiveClasses = joinClasses([?classes, baseClass]);
 
     final effectiveStyles = {
       'display': 'block',
@@ -282,18 +263,12 @@ class ClipOval extends StatelessComponent {
   final String? classes;
 
   /// {@macro ClipOval}
-  const ClipOval({
-    super.key,
-    required this.child,
-    this.classes,
-  });
+  const ClipOval({super.key, required this.child, this.classes});
 
   @override
   Component build(BuildContext context) {
     const baseClass = 'naki-clip-oval';
-    final effectiveClasses = classes.isNotNullAndEmpty
-        ? '$baseClass $classes'
-        : baseClass;
+    final effectiveClasses = joinClasses([?classes, baseClass]);
 
     return .element(
       tag: 'naki-clipoval',
@@ -304,9 +279,8 @@ class ClipOval extends StatelessComponent {
   }
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('ClipOval', [
-    Rules.nakiClipOvalRules,
-  ]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('ClipOval', [Rules.nakiClipOvalRules]);
 }
 
 /// {@template BackdropFilter}
@@ -370,9 +344,7 @@ class BackdropFilter extends StatelessComponent {
   @override
   Component build(BuildContext context) {
     const baseClass = 'naki-backdropfilter';
-    final effectiveClasses = classes.isNotNullAndEmpty
-        ? '$baseClass $classes'
-        : baseClass;
+    final effectiveClasses = joinClasses([?classes, baseClass]);
 
     return .element(
       tag: 'naki-backdropfilter',
@@ -431,9 +403,7 @@ class ColoredBox extends StatelessComponent {
   @override
   Component build(BuildContext context) {
     const baseClass = 'naki-coloredbox';
-    final effectiveClasses = classes.isNotNullAndEmpty
-        ? '$baseClass $classes'
-        : baseClass;
+    final effectiveClasses = joinClasses([?classes, baseClass]);
 
     return .element(
       tag: 'naki-coloredbox',
@@ -483,9 +453,7 @@ class RotatedBox extends StatelessComponent {
   @override
   Component build(BuildContext context) {
     const baseClass = 'naki-rotatedbox';
-    final effectiveClasses = classes.isNotNullAndEmpty
-        ? '$baseClass $classes'
-        : baseClass;
+    final effectiveClasses = joinClasses([?classes, baseClass]);
 
     final degrees = (quarterTurns % 4) * 90;
 
@@ -493,9 +461,7 @@ class RotatedBox extends StatelessComponent {
       tag: 'naki-rotatedbox',
       key: key,
       classes: effectiveClasses,
-      styles: Styles(
-        raw: {'transform': 'rotate(${degrees}deg)'},
-      ),
+      styles: Styles(raw: {'transform': 'rotate(${degrees}deg)'}),
       children: [child],
     );
   }
@@ -610,9 +576,7 @@ class Transform extends StatelessComponent {
         : null;
 
     const baseClass = 'naki-transform';
-    final effectiveClasses = classes.isNotNullAndEmpty
-        ? '$baseClass $classes'
-        : baseClass;
+    final effectiveClasses = joinClasses([?classes, baseClass]);
 
     final effectiveStyles = {
       'display': alignment != null ? 'flex' : 'block',

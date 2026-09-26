@@ -11,14 +11,7 @@ import '../models/styling.dart';
 import '../styles/rules.dart';
 import '../styles/text_style.dart';
 import '../theme/tokens.dart';
-import '../utilities/enums.dart'
-    show
-        DialogPosition,
-        DrawerPosition,
-        MainAxisAlignment,
-        PopoverPosition,
-        SnackbarPosition,
-        TooltipPosition;
+import '../utilities/enums.dart';
 import '../utilities/extensions.dart';
 import '../utilities/helpers.dart';
 import 'basics.dart';
@@ -358,9 +351,7 @@ class _SnackbarState extends State<Snackbar> {
     };
 
     final baseClass = 'naki-snackbar ${component.position.className}';
-    final effectiveClasses = component.classes.isNotNullAndEmpty
-        ? '$baseClass ${component.classes}'
-        : baseClass;
+    final effectiveClasses = joinClasses([?component.classes, baseClass]);
 
     final List<Component> effectiveChildren = [
       // main content
@@ -529,9 +520,7 @@ class Tooltip extends StatelessComponent with NakiStatelessMixin {
     };
 
     final baseClass = 'naki-tooltip-content tooltip-${position.name}';
-    final effectiveClasses = classes.isNotNullAndEmpty
-        ? '$baseClass $classes'
-        : baseClass;
+    final effectiveClasses = joinClasses([?classes, baseClass]);
 
     final effectiveContent = content ?? .text(text!);
 
@@ -631,8 +620,11 @@ class Dialog extends StatefulComponent {
   /// Size constraints of the dialog container.
   final SizeConstraints? sizeConstraints;
 
-  /// Dialog background color.
+  /// Dialog content background color.
   final Color? backgroundColor;
+
+  /// Dialog barrier background color.
+  final Color? barrierColor;
 
   /// Dialog background gradient.
   ///
@@ -667,7 +659,7 @@ class Dialog extends StatefulComponent {
     super.key,
     required this.controller,
     this.position = DialogPosition.center,
-    this.barrierDismissible = true,
+    this.barrierDismissible = false,
     this.title,
     this.semanticLabel,
     this.subtitle,
@@ -675,6 +667,7 @@ class Dialog extends StatefulComponent {
     this.content,
     this.sizeConstraints,
     this.backgroundColor,
+    this.barrierColor,
     this.gradient,
     this.borderRadius,
     this.padding,
@@ -719,38 +712,32 @@ class _DialogState extends State<Dialog> with _AccessibleOverlay<Dialog> {
 
   @override
   void dispose() {
-    component.controller.removeListener(_onControllerChanged);
+    component.controller.dispose();
     super.dispose();
   }
 
   /// Handles controller changes
   void _onControllerChanged() {
-    setState(() => _localIsOpen = component.controller.isOpen);
-  }
-
-  /// Closes dialog
-  void _close() {
-    component.onClose?.call();
-    component.controller.close();
+    _localIsOpen = component.controller.isOpen;
+    if (!_localIsOpen) component.onClose?.call();
+    setState(() {});
   }
 
   @override
   Component build(BuildContext context) {
-    syncOverlayAccessibility(_localIsOpen, _close);
+    syncOverlayAccessibility(_localIsOpen, component.controller.close);
 
     if (!_localIsOpen) return const .empty();
 
     final effectiveStyles = {
+      Tokens.current.dialogBarrierBg.name: ?component.barrierColor?.value,
       Tokens.current.dialogBgColor.name: ?component.backgroundColor?.value,
       Tokens.current.dialogBorderRadius.name: ?component.borderRadius?.value,
       Tokens.current.dialogPadding.name: ?component.padding?.value,
-      ...?component.gradient?.props,
     };
 
     final baseClass = 'naki-dialog dialog-${component.position.name}';
-    final effectiveClasses = component.classes.isNotNullAndEmpty
-        ? '$baseClass ${component.classes}'
-        : baseClass;
+    final effectiveClasses = joinClasses([?component.classes, baseClass]);
 
     final showContentOnly = component.content != null;
 
@@ -785,8 +772,9 @@ class _DialogState extends State<Dialog> with _AccessibleOverlay<Dialog> {
       if (component.actions != null && component.actions!.isNotEmpty)
         Row(
           classes: 'naki-dialog-actions',
-          spacing: 5,
+          spacing: 10,
           mainAxisAlignment: MainAxisAlignment.end,
+          mainAxisSize: MainAxisSize.max,
           children: component.actions!,
         ),
     ];
@@ -796,7 +784,9 @@ class _DialogState extends State<Dialog> with _AccessibleOverlay<Dialog> {
       key: component.key,
       classes: effectiveClasses,
       styles: Styles(raw: effectiveStyles),
-      events: component.barrierDismissible ? {'click': (_) => _close()} : null,
+      events: component.barrierDismissible
+          ? {'click': (_) => component.controller.close()}
+          : null,
       children: [
         div(
           key: overlaySurfaceKey,
@@ -809,7 +799,12 @@ class _DialogState extends State<Dialog> with _AccessibleOverlay<Dialog> {
             'tabindex': '-1',
           },
           events: {'click': (e) => e.stopPropagation()},
-          styles: Styles(raw: component.sizeConstraints?.props),
+          styles: Styles(
+            raw: {
+              ...?component.gradient?.props,
+              ...?component.sizeConstraints?.props,
+            },
+          ),
           dialogChildren,
         ),
       ],
@@ -823,7 +818,7 @@ class _DialogState extends State<Dialog> with _AccessibleOverlay<Dialog> {
 ///
 /// It can be used as a modal overlay or a persistent side panel.
 ///
-/// Use [Drawer.sidebar] constructor to render a persistent side panel.
+/// **NOTE**: Use [Sidebar] for a simplified interface for rendering a persistent side panel.
 ///
 /// ### Example (Modal Drawer - default)
 /// ```dart
@@ -922,6 +917,9 @@ class Drawer extends StatefulComponent {
   ///   child: NakiText('Sidebar Navigation'),
   /// )
   /// ```
+  @Deprecated(
+    'Use Sidebar component instead, this will be removed in v1.0.3 and later.',
+  )
   const Drawer.sidebar({
     super.key,
     required this.child,
@@ -999,9 +997,7 @@ class _DrawerState extends State<Drawer> with _AccessibleOverlay<Drawer> {
   @override
   void initState() {
     super.initState();
-    _localIsOpen = component.modal
-        ? (component.controller?.isOpen ?? false)
-        : true;
+    _localIsOpen = component.controller?.isOpen ?? !component.modal;
     component.controller?.addListener(_onControllerChanged);
   }
 
@@ -1014,9 +1010,7 @@ class _DrawerState extends State<Drawer> with _AccessibleOverlay<Drawer> {
       component.controller?.addListener(_onControllerChanged);
     }
 
-    _localIsOpen = component.modal
-        ? (component.controller?.isOpen ?? false)
-        : true;
+    _localIsOpen = component.controller?.isOpen ?? !component.modal;
   }
 
   @override
@@ -1027,7 +1021,7 @@ class _DrawerState extends State<Drawer> with _AccessibleOverlay<Drawer> {
 
   /// Handles changes to the controller's open/close state.
   void _onControllerChanged() {
-    final isOpen = component.controller?.isOpen ?? false;
+    final isOpen = component.controller?.isOpen ?? _localIsOpen;
     if (_localIsOpen != isOpen) setState(() => _localIsOpen = isOpen);
   }
 
@@ -1058,9 +1052,7 @@ class _DrawerState extends State<Drawer> with _AccessibleOverlay<Drawer> {
     final baseClass = component.modal
         ? 'naki-drawer'
         : 'naki-drawer persistent';
-    final effectiveClasses = component.classes.isNotNullAndEmpty
-        ? '$baseClass ${component.classes}'
-        : baseClass;
+    final effectiveClasses = joinClasses([?component.classes, baseClass]);
 
     final showBarrier = component.modal && component.barrierDismissible;
 
@@ -1096,6 +1088,43 @@ class _DrawerState extends State<Drawer> with _AccessibleOverlay<Drawer> {
       ],
     );
   }
+}
+
+/// {@template Sidebar}
+/// A persistent side navigation component designed for large
+/// screens and responsive layouts.
+///
+/// Unlike a modal [Drawer], a [Sidebar] remains permanently visible alongside
+/// main content, does not render a backdrop barrier, and does not require an
+/// [OverlayController].
+///
+/// ### Example
+/// ```dart
+/// Sidebar(
+///   position: DrawerPosition.left,
+///   width: Dim.px(260),
+///   child: Column(
+///     children: [
+///       NakiText('Navigation'),
+///       Button.text('Dashboard', onTap: () {}),
+///       Button.text('Settings', onTap: () {}),
+///     ],
+///   ),
+/// )
+/// ```
+/// {@endtemplate}
+class Sidebar extends Drawer {
+  /// {@macro Sidebar}
+  const Sidebar({
+    super.key,
+    required super.child,
+    super.position = DrawerPosition.left,
+    super.semanticLabel = 'Navigation sidebar',
+    super.width,
+    super.backgroundColor,
+    super.gradient,
+    super.classes,
+  }) : super.sidebar();
 }
 
 /// {@template BottomSheet}
@@ -1257,9 +1286,7 @@ class _BottomSheetState extends State<BottomSheet>
     };
 
     const baseClass = 'naki-bottom-sheet';
-    final effectiveClasses = component.classes.isNotNullAndEmpty
-        ? '$baseClass ${component.classes}'
-        : baseClass;
+    final effectiveClasses = joinClasses([?component.classes, baseClass]);
 
     final effectiveChildren = [
       if (component.showHandle)
@@ -1403,9 +1430,7 @@ class Popover extends StatelessComponent {
     };
 
     final baseClass = 'naki-popover-content popover-${position.value}';
-    final effectiveClasses = classes.isNotNullAndEmpty
-        ? '$baseClass $classes'
-        : baseClass;
+    final effectiveClasses = joinClasses([?classes, baseClass]);
 
     return .element(
       tag: 'naki-popover',

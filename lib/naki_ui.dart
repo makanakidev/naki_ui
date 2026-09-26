@@ -3,6 +3,8 @@
 /// This library exports all public UI components of the Naki Design framework.
 library;
 
+export 'package:jaspr_icons_pack/jaspr_icons_pack.dart';
+
 export 'src/components/app.dart';
 export 'src/components/async.dart';
 export 'src/components/basics.dart';

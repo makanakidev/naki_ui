@@ -123,7 +123,7 @@ Icon(
   color: const Color('#10b981'),
 )
 
-// Image with SizeConstraints, BoxFit, and BorderRadiusData
+// Image with SizeConstraints, ObjectFit, ObjectPosition, and BorderRadiusData
 Image(
   'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=600',
   alt: 'Abstract gradient artwork',
@@ -131,7 +131,8 @@ Image(
     width: Dim.px(300),
     height: Dim.px(200),
   ),
-  fit: BoxFit.cover,
+  fit: ObjectFit.cover,
+  position: ObjectPosition.center,
   radius: const BorderRadiusData.all(Dim.px(12)),
 )
 ```

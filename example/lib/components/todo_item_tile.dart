@@ -1,6 +1,5 @@
 import 'package:jaspr/dom.dart' hide Padding, Position, Transform, Visibility;
 import 'package:jaspr/jaspr.dart';
-import 'package:jaspr_icons_pack/jaspr_icons_pack.dart' show MaterialIcons;
 import 'package:naki_ui/framework.dart';
 import 'package:naki_ui/naki_ui.dart';
 import 'package:naki_ui/theme.dart';
@@ -30,27 +29,26 @@ class TodoItemTile extends StatelessComponent {
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         spacing: 10,
         children: [
-          Expanded(
-            child: Checkbox(
-              id: 'checkbox-${todo.id}',
-              isChecked: todo.isCompleted,
-              label: todo.title,
-              expand: true,
-              labelPosition: Position.right,
-              labelStyle: todo.isCompleted
-                  ? TextStyle(
-                      color: context.subtitleColor,
-                      decorationLine: TextDecorationLine.lineThrough,
-                    )
-                  : TextStyle(
-                      color: context.textColor,
-                      fontWeight: FontWeight.w500,
-                    ),
-              onChange: onToggle,
-            ),
+          Checkbox(
+            id: 'checkbox-${todo.id}',
+            isChecked: todo.isCompleted,
+            label: todo.title,
+            labelPosition: Position.right,
+            labelStyle: todo.isCompleted
+                ? TextStyle(
+                    color: context.subtitleColor,
+                    decorationLine: TextDecorationLine.lineThrough,
+                  )
+                : TextStyle(
+                    color: context.textColor,
+                    fontWeight: FontWeight.w500,
+                  ),
+            onChange: onToggle,
           ),
+
           Icon(
             MaterialIcons.icon_round_delete,
             size: 20,

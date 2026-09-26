@@ -11,12 +11,14 @@ abstract class BrowserPlatform {
   /// Browser platform name.
   String get name;
 
-  /// Base URL. If server-side, it's just '/'.
+  /// Base URL.
+  ///
+  /// - If server-side, it's '/' or a path from `<base href="...">`
+  /// - If client-side, it's `window.location.origin`
   String get baseUrl;
 
-  /// Current URL without the [baseUrl].
-  /// Always starts with a leading '/'.
-  String get currentUrl;
+  /// Current page path without the [baseUrl].
+  String get currentPath;
 
   /// Device name.
   String get device;
@@ -73,7 +75,7 @@ abstract class BrowserPlatform {
     return {
       'name': name,
       'baseUrl': baseUrl,
-      'currentUrl': currentUrl,
+      'currentPath': currentPath,
       'device': device,
       'language': language,
       'userAgent': userAgent,

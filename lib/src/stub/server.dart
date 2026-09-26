@@ -9,7 +9,7 @@ final class PlatformData extends BrowserPlatform {
   /// Creates a server-side [PlatformData] instance.
   PlatformData({
     this.baseUrl = '/',
-    this.currentUrl = '/',
+    this.currentPath = '/',
     this.userAgent = '',
     this.width = 0,
     this.height = 0,
@@ -25,7 +25,7 @@ final class PlatformData extends BrowserPlatform {
   final String baseUrl;
 
   @override
-  final String currentUrl;
+  final String currentPath;
 
   @override
   String get device {
@@ -50,10 +50,10 @@ final class PlatformData extends BrowserPlatform {
   final int width;
 
   @override
-  bool get isMobile => isIphone || (!isDesktop && !isTablet);
+  bool get isMobile => isIphone || isAndroid;
 
   @override
-  bool get isTablet => height >= kBreakpointMedium && height < kBreakpointLarge;
+  bool get isTablet => !isMobile && !isDesktop;
 
   @override
   bool get isDesktop => isMacOS || isWindows || Platform.isLinux;

@@ -118,9 +118,7 @@ class AppBar extends StatelessComponent {
         : title;
 
     const baseClass = 'naki-appbar';
-    final effectiveClasses = classes.isNotNullAndEmpty
-        ? '$baseClass $classes'
-        : baseClass;
+    final effectiveClasses = joinClasses([?classes, baseClass]);
 
     final effectiveStyles = {
       Tokens.current.appbarBgColor.name: ?backgroundColor?.value,
@@ -515,11 +513,12 @@ class _BottomNavigationBarState extends State<BottomNavigationBar> {
     ).combineWith(component.selectedLabelStyle);
 
     const baseClass = 'naki-bottom-navbar';
-    String effectiveClasses = component.classes.isNotNullAndEmpty
-        ? '$baseClass ${component.classes}'
-        : baseClass;
-    effectiveClasses += ' ${effectiveType.className}';
-    effectiveClasses += ' ${effectiveLayout.className}';
+    final effectiveClasses = joinClasses([
+      effectiveLayout.className,
+      effectiveType.className,
+      ?component.classes,
+      baseClass,
+    ]);
 
     return .element(
       key: component.key,
@@ -594,7 +593,9 @@ class _BottomNavigationBarState extends State<BottomNavigationBar> {
 /// {@endtemplate}
 class Scaffold extends StatefulComponent {
   /// App bar to display at the top of the scaffold.
-  final AppBar? appBar;
+  ///
+  /// Typically an instance of [AppBar], but accepts any [Component].
+  final Component? appBar;
 
   /// SEO tags for the page.
   final SEO? seo;
@@ -603,7 +604,9 @@ class Scaffold extends StatefulComponent {
   final Component? body;
 
   /// Modal drawer to display when opened.
-  final Drawer? drawer;
+  ///
+  /// Typically an instance of [Drawer], but accepts any [Component].
+  final Component? drawer;
 
   /// Additional components (such as script, link) for font loading,
   /// analytics, etc. that are to be added to the application's head.
@@ -614,7 +617,9 @@ class Scaffold extends StatefulComponent {
   final Component? sideBar;
 
   /// Bottom navigation bar to display at the bottom of the scaffold.
-  final BottomNavigationBar? bottomNavigationBar;
+  ///
+  /// Typically an instance of [BottomNavigationBar], but accepts any [Component].
+  final Component? bottomNavigationBar;
 
   /// Button displayed floating above the body in the bottom-right corner.
   final Component? floatingActionButton;
@@ -655,8 +660,10 @@ class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
   late final _drawerController = OverlayController();
 
   /// Controller managing the scaffold's modal drawer open/close state.
-  OverlayController get drawerController =>
-      component.drawer?.controller ?? _drawerController;
+  OverlayController? get drawerController => switch (component.drawer) {
+    final Drawer d => d.controller ?? _drawerController,
+    _ => null,
+  };
 
   /// Whether the scaffold has an app bar.
   bool get hasAppbar => component.appBar != null;
@@ -668,11 +675,16 @@ class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
   bool get hasSideBar => component.sideBar != null;
 
   /// Returns the computed height of the app bar.
-  String? get appBarHeight => component.appBar?.height?.cssText;
+  String? get appBarHeight => switch (component.appBar) {
+    final AppBar bar => bar.height?.cssText,
+    _ => null,
+  };
 
   /// Returns the computed height of the bottom navigation bar.
-  String? get bottomNavbarHeight =>
-      component.bottomNavigationBar?.height?.cssText;
+  String? get bottomNavbarHeight => switch (component.bottomNavigationBar) {
+    final BottomNavigationBar bar => bar.height?.cssText,
+    _ => null,
+  };
 
   /// Whether the scaffold has a bottom navigation bar.
   bool get hasBottomNavbar => component.bottomNavigationBar != null;
@@ -681,29 +693,30 @@ class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
   bool get hasFloatingActionButton => component.floatingActionButton != null;
 
   /// Whether the drawer is currently open.
-  bool get isDrawerOpen => drawerController.isOpen;
+  bool get isDrawerOpen => drawerController?.isOpen ?? false;
 
   /// Opens the scaffold's drawer.
-  void openDrawer() => hasDrawer ? drawerController.open() : null;
+  void openDrawer() => drawerController?.open();
 
   /// Closes the scaffold's drawer.
-  void closeDrawer() => hasDrawer ? drawerController.close() : null;
+  void closeDrawer() => drawerController?.close();
 
   /// Toggles the scaffold's drawer open or closed.
-  void toggleDrawer() => hasDrawer ? drawerController.toggle() : null;
+  void toggleDrawer() => drawerController?.toggle();
 
   /// Returns SEO meta tags for the scaffold
   List<Component> get seoTags {
     final seo = component.seo;
     if (seo == null) return const <Component>[];
 
-    final pageUrl = normaliseLink(seo.url ?? '');
-    final logoUrl = normaliseLink(seo.logo ?? '', seo.url);
+    final base = seo.url ?? context.binding.basePath;
+    final pageUrl = normaliseLink(base);
+    final logoUrl = normaliseLink(seo.logo ?? '', base);
     final pageTitle = seo.title ?? '';
 
     final smTitle = seo.socialMediaTitle ?? pageTitle;
     final smDesc = seo.socialMediaDescription ?? seo.description ?? '';
-    final smImg = normaliseLink(seo.socialMediaBanner ?? logoUrl, seo.url);
+    final smImg = normaliseLink(seo.socialMediaBanner ?? logoUrl, base);
 
     final isValidLogo = logoUrl.isNotEmpty && logoUrl.startsWith('http');
     final isValidSmImg = smImg.isNotEmpty && smImg.startsWith('http');
@@ -791,9 +804,7 @@ class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
   @override
   Component build(BuildContext context) {
     const baseClass = 'naki-scaffold';
-    final effectiveClasses = component.classes.isNotNullAndEmpty
-        ? '$baseClass ${component.classes}'
-        : baseClass;
+    final effectiveClasses = joinClasses([?component.classes, baseClass]);
 
     final drawer = component.drawer;
     final sideBar = component.sideBar;
@@ -856,7 +867,10 @@ class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
                 ),
 
               // Modal Drawer
-              if (drawer != null) drawer.copyWith(controller: drawerController),
+              if (drawer != null)
+                drawer is Drawer
+                    ? drawer.copyWith(controller: drawerController)
+                    : drawer,
             ],
           );
         },

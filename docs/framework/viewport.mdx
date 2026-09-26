@@ -24,7 +24,7 @@ class AdaptiveNavigation extends StatelessComponent {
   @override
   Component build(BuildContext context) {
     final width = MediaQueryProvider.width(context) ?? 1200;
-    final isMobile = width < 768;
+    final isMobile = BreakPoint.from(width) == BreakPoint.sm;
 
     if (isMobile) {
       return BottomNavigationBar(
@@ -37,7 +37,7 @@ class AdaptiveNavigation extends StatelessComponent {
 
     return Row(
       children: [
-        Drawer.sidebar(
+        Sidebar(
           width: const Dim.px(200),
           child: Column(
             children: [

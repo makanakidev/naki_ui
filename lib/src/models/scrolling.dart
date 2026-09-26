@@ -242,10 +242,7 @@ class ScrollController {
 
       // calculate animation progress
       final elapsed = DateTime.now().millisecondsSinceEpoch - startTime;
-      final progress = (elapsed / totalDurationMs).clamp(
-        0.0,
-        1.0,
-      );
+      final progress = (elapsed / totalDurationMs).clamp(0.0, 1.0);
 
       // calculate easing progress
       final easedProgress = curve.build(progress);
@@ -292,10 +289,7 @@ class ScrollController {
   ///   itemExtent: 100.0,
   /// );
   /// ```
-  void jumpToIndex(
-    int index, {
-    required double itemExtent,
-  }) {
+  void jumpToIndex(int index, {required double itemExtent}) {
     jumpTo(index * itemExtent);
   }
 
@@ -322,11 +316,7 @@ class ScrollController {
     Duration duration = const Duration(milliseconds: 300),
     Curves curve = Curves.easeInOut,
   }) {
-    animateTo(
-      index * itemExtent,
-      duration: duration,
-      curve: curve,
-    );
+    animateTo(index * itemExtent, duration: duration, curve: curve);
   }
 
   /// Scrolls to a specific component inside the scrollable component.
@@ -368,11 +358,7 @@ class ScrollController {
       }
 
       // animate to target offset
-      animateTo(
-        targetOffset,
-        duration: duration,
-        curve: curve,
-      );
+      animateTo(targetOffset, duration: duration, curve: curve);
     }
   }
 
@@ -487,10 +473,7 @@ class PageController extends ScrollController {
 
       // calculate animation progress
       final elapsed = DateTime.now().millisecondsSinceEpoch - startTime;
-      final progress = (elapsed / totalDurationMs).clamp(
-        0.0,
-        1.0,
-      );
+      final progress = (elapsed / totalDurationMs).clamp(0.0, 1.0);
 
       // calculate easing progress
       final easedProgress = curve.build(progress);
@@ -557,11 +540,7 @@ class PageController extends ScrollController {
     Duration duration = const Duration(milliseconds: 300),
     Curves curve = Curves.easeInOut,
   }) {
-    animateToPage(
-      page.round() + 1,
-      duration: duration,
-      curve: curve,
-    );
+    animateToPage(page.round() + 1, duration: duration, curve: curve);
   }
 
   /// Navigates to the previous page.
@@ -693,8 +672,6 @@ class SliverGridDelegateWithFixedCrossAxisCount extends SliverGridDelegate {
   ///
   /// - If scroll direction is `vertical`, this is the `height` of each item.
   /// - If scroll direction is `horizontal`, this is the `width` of each item.
-  ///
-  /// Note: This property
   final Dim? mainAxisExtent;
 
   /// Creates a [SliverGridDelegateWithFixedCrossAxisCount].
@@ -704,10 +681,7 @@ class SliverGridDelegateWithFixedCrossAxisCount extends SliverGridDelegate {
     this.crossAxisSpacing = const Dim.px(16),
     this.childAspectRatio = AspectRatioType.ratio1_1,
     this.mainAxisExtent,
-  }) : assert(
-         crossAxisCount > 0,
-         'crossAxisCount must be greater than 0',
-       );
+  }) : assert(crossAxisCount > 0, 'crossAxisCount must be greater than 0');
 }
 
 /// Creates grid layouts with tiles that each have a maximum cross-axis extent.
@@ -839,11 +813,7 @@ class TableBorder {
     Color? color,
     BorderRadiusData? borderRadius,
   }) {
-    final side = BorderSideData(
-      color: color,
-      width: width,
-      style: style,
-    );
+    final side = BorderSideData(color: color, width: width, style: style);
     return TableBorder(
       top: side,
       right: side,

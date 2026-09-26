@@ -20,9 +20,7 @@ abstract class NakiStylable {
 /// properties to CSS values.
 class NakiAlignProps {
   /// Maps [MainAxisAlignment] to its CSS equivalent.
-  static String mapMainAxisAlignment(
-    MainAxisAlignment alignment,
-  ) {
+  static String mapMainAxisAlignment(MainAxisAlignment alignment) {
     switch (alignment) {
       case MainAxisAlignment.start:
         return 'flex-start';
@@ -40,9 +38,7 @@ class NakiAlignProps {
   }
 
   /// Maps [CrossAxisAlignment] to its CSS equivalent.
-  static String mapCrossAxisAlignment(
-    CrossAxisAlignment alignment,
-  ) {
+  static String mapCrossAxisAlignment(CrossAxisAlignment alignment) {
     switch (alignment) {
       case CrossAxisAlignment.start:
         return 'flex-start';
@@ -58,55 +54,26 @@ class NakiAlignProps {
   }
 
   /// Maps [Alignment] to its CSS equivalent.
-  static Map<String, String> mapAlignment(
-    Alignment alignment,
-  ) {
+  static Map<String, String> mapAlignment(Alignment alignment) {
     switch (alignment) {
       case Alignment.topLeft:
-        return {
-          'justify-content': 'flex-start',
-          'align-items': 'flex-start',
-        };
+        return {'justify-content': 'flex-start', 'align-items': 'flex-start'};
       case Alignment.topCenter:
-        return {
-          'justify-content': 'center',
-          'align-items': 'flex-start',
-        };
+        return {'justify-content': 'center', 'align-items': 'flex-start'};
       case Alignment.topRight:
-        return {
-          'justify-content': 'flex-end',
-          'align-items': 'flex-start',
-        };
+        return {'justify-content': 'flex-end', 'align-items': 'flex-start'};
       case Alignment.centerLeft:
-        return {
-          'justify-content': 'flex-start',
-          'align-items': 'center',
-        };
+        return {'justify-content': 'flex-start', 'align-items': 'center'};
       case Alignment.center:
-        return {
-          'justify-content': 'center',
-          'align-items': 'center',
-        };
+        return {'justify-content': 'center', 'align-items': 'center'};
       case Alignment.centerRight:
-        return {
-          'justify-content': 'flex-end',
-          'align-items': 'center',
-        };
+        return {'justify-content': 'flex-end', 'align-items': 'center'};
       case Alignment.bottomLeft:
-        return {
-          'justify-content': 'flex-start',
-          'align-items': 'flex-end',
-        };
+        return {'justify-content': 'flex-start', 'align-items': 'flex-end'};
       case Alignment.bottomCenter:
-        return {
-          'justify-content': 'center',
-          'align-items': 'flex-end',
-        };
+        return {'justify-content': 'center', 'align-items': 'flex-end'};
       case Alignment.bottomRight:
-        return {
-          'justify-content': 'flex-end',
-          'align-items': 'flex-end',
-        };
+        return {'justify-content': 'flex-end', 'align-items': 'flex-end'};
     }
   }
 }
@@ -155,7 +122,7 @@ class DropdownItem<T> {
     );
   }
 
-  /// Returns the string representation of the item value.
+  /// Returns the string representation of the dropdown item value.
   /// If the value is null, it returns the label, or 'n/a' if label is null.
   @override
   String toString() => value?.toString() ?? label ?? 'n/a';
@@ -187,9 +154,7 @@ abstract class InlineSpan {
 
   /// Walks this span and all nested child spans in pre-order traversal.
   /// Stops recursion early if [visitor] returns `false`.
-  bool visitChildren(
-    bool Function(InlineSpan span) visitor,
-  );
+  bool visitChildren(bool Function(InlineSpan span) visitor);
 }
 
 /// Mixin on Naki text components.
@@ -286,10 +251,7 @@ class CalendarMonth {
   final DateTime date;
   final List<CalendarDay?> days;
 
-  const CalendarMonth({
-    required this.date,
-    required this.days,
-  });
+  const CalendarMonth({required this.date, required this.days});
 }
 
 /// Represents an item in [BottomNavigationBar.items].

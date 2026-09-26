@@ -8,20 +8,20 @@ final class PlatformData extends BrowserPlatform {
   /// Creates a client-side [PlatformData] instance.
   PlatformData({
     String baseUrl = '',
-    String currentUrl = '',
+    String currentPath = '',
     String userAgent = '',
     int width = 0,
     int height = 0,
     String? language,
   }) : _baseUrl = baseUrl.trim().isEmpty ? null : baseUrl,
-       _currentUrl = currentUrl.trim().isEmpty ? null : currentUrl,
+       _currentPath = currentPath.trim().isEmpty ? null : currentPath,
        _userAgent = userAgent.trim().isEmpty ? null : userAgent,
        _width = width == 0 ? null : width,
        _height = height == 0 ? null : height,
        _language = language.isNullOrEmpty ? null : language;
 
   final String? _baseUrl;
-  final String? _currentUrl;
+  final String? _currentPath;
   final String? _userAgent;
   final int? _width;
   final int? _height;
@@ -39,11 +39,15 @@ final class PlatformData extends BrowserPlatform {
   String get name => _platform.contains('win') ? 'windows' : _platform;
 
   @override
-  String get baseUrl => _baseUrl ?? location.origin;
+  String get baseUrl {
+    final baseElem = document.querySelector('base') as HTMLBaseElement?;
+    String path = baseElem?.href ?? '';
+    if (path == '/') path = '';
+    return _baseUrl ?? location.origin + path;
+  }
 
   @override
-  String get currentUrl =>
-      _currentUrl ?? location.href.replaceFirst(baseUrl, '');
+  String get currentPath => _currentPath ?? location.href.replaceFirst(baseUrl, '');
 
   @override
   String get device {
@@ -69,16 +73,13 @@ final class PlatformData extends BrowserPlatform {
   int get width => _width ?? window.innerWidth;
 
   @override
-  bool get isMobile =>
-      window.matchMedia('(max-width: 768px) and (pointer: coarse)').matches;
+  bool get isMobile => window.matchMedia('(max-width: 768px) and (pointer: coarse)').matches;
 
   @override
-  bool get isTablet =>
-      window.matchMedia('(pointer: coarse) and (hover: none)').matches;
+  bool get isTablet => window.matchMedia('(pointer: coarse) and (hover: none)').matches;
 
   @override
-  bool get isDesktop =>
-      window.matchMedia('(pointer: fine) and (hover: hover)').matches;
+  bool get isDesktop => window.matchMedia('(pointer: fine) and (hover: hover)').matches;
 
   @override
   bool get isPWA => window.matchMedia('(display-mode: standalone)').matches;
@@ -87,8 +88,7 @@ final class PlatformData extends BrowserPlatform {
   bool get isIphone => _ua.contains('iphone');
 
   @override
-  bool get isiPad =>
-      _ua.contains('ipad') || (isMacOS && navigator.maxTouchPoints > 1);
+  bool get isiPad => _ua.contains('ipad') || (isMacOS && navigator.maxTouchPoints > 1);
 
   @override
   bool get isMacOS => _ua.contains('macintosh') || _ua.contains('mac os');

@@ -34,7 +34,7 @@ class DashboardLayout extends StatelessComponent {
           ),
         ],
       ),
-      sideBar: Drawer.sidebar(
+      sideBar: Sidebar(
         width: const Dim.px(240),
         child: Padding(
           padding: const EdgeInsets.all(Dim.px(16)),
@@ -52,6 +52,21 @@ class DashboardLayout extends StatelessComponent {
       body: const Padding(
         padding: EdgeInsets.all(Dim.px(24)),
         child: NakiText('Main Dashboard Content'),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        selectedIndex: _currentIndex,
+        type: BottomNavigationBarType.frostedGlass,
+        onTap: (index) => setState(() => _currentIndex = index),
+        items: const [
+          BottomNavigationBarItem(
+            icon: LucideIcons.icon_house,
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: LucideIcons.icon_settings,
+            label: 'Settings',
+          ),
+        ],
       ),
     );
   }
@@ -100,3 +115,10 @@ BottomNavigationBar(
 )
 ```
 
+## `BottomNavigationBarType` Enum Variants
+
+| Enum Variant                           | Description                                                                                                                                          |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `BottomNavigationBarType.frostedGlass` | The bottom navigation bar has an iOS-style frosted glass effect, is elevated, centered on the screen, and has a smaller width than the screen width. |
+| `BottomNavigationBarType.floating`     | The bottom navigation bar is elevated, centered on the screen, and has a smaller width than the screen width.                                        |
+| `BottomNavigationBarType.fixed`        | The bottom navigation bar is fixed to the bottom of the screen and has the full width of the screen.                                                 |

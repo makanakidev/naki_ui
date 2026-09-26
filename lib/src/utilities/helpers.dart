@@ -16,11 +16,7 @@ import 'storage.dart';
 /// Builds a DOM id from an explicit id, or allocates one from the root
 /// [NakiDomIdScope]. Generated ids never depend on labels, values, or other
 /// nullable content and are stable across matching server/client renders.
-String nakiDomId(
-  BuildContext context,
-  String prefix, {
-  String? id,
-}) {
+String nakiDomId(BuildContext context, String prefix, {String? id}) {
   final explicit = nakiExplicitDomId(prefix, id);
   if (explicit != null) return explicit;
 
@@ -38,10 +34,7 @@ String? nakiExplicitDomId(String prefix, String? id) {
   final explicit = id?.trim();
   if (explicit.isNullOrEmpty) return null;
 
-  final cleaned = explicit!.replaceAll(
-    RegExp(r'[^a-zA-Z0-9_-]'),
-    '-',
-  );
+  final cleaned = explicit!.replaceAll(RegExp(r'[^a-zA-Z0-9_-]'), '-');
   return '${prefix}_$cleaned';
 }
 
@@ -65,8 +58,10 @@ void onComponentRendered(VoidCallback action) {
 }
 
 /// Download image and save as DataURL to local storage for offline use
-Future<void> cacheImage(String src) async {
-  // Use the complete URL to derive a stable cache key and avoid suffix
+Future<void> cacheImage(String src, [String? basePath]) async {
+  src = normaliseLink(src, basePath);
+
+  // use the complete URL to derive a stable cache key and avoid suffix
   // collisions between unrelated image hosts and paths.
   final id = nakiStableKey('image', src);
 
@@ -86,9 +81,7 @@ Future<void> cacheImage(String src) async {
               NakiStorage.set(id, data);
               debugPrint('Image cached: $src');
             } else {
-              debugPrint(
-                'Image "$src" cache skipped: payload exceeds 2MB',
-              );
+              debugPrint('Image "$src" cache skipped: payload exceeds 2MB');
             }
           }
         });
@@ -172,9 +165,7 @@ bool showValidationError(
   if (fieldWrapper == null) return false;
 
   // link input element to validation error element
-  final inputElem =
-      document.getElementById(isSegmentedInput ? '${id}_0' : id)
-          as HTMLElement?;
+  final inputElem = document.getElementById(isSegmentedInput ? '${id}_0' : id) as HTMLElement?;
 
   <String, String>{
     'aria-describedby': validationId,
@@ -208,8 +199,7 @@ void removeValidationError(String id) {
     document.getElementById(validationId)?.remove();
 
     final rawId = id.replaceAll('_validation', '');
-    final targetInput =
-        document.getElementById(rawId) ?? document.getElementById('${rawId}_0');
+    final targetInput = document.getElementById(rawId) ?? document.getElementById('${rawId}_0');
 
     targetInput?.removeAttribute('aria-describedby');
     targetInput?.setAttribute('aria-invalid', 'false');
@@ -219,18 +209,14 @@ void removeValidationError(String id) {
 /// Clear all visible validation errors
 void clearAllValidationErrors() {
   if (kIsWeb) {
-    final elems = document.getElementsByTagName(
-      'naki-error',
-    );
+    final elems = document.getElementsByTagName('naki-error');
 
     for (int i = elems.length - 1; i >= 0; i--) {
       final elem = elems.item(i);
 
       if (elem != null) {
         final rawId = elem.id.replaceAll('_validation', '');
-        final targetInput =
-            document.getElementById(rawId) ??
-            document.getElementById('${rawId}_0');
+        final targetInput = document.getElementById(rawId) ?? document.getElementById('${rawId}_0');
 
         targetInput?.removeAttribute('aria-describedby');
         targetInput?.setAttribute('aria-invalid', 'false');
@@ -242,10 +228,7 @@ void clearAllValidationErrors() {
 }
 
 /// Returns the theme switching script for the current theme mode.
-String themeSwitchingScript(
-  String currentMode,
-  bool cache,
-) {
+String themeSwitchingScript(String currentMode, bool cache) {
   return kThemeSwitchingScript
       .replaceAll('{{MODE}}', currentMode)
       .replaceAll('{{CACHE}}', '$cache');
@@ -357,8 +340,7 @@ HTMLElement? _findScrollableAncestor(HTMLElement elem) {
 
     // check if the parent element has scrollable content
     final hasScrollableContent =
-        parent.scrollHeight > parent.clientHeight ||
-        parent.scrollWidth > parent.clientWidth;
+        parent.scrollHeight > parent.clientHeight || parent.scrollWidth > parent.clientWidth;
 
     if (isScrollable && hasScrollableContent) {
       return parent as HTMLElement;
@@ -398,9 +380,7 @@ void hapticFeedback({
     }
 
     // default vibration duration
-    final durationMs = duration.inMilliseconds
-        .clamp(0, double.infinity)
-        .toInt();
+    final durationMs = duration.inMilliseconds.clamp(0, double.infinity).toInt();
 
     window.navigator.vibrate(durationMs.toJS);
   } catch (_) {}
@@ -409,19 +389,11 @@ void hapticFeedback({
 /// File saver in vm and browser environment
 /// - `fileName` must include extension e.g. "file.txt"
 /// - `mimeType` must match the file extension
-void saveAsFile(
-  String content,
-  String fileName, {
-  FileType mimeType = .txt,
-}) {
+void saveAsFile(String content, String fileName, {FileType mimeType = .txt}) {
   if (kIsServer) return;
 
   // convert content to a data URL
-  final url = Uri.dataFromString(
-    content,
-    mimeType: mimeType.value,
-    encoding: utf8,
-  ).toString();
+  final url = Uri.dataFromString(content, mimeType: mimeType.value, encoding: utf8).toString();
 
   // create an anchor element to trigger download
   final anchor = document.createElement('a') as HTMLAnchorElement;
@@ -525,4 +497,9 @@ String normaliseLink(String link, [String? siteUrl]) {
   if (origin.isNotEmpty) return '$origin$cleanedLink';
 
   return cleanedLink;
+}
+
+/// Joins non-empty CSS classes with a single space.
+String joinClasses(List<String> classes) {
+  return classes.reversed.where((c) => c.isNotEmpty).join(' ');
 }

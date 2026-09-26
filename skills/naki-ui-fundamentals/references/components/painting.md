@@ -147,7 +147,11 @@ Clip a child to rectangular bounds, optionally with rounded corners.
 ```dart
 ClipRect(
   borderRadius: const BorderRadiusData.all(Dim.px(12)),
-  child: Image('/images/cover.webp', fit: BoxFit.cover),
+  child: Image(
+    '/images/cover.webp',
+    fit: ObjectFit.cover,
+    position: ObjectPosition.center,
+  ),
 )
 ```
 

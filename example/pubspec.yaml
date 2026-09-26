@@ -7,8 +7,6 @@ environment:
 
 dependencies:
   jaspr: ^0.23.4
-  jaspr_icons_pack: ^1.0.3
-  universal_web: ^1.1.1
   naki_ui:
     path: ../
 

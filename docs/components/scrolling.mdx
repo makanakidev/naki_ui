@@ -73,7 +73,7 @@ ListView.builder(
   ),
   itemBuilder: (context, index) {
     return Card(
-      margin: const EdgeInsets.only(bottom: Dim.px(8)),
+      decoration: BoxDecoration(margin: EdgeInsets.only(bottom: Dim.px(8))),
       child: Padding(
         padding: const EdgeInsets.all(Dim.px(16)),
         child: NakiText('List Item #$index'),
@@ -100,17 +100,17 @@ GridView.count(
     trackColor: Color('#f0f0f0'),
     width: 6,
   ),
-  children: [
-    for (int i = 0; i < 9; i++)
-      GridTile(
-        child: Card(
-          child: Align(
-            alignment: Alignment.center,
-            child: NakiText('Tile $i'),
-          ),
+  children: List.generate(
+    9,
+    (i) => GridTile(
+      child: Card(
+        child: Align(
+          alignment: Alignment.center,
+          child: NakiText('Tile $i'),
         ),
       ),
-  ],
+    ),
+  ),
 )
 ```
 

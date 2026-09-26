@@ -1,6 +1,5 @@
 import 'package:jaspr/dom.dart' hide Padding, Position, Transform, Visibility;
 import 'package:jaspr/jaspr.dart';
-import 'package:jaspr_icons_pack/jaspr_icons_pack.dart' show MaterialIcons;
 import 'package:naki_ui/framework.dart';
 import 'package:naki_ui/naki_ui.dart';
 import 'package:naki_ui/theme.dart';

@@ -1,6 +1,5 @@
 import 'package:jaspr/dom.dart' hide Padding;
 import 'package:jaspr/jaspr.dart';
-import 'package:jaspr_icons_pack/jaspr_icons_pack.dart' show MaterialIcons;
 
 import 'package:naki_ui/framework.dart';
 import 'package:naki_ui/naki_ui.dart';
@@ -52,7 +51,7 @@ class TodoApp extends StatelessComponent {
       pageBuilder: (context, child) {
         return Scaffold(
           appBar: AppBar(
-            titleText: 'Naki UI Demo',
+            titleText: 'Naki UI',
             actions: [
               Button.icon(
                 context.themeMode == ThemeMode.dark

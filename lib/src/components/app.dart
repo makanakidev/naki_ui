@@ -591,7 +591,8 @@ class _NakiAppState extends State<NakiApp> {
   }
 
   (String, String)? get favicon {
-    final favico = normaliseLink(component.favicon ?? '');
+    final base = component.seo?.url ?? context.binding.basePath;
+    final favico = normaliseLink(component.favicon ?? '', base);
     String? type;
 
     if (favico.isNotEmpty) {
@@ -623,13 +624,14 @@ class _NakiAppState extends State<NakiApp> {
     final seo = component.seo;
     if (seo == null) return [];
 
-    final pageUrl = normaliseLink(seo.url ?? '');
-    final logoUrl = normaliseLink(seo.logo ?? '', seo.url);
+    final base = seo.url ?? context.binding.basePath;
+    final pageUrl = normaliseLink(base);
+    final logoUrl = normaliseLink(seo.logo ?? '', base);
     final pageTitle = seo.title ?? component.title ?? '';
 
     final smTitle = seo.socialMediaTitle ?? pageTitle;
     final smDesc = seo.socialMediaDescription ?? seo.description ?? '';
-    final smImg = normaliseLink(seo.socialMediaBanner ?? logoUrl, seo.url);
+    final smImg = normaliseLink(seo.socialMediaBanner ?? logoUrl, base);
 
     final isValidLogo = logoUrl.isNotEmpty && logoUrl.startsWith('http');
     final isValidSmImg = smImg.isNotEmpty && smImg.startsWith('http');

@@ -5,8 +5,7 @@ import 'package:jaspr/jaspr.dart';
 
 import '../components/app.dart' show NakiApp;
 import '../framework/framework.dart' show NakiStatefulMixin;
-import '../framework/inherited.dart'
-    show AppScope, NakiDomIdRegistry, NakiDomIdScope;
+import '../framework/inherited.dart' show AppScope, NakiDomIdRegistry, NakiDomIdScope;
 import '../framework/lifecycle.dart' show BrowserLifecycleListeners;
 import '../models/naki.dart' show ScrollBarConfiguration;
 import '../models/styling.dart' show Dim;
@@ -88,13 +87,10 @@ class NakiThemeProvider extends StatefulComponent {
   /// **NOTE: Do not use this constructor if theme configuration is already
   /// handled by [NakiApp] because there can only be one instance of
   /// [ThemeConfig] in an application.**
-  NakiThemeProvider.fromConfig({
-    required this.configuration,
-    required this.builder,
-    super.key,
-  }) : onModeChanged = null,
-       mode = configuration?.initialMode ?? ThemeMode.system,
-       enableCache = configuration?.cacheThemeMode ?? false;
+  NakiThemeProvider.fromConfig({required this.configuration, required this.builder, super.key})
+    : onModeChanged = null,
+      mode = configuration?.initialMode ?? ThemeMode.system,
+      enableCache = configuration?.cacheThemeMode ?? false;
 
   /// Finds the nearest [InheritedTheme] instance in the component tree.
   /// This scans the component tree upwards from the parent of [context]
@@ -139,15 +135,19 @@ class NakiThemeProvider extends StatefulComponent {
   ///
   /// Returns `null` in server-side or when no [NakiThemeProvider]
   /// is in the component tree.
-  static Brightness? systemBrightness(BuildContext context) =>
-      of(context)?.systemBrightness;
+  static Brightness? systemBrightness(BuildContext context) => of(context)?.systemBrightness;
 
   /// Design tokens of the active theme relative to the [context].
   ///
   /// Returns global tokens for backward compatibility if no
   /// [NakiThemeProvider] is in the component tree.
-  static Tokens tokensOf(BuildContext context) =>
-      of(context)?.tokens ?? Tokens.current;
+  static Tokens tokensOf(BuildContext context) => of(context)?.tokens ?? Tokens.current;
+
+  /// Returns the current theme mode.
+  ///
+  /// Returns [ThemeMode.system] for backward compatibility if no
+  /// [NakiThemeProvider] is in the component tree.
+  static ThemeMode modeOf(BuildContext context) => of(context)?.mode ?? ThemeMode.system;
 
   @override
   State<NakiThemeProvider> createState() => _NakiThemeProviderState();
@@ -157,8 +157,7 @@ class NakiThemeProvider extends StatefulComponent {
       NakiStyleRegistry.once('NakiFoundationRules', Rules.nakiFoundationRules);
 }
 
-class _NakiThemeProviderState extends State<NakiThemeProvider>
-    with NakiStatefulMixin {
+class _NakiThemeProviderState extends State<NakiThemeProvider> with NakiStatefulMixin {
   late Tokens _tokens;
 
   ThemeMode _mode = ThemeMode.system;
@@ -188,9 +187,7 @@ class _NakiThemeProviderState extends State<NakiThemeProvider>
   FutureOr<VoidCallback?> afterRender(BuildContext context) {
     if (_isRoot) {
       _lifecycle.whenSystemThemeChanged = (mode) {
-        _systemBrightness = mode == ThemeMode.dark
-            ? Brightness.dark
-            : Brightness.light;
+        _systemBrightness = mode == ThemeMode.dark ? Brightness.dark : Brightness.light;
 
         if (_mode == ThemeMode.system) {
           _brightness = _systemBrightness!;
@@ -356,14 +353,11 @@ class _NakiThemeProviderState extends State<NakiThemeProvider>
             ':is(.naki-light-mode, html[data-naki-theme="light"])',
           ).styles(raw: lmTokens.variables),
 
-          css.media(
-            const MediaQuery.all(prefersColorScheme: ColorScheme.light),
-            [
-              css(
-                ':is(.naki-system-mode, html[data-naki-theme="system"])',
-              ).styles(raw: lmTokens.variables),
-            ],
-          ),
+          css.media(const MediaQuery.all(prefersColorScheme: ColorScheme.light), [
+            css(
+              ':is(.naki-system-mode, html[data-naki-theme="system"])',
+            ).styles(raw: lmTokens.variables),
+          ]),
         ]);
       } else {
         styles.addAll([baseStyles[1], baseStyles[2]]);
@@ -372,18 +366,13 @@ class _NakiThemeProviderState extends State<NakiThemeProvider>
       // dark mode styles
       if (dmTokens != null) {
         styles.addAll([
-          css(
-            ':is(.naki-dark-mode, html[data-naki-theme="dark"])',
-          ).styles(raw: dmTokens.variables),
+          css(':is(.naki-dark-mode, html[data-naki-theme="dark"])').styles(raw: dmTokens.variables),
 
-          css.media(
-            const MediaQuery.all(prefersColorScheme: ColorScheme.dark),
-            [
-              css(
-                ':is(.naki-system-mode, html[data-naki-theme="system"])',
-              ).styles(raw: dmTokens.variables),
-            ],
-          ),
+          css.media(const MediaQuery.all(prefersColorScheme: ColorScheme.dark), [
+            css(
+              ':is(.naki-system-mode, html[data-naki-theme="system"])',
+            ).styles(raw: dmTokens.variables),
+          ]),
         ]);
       } else {
         styles.addAll([baseStyles[3], baseStyles[4]]);
@@ -398,6 +387,7 @@ class _NakiThemeProviderState extends State<NakiThemeProvider>
       tokens: _tokens,
       brightness: _brightness,
       systemBrightness: _systemBrightness,
+      configuration: _config,
       onSetMode: setMode,
       onToggleMode: toggleMode,
       child: _ThemeBuilder(
@@ -422,6 +412,9 @@ class InheritedTheme extends InheritedComponent {
   /// Design tokens for the active theme.
   final Tokens tokens;
 
+  /// Theme configuration used to create this theme.
+  final ThemeConfig? configuration;
+
   /// Brightness preference of the browser.
   /// Returns `null` in server mode.
   final Brightness? systemBrightness;
@@ -443,6 +436,7 @@ class InheritedTheme extends InheritedComponent {
     required super.child,
     required this.brightness,
     this.systemBrightness,
+    this.configuration,
     required ValueChanged<ThemeMode> onSetMode,
     required VoidCallback onToggleMode,
   }) : _onSetMode = onSetMode,
@@ -495,9 +489,7 @@ class _ThemeBuilder extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
-    final child = hasConfig
-        ? builder(context)
-        : _LocalThemeBuilder(builder: builder, mode: mode);
+    final child = hasConfig ? builder(context) : _LocalThemeBuilder(builder: builder, mode: mode);
 
     return styles.isEmpty
         ? child
@@ -714,8 +706,7 @@ class _DarkModeTokens extends Tokens {
 
   /// Slider track color (dark: opacity 70%).
   @override
-  String get sliderTrackColorValue =>
-      'color-mix(in srgb, currentcolor 70%, transparent)';
+  String get sliderTrackColorValue => 'color-mix(in srgb, currentcolor 70%, transparent)';
 
   /// Switch thumb color (dark: `currentcolor`).
   @override
@@ -1009,11 +1000,9 @@ class ColorSeed {
       mutedColor: mutedColor ?? this.mutedColor,
       subtitleColor: subtitleColor ?? this.subtitleColor,
       selectedItemColor: selectedItemColor ?? this.selectedItemColor,
-      selectedTextBackgroundColor:
-          selectedTextBackgroundColor ?? this.selectedTextBackgroundColor,
+      selectedTextBackgroundColor: selectedTextBackgroundColor ?? this.selectedTextBackgroundColor,
       selectedTextColor: selectedTextColor ?? this.selectedTextColor,
-      selectedItemBackgroundColor:
-          selectedItemBackgroundColor ?? this.selectedItemBackgroundColor,
+      selectedItemBackgroundColor: selectedItemBackgroundColor ?? this.selectedItemBackgroundColor,
       backgroundColor: backgroundColor ?? this.backgroundColor,
       errorColor: errorColor ?? this.errorColor,
       successColor: successColor ?? this.successColor,
@@ -1027,8 +1016,7 @@ class ColorSeed {
       surfaceMutedColor: surfaceMutedColor ?? this.surfaceMutedColor,
       focusBorderColor: focusBorderColor ?? this.focusBorderColor,
       hoverColor: hoverColor ?? this.hoverColor,
-      disabledBackgroundColor:
-          disabledBackgroundColor ?? this.disabledBackgroundColor,
+      disabledBackgroundColor: disabledBackgroundColor ?? this.disabledBackgroundColor,
       disabledColor: disabledColor ?? this.disabledColor,
     );
   }
@@ -1213,14 +1201,12 @@ class TypographyScheme {
       fontSizeError: fontSizeError ?? this.fontSizeError,
       fontSizeHint: fontSizeHint ?? this.fontSizeHint,
       fontSizeLabel: fontSizeLabel ?? this.fontSizeLabel,
-      fontSizeSectionHeader:
-          fontSizeSectionHeader ?? this.fontSizeSectionHeader,
+      fontSizeSectionHeader: fontSizeSectionHeader ?? this.fontSizeSectionHeader,
       fontWeightNormal: fontWeightNormal ?? this.fontWeightNormal,
       fontWeightMedium: fontWeightMedium ?? this.fontWeightMedium,
       fontWeightSemiBold: fontWeightSemiBold ?? this.fontWeightSemiBold,
       fontWeightBold: fontWeightBold ?? this.fontWeightBold,
-      fontWeightSectionHeader:
-          fontWeightSectionHeader ?? this.fontWeightSectionHeader,
+      fontWeightSectionHeader: fontWeightSectionHeader ?? this.fontWeightSectionHeader,
     );
   }
 
@@ -1331,14 +1317,7 @@ class SpacingScheme {
   }
 
   @override
-  int get hashCode => Object.hash(
-    paddingSm,
-    paddingMd,
-    paddingLg,
-    marginSm,
-    marginMd,
-    marginLg,
-  );
+  int get hashCode => Object.hash(paddingSm, paddingMd, paddingLg, marginSm, marginMd, marginLg);
 }
 
 /// Represents customizable global border color and width variables.
@@ -1376,8 +1355,7 @@ class BorderScheme {
     return BorderScheme(
       borderColor: borderColor ?? this.borderColor,
       borderWidth: borderWidth ?? this.borderWidth,
-      fieldHoverBorderWidth:
-          fieldHoverBorderWidth ?? this.fieldHoverBorderWidth,
+      fieldHoverBorderWidth: fieldHoverBorderWidth ?? this.fieldHoverBorderWidth,
       focusBorderWidth: focusBorderWidth ?? this.focusBorderWidth,
       errorBorderWidth: errorBorderWidth ?? this.errorBorderWidth,
     );
@@ -1450,12 +1428,8 @@ class ElevationScheme {
   }
 
   @override
-  int get hashCode => Object.hash(
-    shadowColor,
-    smallShadowColor,
-    mediumShadowColor,
-    largeShadowColor,
-  );
+  int get hashCode =>
+      Object.hash(shadowColor, smallShadowColor, mediumShadowColor, largeShadowColor);
 }
 
 /// Represents customizable global border radius variables.
@@ -1472,19 +1446,9 @@ class RadiusScheme {
   /// Container shape radius.
   final Dim? shapeRadius;
 
-  const RadiusScheme({
-    this.radiusSm,
-    this.radiusMd,
-    this.radiusLg,
-    this.shapeRadius,
-  });
+  const RadiusScheme({this.radiusSm, this.radiusMd, this.radiusLg, this.shapeRadius});
 
-  RadiusScheme copyWith({
-    Dim? radiusSm,
-    Dim? radiusMd,
-    Dim? radiusLg,
-    Dim? shapeRadius,
-  }) {
+  RadiusScheme copyWith({Dim? radiusSm, Dim? radiusMd, Dim? radiusLg, Dim? shapeRadius}) {
     return RadiusScheme(
       radiusSm: radiusSm ?? this.radiusSm,
       radiusMd: radiusMd ?? this.radiusMd,
@@ -1849,10 +1813,8 @@ class ComponentScheme {
     dropdownHeight: dropdownHeight ?? this.dropdownHeight,
     dropdownWidth: dropdownWidth ?? this.dropdownWidth,
     dropdownMenuHeight: dropdownMenuHeight ?? this.dropdownMenuHeight,
-    dropdownMenuBackgroundColor:
-        dropdownMenuBackgroundColor ?? this.dropdownMenuBackgroundColor,
-    dropdownOptionFontSize:
-        dropdownOptionFontSize ?? this.dropdownOptionFontSize,
+    dropdownMenuBackgroundColor: dropdownMenuBackgroundColor ?? this.dropdownMenuBackgroundColor,
+    dropdownOptionFontSize: dropdownOptionFontSize ?? this.dropdownOptionFontSize,
     dropdownOptionPadding: dropdownOptionPadding ?? this.dropdownOptionPadding,
     spinnerSize: spinnerSize ?? this.spinnerSize,
     spinnerBorderWidth: spinnerBorderWidth ?? this.spinnerBorderWidth,
@@ -1868,50 +1830,39 @@ class ComponentScheme {
     radioButtonColor: radioButtonColor ?? this.radioButtonColor,
     appbarBackgroundColor: appbarBackgroundColor ?? this.appbarBackgroundColor,
     appbarHeight: appbarHeight ?? this.appbarHeight,
-    bottomNavbarBackgroundColor:
-        bottomNavbarBackgroundColor ?? this.bottomNavbarBackgroundColor,
+    bottomNavbarBackgroundColor: bottomNavbarBackgroundColor ?? this.bottomNavbarBackgroundColor,
     bottomNavbarHeight: bottomNavbarHeight ?? this.bottomNavbarHeight,
     carouselItemExtent: carouselItemExtent ?? this.carouselItemExtent,
     carouselGap: carouselGap ?? this.carouselGap,
-    tableHeaderBackgroundColor:
-        tableHeaderBackgroundColor ?? this.tableHeaderBackgroundColor,
-    tableHeaderBorderColor:
-        tableHeaderBorderColor ?? this.tableHeaderBorderColor,
+    tableHeaderBackgroundColor: tableHeaderBackgroundColor ?? this.tableHeaderBackgroundColor,
+    tableHeaderBorderColor: tableHeaderBorderColor ?? this.tableHeaderBorderColor,
     tableRowHoverColor: tableRowHoverColor ?? this.tableRowHoverColor,
     gridGap: gridGap ?? this.gridGap,
-    snackbarBackgroundColor:
-        snackbarBackgroundColor ?? this.snackbarBackgroundColor,
-    snackbarForegroundColor:
-        snackbarForegroundColor ?? this.snackbarForegroundColor,
+    snackbarBackgroundColor: snackbarBackgroundColor ?? this.snackbarBackgroundColor,
+    snackbarForegroundColor: snackbarForegroundColor ?? this.snackbarForegroundColor,
     snackbarBorderRadius: snackbarBorderRadius ?? this.snackbarBorderRadius,
     bannerBackgroundColor: bannerBackgroundColor ?? this.bannerBackgroundColor,
     bannerForegroundColor: bannerForegroundColor ?? this.bannerForegroundColor,
     bannerBorderRadius: bannerBorderRadius ?? this.bannerBorderRadius,
     bannerBorderColor: bannerBorderColor ?? this.bannerBorderColor,
-    tooltipBackgroundColor:
-        tooltipBackgroundColor ?? this.tooltipBackgroundColor,
+    tooltipBackgroundColor: tooltipBackgroundColor ?? this.tooltipBackgroundColor,
     tooltipTextColor: tooltipTextColor ?? this.tooltipTextColor,
     tooltipBorderRadius: tooltipBorderRadius ?? this.tooltipBorderRadius,
     tooltipFontSize: tooltipFontSize ?? this.tooltipFontSize,
-    popoverBackgroundColor:
-        popoverBackgroundColor ?? this.popoverBackgroundColor,
+    popoverBackgroundColor: popoverBackgroundColor ?? this.popoverBackgroundColor,
     popoverTextColor: popoverTextColor ?? this.popoverTextColor,
     popoverBorderColor: popoverBorderColor ?? this.popoverBorderColor,
     popoverBorderRadius: popoverBorderRadius ?? this.popoverBorderRadius,
     dialogBackgroundColor: dialogBackgroundColor ?? this.dialogBackgroundColor,
     dialogBorderRadius: dialogBorderRadius ?? this.dialogBorderRadius,
-    dialogBarrierBackgroundColor:
-        dialogBarrierBackgroundColor ?? this.dialogBarrierBackgroundColor,
+    dialogBarrierBackgroundColor: dialogBarrierBackgroundColor ?? this.dialogBarrierBackgroundColor,
     drawerBackgroundColor: drawerBackgroundColor ?? this.drawerBackgroundColor,
     drawerWidth: drawerWidth ?? this.drawerWidth,
-    drawerBarrierBackgroundColor:
-        drawerBarrierBackgroundColor ?? this.drawerBarrierBackgroundColor,
-    bottomSheetBackgroundColor:
-        bottomSheetBackgroundColor ?? this.bottomSheetBackgroundColor,
+    drawerBarrierBackgroundColor: drawerBarrierBackgroundColor ?? this.drawerBarrierBackgroundColor,
+    bottomSheetBackgroundColor: bottomSheetBackgroundColor ?? this.bottomSheetBackgroundColor,
     bottomSheetMaxHeight: bottomSheetMaxHeight ?? this.bottomSheetMaxHeight,
     bottomSheetBarrierBackgroundColor:
-        bottomSheetBarrierBackgroundColor ??
-        this.bottomSheetBarrierBackgroundColor,
+        bottomSheetBarrierBackgroundColor ?? this.bottomSheetBarrierBackgroundColor,
   );
 
   @override
@@ -1981,8 +1932,7 @@ class ComponentScheme {
         other.drawerBarrierBackgroundColor == drawerBarrierBackgroundColor &&
         other.bottomSheetBackgroundColor == bottomSheetBackgroundColor &&
         other.bottomSheetMaxHeight == bottomSheetMaxHeight &&
-        other.bottomSheetBarrierBackgroundColor ==
-            bottomSheetBarrierBackgroundColor;
+        other.bottomSheetBarrierBackgroundColor == bottomSheetBarrierBackgroundColor;
   }
 
   @override
@@ -2102,16 +2052,13 @@ class LightThemeData extends _LightModeTokens {
   // ===========================================================================
 
   @override
-  String get primaryColorValue =>
-      colorSeed?.primary?.value ?? super.primaryColorValue;
+  String get primaryColorValue => colorSeed?.primary?.value ?? super.primaryColorValue;
 
   @override
-  String get secondaryColorValue =>
-      colorSeed?.secondary?.value ?? super.secondaryColorValue;
+  String get secondaryColorValue => colorSeed?.secondary?.value ?? super.secondaryColorValue;
 
   @override
-  String get accentColorValue =>
-      colorSeed?.accent?.value ?? super.accentColorValue;
+  String get accentColorValue => colorSeed?.accent?.value ?? super.accentColorValue;
 
   @override
   String get greenValue => colorSeed?.green?.value ?? super.greenValue;
@@ -2123,20 +2070,17 @@ class LightThemeData extends _LightModeTokens {
   String get redValue => colorSeed?.red?.value ?? super.redValue;
 
   @override
-  String get baseTextColorValue =>
-      colorSeed?.baseTextColor?.value ?? super.baseTextColorValue;
+  String get baseTextColorValue => colorSeed?.baseTextColor?.value ?? super.baseTextColorValue;
 
   @override
   String get placeholderColorValue =>
       colorSeed?.placeholderColor?.value ?? super.placeholderColorValue;
 
   @override
-  String get mutedColorValue =>
-      colorSeed?.mutedColor?.value ?? super.mutedColorValue;
+  String get mutedColorValue => colorSeed?.mutedColor?.value ?? super.mutedColorValue;
 
   @override
-  String get subtitleColorValue =>
-      colorSeed?.subtitleColor?.value ?? super.subtitleColorValue;
+  String get subtitleColorValue => colorSeed?.subtitleColor?.value ?? super.subtitleColorValue;
 
   @override
   String get selectedItemColorValue =>
@@ -2144,8 +2088,7 @@ class LightThemeData extends _LightModeTokens {
 
   @override
   String get selectedTextBgColorValue =>
-      colorSeed?.selectedTextBackgroundColor?.value ??
-      super.selectedTextBgColorValue;
+      colorSeed?.selectedTextBackgroundColor?.value ?? super.selectedTextBgColorValue;
 
   @override
   String get selectedTextColorValue =>
@@ -2153,36 +2096,29 @@ class LightThemeData extends _LightModeTokens {
 
   @override
   String get selectedItemBgColorValue =>
-      colorSeed?.selectedItemBackgroundColor?.value ??
-      super.selectedItemBgColorValue;
+      colorSeed?.selectedItemBackgroundColor?.value ?? super.selectedItemBgColorValue;
 
   @override
   String get backgroundColorValue =>
       colorSeed?.backgroundColor?.value ?? super.backgroundColorValue;
 
   @override
-  String get borderColorValue =>
-      borderWidth?.borderColor?.value ?? super.borderColorValue;
+  String get borderColorValue => borderWidth?.borderColor?.value ?? super.borderColorValue;
 
   @override
-  String get errorColorValue =>
-      colorSeed?.errorColor?.value ?? super.errorColorValue;
+  String get errorColorValue => colorSeed?.errorColor?.value ?? super.errorColorValue;
 
   @override
-  String get successColorValue =>
-      colorSeed?.successColor?.value ?? super.successColorValue;
+  String get successColorValue => colorSeed?.successColor?.value ?? super.successColorValue;
 
   @override
-  String get warningColorValue =>
-      colorSeed?.warningColor?.value ?? super.warningColorValue;
+  String get warningColorValue => colorSeed?.warningColor?.value ?? super.warningColorValue;
 
   @override
-  String get infoColorValue =>
-      colorSeed?.infoColor?.value ?? super.infoColorValue;
+  String get infoColorValue => colorSeed?.infoColor?.value ?? super.infoColorValue;
 
   @override
-  String get errorWeakColorValue =>
-      colorSeed?.errorWeakColor?.value ?? super.errorWeakColorValue;
+  String get errorWeakColorValue => colorSeed?.errorWeakColor?.value ?? super.errorWeakColorValue;
 
   @override
   String get successWeakColorValue =>
@@ -2193,8 +2129,7 @@ class LightThemeData extends _LightModeTokens {
       colorSeed?.warningWeakColor?.value ?? super.warningWeakColorValue;
 
   @override
-  String get infoWeakColorValue =>
-      colorSeed?.infoWeakColor?.value ?? super.infoWeakColorValue;
+  String get infoWeakColorValue => colorSeed?.infoWeakColor?.value ?? super.infoWeakColorValue;
 
   @override
   String get surfaceVariantColorValue =>
@@ -2205,8 +2140,7 @@ class LightThemeData extends _LightModeTokens {
       colorSeed?.surfaceMutedColor?.value ?? super.surfaceMutedColorValue;
 
   @override
-  String get shadowColorValue =>
-      elevation?.shadowColor?.value ?? super.shadowColorValue;
+  String get shadowColorValue => elevation?.shadowColor?.value ?? super.shadowColorValue;
 
   @override
   String get smallShadowColorValue =>
@@ -2229,12 +2163,10 @@ class LightThemeData extends _LightModeTokens {
       colorSeed?.disabledBackgroundColor?.value ?? super.disabledBgColorValue;
 
   @override
-  String get disabledColorValue =>
-      colorSeed?.disabledColor?.value ?? super.disabledColorValue;
+  String get disabledColorValue => colorSeed?.disabledColor?.value ?? super.disabledColorValue;
 
   @override
-  String get hoverColorValue =>
-      colorSeed?.hoverColor?.value ?? super.hoverColorValue;
+  String get hoverColorValue => colorSeed?.hoverColor?.value ?? super.hoverColorValue;
 
   // ===========================================================================
   // Border Tokens Overrides
@@ -2281,100 +2213,63 @@ class LightThemeData extends _LightModeTokens {
   // ===========================================================================
 
   @override
-  Token get fontFamily =>
-      typography?.fontFamily != null && typography!.fontFamily!.isNotEmpty
-      ? Token(
-          value: typography!.fontFamily!.join(','),
-          name: super.fontFamily.name,
-        )
+  Token get fontFamily => typography?.fontFamily != null && typography!.fontFamily!.isNotEmpty
+      ? Token(value: typography!.fontFamily!.join(','), name: super.fontFamily.name)
       : super.fontFamily;
 
   @override
   Token get fontSizeSm => typography?.fontSizeSm != null
-      ? Token(
-          value: typography!.fontSizeSm!.cssText,
-          name: super.fontSizeSm.name,
-        )
+      ? Token(value: typography!.fontSizeSm!.cssText, name: super.fontSizeSm.name)
       : super.fontSizeSm;
 
   @override
   Token get fontSizeMd => typography?.fontSizeMd != null
-      ? Token(
-          value: typography!.fontSizeMd!.cssText,
-          name: super.fontSizeMd.name,
-        )
+      ? Token(value: typography!.fontSizeMd!.cssText, name: super.fontSizeMd.name)
       : super.fontSizeMd;
 
   @override
   Token get fontSizeLg => typography?.fontSizeLg != null
-      ? Token(
-          value: typography!.fontSizeLg!.cssText,
-          name: super.fontSizeLg.name,
-        )
+      ? Token(value: typography!.fontSizeLg!.cssText, name: super.fontSizeLg.name)
       : super.fontSizeLg;
 
   @override
   Token get fontSizeXl => typography?.fontSizeXl != null
-      ? Token(
-          value: typography!.fontSizeXl!.cssText,
-          name: super.fontSizeXl.name,
-        )
+      ? Token(value: typography!.fontSizeXl!.cssText, name: super.fontSizeXl.name)
       : super.fontSizeXl;
 
   @override
   Token get fontSize2xl => typography?.fontSize2xl != null
-      ? Token(
-          value: typography!.fontSize2xl!.cssText,
-          name: super.fontSize2xl.name,
-        )
+      ? Token(value: typography!.fontSize2xl!.cssText, name: super.fontSize2xl.name)
       : super.fontSize2xl;
 
   @override
   Token get fontSize3xl => typography?.fontSize3xl != null
-      ? Token(
-          value: typography!.fontSize3xl!.cssText,
-          name: super.fontSize3xl.name,
-        )
+      ? Token(value: typography!.fontSize3xl!.cssText, name: super.fontSize3xl.name)
       : super.fontSize3xl;
 
   @override
   Token get fontSize4xl => typography?.fontSize4xl != null
-      ? Token(
-          value: typography!.fontSize4xl!.cssText,
-          name: super.fontSize4xl.name,
-        )
+      ? Token(value: typography!.fontSize4xl!.cssText, name: super.fontSize4xl.name)
       : super.fontSize4xl;
 
   @override
   Token get fontSize5xl => typography?.fontSize5xl != null
-      ? Token(
-          value: typography!.fontSize5xl!.cssText,
-          name: super.fontSize5xl.name,
-        )
+      ? Token(value: typography!.fontSize5xl!.cssText, name: super.fontSize5xl.name)
       : super.fontSize5xl;
 
   @override
   Token get fontSizeError => typography?.fontSizeError != null
-      ? Token(
-          value: typography!.fontSizeError!.cssText,
-          name: super.fontSizeError.name,
-        )
+      ? Token(value: typography!.fontSizeError!.cssText, name: super.fontSizeError.name)
       : super.fontSizeError;
 
   @override
   Token get fontSizeHint => typography?.fontSizeHint != null
-      ? Token(
-          value: typography!.fontSizeHint!.cssText,
-          name: super.fontSizeHint.name,
-        )
+      ? Token(value: typography!.fontSizeHint!.cssText, name: super.fontSizeHint.name)
       : super.fontSizeHint;
 
   @override
   Token get fontSizeLabel => typography?.fontSizeLabel != null
-      ? Token(
-          value: typography!.fontSizeLabel!.cssText,
-          name: super.fontSizeLabel.name,
-        )
+      ? Token(value: typography!.fontSizeLabel!.cssText, name: super.fontSizeLabel.name)
       : super.fontSizeLabel;
 
   @override
@@ -2387,39 +2282,26 @@ class LightThemeData extends _LightModeTokens {
 
   @override
   Token get fontWeightNormal => typography?.fontWeightNormal != null
-      ? Token(
-          value: typography!.fontWeightNormal.toString(),
-          name: super.fontWeightNormal.name,
-        )
+      ? Token(value: typography!.fontWeightNormal.toString(), name: super.fontWeightNormal.name)
       : super.fontWeightNormal;
 
   @override
   Token get fontWeightMedium => typography?.fontWeightMedium != null
-      ? Token(
-          value: typography!.fontWeightMedium.toString(),
-          name: super.fontWeightMedium.name,
-        )
+      ? Token(value: typography!.fontWeightMedium.toString(), name: super.fontWeightMedium.name)
       : super.fontWeightMedium;
 
   @override
   Token get fontWeightSemiBold => typography?.fontWeightSemiBold != null
-      ? Token(
-          value: typography!.fontWeightSemiBold.toString(),
-          name: super.fontWeightSemiBold.name,
-        )
+      ? Token(value: typography!.fontWeightSemiBold.toString(), name: super.fontWeightSemiBold.name)
       : super.fontWeightSemiBold;
 
   @override
   Token get fontWeightBold => typography?.fontWeightBold != null
-      ? Token(
-          value: typography!.fontWeightBold.toString(),
-          name: super.fontWeightBold.name,
-        )
+      ? Token(value: typography!.fontWeightBold.toString(), name: super.fontWeightBold.name)
       : super.fontWeightBold;
 
   @override
-  Token get fontWeightSectionHeader =>
-      typography?.fontWeightSectionHeader != null
+  Token get fontWeightSectionHeader => typography?.fontWeightSectionHeader != null
       ? Token(
           value: typography!.fontWeightSectionHeader.toString(),
           name: super.fontWeightSectionHeader.name,
@@ -2485,34 +2367,23 @@ class LightThemeData extends _LightModeTokens {
 
   @override
   Token get textMaxLines => component?.textMaxLines != null
-      ? Token(
-          value: component!.textMaxLines.toString(),
-          name: super.textMaxLines.name,
-        )
+      ? Token(value: component!.textMaxLines.toString(), name: super.textMaxLines.name)
       : super.textMaxLines;
 
   @override
   Token get inputHeight => component?.inputHeight != null
-      ? Token(
-          value: component!.inputHeight!.cssText,
-          name: super.inputHeight.name,
-        )
+      ? Token(value: component!.inputHeight!.cssText, name: super.inputHeight.name)
       : super.inputHeight;
 
   @override
-  String get inputTextColorValue =>
-      component?.inputTextColor?.value ?? super.inputTextColorValue;
+  String get inputTextColorValue => component?.inputTextColor?.value ?? super.inputTextColorValue;
 
   @override
-  String get labelColorValue =>
-      component?.labelColor?.value ?? super.labelColorValue;
+  String get labelColorValue => component?.labelColor?.value ?? super.labelColorValue;
 
   @override
   Token get fontSizeInput => component?.fontSizeInput != null
-      ? Token(
-          value: component!.fontSizeInput!.cssText,
-          name: super.fontSizeInput.name,
-        )
+      ? Token(value: component!.fontSizeInput!.cssText, name: super.fontSizeInput.name)
       : super.fontSizeInput;
 
   @override
@@ -2525,12 +2396,10 @@ class LightThemeData extends _LightModeTokens {
 
   @override
   String get buttonBackgroundColorValue =>
-      component?.buttonBackgroundColor?.value ??
-      super.buttonBackgroundColorValue;
+      component?.buttonBackgroundColor?.value ?? super.buttonBackgroundColorValue;
 
   @override
-  String get buttonColorValue =>
-      component?.buttonColor?.value ?? super.buttonColorValue;
+  String get buttonColorValue => component?.buttonColor?.value ?? super.buttonColorValue;
 
   @override
   String get buttonHoverBgColorValue =>
@@ -2538,48 +2407,32 @@ class LightThemeData extends _LightModeTokens {
 
   @override
   Token get buttonHeight => component?.buttonHeight != null
-      ? Token(
-          value: component!.buttonHeight!.cssText,
-          name: super.buttonHeight.name,
-        )
+      ? Token(value: component!.buttonHeight!.cssText, name: super.buttonHeight.name)
       : super.buttonHeight;
 
   @override
   Token get buttonWidth => component?.buttonWidth != null
-      ? Token(
-          value: component!.buttonWidth!.cssText,
-          name: super.buttonWidth.name,
-        )
+      ? Token(value: component!.buttonWidth!.cssText, name: super.buttonWidth.name)
       : super.buttonWidth;
 
   @override
   Token get dropdownHeight => component?.dropdownHeight != null
-      ? Token(
-          value: component!.dropdownHeight!.cssText,
-          name: super.dropdownHeight.name,
-        )
+      ? Token(value: component!.dropdownHeight!.cssText, name: super.dropdownHeight.name)
       : super.dropdownHeight;
 
   @override
   Token get dropdownWidth => component?.dropdownWidth != null
-      ? Token(
-          value: component!.dropdownWidth!.cssText,
-          name: super.dropdownWidth.name,
-        )
+      ? Token(value: component!.dropdownWidth!.cssText, name: super.dropdownWidth.name)
       : super.dropdownWidth;
 
   @override
   Token get dropdownMenuHeight => component?.dropdownMenuHeight != null
-      ? Token(
-          value: component!.dropdownMenuHeight!.cssText,
-          name: super.dropdownMenuHeight.name,
-        )
+      ? Token(value: component!.dropdownMenuHeight!.cssText, name: super.dropdownMenuHeight.name)
       : super.dropdownMenuHeight;
 
   @override
   String get dropdownMenuBgColorValue =>
-      component?.dropdownMenuBackgroundColor?.value ??
-      super.dropdownMenuBgColorValue;
+      component?.dropdownMenuBackgroundColor?.value ?? super.dropdownMenuBgColorValue;
 
   @override
   Token get dropdownOptionFontSize => component?.dropdownOptionFontSize != null
@@ -2599,18 +2452,12 @@ class LightThemeData extends _LightModeTokens {
 
   @override
   Token get spinnerSize => component?.spinnerSize != null
-      ? Token(
-          value: component!.spinnerSize!.cssText,
-          name: super.spinnerSize.name,
-        )
+      ? Token(value: component!.spinnerSize!.cssText, name: super.spinnerSize.name)
       : super.spinnerSize;
 
   @override
   Token get spinnerBorderWidth => component?.spinnerBorderWidth != null
-      ? Token(
-          value: component!.spinnerBorderWidth!.cssText,
-          name: super.spinnerBorderWidth.name,
-        )
+      ? Token(value: component!.spinnerBorderWidth!.cssText, name: super.spinnerBorderWidth.name)
       : super.spinnerBorderWidth;
 
   @override
@@ -2631,10 +2478,7 @@ class LightThemeData extends _LightModeTokens {
 
   @override
   Token get sliderThumbSize => component?.sliderThumbSize != null
-      ? Token(
-          value: component!.sliderThumbSize!.cssText,
-          name: super.sliderThumbSize.name,
-        )
+      ? Token(value: component!.sliderThumbSize!.cssText, name: super.sliderThumbSize.name)
       : super.sliderThumbSize;
 
   @override
@@ -2643,15 +2487,11 @@ class LightThemeData extends _LightModeTokens {
 
   @override
   Token get radioBtnRadius => component?.radioButtonRadius != null
-      ? Token(
-          value: component!.radioButtonRadius!.cssText,
-          name: super.radioBtnRadius.name,
-        )
+      ? Token(value: component!.radioButtonRadius!.cssText, name: super.radioBtnRadius.name)
       : super.radioBtnRadius;
 
   @override
-  String get radioBtnColorValue =>
-      component?.radioButtonColor?.value ?? super.radioBtnColorValue;
+  String get radioBtnColorValue => component?.radioButtonColor?.value ?? super.radioBtnColorValue;
 
   @override
   String get appbarBgColorValue =>
@@ -2659,39 +2499,26 @@ class LightThemeData extends _LightModeTokens {
 
   @override
   Token get appbarHeight => component?.appbarHeight != null
-      ? Token(
-          value: component!.appbarHeight!.cssText,
-          name: super.appbarHeight.name,
-        )
+      ? Token(value: component!.appbarHeight!.cssText, name: super.appbarHeight.name)
       : super.appbarHeight;
 
   @override
   String get bottomNavbarBgColorValue =>
-      component?.bottomNavbarBackgroundColor?.value ??
-      super.bottomNavbarBgColorValue;
+      component?.bottomNavbarBackgroundColor?.value ?? super.bottomNavbarBgColorValue;
 
   @override
   Token get bottomNavbarHeight => component?.bottomNavbarHeight != null
-      ? Token(
-          value: component!.bottomNavbarHeight!.cssText,
-          name: super.bottomNavbarHeight.name,
-        )
+      ? Token(value: component!.bottomNavbarHeight!.cssText, name: super.bottomNavbarHeight.name)
       : super.bottomNavbarHeight;
 
   @override
   Token get carouselItemExtent => component?.carouselItemExtent != null
-      ? Token(
-          value: component!.carouselItemExtent!.cssText,
-          name: super.carouselItemExtent.name,
-        )
+      ? Token(value: component!.carouselItemExtent!.cssText, name: super.carouselItemExtent.name)
       : super.carouselItemExtent;
 
   @override
   Token get carouselGap => component?.carouselGap != null
-      ? Token(
-          value: component!.carouselGap!.cssText,
-          name: super.carouselGap.name,
-        )
+      ? Token(value: component!.carouselGap!.cssText, name: super.carouselGap.name)
       : super.carouselGap;
 
   @override
@@ -2713,8 +2540,7 @@ class LightThemeData extends _LightModeTokens {
 
   @override
   String get snackbarForegroundColorValue =>
-      component?.snackbarForegroundColor?.value ??
-      super.snackbarForegroundColorValue;
+      component?.snackbarForegroundColor?.value ?? super.snackbarForegroundColorValue;
 
   @override
   Token get snackbarBorderRadius => component?.snackbarBorderRadius != null
@@ -2730,15 +2556,11 @@ class LightThemeData extends _LightModeTokens {
 
   @override
   String get bannerForegroundColorValue =>
-      component?.bannerForegroundColor?.value ??
-      super.bannerForegroundColorValue;
+      component?.bannerForegroundColor?.value ?? super.bannerForegroundColorValue;
 
   @override
   Token get bannerBorderRadius => component?.bannerBorderRadius != null
-      ? Token(
-          value: component!.bannerBorderRadius!.cssText,
-          name: super.bannerBorderRadius.name,
-        )
+      ? Token(value: component!.bannerBorderRadius!.cssText, name: super.bannerBorderRadius.name)
       : super.bannerBorderRadius;
 
   @override
@@ -2755,18 +2577,12 @@ class LightThemeData extends _LightModeTokens {
 
   @override
   Token get tooltipBorderRadius => component?.tooltipBorderRadius != null
-      ? Token(
-          value: component!.tooltipBorderRadius!.cssText,
-          name: super.tooltipBorderRadius.name,
-        )
+      ? Token(value: component!.tooltipBorderRadius!.cssText, name: super.tooltipBorderRadius.name)
       : super.tooltipBorderRadius;
 
   @override
   Token get tooltipFontSize => component?.tooltipFontSize != null
-      ? Token(
-          value: component!.tooltipFontSize!.cssText,
-          name: super.tooltipFontSize.name,
-        )
+      ? Token(value: component!.tooltipFontSize!.cssText, name: super.tooltipFontSize.name)
       : super.tooltipFontSize;
 
   @override
@@ -2783,10 +2599,7 @@ class LightThemeData extends _LightModeTokens {
 
   @override
   Token get popoverBorderRadius => component?.popoverBorderRadius != null
-      ? Token(
-          value: component!.popoverBorderRadius!.cssText,
-          name: super.popoverBorderRadius.name,
-        )
+      ? Token(value: component!.popoverBorderRadius!.cssText, name: super.popoverBorderRadius.name)
       : super.popoverBorderRadius;
 
   @override
@@ -2795,16 +2608,12 @@ class LightThemeData extends _LightModeTokens {
 
   @override
   Token get dialogBorderRadius => component?.dialogBorderRadius != null
-      ? Token(
-          value: component!.dialogBorderRadius!.cssText,
-          name: super.dialogBorderRadius.name,
-        )
+      ? Token(value: component!.dialogBorderRadius!.cssText, name: super.dialogBorderRadius.name)
       : super.dialogBorderRadius;
 
   @override
   String get dialogBarrierBgValue =>
-      component?.dialogBarrierBackgroundColor?.value ??
-      super.dialogBarrierBgValue;
+      component?.dialogBarrierBackgroundColor?.value ?? super.dialogBarrierBgValue;
 
   @override
   String get drawerBgColorValue =>
@@ -2812,21 +2621,16 @@ class LightThemeData extends _LightModeTokens {
 
   @override
   Token get drawerWidth => component?.drawerWidth != null
-      ? Token(
-          value: component!.drawerWidth!.cssText,
-          name: super.drawerWidth.name,
-        )
+      ? Token(value: component!.drawerWidth!.cssText, name: super.drawerWidth.name)
       : super.drawerWidth;
 
   @override
   String get drawerBarrierBgValue =>
-      component?.drawerBarrierBackgroundColor?.value ??
-      super.drawerBarrierBgValue;
+      component?.drawerBarrierBackgroundColor?.value ?? super.drawerBarrierBgValue;
 
   @override
   String get bottomSheetBgColorValue =>
-      component?.bottomSheetBackgroundColor?.value ??
-      super.bottomSheetBgColorValue;
+      component?.bottomSheetBackgroundColor?.value ?? super.bottomSheetBgColorValue;
 
   @override
   Token get bottomSheetMaxHeight => component?.bottomSheetMaxHeight != null
@@ -2838,8 +2642,7 @@ class LightThemeData extends _LightModeTokens {
 
   @override
   String get bottomSheetBarrierBgValue =>
-      component?.bottomSheetBarrierBackgroundColor?.value ??
-      super.bottomSheetBarrierBgValue;
+      component?.bottomSheetBarrierBackgroundColor?.value ?? super.bottomSheetBarrierBgValue;
 
   @override
   bool operator ==(Object other) {
@@ -2916,16 +2719,13 @@ class DarkThemeData extends _DarkModeTokens {
   // ===========================================================================
 
   @override
-  String get primaryColorValue =>
-      colorSeed?.primary?.value ?? super.primaryColorValue;
+  String get primaryColorValue => colorSeed?.primary?.value ?? super.primaryColorValue;
 
   @override
-  String get secondaryColorValue =>
-      colorSeed?.secondary?.value ?? super.secondaryColorValue;
+  String get secondaryColorValue => colorSeed?.secondary?.value ?? super.secondaryColorValue;
 
   @override
-  String get accentColorValue =>
-      colorSeed?.accent?.value ?? super.accentColorValue;
+  String get accentColorValue => colorSeed?.accent?.value ?? super.accentColorValue;
 
   @override
   String get greenValue => colorSeed?.green?.value ?? super.greenValue;
@@ -2937,20 +2737,17 @@ class DarkThemeData extends _DarkModeTokens {
   String get redValue => colorSeed?.red?.value ?? super.redValue;
 
   @override
-  String get baseTextColorValue =>
-      colorSeed?.baseTextColor?.value ?? super.baseTextColorValue;
+  String get baseTextColorValue => colorSeed?.baseTextColor?.value ?? super.baseTextColorValue;
 
   @override
   String get placeholderColorValue =>
       colorSeed?.placeholderColor?.value ?? super.placeholderColorValue;
 
   @override
-  String get mutedColorValue =>
-      colorSeed?.mutedColor?.value ?? super.mutedColorValue;
+  String get mutedColorValue => colorSeed?.mutedColor?.value ?? super.mutedColorValue;
 
   @override
-  String get subtitleColorValue =>
-      colorSeed?.subtitleColor?.value ?? super.subtitleColorValue;
+  String get subtitleColorValue => colorSeed?.subtitleColor?.value ?? super.subtitleColorValue;
 
   @override
   String get selectedItemColorValue =>
@@ -2958,8 +2755,7 @@ class DarkThemeData extends _DarkModeTokens {
 
   @override
   String get selectedTextBgColorValue =>
-      colorSeed?.selectedTextBackgroundColor?.value ??
-      super.selectedTextBgColorValue;
+      colorSeed?.selectedTextBackgroundColor?.value ?? super.selectedTextBgColorValue;
 
   @override
   String get selectedTextColorValue =>
@@ -2967,36 +2763,29 @@ class DarkThemeData extends _DarkModeTokens {
 
   @override
   String get selectedItemBgColorValue =>
-      colorSeed?.selectedItemBackgroundColor?.value ??
-      super.selectedItemBgColorValue;
+      colorSeed?.selectedItemBackgroundColor?.value ?? super.selectedItemBgColorValue;
 
   @override
   String get backgroundColorValue =>
       colorSeed?.backgroundColor?.value ?? super.backgroundColorValue;
 
   @override
-  String get borderColorValue =>
-      borderWidth?.borderColor?.value ?? super.borderColorValue;
+  String get borderColorValue => borderWidth?.borderColor?.value ?? super.borderColorValue;
 
   @override
-  String get errorColorValue =>
-      colorSeed?.errorColor?.value ?? super.errorColorValue;
+  String get errorColorValue => colorSeed?.errorColor?.value ?? super.errorColorValue;
 
   @override
-  String get successColorValue =>
-      colorSeed?.successColor?.value ?? super.successColorValue;
+  String get successColorValue => colorSeed?.successColor?.value ?? super.successColorValue;
 
   @override
-  String get warningColorValue =>
-      colorSeed?.warningColor?.value ?? super.warningColorValue;
+  String get warningColorValue => colorSeed?.warningColor?.value ?? super.warningColorValue;
 
   @override
-  String get infoColorValue =>
-      colorSeed?.infoColor?.value ?? super.infoColorValue;
+  String get infoColorValue => colorSeed?.infoColor?.value ?? super.infoColorValue;
 
   @override
-  String get errorWeakColorValue =>
-      colorSeed?.errorWeakColor?.value ?? super.errorWeakColorValue;
+  String get errorWeakColorValue => colorSeed?.errorWeakColor?.value ?? super.errorWeakColorValue;
 
   @override
   String get successWeakColorValue =>
@@ -3007,8 +2796,7 @@ class DarkThemeData extends _DarkModeTokens {
       colorSeed?.warningWeakColor?.value ?? super.warningWeakColorValue;
 
   @override
-  String get infoWeakColorValue =>
-      colorSeed?.infoWeakColor?.value ?? super.infoWeakColorValue;
+  String get infoWeakColorValue => colorSeed?.infoWeakColor?.value ?? super.infoWeakColorValue;
 
   @override
   String get surfaceVariantColorValue =>
@@ -3019,8 +2807,7 @@ class DarkThemeData extends _DarkModeTokens {
       colorSeed?.surfaceMutedColor?.value ?? super.surfaceMutedColorValue;
 
   @override
-  String get shadowColorValue =>
-      elevation?.shadowColor?.value ?? super.shadowColorValue;
+  String get shadowColorValue => elevation?.shadowColor?.value ?? super.shadowColorValue;
 
   @override
   String get smallShadowColorValue =>
@@ -3039,16 +2826,14 @@ class DarkThemeData extends _DarkModeTokens {
       colorSeed?.focusBorderColor?.value ?? super.focusBorderColorValue;
 
   @override
-  String get hoverColorValue =>
-      colorSeed?.hoverColor?.value ?? super.hoverColorValue;
+  String get hoverColorValue => colorSeed?.hoverColor?.value ?? super.hoverColorValue;
 
   @override
   String get disabledBgColorValue =>
       colorSeed?.disabledBackgroundColor?.value ?? super.disabledBgColorValue;
 
   @override
-  String get disabledColorValue =>
-      colorSeed?.disabledColor?.value ?? super.disabledColorValue;
+  String get disabledColorValue => colorSeed?.disabledColor?.value ?? super.disabledColorValue;
 
   // ===========================================================================
   // Border Tokens Overrides
@@ -3095,100 +2880,63 @@ class DarkThemeData extends _DarkModeTokens {
   // ===========================================================================
 
   @override
-  Token get fontFamily =>
-      typography?.fontFamily != null && typography!.fontFamily!.isNotEmpty
-      ? Token(
-          value: typography!.fontFamily!.join(','),
-          name: super.fontFamily.name,
-        )
+  Token get fontFamily => typography?.fontFamily != null && typography!.fontFamily!.isNotEmpty
+      ? Token(value: typography!.fontFamily!.join(','), name: super.fontFamily.name)
       : super.fontFamily;
 
   @override
   Token get fontSizeSm => typography?.fontSizeSm != null
-      ? Token(
-          value: typography!.fontSizeSm!.cssText,
-          name: super.fontSizeSm.name,
-        )
+      ? Token(value: typography!.fontSizeSm!.cssText, name: super.fontSizeSm.name)
       : super.fontSizeSm;
 
   @override
   Token get fontSizeMd => typography?.fontSizeMd != null
-      ? Token(
-          value: typography!.fontSizeMd!.cssText,
-          name: super.fontSizeMd.name,
-        )
+      ? Token(value: typography!.fontSizeMd!.cssText, name: super.fontSizeMd.name)
       : super.fontSizeMd;
 
   @override
   Token get fontSizeLg => typography?.fontSizeLg != null
-      ? Token(
-          value: typography!.fontSizeLg!.cssText,
-          name: super.fontSizeLg.name,
-        )
+      ? Token(value: typography!.fontSizeLg!.cssText, name: super.fontSizeLg.name)
       : super.fontSizeLg;
 
   @override
   Token get fontSizeXl => typography?.fontSizeXl != null
-      ? Token(
-          value: typography!.fontSizeXl!.cssText,
-          name: super.fontSizeXl.name,
-        )
+      ? Token(value: typography!.fontSizeXl!.cssText, name: super.fontSizeXl.name)
       : super.fontSizeXl;
 
   @override
   Token get fontSize2xl => typography?.fontSize2xl != null
-      ? Token(
-          value: typography!.fontSize2xl!.cssText,
-          name: super.fontSize2xl.name,
-        )
+      ? Token(value: typography!.fontSize2xl!.cssText, name: super.fontSize2xl.name)
       : super.fontSize2xl;
 
   @override
   Token get fontSize3xl => typography?.fontSize3xl != null
-      ? Token(
-          value: typography!.fontSize3xl!.cssText,
-          name: super.fontSize3xl.name,
-        )
+      ? Token(value: typography!.fontSize3xl!.cssText, name: super.fontSize3xl.name)
       : super.fontSize3xl;
 
   @override
   Token get fontSize4xl => typography?.fontSize4xl != null
-      ? Token(
-          value: typography!.fontSize4xl!.cssText,
-          name: super.fontSize4xl.name,
-        )
+      ? Token(value: typography!.fontSize4xl!.cssText, name: super.fontSize4xl.name)
       : super.fontSize4xl;
 
   @override
   Token get fontSize5xl => typography?.fontSize5xl != null
-      ? Token(
-          value: typography!.fontSize5xl!.cssText,
-          name: super.fontSize5xl.name,
-        )
+      ? Token(value: typography!.fontSize5xl!.cssText, name: super.fontSize5xl.name)
       : super.fontSize5xl;
 
   @override
   Token get fontSizeError => typography?.fontSizeError != null
-      ? Token(
-          value: typography!.fontSizeError!.cssText,
-          name: super.fontSizeError.name,
-        )
+      ? Token(value: typography!.fontSizeError!.cssText, name: super.fontSizeError.name)
       : super.fontSizeError;
 
   @override
   Token get fontSizeHint => typography?.fontSizeHint != null
-      ? Token(
-          value: typography!.fontSizeHint!.cssText,
-          name: super.fontSizeHint.name,
-        )
+      ? Token(value: typography!.fontSizeHint!.cssText, name: super.fontSizeHint.name)
       : super.fontSizeHint;
 
   @override
   Token get fontSizeLabel => typography?.fontSizeLabel != null
-      ? Token(
-          value: typography!.fontSizeLabel!.cssText,
-          name: super.fontSizeLabel.name,
-        )
+      ? Token(value: typography!.fontSizeLabel!.cssText, name: super.fontSizeLabel.name)
       : super.fontSizeLabel;
 
   @override
@@ -3201,39 +2949,26 @@ class DarkThemeData extends _DarkModeTokens {
 
   @override
   Token get fontWeightNormal => typography?.fontWeightNormal != null
-      ? Token(
-          value: typography!.fontWeightNormal.toString(),
-          name: super.fontWeightNormal.name,
-        )
+      ? Token(value: typography!.fontWeightNormal.toString(), name: super.fontWeightNormal.name)
       : super.fontWeightNormal;
 
   @override
   Token get fontWeightMedium => typography?.fontWeightMedium != null
-      ? Token(
-          value: typography!.fontWeightMedium.toString(),
-          name: super.fontWeightMedium.name,
-        )
+      ? Token(value: typography!.fontWeightMedium.toString(), name: super.fontWeightMedium.name)
       : super.fontWeightMedium;
 
   @override
   Token get fontWeightSemiBold => typography?.fontWeightSemiBold != null
-      ? Token(
-          value: typography!.fontWeightSemiBold.toString(),
-          name: super.fontWeightSemiBold.name,
-        )
+      ? Token(value: typography!.fontWeightSemiBold.toString(), name: super.fontWeightSemiBold.name)
       : super.fontWeightSemiBold;
 
   @override
   Token get fontWeightBold => typography?.fontWeightBold != null
-      ? Token(
-          value: typography!.fontWeightBold.toString(),
-          name: super.fontWeightBold.name,
-        )
+      ? Token(value: typography!.fontWeightBold.toString(), name: super.fontWeightBold.name)
       : super.fontWeightBold;
 
   @override
-  Token get fontWeightSectionHeader =>
-      typography?.fontWeightSectionHeader != null
+  Token get fontWeightSectionHeader => typography?.fontWeightSectionHeader != null
       ? Token(
           value: typography!.fontWeightSectionHeader.toString(),
           name: super.fontWeightSectionHeader.name,
@@ -3299,34 +3034,23 @@ class DarkThemeData extends _DarkModeTokens {
 
   @override
   Token get textMaxLines => component?.textMaxLines != null
-      ? Token(
-          value: component!.textMaxLines.toString(),
-          name: super.textMaxLines.name,
-        )
+      ? Token(value: component!.textMaxLines.toString(), name: super.textMaxLines.name)
       : super.textMaxLines;
 
   @override
   Token get inputHeight => component?.inputHeight != null
-      ? Token(
-          value: component!.inputHeight!.cssText,
-          name: super.inputHeight.name,
-        )
+      ? Token(value: component!.inputHeight!.cssText, name: super.inputHeight.name)
       : super.inputHeight;
 
   @override
-  String get inputTextColorValue =>
-      component?.inputTextColor?.value ?? super.inputTextColorValue;
+  String get inputTextColorValue => component?.inputTextColor?.value ?? super.inputTextColorValue;
 
   @override
-  String get labelColorValue =>
-      component?.labelColor?.value ?? super.labelColorValue;
+  String get labelColorValue => component?.labelColor?.value ?? super.labelColorValue;
 
   @override
   Token get fontSizeInput => component?.fontSizeInput != null
-      ? Token(
-          value: component!.fontSizeInput!.cssText,
-          name: super.fontSizeInput.name,
-        )
+      ? Token(value: component!.fontSizeInput!.cssText, name: super.fontSizeInput.name)
       : super.fontSizeInput;
 
   @override
@@ -3339,12 +3063,10 @@ class DarkThemeData extends _DarkModeTokens {
 
   @override
   String get buttonBackgroundColorValue =>
-      component?.buttonBackgroundColor?.value ??
-      super.buttonBackgroundColorValue;
+      component?.buttonBackgroundColor?.value ?? super.buttonBackgroundColorValue;
 
   @override
-  String get buttonColorValue =>
-      component?.buttonColor?.value ?? super.buttonColorValue;
+  String get buttonColorValue => component?.buttonColor?.value ?? super.buttonColorValue;
 
   @override
   String get buttonHoverBgColorValue =>
@@ -3352,48 +3074,32 @@ class DarkThemeData extends _DarkModeTokens {
 
   @override
   Token get buttonHeight => component?.buttonHeight != null
-      ? Token(
-          value: component!.buttonHeight!.cssText,
-          name: super.buttonHeight.name,
-        )
+      ? Token(value: component!.buttonHeight!.cssText, name: super.buttonHeight.name)
       : super.buttonHeight;
 
   @override
   Token get buttonWidth => component?.buttonWidth != null
-      ? Token(
-          value: component!.buttonWidth!.cssText,
-          name: super.buttonWidth.name,
-        )
+      ? Token(value: component!.buttonWidth!.cssText, name: super.buttonWidth.name)
       : super.buttonWidth;
 
   @override
   Token get dropdownHeight => component?.dropdownHeight != null
-      ? Token(
-          value: component!.dropdownHeight!.cssText,
-          name: super.dropdownHeight.name,
-        )
+      ? Token(value: component!.dropdownHeight!.cssText, name: super.dropdownHeight.name)
       : super.dropdownHeight;
 
   @override
   Token get dropdownWidth => component?.dropdownWidth != null
-      ? Token(
-          value: component!.dropdownWidth!.cssText,
-          name: super.dropdownWidth.name,
-        )
+      ? Token(value: component!.dropdownWidth!.cssText, name: super.dropdownWidth.name)
       : super.dropdownWidth;
 
   @override
   Token get dropdownMenuHeight => component?.dropdownMenuHeight != null
-      ? Token(
-          value: component!.dropdownMenuHeight!.cssText,
-          name: super.dropdownMenuHeight.name,
-        )
+      ? Token(value: component!.dropdownMenuHeight!.cssText, name: super.dropdownMenuHeight.name)
       : super.dropdownMenuHeight;
 
   @override
   String get dropdownMenuBgColorValue =>
-      component?.dropdownMenuBackgroundColor?.value ??
-      super.dropdownMenuBgColorValue;
+      component?.dropdownMenuBackgroundColor?.value ?? super.dropdownMenuBgColorValue;
 
   @override
   Token get dropdownOptionFontSize => component?.dropdownOptionFontSize != null
@@ -3413,18 +3119,12 @@ class DarkThemeData extends _DarkModeTokens {
 
   @override
   Token get spinnerSize => component?.spinnerSize != null
-      ? Token(
-          value: component!.spinnerSize!.cssText,
-          name: super.spinnerSize.name,
-        )
+      ? Token(value: component!.spinnerSize!.cssText, name: super.spinnerSize.name)
       : super.spinnerSize;
 
   @override
   Token get spinnerBorderWidth => component?.spinnerBorderWidth != null
-      ? Token(
-          value: component!.spinnerBorderWidth!.cssText,
-          name: super.spinnerBorderWidth.name,
-        )
+      ? Token(value: component!.spinnerBorderWidth!.cssText, name: super.spinnerBorderWidth.name)
       : super.spinnerBorderWidth;
 
   @override
@@ -3445,10 +3145,7 @@ class DarkThemeData extends _DarkModeTokens {
 
   @override
   Token get sliderThumbSize => component?.sliderThumbSize != null
-      ? Token(
-          value: component!.sliderThumbSize!.cssText,
-          name: super.sliderThumbSize.name,
-        )
+      ? Token(value: component!.sliderThumbSize!.cssText, name: super.sliderThumbSize.name)
       : super.sliderThumbSize;
 
   @override
@@ -3457,15 +3154,11 @@ class DarkThemeData extends _DarkModeTokens {
 
   @override
   Token get radioBtnRadius => component?.radioButtonRadius != null
-      ? Token(
-          value: component!.radioButtonRadius!.cssText,
-          name: super.radioBtnRadius.name,
-        )
+      ? Token(value: component!.radioButtonRadius!.cssText, name: super.radioBtnRadius.name)
       : super.radioBtnRadius;
 
   @override
-  String get radioBtnColorValue =>
-      component?.radioButtonColor?.value ?? super.radioBtnColorValue;
+  String get radioBtnColorValue => component?.radioButtonColor?.value ?? super.radioBtnColorValue;
 
   @override
   String get appbarBgColorValue =>
@@ -3473,39 +3166,26 @@ class DarkThemeData extends _DarkModeTokens {
 
   @override
   Token get appbarHeight => component?.appbarHeight != null
-      ? Token(
-          value: component!.appbarHeight!.cssText,
-          name: super.appbarHeight.name,
-        )
+      ? Token(value: component!.appbarHeight!.cssText, name: super.appbarHeight.name)
       : super.appbarHeight;
 
   @override
   String get bottomNavbarBgColorValue =>
-      component?.bottomNavbarBackgroundColor?.value ??
-      super.bottomNavbarBgColorValue;
+      component?.bottomNavbarBackgroundColor?.value ?? super.bottomNavbarBgColorValue;
 
   @override
   Token get bottomNavbarHeight => component?.bottomNavbarHeight != null
-      ? Token(
-          value: component!.bottomNavbarHeight!.cssText,
-          name: super.bottomNavbarHeight.name,
-        )
+      ? Token(value: component!.bottomNavbarHeight!.cssText, name: super.bottomNavbarHeight.name)
       : super.bottomNavbarHeight;
 
   @override
   Token get carouselItemExtent => component?.carouselItemExtent != null
-      ? Token(
-          value: component!.carouselItemExtent!.cssText,
-          name: super.carouselItemExtent.name,
-        )
+      ? Token(value: component!.carouselItemExtent!.cssText, name: super.carouselItemExtent.name)
       : super.carouselItemExtent;
 
   @override
   Token get carouselGap => component?.carouselGap != null
-      ? Token(
-          value: component!.carouselGap!.cssText,
-          name: super.carouselGap.name,
-        )
+      ? Token(value: component!.carouselGap!.cssText, name: super.carouselGap.name)
       : super.carouselGap;
 
   @override
@@ -3527,8 +3207,7 @@ class DarkThemeData extends _DarkModeTokens {
 
   @override
   String get snackbarForegroundColorValue =>
-      component?.snackbarForegroundColor?.value ??
-      super.snackbarForegroundColorValue;
+      component?.snackbarForegroundColor?.value ?? super.snackbarForegroundColorValue;
 
   @override
   Token get snackbarBorderRadius => component?.snackbarBorderRadius != null
@@ -3544,15 +3223,11 @@ class DarkThemeData extends _DarkModeTokens {
 
   @override
   String get bannerForegroundColorValue =>
-      component?.bannerForegroundColor?.value ??
-      super.bannerForegroundColorValue;
+      component?.bannerForegroundColor?.value ?? super.bannerForegroundColorValue;
 
   @override
   Token get bannerBorderRadius => component?.bannerBorderRadius != null
-      ? Token(
-          value: component!.bannerBorderRadius!.cssText,
-          name: super.bannerBorderRadius.name,
-        )
+      ? Token(value: component!.bannerBorderRadius!.cssText, name: super.bannerBorderRadius.name)
       : super.bannerBorderRadius;
 
   @override
@@ -3569,18 +3244,12 @@ class DarkThemeData extends _DarkModeTokens {
 
   @override
   Token get tooltipBorderRadius => component?.tooltipBorderRadius != null
-      ? Token(
-          value: component!.tooltipBorderRadius!.cssText,
-          name: super.tooltipBorderRadius.name,
-        )
+      ? Token(value: component!.tooltipBorderRadius!.cssText, name: super.tooltipBorderRadius.name)
       : super.tooltipBorderRadius;
 
   @override
   Token get tooltipFontSize => component?.tooltipFontSize != null
-      ? Token(
-          value: component!.tooltipFontSize!.cssText,
-          name: super.tooltipFontSize.name,
-        )
+      ? Token(value: component!.tooltipFontSize!.cssText, name: super.tooltipFontSize.name)
       : super.tooltipFontSize;
 
   @override
@@ -3597,10 +3266,7 @@ class DarkThemeData extends _DarkModeTokens {
 
   @override
   Token get popoverBorderRadius => component?.popoverBorderRadius != null
-      ? Token(
-          value: component!.popoverBorderRadius!.cssText,
-          name: super.popoverBorderRadius.name,
-        )
+      ? Token(value: component!.popoverBorderRadius!.cssText, name: super.popoverBorderRadius.name)
       : super.popoverBorderRadius;
 
   @override
@@ -3609,16 +3275,12 @@ class DarkThemeData extends _DarkModeTokens {
 
   @override
   Token get dialogBorderRadius => component?.dialogBorderRadius != null
-      ? Token(
-          value: component!.dialogBorderRadius!.cssText,
-          name: super.dialogBorderRadius.name,
-        )
+      ? Token(value: component!.dialogBorderRadius!.cssText, name: super.dialogBorderRadius.name)
       : super.dialogBorderRadius;
 
   @override
   String get dialogBarrierBgValue =>
-      component?.dialogBarrierBackgroundColor?.value ??
-      super.dialogBarrierBgValue;
+      component?.dialogBarrierBackgroundColor?.value ?? super.dialogBarrierBgValue;
 
   @override
   String get drawerBgColorValue =>
@@ -3626,21 +3288,16 @@ class DarkThemeData extends _DarkModeTokens {
 
   @override
   Token get drawerWidth => component?.drawerWidth != null
-      ? Token(
-          value: component!.drawerWidth!.cssText,
-          name: super.drawerWidth.name,
-        )
+      ? Token(value: component!.drawerWidth!.cssText, name: super.drawerWidth.name)
       : super.drawerWidth;
 
   @override
   String get drawerBarrierBgValue =>
-      component?.drawerBarrierBackgroundColor?.value ??
-      super.drawerBarrierBgValue;
+      component?.drawerBarrierBackgroundColor?.value ?? super.drawerBarrierBgValue;
 
   @override
   String get bottomSheetBgColorValue =>
-      component?.bottomSheetBackgroundColor?.value ??
-      super.bottomSheetBgColorValue;
+      component?.bottomSheetBackgroundColor?.value ?? super.bottomSheetBgColorValue;
 
   @override
   Token get bottomSheetMaxHeight => component?.bottomSheetMaxHeight != null
@@ -3652,8 +3309,7 @@ class DarkThemeData extends _DarkModeTokens {
 
   @override
   String get bottomSheetBarrierBgValue =>
-      component?.bottomSheetBarrierBackgroundColor?.value ??
-      super.bottomSheetBarrierBgValue;
+      component?.bottomSheetBarrierBackgroundColor?.value ?? super.bottomSheetBarrierBgValue;
 
   @override
   bool operator ==(Object other) {

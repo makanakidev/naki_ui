@@ -62,6 +62,7 @@ Container(
     border: BorderData(color: Color('#e2e8f0'), width: Dim.px(1)),
     shadow: Shadow.medium,
   ),
+  leadingIcon: const Icon(MaterialIcons.account_circle),
   child: const NakiText('Container Content with custom decoration'),
 )
 
@@ -96,7 +97,7 @@ Stack(
         width: Dim.px(400),
         height: Dim.px(220),
       ),
-      fit: BoxFit.cover,
+      fit: ObjectFit.cover,
       radius: const BorderRadiusData.all(Dim.px(12)),
     ),
     Positioned(

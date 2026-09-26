@@ -106,17 +106,15 @@ Drawer(
 )
 ```
 
-Inside a `Scaffold`, call `Scaffold.maybeOf(context)?.openDrawer()` to open its modal drawer. Use `Drawer.sidebar` for persistent large-screen navigation:
+Inside a `Scaffold`, call `Scaffold.maybeOf(context)?.openDrawer()` to open its modal drawer. Use `Sidebar` for persistent large-screen navigation:
 
 ```dart
-const Drawer.sidebar(
+const Sidebar(
   semanticLabel: 'Section navigation',
   width: Dim.px(280),
   child: NakiText('Persistent navigation'),
 )
 ```
-
-Do not use a modal controller with `Drawer.sidebar`.
 
 ## BottomSheet
 

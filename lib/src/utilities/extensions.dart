@@ -56,9 +56,23 @@ extension CssPropsExtension on Map<String, String> {
   /// final withoutColorAndSize = style.except(['color', 'font-size']);
   /// // returns: {'font-weight': 'bold'}
   /// ```
-  Map<String, String> without(List<String> keys) {
+  Map<String, String> except(List<String> keys) {
     final map = Map<String, String>.of(this);
     for (final key in keys) map.remove(key);
+    return map;
+  }
+
+  /// Returns a new map containing only the entries in [keys].
+  ///
+  /// Example:
+  /// ```dart
+  /// final style = {'color': 'red', 'font-size': '10px', 'font-weight': 'bold'};
+  /// final onlyColorAndSize = style.only(['color', 'font-size']);
+  /// // returns: {'color': 'red', 'font-size': '10px'}
+  /// ```
+  Map<String, String> only(List<String> keys) {
+    final map = <String, String>{};
+    for (final key in keys) if (containsKey(key)) map[key] = this[key]!;
     return map;
   }
 }
@@ -401,31 +415,23 @@ extension ContextExtension on BuildContext {
   ///
   /// The component where this method is used must be a descendant of
   /// [NakiThemeProvider], otherwise this operation will silently fail.
-  void toggleTheme() {
-    final theme = NakiThemeProvider.of(this);
-    if (theme != null) theme.toggleMode();
-  }
+  void toggleTheme() => NakiThemeProvider.toggleMode(this);
 
   /// Sets the global theme to the provided [mode].
   ///
   /// The component where this method is used must be a descendant of
   /// [NakiThemeProvider], otherwise this operation will silently fail.
-  void setTheme(ThemeMode mode) {
-    final theme = NakiThemeProvider.of(this);
-    if (theme != null) theme.setMode(mode);
-  }
+  void setTheme(ThemeMode mode) => NakiThemeProvider.setMode(this, mode);
 
   /// Returns the active theme mode for this context.
   ///
   /// Defaults to [ThemeMode.system] if no [NakiThemeProvider] ancestor is found.
-  ThemeMode get themeMode =>
-      NakiThemeProvider.of(this)?.mode ?? ThemeMode.system;
+  ThemeMode get themeMode => NakiThemeProvider.modeOf(this);
 
   /// Returns the design tokens for the active theme in this context.
   ///
   /// Defaults to global tokens if no [NakiThemeProvider] ancestor is found.
-  Tokens get themeTokens =>
-      NakiThemeProvider.of(this)?.tokens ?? Tokens.current;
+  Tokens get themeTokens => NakiThemeProvider.tokensOf(this);
 
   // /////////////////////
   // ACCESS COLOR TOKEN VALUES
@@ -767,15 +773,8 @@ extension DateTimeExtension on DateTime {
   /// final dayName = date.dayNameShort;
   /// // returns: 'Fri'
   /// ```
-  String get dayNameShort => [
-    'Mon',
-    'Tue',
-    'Wed',
-    'Thu',
-    'Fri',
-    'Sat',
-    'Sun',
-  ][weekday - 1];
+  String get dayNameShort =>
+      ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][weekday - 1];
 
   /// Returns short month name.
   ///
@@ -1126,9 +1125,7 @@ extension DateTimeExtension on DateTime {
     DateTime? targetDate,
   }) {
     // get the difference between dates
-    final d = (targetDate ?? this).difference(
-      DateTime.now(),
-    );
+    final d = (targetDate ?? this).difference(DateTime.now());
 
     final weeks = d.inDays ~/ 7;
     final days = d.inDays;

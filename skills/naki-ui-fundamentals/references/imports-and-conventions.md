@@ -95,6 +95,7 @@ Container(
     borderRadius: BorderRadiusData.all(Dim.px(12)),
     padding: const EdgeInsets.all(Dim.px(20)),
   ),
+  trailingIcon: const Icon(MaterialIcons.account_circle),
   child: const NakiText('Account settings'),
 )
 ```

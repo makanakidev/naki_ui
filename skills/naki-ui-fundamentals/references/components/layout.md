@@ -22,7 +22,7 @@ Constrain a child to a predefined ratio.
 ```dart
 const AspectRatio(
   aspectRatio: AspectRatioType.ratio16_9,
-  child: Image('/images/video-cover.webp', fit: BoxFit.cover),
+  child: Image('/images/video-cover.webp', fit: ObjectFit.cover),
 )
 ```
 
@@ -197,6 +197,7 @@ Container(
     borderRadius: BorderRadiusData.all(Dim.px(12)),
     padding: const EdgeInsets.all(Dim.px(20)),
   ),
+  trailingIcon: const Icon(MaterialIcons.account_circle),
   child: const NakiText('Container content'),
 )
 ```
@@ -210,7 +211,7 @@ Create an elevated, outlined, or filled Material-inspired surface.
 ```dart
 Card.outlined(
   padding: const EdgeInsets.all(Dim.px(16)),
-  borderRadius: BorderRadiusData.all(Dim.px(12)),
+  decoration: BoxDecoration(borderRadius: BorderRadiusData.all(Dim.px(12))),
   onTap: openInvoice,
   child: const Column(
     crossAxisAlignment: CrossAxisAlignment.start,

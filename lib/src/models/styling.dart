@@ -5,6 +5,7 @@ import '../theme/tokens.dart';
 import '../utilities/enums.dart';
 import '../utilities/extensions.dart';
 
+import '../utilities/helpers.dart';
 import 'naki.dart';
 
 bool _listEquals<T>(List<T>? a, List<T>? b) {
@@ -37,29 +38,19 @@ class Dim {
   final bool important;
 
   /// Creates a new dimension with optional [unit] and [important] flag.
-  const Dim(
-    this.value, {
-    this.unit = '',
-    this.important = false,
-  });
+  const Dim(this.value, {this.unit = '', this.important = false});
 
   /// Default font size (14px).
   static const Dim defaultFontSize = Dim(14, unit: 'px');
 
   /// Max content.
-  const Dim.maxContent([this.important = false])
-    : value = null,
-      unit = 'max-content';
+  const Dim.maxContent([this.important = false]) : value = null, unit = 'max-content';
 
   /// Min content.
-  const Dim.minContent([this.important = false])
-    : value = null,
-      unit = 'min-content';
+  const Dim.minContent([this.important = false]) : value = null, unit = 'min-content';
 
   /// Fit content.
-  const Dim.fitContent([this.important = false])
-    : value = null,
-      unit = 'fit-content';
+  const Dim.fitContent([this.important = false]) : value = null, unit = 'fit-content';
 
   /// Zero.
   const Dim.zero([this.important = false]) : value = 0, unit = '';
@@ -74,19 +65,14 @@ class Dim {
   const Dim.normal([this.important = false]) : value = null, unit = 'normal';
 
   /// Variable (e.g. variable name: `--naki-primary-color`).
-  const Dim.variable(
-    String variableName, {
-    this.important = false,
-    String? defaultValue,
-  }) : value = null,
-       unit = defaultValue != null && defaultValue != ''
-           ? 'var($variableName, $defaultValue)'
-           : 'var($variableName)';
+  const Dim.variable(String variableName, {this.important = false, String? defaultValue})
+    : value = null,
+      unit = defaultValue != null && defaultValue != ''
+          ? 'var($variableName, $defaultValue)'
+          : 'var($variableName)';
 
   /// Raw expression (e.g. `calc(100% - 48px)`).
-  const Dim.raw(String expression, [this.important = false])
-    : value = null,
-      unit = expression;
+  const Dim.raw(String expression, [this.important = false]) : value = null, unit = expression;
 
   /// Pixels unit.
   const Dim.px(this.value, [this.important = false]) : unit = 'px';
@@ -140,11 +126,7 @@ class Dim {
   const Dim.grad(this.value, [this.important = false]) : unit = 'grad';
 
   /// Creates a copy of this dimension with optional changes.
-  Dim copyWith({
-    double? value,
-    String? unit,
-    bool? important,
-  }) {
+  Dim copyWith({double? value, String? unit, bool? important}) {
     return Dim(
       value ?? this.value,
       unit: unit ?? this.unit,
@@ -155,41 +137,25 @@ class Dim {
   /// Adds another dimension with same unit to this dimension.
   Dim operator +(Dim other) {
     if (value == null || other.value == null || other.unit != unit) return this;
-    return Dim(
-      value! + other.value!,
-      unit: unit,
-      important: important,
-    );
+    return Dim(value! + other.value!, unit: unit, important: important);
   }
 
   /// Subtracts another dimension with same unit from this dimension.
   Dim operator -(Dim other) {
     if (value == null || other.value == null || other.unit != unit) return this;
-    return Dim(
-      value! - other.value!,
-      unit: unit,
-      important: important,
-    );
+    return Dim(value! - other.value!, unit: unit, important: important);
   }
 
   /// Multiplies this dimension by a factor.
   Dim operator *(num factor) {
     if (value == null) return this;
-    return Dim(
-      value! * factor,
-      unit: unit,
-      important: important,
-    );
+    return Dim(value! * factor, unit: unit, important: important);
   }
 
   /// Divides this dimension by a factor.
   Dim operator /(num factor) {
     if (value == null) return this;
-    return Dim(
-      value! / factor,
-      unit: unit,
-      important: important,
-    );
+    return Dim(value! / factor, unit: unit, important: important);
   }
 
   /// Returns a CSS-formatted dimension string.
@@ -247,20 +213,11 @@ class BorderRadiusData implements NakiStylable {
   final Dim? bottomRight;
 
   /// Create a new radius.
-  const BorderRadiusData({
-    this.topLeft,
-    this.topRight,
-    this.bottomLeft,
-    this.bottomRight,
-  });
+  const BorderRadiusData({this.topLeft, this.topRight, this.bottomLeft, this.bottomRight});
 
   /// Create a symmetric border radius.
-  factory BorderRadiusData.all(Dim value) => BorderRadiusData(
-    topLeft: value,
-    topRight: value,
-    bottomLeft: value,
-    bottomRight: value,
-  );
+  factory BorderRadiusData.all(Dim value) =>
+      BorderRadiusData(topLeft: value, topRight: value, bottomLeft: value, bottomRight: value);
 
   /// Circular border radius.
   static const circular = BorderRadiusData(
@@ -271,24 +228,21 @@ class BorderRadiusData implements NakiStylable {
   );
 
   /// iOS-style squircle border radius.
-  static BorderRadiusData get squircle =>
-      BorderRadiusData.all(const Dim.percent(22.5));
+  static BorderRadiusData get squircle => BorderRadiusData.all(const Dim.percent(22.5));
 
   /// A radius with all corners set to zero.
-  static const none = BorderRadiusData(
+  static const zero = BorderRadiusData(
     topLeft: Dim.zero(),
     topRight: Dim.zero(),
     bottomLeft: Dim.zero(),
     bottomRight: Dim.zero(),
   );
 
+  /// Alias for [zero].
+  static const none = zero;
+
   /// Create a new radius with optional changes to corner values.
-  BorderRadiusData copyWith({
-    Dim? topLeft,
-    Dim? topRight,
-    Dim? bottomLeft,
-    Dim? bottomRight,
-  }) {
+  BorderRadiusData copyWith({Dim? topLeft, Dim? topRight, Dim? bottomLeft, Dim? bottomRight}) {
     return BorderRadiusData(
       topLeft: topLeft ?? this.topLeft,
       topRight: topRight ?? this.topRight,
@@ -368,12 +322,7 @@ class BorderRadiusData implements NakiStylable {
           bottomRight == other.bottomRight;
 
   @override
-  int get hashCode => Object.hash(
-    topLeft,
-    topRight,
-    bottomLeft,
-    bottomRight,
-  );
+  int get hashCode => Object.hash(topLeft, topRight, bottomLeft, bottomRight);
 }
 
 /// Border attributes of a component.
@@ -471,11 +420,8 @@ class BorderData implements NakiStylable {
   @override
   Map<String, String> get props => {
     if (_isNone) ...{
-      'border': 'unset',
-    } else if (top != null ||
-        right != null ||
-        bottom != null ||
-        left != null) ...{
+      'border': 'none',
+    } else if (top != null || right != null || bottom != null || left != null) ...{
       'border-top': ?top?.value,
       'border-right': ?right?.value,
       'border-bottom': ?bottom?.value,
@@ -483,7 +429,6 @@ class BorderData implements NakiStylable {
     } else if (!_isOnly) ...{
       'border': '${width.cssText} ${style.value} ${color.value}',
     },
-
     ...?radius?.props,
   };
 
@@ -505,16 +450,7 @@ class BorderData implements NakiStylable {
           width == other.width;
 
   @override
-  int get hashCode => Object.hash(
-    color,
-    radius,
-    style,
-    width,
-    top,
-    right,
-    bottom,
-    left,
-  );
+  int get hashCode => Object.hash(color, radius, style, width, top, right, bottom, left);
 }
 
 /// Size attributes of a component.
@@ -605,14 +541,7 @@ class SizeConstraints implements NakiStylable {
           maxHeight == other.maxHeight;
 
   @override
-  int get hashCode => Object.hash(
-    width,
-    height,
-    minWidth,
-    minHeight,
-    maxWidth,
-    maxHeight,
-  );
+  int get hashCode => Object.hash(width, height, minWidth, minHeight, maxWidth, maxHeight);
 }
 
 /// The border, label, hint, and helper text styles used to
@@ -760,44 +689,26 @@ class EdgeInsets {
   final Dim? left;
 
   /// Creates spacing where all four sides have the same `value`.
-  const EdgeInsets.all(Dim value)
-    : top = value,
-      right = value,
-      bottom = value,
-      left = value;
+  const EdgeInsets.all(Dim value) : top = value, right = value, bottom = value, left = value;
 
   /// Creates spacing with symmetrical vertical and horizontal offsets.
-  const EdgeInsets.symmetric({
-    Dim? vertical,
-    Dim? horizontal,
-  }) : top = vertical,
-       bottom = vertical,
-       left = horizontal,
-       right = horizontal;
+  const EdgeInsets.symmetric({Dim? vertical, Dim? horizontal})
+    : top = vertical,
+      bottom = vertical,
+      left = horizontal,
+      right = horizontal;
 
   /// Creates spacing with only the specified sides set.
-  const EdgeInsets.only({
-    this.top,
-    this.right,
-    this.bottom,
-    this.left,
-  });
+  const EdgeInsets.only({this.top, this.right, this.bottom, this.left});
 
   /// The default zero spacing.
   static const zero = EdgeInsets.all(Dim.zero());
 
   /// Converts padding attributes to a CSS style map.
   Map<String, String> get pProps => {
-    if (top != null &&
-        top == right &&
-        bottom == left &&
-        top == bottom &&
-        right == left) ...{
+    if (top != null && top == right && bottom == left && top == bottom && right == left) ...{
       'padding': top!.cssText,
-    } else if (top != null &&
-        right != null &&
-        top == bottom &&
-        right == left) ...{
+    } else if (top != null && right != null && top == bottom && right == left) ...{
       'padding': '${top!.cssText} ${right!.cssText}',
     } else ...{
       'padding-top': ?top?.cssText,
@@ -809,16 +720,9 @@ class EdgeInsets {
 
   /// Converts margin attributes to a CSS style map.
   Map<String, String> get mProps => {
-    if (top != null &&
-        top == right &&
-        bottom == left &&
-        top == bottom &&
-        right == left) ...{
+    if (top != null && top == right && bottom == left && top == bottom && right == left) ...{
       'margin': top!.cssText,
-    } else if (top != null &&
-        right != null &&
-        top == bottom &&
-        right == left) ...{
+    } else if (top != null && right != null && top == bottom && right == left) ...{
       'margin': '${top!.cssText} ${right!.cssText}',
     } else ...{
       'margin-top': ?top?.cssText,
@@ -891,6 +795,15 @@ class BoxDecoration implements NakiStylable {
   /// The background color of the box.
   final Color? backgroundColor;
 
+  /// The background image of the box.
+  final String? backgroundImage;
+
+  /// How the background image should be sized to fit the box.
+  final ObjectFit? imageFit;
+
+  /// How the background image should be positioned within the box.
+  final ObjectPosition? imagePosition;
+
   /// The background gradient of the box.
   final Gradient? gradient;
 
@@ -927,6 +840,9 @@ class BoxDecoration implements NakiStylable {
   /// Create a new box decoration.
   const BoxDecoration({
     this.backgroundColor,
+    this.backgroundImage,
+    this.imageFit,
+    this.imagePosition,
     this.gradient,
     this.display,
     this.color,
@@ -940,11 +856,32 @@ class BoxDecoration implements NakiStylable {
     this.opacity,
   });
 
+  /// Converts the ObjectFit enum to a CSS background-size value.
+  String? get _backgroundImageSize => switch (imageFit) {
+    ObjectFit.cover => 'cover',
+    ObjectFit.contain => 'contain',
+    ObjectFit.fill => '100% 100%',
+    ObjectFit.none => 'auto',
+    ObjectFit.scaleDown => 'auto',
+    _ => null,
+  };
+
+  /// Normalizes the background image to a CSS-valid format.
+  String? get _normalizedBackgroundImage => switch (backgroundImage) {
+    final bg? when bg.contains('gradient') => null,
+    final bg? when bg.startsWith('url(') => bg,
+    final bg? => 'url("${normaliseLink(bg)}")',
+    null => null,
+  };
+
   /// Converts box decoration attributes to a CSS style map.
   @override
   Map<String, String> get props => {
     'display': ?display?.value,
     'background-color': ?backgroundColor?.value,
+    'background-image': ?_normalizedBackgroundImage,
+    'background-size': ?_backgroundImageSize,
+    'background-position': ?imagePosition?.css,
     'color': ?color?.value,
     'opacity': ?opacity?.toCleanString,
     ...?borderRadius?.props,
@@ -969,6 +906,9 @@ class BoxDecoration implements NakiStylable {
       other is BoxDecoration &&
           runtimeType == other.runtimeType &&
           backgroundColor == other.backgroundColor &&
+          backgroundImage == other.backgroundImage &&
+          imageFit == other.imageFit &&
+          imagePosition == other.imagePosition &&
           gradient == other.gradient &&
           color == other.color &&
           display == other.display &&
@@ -984,6 +924,9 @@ class BoxDecoration implements NakiStylable {
   @override
   int get hashCode => Object.hashAll([
     backgroundColor,
+    backgroundImage,
+    imageFit,
+    imagePosition,
     gradient,
     color,
     display,
@@ -1016,29 +959,13 @@ class Shadow implements NakiStylable {
   final Color? color;
 
   /// Create a new shadow.
-  const Shadow({
-    this.offsetX,
-    this.offsetY,
-    this.blurRadius,
-    this.spreadRadius,
-    this.color,
-  });
+  const Shadow({this.offsetX, this.offsetY, this.blurRadius, this.spreadRadius, this.color});
 
   /// Small shadow
-  static const small = Shadow(
-    offsetX: 0,
-    offsetY: 2,
-    blurRadius: 8.0,
-    color: Colors.black,
-  );
+  static const small = Shadow(offsetX: 0, offsetY: 2, blurRadius: 8.0, color: Colors.black);
 
   /// Medium shadow
-  static const medium = Shadow(
-    offsetX: 0,
-    offsetY: 4,
-    blurRadius: 16.0,
-    color: Colors.black,
-  );
+  static const medium = Shadow(offsetX: 0, offsetY: 4, blurRadius: 16.0, color: Colors.black);
 
   /// Large shadow
   static const large = Shadow(
@@ -1106,7 +1033,7 @@ class Shadow implements NakiStylable {
   /// ).value;
   /// // Returns '2px 4px 8px 0px #000000'
   /// ```
-  String? get value => props['box-shadow'];
+  String get value => props['box-shadow']!;
 
   @override
   bool operator ==(Object other) =>
@@ -1120,13 +1047,7 @@ class Shadow implements NakiStylable {
           color == other.color;
 
   @override
-  int get hashCode => Object.hash(
-    offsetX,
-    offsetY,
-    blurRadius,
-    spreadRadius,
-    color,
-  );
+  int get hashCode => Object.hash(offsetX, offsetY, blurRadius, spreadRadius, color);
 }
 
 /// Position properties of a component.
@@ -1182,10 +1103,7 @@ class PositionData implements NakiStylable {
   );
 
   /// Top left position.
-  static const topLeft = PositionData(
-    top: Dim.zero(),
-    left: Dim.zero(),
-  );
+  static const topLeft = PositionData(top: Dim.zero(), left: Dim.zero());
 
   /// Top right position.
   static const topRight = PositionData(
@@ -1202,10 +1120,7 @@ class PositionData implements NakiStylable {
   );
 
   /// Bottom left position.
-  static const bottomLeft = PositionData(
-    bottom: Dim.zero(),
-    left: Dim.zero(),
-  );
+  static const bottomLeft = PositionData(bottom: Dim.zero(), left: Dim.zero());
 
   /// Bottom right position.
   static const bottomRight = PositionData(
@@ -1281,7 +1196,7 @@ class PositionData implements NakiStylable {
 /// Color attributes for different states of a component.
 class ComponentStatesColor implements NakiStylable {
   /// Color applied to the border of a component when focused.
-  final Color? focusColor;
+  final Color? focusBorderColor;
 
   /// Color applied to the foreground of a component when hovered.
   final Color? hoverColor;
@@ -1300,7 +1215,7 @@ class ComponentStatesColor implements NakiStylable {
 
   /// Create a new state color.
   const ComponentStatesColor({
-    this.focusColor,
+    this.focusBorderColor,
     this.hoverColor,
     this.hoverBackgroundColor,
     this.errorTextColor,
@@ -1310,26 +1225,25 @@ class ComponentStatesColor implements NakiStylable {
 
   /// Create a copy of the state color.
   ComponentStatesColor copyWith({
-    Color? focusColor,
+    Color? focusBorderColor,
     Color? hoverColor,
     Color? hoverBackgroundColor,
     Color? errorTextColor,
     Color? disabledBackgroundColor,
     Color? disabledColor,
   }) => ComponentStatesColor(
-    focusColor: focusColor ?? this.focusColor,
+    focusBorderColor: focusBorderColor ?? this.focusBorderColor,
     hoverColor: hoverColor ?? this.hoverColor,
     hoverBackgroundColor: hoverBackgroundColor ?? this.hoverBackgroundColor,
     errorTextColor: errorTextColor ?? this.errorTextColor,
-    disabledBackgroundColor:
-        disabledBackgroundColor ?? this.disabledBackgroundColor,
+    disabledBackgroundColor: disabledBackgroundColor ?? this.disabledBackgroundColor,
     disabledColor: disabledColor ?? this.disabledColor,
   );
 
   /// Converts state colors to a CSS style map of global variables.
   @override
   Map<String, String> get props => {
-    Tokens.current.focusBorderColor.name: ?focusColor?.value,
+    Tokens.current.focusBorderColor.name: ?focusBorderColor?.value,
     Tokens.current.fieldHoverColor.name: ?hoverColor?.value,
     Tokens.current.hoverColor.name: ?hoverColor?.value,
     Tokens.current.buttonHoverBgColor.name: ?hoverBackgroundColor?.value,
@@ -1346,7 +1260,7 @@ class ComponentStatesColor implements NakiStylable {
       identical(this, other) ||
       other is ComponentStatesColor &&
           runtimeType == other.runtimeType &&
-          focusColor == other.focusColor &&
+          focusBorderColor == other.focusBorderColor &&
           hoverColor == other.hoverColor &&
           hoverBackgroundColor == other.hoverBackgroundColor &&
           errorTextColor == other.errorTextColor &&
@@ -1355,7 +1269,7 @@ class ComponentStatesColor implements NakiStylable {
 
   @override
   int get hashCode => Object.hash(
-    focusColor,
+    focusBorderColor,
     hoverColor,
     hoverBackgroundColor,
     errorTextColor,
@@ -1376,23 +1290,14 @@ class BorderSideData {
   final BorderStyle style;
 
   /// Creates a [BorderSideData] definition.
-  const BorderSideData({
-    this.color,
-    this.width = const Dim.px(1),
-    this.style = BorderStyle.solid,
-  });
+  const BorderSideData({this.color, this.width = const Dim.px(1), this.style = BorderStyle.solid});
 
   /// A border side with no width/border.
-  static const BorderSideData none = BorderSideData(
-    width: Dim.zero(),
-    style: BorderStyle.none,
-    color: null,
-  );
+  static const BorderSideData none = BorderSideData(width: Dim.zero(), style: BorderStyle.none);
 
   /// Get the border side CSS value.
-  String get value =>
-      style == BorderStyle.none && width == const Dim.zero() && color == null
-      ? 'unset'
+  String get value => style == BorderStyle.none && width.value == 0 && color == null
+      ? 'none'
       : '${width.cssText} ${style.value} ${color?.value ?? 'currentcolor'}';
 
   @override
@@ -1434,9 +1339,7 @@ class Filter implements NakiStylable {
   /// `value` must be between 0 and 100px.
   Filter applyBlur(double value) {
     value = value.clamp(0, 100);
-    _filters.add(
-      BackdropFilterType.blur.cssText(.px(value)),
-    );
+    _filters.add(BackdropFilterType.blur.cssText(.px(value)));
     return this;
   }
 
@@ -1445,11 +1348,7 @@ class Filter implements NakiStylable {
   /// `value` must be between 0 and 100%.
   Filter applyBrightness(double value) {
     value = value.clamp(0, 100);
-    _filters.add(
-      BackdropFilterType.brightness.cssText(
-        .percent(value),
-      ),
-    );
+    _filters.add(BackdropFilterType.brightness.cssText(.percent(value)));
     return this;
   }
 
@@ -1458,9 +1357,7 @@ class Filter implements NakiStylable {
   /// `value` must be between 0 and 100%.
   Filter applyContrast(double value) {
     value = value.clamp(0, 100);
-    _filters.add(
-      BackdropFilterType.contrast.cssText(.percent(value)),
-    );
+    _filters.add(BackdropFilterType.contrast.cssText(.percent(value)));
     return this;
   }
 
@@ -1469,9 +1366,7 @@ class Filter implements NakiStylable {
   /// `value` must be between 0 and 100%.
   Filter applyGrayscale(double value) {
     value = value.clamp(0, 100);
-    _filters.add(
-      BackdropFilterType.grayscale.cssText(.percent(value)),
-    );
+    _filters.add(BackdropFilterType.grayscale.cssText(.percent(value)));
     return this;
   }
 
@@ -1480,9 +1375,7 @@ class Filter implements NakiStylable {
   /// `value` must be between 0 and 360 degrees.
   Filter applyHueRotate(double value) {
     value = value.clamp(0, 360);
-    _filters.add(
-      BackdropFilterType.hueRotate.cssText(.deg(value)),
-    );
+    _filters.add(BackdropFilterType.hueRotate.cssText(.deg(value)));
     return this;
   }
 
@@ -1506,9 +1399,7 @@ class Filter implements NakiStylable {
   ///
   /// `value` can be 'Dim.percent(50)' or 'Dim(0.5)'.
   Filter applySaturation(Dim value) {
-    _filters.add(
-      BackdropFilterType.saturate.cssText(value),
-    );
+    _filters.add(BackdropFilterType.saturate.cssText(value));
     return this;
   }
 
@@ -1562,17 +1453,12 @@ class Filter implements NakiStylable {
 
   /// Generates a CSS map entry for the filter.
   @override
-  Map<String, String> get props => {
-    'backdrop-filter': cssText,
-    '-webkit-backdrop-filter': cssText,
-  };
+  Map<String, String> get props => {'backdrop-filter': cssText, '-webkit-backdrop-filter': cssText};
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is Filter &&
-          runtimeType == other.runtimeType &&
-          _listEquals(_filters, other._filters);
+      other is Filter && runtimeType == other.runtimeType && _listEquals(_filters, other._filters);
 
   @override
   int get hashCode => Object.hashAll(_filters);
@@ -1668,8 +1554,7 @@ class SegmentedInputStyle {
       focusBorderColor: focusBorderColor ?? this.focusBorderColor,
       errorBorderColor: errorBorderColor ?? this.errorBorderColor,
       backgroundColor: backgroundColor ?? this.backgroundColor,
-      filledBackgroundColor:
-          filledBackgroundColor ?? this.filledBackgroundColor,
+      filledBackgroundColor: filledBackgroundColor ?? this.filledBackgroundColor,
       textStyle: textStyle ?? this.textStyle,
       shape: shape ?? this.shape,
       margin: margin ?? this.margin,
@@ -1743,6 +1628,15 @@ class Gradient implements NakiStylable {
   ///
   /// If both [angle] and [direction] are provided, [angle] takes precedence.
   ///
+  /// ### Properties:
+  /// - [colors]: List of stop colors (minimum of 2 recommended).
+  /// - [angle]: Angle of the gradient. It will be normalized to be within
+  ///   the 1-360 range (e.g., 400° becomes 40°, -10° becomes 350°).
+  /// - [direction]: Linear gradient direction.
+  /// - [stops]: Optional stops corresponding to [colors]. Accepts length or percentage
+  ///   units (e.g., `Dim.percent(50)`, `Dim.px(20)`, `Dim.rem(1.5)`). Unitless numbers
+  ///   are not valid CSS.
+  ///
   /// ### Example
   /// ```dart
   /// final gradient = Gradient()
@@ -1754,13 +1648,6 @@ class Gradient implements NakiStylable {
   ///   );
   /// ```
   ///
-  /// - [colors]: List of stop colors (minimum of 2 recommended).
-  /// - [angle]: Angle of the gradient. It will be normalized to be within
-  ///   the 1-360 range (e.g., 400° becomes 40°, -10° becomes 350°).
-  /// - [direction]: Linear gradient direction.
-  /// - [stops]: Optional stops corresponding to [colors]. Accepts length or percentage
-  ///   units (e.g., `Dim.percent(50)`, `Dim.px(20)`, `Dim.rem(1.5)`). Unitless numbers
-  ///   are not valid CSS.
   Gradient applyLinear({
     required List<Color> colors,
     double? angle,
@@ -1773,7 +1660,7 @@ class Gradient implements NakiStylable {
       angle = angle % 360;
       parts.add('${angle}deg');
     } else if (direction != null) {
-      parts.add(direction.value);
+      parts.add(direction.css);
     }
 
     for (int i = 0; i < colors.length; i++) {
@@ -1793,6 +1680,14 @@ class Gradient implements NakiStylable {
 
   /// Adds a radial gradient.
   ///
+  /// ### Properties:
+  /// - [colors]: List of stop colors.
+  /// - [shape]: Shape of the gradient.
+  /// - [position]: Position of the gradient center.
+  /// - [stops]: Optional stops corresponding to [colors]. Accepts length or percentage
+  ///   units (e.g., `Dim.percent(50)`, `Dim.px(20)`, `Dim.rem(1.5)`). Unitless numbers
+  ///   are not valid CSS.
+  ///
   /// ### Example
   /// ```dart
   /// final gradient = Gradient()
@@ -1803,13 +1698,6 @@ class Gradient implements NakiStylable {
   ///     stops: const [Dim.px(20), Dim.percent(80)],
   ///   );
   /// ```
-  ///
-  /// - [colors]: List of stop colors.
-  /// - [shape]: Shape of the gradient.
-  /// - [position]: Position of the gradient center.
-  /// - [stops]: Optional stops corresponding to [colors]. Accepts length or percentage
-  ///   units (e.g., `Dim.percent(50)`, `Dim.px(20)`, `Dim.rem(1.5)`). Unitless numbers
-  ///   are not valid CSS.
   Gradient applyRadial({
     required List<Color> colors,
     Shape? shape,
@@ -1819,11 +1707,11 @@ class Gradient implements NakiStylable {
     final List<String> parts = [];
 
     if (shape != null && position != null) {
-      parts.add('${shape.value} at ${position.value}');
+      parts.add('${shape.css} at ${position.css}');
     } else if (shape != null) {
-      parts.add(shape.value);
+      parts.add(shape.css);
     } else if (position != null) {
-      parts.add('at ${position.value}');
+      parts.add('at ${position.css}');
     }
 
     for (int i = 0; i < colors.length; i++) {
@@ -1843,6 +1731,14 @@ class Gradient implements NakiStylable {
 
   /// Adds a conic gradient.
   ///
+  /// ### Properties:
+  /// - [colors]: List of stop colors.
+  /// - [angle]: Starting angle of rotation between 0 and 360.
+  /// - [position]: Position of the gradient center (e.g., `ConicGradientPosition.center`).
+  /// - [stops]: Optional stops corresponding to [colors]. Accepts angle or percentage
+  ///   units (e.g., `Dim.deg(0)`, `Dim.percent(50)`). Length units (`px`, `rem`) are not
+  ///   valid for conic gradients.
+  ///
   /// ### Example
   /// ```dart
   /// final gradient = Gradient()
@@ -1853,13 +1749,6 @@ class Gradient implements NakiStylable {
   ///     stops: const [Dim.deg(0), Dim.deg(180), Dim.deg(360)],
   ///   );
   /// ```
-  ///
-  /// - [colors]: List of stop colors.
-  /// - [angle]: Starting angle of rotation between 0 and 360.
-  /// - [position]: Position of the gradient center (e.g., `ConicGradientPosition.center`).
-  /// - [stops]: Optional stops corresponding to [colors]. Accepts angle or percentage
-  ///   units (e.g., `Dim.deg(90)`, `Dim.percent(50)`). Length units (`px`, `rem`) are not
-  ///   valid for conic gradients.
   Gradient applyConic({
     required List<Color> colors,
     double? angle,
@@ -1870,12 +1759,12 @@ class Gradient implements NakiStylable {
 
     if (angle != null && position != null) {
       angle = angle % 360;
-      parts.add('from ${angle}deg at ${position.value}');
+      parts.add('from ${angle}deg at ${position.css}');
     } else if (angle != null) {
       angle = angle % 360;
       parts.add('from ${angle}deg');
     } else if (position != null) {
-      parts.add('at ${position.value}');
+      parts.add('at ${position.css}');
     }
 
     for (int i = 0; i < colors.length; i++) {
@@ -1895,6 +1784,14 @@ class Gradient implements NakiStylable {
 
   /// Adds a repeating linear gradient.
   ///
+  /// ### Properties:
+  /// - [colors]: List of stop colors.
+  /// - [angle]: Angle of the gradient. It will be normalized to be within the 0-360 range.
+  /// - [direction]: Linear gradient direction (e.g., `LinearGradientDirection.toRight`).
+  /// - [stops]: Optional stops corresponding to [colors]. Accepts length or percentage
+  ///   units (e.g., `Dim.percent(50)`, `Dim.px(20)`, `Dim.rem(1.5)`). Unitless numbers
+  ///   are not valid CSS.
+  ///
   /// ### Example
   /// ```dart
   /// final stripes = Gradient()
@@ -1904,13 +1801,6 @@ class Gradient implements NakiStylable {
   ///     stops: const [Dim.px(0), Dim.px(20)],
   ///   );
   /// ```
-  ///
-  /// - [colors]: List of stop colors.
-  /// - [angle]: Angle of the gradient. It will be normalized to be within the 0-360 range.
-  /// - [direction]: Linear gradient direction (e.g., `LinearGradientDirection.toRight`).
-  /// - [stops]: Optional stops corresponding to [colors]. Accepts length or percentage
-  ///   units (e.g., `Dim.percent(50)`, `Dim.px(20)`, `Dim.rem(1.5)`). Unitless numbers
-  ///   are not valid CSS.
   Gradient applyRepeatingLinear({
     required List<Color> colors,
     double? angle,
@@ -1923,7 +1813,7 @@ class Gradient implements NakiStylable {
       angle = angle % 360;
       parts.add('${angle}deg');
     } else if (direction != null) {
-      parts.add(direction.value);
+      parts.add(direction.css);
     }
 
     for (int i = 0; i < colors.length; i++) {
@@ -1943,6 +1833,14 @@ class Gradient implements NakiStylable {
 
   /// Adds a repeating radial gradient.
   ///
+  /// ### Properties:
+  /// - [colors]: List of stop colors.
+  /// - [shape]: Shape of the gradient (e.g., `Shape.circle`, `Shape.ellipse`).
+  /// - [position]: Position of the gradient center (e.g., `RadialGradientPosition.center`).
+  /// - [stops]: Optional stops corresponding to [colors]. Accepts length or percentage
+  ///   units (e.g., `Dim.percent(50)`, `Dim.px(20)`, `Dim.rem(1.5)`). Unitless numbers
+  ///   are not valid CSS.
+  ///
   /// ### Example
   /// ```dart
   /// final ripple = Gradient()
@@ -1953,13 +1851,6 @@ class Gradient implements NakiStylable {
   ///     stops: const [Dim.px(0), Dim.px(15)],
   ///   );
   /// ```
-  ///
-  /// - [colors]: List of stop colors.
-  /// - [shape]: Shape of the gradient (e.g., `Shape.circle`, `Shape.ellipse`).
-  /// - [position]: Position of the gradient center (e.g., `RadialGradientPosition.center`).
-  /// - [stops]: Optional stops corresponding to [colors]. Accepts length or percentage
-  ///   units (e.g., `Dim.percent(50)`, `Dim.px(20)`, `Dim.rem(1.5)`). Unitless numbers
-  ///   are not valid CSS.
   Gradient applyRepeatingRadial({
     required List<Color> colors,
     Shape? shape,
@@ -1969,11 +1860,11 @@ class Gradient implements NakiStylable {
     final List<String> parts = [];
 
     if (shape != null && position != null) {
-      parts.add('${shape.value} at ${position.value}');
+      parts.add('${shape.css} at ${position.css}');
     } else if (shape != null) {
-      parts.add(shape.value);
+      parts.add(shape.css);
     } else if (position != null) {
-      parts.add('at ${position.value}');
+      parts.add('at ${position.css}');
     }
 
     for (int i = 0; i < colors.length; i++) {
@@ -1993,6 +1884,14 @@ class Gradient implements NakiStylable {
 
   /// Adds a repeating conic gradient.
   ///
+  /// ### Properties:
+  /// - [colors]: List of stop colors.
+  /// - [angle]: Starting angle of rotation between 0 and 360.
+  /// - [position]: Position of the gradient center (e.g., `ConicGradientPosition.center`).
+  /// - [stops]: Optional stops corresponding to [colors]. Accepts angle or percentage
+  ///   units (e.g., `Dim.deg(0)`, `Dim.percent(50)`). Length units (`px`, `rem`) are not
+  ///   valid for conic gradients.
+  ///
   /// ### Example
   /// ```dart
   /// final pinwheel = Gradient()
@@ -2003,13 +1902,6 @@ class Gradient implements NakiStylable {
   ///     stops: const [Dim.deg(0), Dim.deg(20), Dim.deg(40)],
   ///   );
   /// ```
-  ///
-  /// - [colors]: List of stop colors.
-  /// - [angle]: Starting angle of rotation between 0 and 360.
-  /// - [position]: Position of the gradient center (e.g., `ConicGradientPosition.center`).
-  /// - [stops]: Optional stops corresponding to [colors]. Accepts angle or percentage
-  ///   units (e.g., `Dim.deg(90)`, `Dim.percent(50)`). Length units (`px`, `rem`) are not
-  ///   valid for conic gradients.
   Gradient applyRepeatingConic({
     required List<Color> colors,
     double? angle,
@@ -2020,12 +1912,12 @@ class Gradient implements NakiStylable {
 
     if (angle != null && position != null) {
       angle = angle % 360;
-      parts.add('from ${angle}deg at ${position.value}');
+      parts.add('from ${angle}deg at ${position.css}');
     } else if (angle != null) {
       angle = angle % 360;
       parts.add('from ${angle}deg');
     } else if (position != null) {
-      parts.add('at ${position.value}');
+      parts.add('at ${position.css}');
     }
 
     for (int i = 0; i < colors.length; i++) {
@@ -2057,10 +1949,7 @@ class Gradient implements NakiStylable {
 
   /// Sunset gradient preset.
   static final sunset = Gradient()
-    ..applyLinear(
-      colors: const [Color('#ff7e5f'), Color('#feb47b')],
-      angle: 135,
-    );
+    ..applyLinear(colors: const [Color('#ff7e5f'), Color('#feb47b')], angle: 135);
 
   /// Ocean breeze gradient preset.
   static final oceanBreeze = Gradient()

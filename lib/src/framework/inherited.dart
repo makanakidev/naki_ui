@@ -15,10 +15,7 @@ class FlexScope extends InheritedComponent {
   final bool scrollable;
 
   /// {@macro FlexScope}
-  const FlexScope({
-    required super.child,
-    this.scrollable = false,
-  });
+  const FlexScope({required super.child, this.scrollable = false});
 
   /// Finds the nearest [FlexScope] instance in the component tree.
   /// This scans the component tree upwards from the component [context]
@@ -30,29 +27,20 @@ class FlexScope extends InheritedComponent {
   }
 
   @override
-  bool updateShouldNotify(FlexScope oldComponent) =>
-      scrollable != oldComponent.scrollable;
+  bool updateShouldNotify(FlexScope oldComponent) => scrollable != oldComponent.scrollable;
 }
 
 /// {@template FormScope}
 /// An inherited component that exposes the state of
-/// a [FormBuilder] to its descendant components.
+/// a `FormBuilder` to its descendant components.
 /// {@endtemplate}
 class FormScope extends InheritedComponent {
-  /// Whether the form should be validated.
-  final bool allowValidation;
-
   /// {@macro FormScope}
-  const FormScope({
-    required this.allowValidation,
-    required super.child,
-  });
+  const FormScope({required super.child});
 
   /// The global key of the form.
   GlobalNodeKey<HTMLFormElement>? get _formKey {
-    if (child case form(
-      key: final GlobalNodeKey<HTMLFormElement> key,
-    )) {
+    if (child case form(key: final GlobalNodeKey<HTMLFormElement> key)) {
       return key;
     }
 
@@ -75,7 +63,7 @@ class FormScope extends InheritedComponent {
   ///
   /// Note: This is only supported in client-side.
   bool validate() {
-    if (allowValidation && kIsWeb && _formKey != null) {
+    if (kIsWeb && _formKey != null) {
       final formElement = _formKey!.currentNode;
       return formElement?.reportValidity() ?? false;
     }
@@ -94,35 +82,25 @@ class FormScope extends InheritedComponent {
   }
 
   @override
-  bool updateShouldNotify(FormScope oldComponent) =>
-      allowValidation != oldComponent.allowValidation ||
-      _formKey != oldComponent._formKey;
+  bool updateShouldNotify(FormScope oldComponent) => _formKey != oldComponent._formKey;
 }
 
 /// Allocates hydration-stable DOM ids within a root theme tree.
 final class NakiDomIdRegistry {
   // Expando keeps component contexts weakly referenced, so unmounted
   // trees do not accumulate in long-lived applications.
-  final Expando<Map<String, String>> _ids = Expando(
-    'nakiDomIds',
-  );
+  final Expando<Map<String, String>> _ids = Expando('nakiDomIds');
   int _nextId = 0;
 
   String resolve(BuildContext owner, String prefix) {
     final ownerIds = _ids[owner] ??= <String, String>{};
-    return ownerIds.putIfAbsent(
-      prefix,
-      () => '${prefix}_nakidom_${(_nextId++).toRadixString(36)}',
-    );
+    return ownerIds.putIfAbsent(prefix, () => '${prefix}_nakidom_${(_nextId++).toRadixString(36)}');
   }
 }
 
 /// Provides one request-local style registry to the complete themed tree.
 class NakiStyleScope extends InheritedComponent {
-  const NakiStyleScope({
-    required this.registry,
-    required super.child,
-  });
+  const NakiStyleScope({required this.registry, required super.child});
 
   final NakiStyleRegistry registry;
 
@@ -130,16 +108,12 @@ class NakiStyleScope extends InheritedComponent {
       context.dependOnInheritedComponentOfExactType<NakiStyleScope>();
 
   @override
-  bool updateShouldNotify(NakiStyleScope oldComponent) =>
-      registry != oldComponent.registry;
+  bool updateShouldNotify(NakiStyleScope oldComponent) => registry != oldComponent.registry;
 }
 
 /// Provides one request-local DOM id registry to the complete themed tree.
 class NakiDomIdScope extends InheritedComponent {
-  const NakiDomIdScope({
-    required this.registry,
-    required super.child,
-  });
+  const NakiDomIdScope({required this.registry, required super.child});
 
   final NakiDomIdRegistry registry;
 
@@ -147,8 +121,7 @@ class NakiDomIdScope extends InheritedComponent {
       context.dependOnInheritedComponentOfExactType<NakiDomIdScope>();
 
   @override
-  bool updateShouldNotify(NakiDomIdScope oldComponent) =>
-      registry != oldComponent.registry;
+  bool updateShouldNotify(NakiDomIdScope oldComponent) => registry != oldComponent.registry;
 }
 
 /// {@template ScaffoldScope}
@@ -160,11 +133,7 @@ class ScaffoldScope extends InheritedComponent {
   final ScaffoldState state;
 
   /// {@macro ScaffoldScope}
-  const ScaffoldScope({
-    super.key,
-    required super.child,
-    required this.state,
-  });
+  const ScaffoldScope({super.key, required super.child, required this.state});
 
   /// Finds the nearest [ScaffoldScope] instance in the component tree.
   /// This scans the component tree upwards from the component [context]
@@ -175,8 +144,7 @@ class ScaffoldScope extends InheritedComponent {
       context.dependOnInheritedComponentOfExactType<ScaffoldScope>();
 
   @override
-  bool updateShouldNotify(ScaffoldScope oldComponent) =>
-      state != oldComponent.state;
+  bool updateShouldNotify(ScaffoldScope oldComponent) => state != oldComponent.state;
 }
 
 /// {@template AppScope}

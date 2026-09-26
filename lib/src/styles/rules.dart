@@ -65,19 +65,14 @@ final class NakiStyleRegistry {
   static final NakiStyleRegistry global = NakiStyleRegistry();
 
   /// Static helper for `@css` getters
-  static List<StyleRule> once(
-    String key,
-    List<StyleRule> rules,
-  ) => global.register(key, rules);
+  static List<StyleRule> once(String key, List<StyleRule> rules) =>
+      global.register(key, rules);
 
   /// Static helper to dedupe rules.
   static List<StyleRule> dedupe(List<StyleRule> rules) => global._dedupe(rules);
 
   /// Registers [rules] once per [key] within this registry instance.
-  List<StyleRule> register(
-    String key,
-    List<StyleRule> rules,
-  ) {
+  List<StyleRule> register(String key, List<StyleRule> rules) {
     if (_registeredKeys.contains(key)) return const [];
     _registeredKeys.add(key);
     return _dedupe(rules);
@@ -121,11 +116,7 @@ class Rules {
     // push scaffold content down if present
     css(
       '.naki-scaffold-body',
-    ).styles(
-      raw: {
-        'margin-top': 'var(${Tokens.current.appbarHeight})',
-      },
-    ),
+    ).styles(raw: {'margin-top': 'var(${Tokens.current.appbarHeight})'}),
   ];
 
   static const _fastTransition = '150ms cubic-bezier(0.25, 0.46, 0.45, 0.94)';
@@ -147,9 +138,7 @@ class Rules {
     return [
       css(selector, [
         // base
-        css(
-          '&',
-        ).styles(
+        css('&').styles(
           raw: {
             'scrollbar-width': 'thin',
             'scrollbar-gutter': 'stable',
@@ -161,12 +150,7 @@ class Rules {
         if (width != null || height != null)
           css(
             '&::-webkit-scrollbar',
-          ).styles(
-            raw: {
-              'width': ?width?.toPx,
-              'height': ?height?.toPx,
-            },
-          ),
+          ).styles(raw: {'width': ?width?.toPx, 'height': ?height?.toPx}),
 
         // webkit scrollbar track
         css(
@@ -174,9 +158,7 @@ class Rules {
         ).styles(raw: {'background-color': trackColor.value}),
 
         // webkit scrollbar thumb
-        css(
-          '&::-webkit-scrollbar-thumb',
-        ).styles(
+        css('&::-webkit-scrollbar-thumb').styles(
           raw: {
             'background-color': thumbColor.value,
             'border-radius': ?radius?.toPx,
@@ -195,21 +177,16 @@ class Rules {
 
   /// Default foundation rules.
   static List<StyleRule> get nakiFoundationRules => [
-    css.media(
-      const MediaQuery.raw(
-        '(prefers-reduced-motion: reduce)',
+    css.media(const MediaQuery.raw('(prefers-reduced-motion: reduce)'), [
+      css('*, *::before, *::after').styles(
+        raw: {
+          'scroll-behavior': 'auto !important',
+          'animation-duration': '0.01ms !important',
+          'animation-iteration-count': '1 !important',
+          'transition-duration': '0.01ms !important',
+        },
       ),
-      [
-        css('*, *::before, *::after').styles(
-          raw: {
-            'scroll-behavior': 'auto !important',
-            'animation-duration': '0.01ms !important',
-            'animation-iteration-count': '1 !important',
-            'transition-duration': '0.01ms !important',
-          },
-        ),
-      ],
-    ),
+    ]),
 
     // theme switching animation
     css(
@@ -218,13 +195,9 @@ class Rules {
     ).styles(raw: {'transition': 'all $_slowTransition'}),
 
     css.supports('(view-transition-name: root)', [
-      css(
-        'html',
-      ).styles(raw: {'view-transition-name': 'root'}),
+      css('html').styles(raw: {'view-transition-name': 'root'}),
 
-      css(
-        '::view-transition-old(root), ::view-transition-new(root)',
-      ).styles(
+      css('::view-transition-old(root), ::view-transition-new(root)').styles(
         raw: {
           'animation-duration': '500ms',
           'animation-timing-function': 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
@@ -234,9 +207,7 @@ class Rules {
     ]),
 
     // apply margin and padding on body element
-    css(
-      'body',
-    ).styles(raw: {'margin': '0', 'padding': '0'}),
+    css('body').styles(raw: {'margin': '0', 'padding': '0'}),
 
     // apply border-box sizing on all elements
     css('*').styles(raw: {'box-sizing': 'border-box'}),
@@ -260,9 +231,9 @@ class Rules {
   /// Breakpoint rules
   static final nakiBreakpointRules = [
     // Hide all by default
-    css('.br-xs, .br-sm, .br-md, .br-lg, .br-xl').styles(
-      raw: {'display': 'none !important'},
-    ),
+    css(
+      '.br-xs, .br-sm, .br-md, .br-lg, .br-xl',
+    ).styles(raw: {'display': 'none !important'}),
 
     // xs: <= 480px
     css.media(
@@ -307,9 +278,7 @@ class Rules {
 
     // xl: 1024px and above
     css.media(
-      const MediaQuery.screen(
-        minWidth: Unit.pixels(kBreakpointLarge + 0.02),
-      ),
+      const MediaQuery.screen(minWidth: Unit.pixels(kBreakpointLarge + 0.02)),
       [
         css('.br-xl').styles(raw: {'display': 'revert !important'}),
       ],
@@ -318,35 +287,97 @@ class Rules {
 
   /// Input field rules
   static final nakiInputRules = css('.naki-input', [
-    css('&').styles(raw: Css.nakiInputStyle),
-
-    // if input type is number or tel, hide stepper
-    css('&::-webkit-inner-spin-button').styles(
-      raw: {'margin': '0', 'appearance': 'none'},
-    ),
-
-    css('&::-webkit-outer-spin-button').styles(
-      raw: {'margin': '0', 'appearance': 'none'},
-    ),
-
-    // placeholder
-    css('&::placeholder').styles(raw: Css.nakiPlaceholderStyle),
+    // wrapper with icon
+    css('&[has-icon]').styles(raw: Css.nakiInputStyle['icon-wrapper']),
 
     // hover state
     css('&[hvr]:hover').styles(raw: Css.nakiFieldHoverStyle),
 
     // focus state
     css('&[fcs]:focus').styles(raw: Css.nakiFocusBorderStyle),
-    css('&:focus-visible').styles(raw: {'outline': 'none'}),
 
     // disabled state
     css('&:disabled').styles(raw: {'cursor': 'not-allowed'}),
+
+    // leading / trailing icon
+    css('.naki-icon').styles(
+      raw: {
+        'height':
+            'var(${Tokens.current.inputHeight}, ${Tokens.current.inputHeight.value})',
+      },
+    ),
+
+    // input
+    css('input, input.naki-input').styles(raw: Css.nakiInputStyle['input']),
+
+    // hide stepper if input type is number or tel
+    css(
+      'input::-webkit-inner-spin-button, input::-webkit-outer-spin-button',
+    ).styles(raw: {'margin': '0', 'appearance': 'none'}),
+
+    // placeholder
+    css('input::placeholder').styles(raw: Css.nakiPlaceholderStyle),
+
+    // hover state
+    css('input[hvr]:hover').styles(raw: Css.nakiFieldHoverStyle),
+
+    // focus state
+    css('input[fcs]:focus').styles(raw: Css.nakiFocusBorderStyle),
+
+    // focus visible
+    css('input:focus-visible').styles(raw: {'outline': 'none'}),
+
+    // disabled state
+    css('input:disabled').styles(raw: {'cursor': 'not-allowed'}),
+  ]);
+
+  /// Textarea field rules
+  static final nakiTextareaRules = css('.naki-textarea', [
+    // wrapper with icon
+    css('&[has-icon]').styles(raw: Css.nakiTextareaStyle['icon-wrapper']),
+
+    // hover state
+    css('&[hvr]:hover').styles(raw: Css.nakiFieldHoverStyle),
+
+    // focus state
+    css('&[fcs]:focus').styles(raw: Css.nakiFocusBorderStyle),
+
+    // disabled state
+    css('&:disabled').styles(raw: {'cursor': 'not-allowed'}),
+
+    // leading / trailing icon
+    css('.naki-icon').styles(
+      raw: {
+        'height':
+            'var(${Tokens.current.inputHeight}, ${Tokens.current.inputHeight.value})',
+      },
+    ),
+
+    // textarea
+    css(
+      'textarea, textarea.naki-textarea',
+    ).styles(raw: Css.nakiTextareaStyle['input']),
+
+    // placeholder
+    css('textarea::placeholder').styles(raw: Css.nakiPlaceholderStyle),
+
+    // hover state
+    css('textarea[hvr]:hover').styles(raw: Css.nakiFieldHoverStyle),
+
+    // focus state
+    css('textarea[fcs]:focus').styles(raw: Css.nakiFocusBorderStyle),
+
+    // focus visible
+    css('textarea:focus-visible').styles(raw: {'outline': 'none'}),
+
+    // disabled state
+    css('textarea:disabled').styles(raw: {'cursor': 'not-allowed'}),
   ]);
 
   /// Form field rules
-  static final nakiFormFieldRules = css('.naki-form-field').styles(
-    raw: {'display': 'flex', 'flex-direction': 'column'},
-  );
+  static final nakiFormFieldRules = css(
+    '.naki-form-field',
+  ).styles(raw: {'display': 'flex', 'flex-direction': 'column'});
 
   /// Hitbox rules
   static final nakiHitboxRules = css('.naki-control-hitbox').styles(
@@ -367,9 +398,9 @@ class Rules {
       css('&').styles(raw: Css.nakiCalendarStyle['wrapper']),
 
       // default trigger
-      css('& > .default_trigger').styles(
-        raw: Css.nakiCalendarStyle['default-trigger'],
-      ),
+      css(
+        '& > .default_trigger',
+      ).styles(raw: Css.nakiCalendarStyle['default-trigger']),
 
       // wrapped trigger
       css('.naki-calendar-trigger', [
@@ -393,15 +424,11 @@ class Rules {
       css('input', [
         css(
           '&::-webkit-inner-spin-button',
-        ).styles(
-          raw: {'margin': '0', 'appearance': 'none'},
-        ),
+        ).styles(raw: {'margin': '0', 'appearance': 'none'}),
 
         css(
           '&::-webkit-outer-spin-button',
-        ).styles(
-          raw: {'margin': '0', 'appearance': 'none'},
-        ),
+        ).styles(raw: {'margin': '0', 'appearance': 'none'}),
 
         // hover state
         css('&:hover').styles(raw: {'outline': 'none'}),
@@ -412,9 +439,7 @@ class Rules {
 
       // modal
       css('.naki-calendar-modal', [
-        css(
-          '&',
-        ).styles(raw: Css.nakiCalendarStyle['modal']),
+        css('&').styles(raw: Css.nakiCalendarStyle['modal']),
 
         // action btn
         css('.naki-calendar-action__button').styles(
@@ -434,9 +459,7 @@ class Rules {
           // header button
           css(
             '.naki-calendar-header__button',
-          ).styles(
-            raw: {'border-radius': '50%', 'padding': '0'},
-          ),
+          ).styles(raw: {'border-radius': '50%', 'padding': '0'}),
 
           // header title
           css('.naki-calendar-header__title', [
@@ -455,12 +478,9 @@ class Rules {
             ),
 
             // place header above year-month popover barrier when open
-            css('&[showyear]').styles(
-              raw: {
-                'position': 'relative',
-                'z-index': '50',
-              },
-            ),
+            css(
+              '&[showyear]',
+            ).styles(raw: {'position': 'relative', 'z-index': '50'}),
 
             // rotate chevron icon
             css(
@@ -473,13 +493,13 @@ class Rules {
             // years dropdown
             css(
               '.naki-calendar-ymp__years',
-            ).styles(
-              raw: Css.nakiCalendarStyle['years-dropdown'],
-            ),
+            ).styles(raw: Css.nakiCalendarStyle['years-dropdown']),
 
             // months grid
             css('.naki-calendar-ymp__month', [
-              css('&').styles(
+              css(
+                '&',
+              ).styles(
                 raw: {
                   'margin': '0',
                   'padding': '0',
@@ -489,9 +509,7 @@ class Rules {
               ),
 
               // selected state
-              css('&[selected]').styles(
-                raw: Css.nakiCalendarStyle['selected'],
-              ),
+              css('&[selected]').styles(raw: Css.nakiCalendarStyle['selected']),
             ]),
           ]),
 
@@ -510,10 +528,7 @@ class Rules {
 
             // table cells
             css('td').styles(
-              raw: {
-                'padding': 'min(0.3vw, 4px)',
-                'text-align': 'center',
-              },
+              raw: {'padding': 'min(0.3vw, 4px)', 'text-align': 'center'},
             ),
 
             // date cell
@@ -541,14 +556,10 @@ class Rules {
               ),
 
               // selected state
-              css('&[selected]').styles(
-                raw: Css.nakiCalendarStyle['selected'],
-              ),
+              css('&[selected]').styles(raw: Css.nakiCalendarStyle['selected']),
 
               // disabled state
-              css('&[disabled]').styles(
-                raw: Css.nakiCalendarStyle['disabled'],
-              ),
+              css('&[disabled]').styles(raw: Css.nakiCalendarStyle['disabled']),
             ]),
           ]),
         ]),
@@ -559,12 +570,7 @@ class Rules {
 
           // steppers separator
           css('.naki-time-separator', [
-            css('&').styles(
-              raw: {
-                'font-size': '16px',
-                'font-weight': '600',
-              },
-            ),
+            css('&').styles(raw: {'font-size': '16px', 'font-weight': '600'}),
           ]),
 
           // time stepper
@@ -628,9 +634,9 @@ class Rules {
   ];
 
   /// Label rules
-  static final nakiLabelRules = css('.naki-label').styles(
-    raw: Css.nakiLabelTextStyle.props,
-  );
+  static final nakiLabelRules = css(
+    '.naki-label',
+  ).styles(raw: Css.nakiLabelTextStyle.props);
 
   /// Segmented input field rules
   static final nakiSegmentedInputRules = [
@@ -643,30 +649,24 @@ class Rules {
       // segment box
       css('.input-segment', [
         // input fields
-        css('&').styles(
-          raw: Css.nakiSegmentedInputStyle['segment'],
-        ),
+        css('&').styles(raw: Css.nakiSegmentedInputStyle['segment']),
 
         // hide stepper
         css(
           '&::-webkit-inner-spin-button',
-        ).styles(
-          raw: {'margin': '0', 'appearance': 'none'},
-        ),
+        ).styles(raw: {'margin': '0', 'appearance': 'none'}),
 
         css(
           '&::-webkit-outer-spin-button',
-        ).styles(
-          raw: {'margin': '0', 'appearance': 'none'},
-        ),
+        ).styles(raw: {'margin': '0', 'appearance': 'none'}),
 
         // placeholder
         css('&::placeholder').styles(raw: Css.nakiPlaceholderStyle),
 
         // underline shape
-        css('&.shape-underline').styles(
-          raw: Css.nakiSegmentedInputStyle['underline'],
-        ),
+        css(
+          '&.shape-underline',
+        ).styles(raw: Css.nakiSegmentedInputStyle['underline']),
 
         // circle shape
         css('&.shape-circle').styles(raw: {'border-radius': '50%'}),
@@ -679,30 +679,12 @@ class Rules {
         css('&:focus-visible').styles(raw: {'outline': 'none'}),
 
         // disabled state
-        css('&:disabled').styles(
-          raw: {'opacity': '30%', 'cursor': 'not-allowed'},
-        ),
+        css(
+          '&:disabled',
+        ).styles(raw: {'opacity': '30%', 'cursor': 'not-allowed'}),
       ]),
     ]),
   ];
-
-  /// Textarea field rules
-  static final nakiTextareaRules = css('.naki-textarea', [
-    css('&').styles(raw: Css.nakiTextareaStyle),
-
-    // placeholder
-    css('&::placeholder').styles(raw: Css.nakiPlaceholderStyle),
-
-    // hover state
-    css('&[hvr]:hover').styles(raw: Css.nakiFieldHoverStyle),
-
-    // focus state
-    css('&[fcs]:focus').styles(raw: Css.nakiFocusBorderStyle),
-    css('&:focus-visible').styles(raw: {'outline': 'none'}),
-
-    // disabled state
-    css('&:disabled').styles(raw: {'cursor': 'not-allowed'}),
-  ]);
 
   /// Helper text rules
   static final nakiHelperRules = css(
@@ -724,9 +706,9 @@ class Rules {
       css('&::before').styles(raw: Css.nakiCheckboxStyle['before']),
 
       // tick (when checked)
-      css('&:checked::before').styles(
-        raw: Css.nakiCheckboxStyle['checked:before'],
-      ),
+      css(
+        '&:checked::before',
+      ).styles(raw: Css.nakiCheckboxStyle['checked:before']),
 
       // disabled
       css('&:disabled').styles(raw: Css.nakiCheckboxStyle['disabled']),
@@ -742,29 +724,19 @@ class Rules {
     css('.naki-switch', [
       css('&').styles(raw: Css.nakiSwitchStyle['input']),
 
-      css(
-        '&[fcs]:focus-visible',
-      ).styles(raw: Css.nakiFocusBorderStyle),
+      css('&[fcs]:focus-visible').styles(raw: Css.nakiFocusBorderStyle),
 
       // track (default)
-      css(
-        '&:not(:checked)',
-      ).styles(raw: Css.nakiSwitchStyle['not-checked']),
+      css('&:not(:checked)').styles(raw: Css.nakiSwitchStyle['not-checked']),
 
       // thumb (default)
-      css(
-        '&::before',
-      ).styles(raw: Css.nakiSwitchStyle['before']),
+      css('&::before').styles(raw: Css.nakiSwitchStyle['before']),
 
       // track (when checked)
-      css(
-        '&:checked',
-      ).styles(raw: Css.nakiSwitchStyle['checked']),
+      css('&:checked').styles(raw: Css.nakiSwitchStyle['checked']),
 
       // track (when disabled)
-      css(
-        '&:disabled',
-      ).styles(raw: Css.nakiSwitchStyle['disabled']),
+      css('&:disabled').styles(raw: Css.nakiSwitchStyle['disabled']),
 
       // thumb (when disabled)
       css(
@@ -779,9 +751,7 @@ class Rules {
     css('&').styles(raw: Css.nakiSliderStyle['wrapper']),
 
     // tooltip
-    css(
-      '.slider-tooltip',
-    ).styles(raw: Css.nakiSliderStyle['tooltip']),
+    css('.slider-tooltip').styles(raw: Css.nakiSliderStyle['tooltip']),
 
     // input element
     css('.naki-slider', [
@@ -798,19 +768,13 @@ class Rules {
       ).styles(raw: Css.nakiSliderStyle['webkit-thumb']),
 
       // track (firefox)
-      css(
-        '&::-moz-range-track',
-      ).styles(raw: Css.nakiSliderStyle['moz-track']),
+      css('&::-moz-range-track').styles(raw: Css.nakiSliderStyle['moz-track']),
 
       // thumb (firefox)
-      css(
-        '&::-moz-range-thumb',
-      ).styles(raw: Css.nakiSliderStyle['moz-thumb']),
+      css('&::-moz-range-thumb').styles(raw: Css.nakiSliderStyle['moz-thumb']),
 
       // disabled
-      css(
-        '&:disabled',
-      ).styles(raw: Css.nakiSliderStyle['disabled']),
+      css('&:disabled').styles(raw: Css.nakiSliderStyle['disabled']),
     ]),
   ]);
 
@@ -820,105 +784,74 @@ class Rules {
     css('&').styles(raw: Css.nakiAppBarStyle['wrapper']),
 
     // text title
-    css(
-      '.naki-appbar-title',
-    ).styles(raw: Css.nakiAppBarStyle['title']),
+    css('.naki-appbar-title').styles(raw: Css.nakiAppBarStyle['title']),
 
     // actions
-    css(
-      '.naki-appbar-actions',
-    ).styles(raw: Css.nakiAppBarStyle['actions']),
+    css('.naki-appbar-actions').styles(raw: Css.nakiAppBarStyle['actions']),
   ]);
 
   /// BottomNavBar rules
-  static final nakiBottomNavBarRules = css(
-    '.naki-bottom-navbar',
-    [
-      // wrapper
+  static final nakiBottomNavBarRules = css('.naki-bottom-navbar', [
+    // wrapper
+    css('&').styles(raw: Css.nakiBottomNavBarStyle['wrapper']),
+
+    // fixed navbar type
+    css('&.navbar__fixed', [
+      css('&').styles(raw: Css.nakiBottomNavBarStyle['fixed']),
+
       css(
-        '&',
-      ).styles(raw: Css.nakiBottomNavBarStyle['wrapper']),
+        '& > .naki-navbar-tile',
+      ).styles(raw: Css.nakiBottomNavBarStyle['fixed-tile']),
+    ]),
 
-      // fixed navbar type
-      css('&.navbar__fixed', [
-        css(
-          '&',
-        ).styles(raw: Css.nakiBottomNavBarStyle['fixed']),
+    // floating navbar type
+    css(
+      '&.navbar__floating',
+    ).styles(raw: Css.nakiBottomNavBarStyle['floating']),
 
-        css(
-          '& > .naki-navbar-tile',
-        ).styles(
-          raw: Css.nakiBottomNavBarStyle['fixed-tile'],
-        ),
-      ]),
+    // frosted glass navbar type
+    css('&.navbar__frosted-glass', [
+      css('&').styles(raw: Css.nakiBottomNavBarStyle['frosted-glass']),
 
-      // floating navbar type
       css(
-        '&.navbar__floating',
-      ).styles(raw: Css.nakiBottomNavBarStyle['floating']),
+        '& > .naki-navbar-tile',
+      ).styles(raw: Css.nakiBottomNavBarStyle['frosted-glass-tile']),
 
-      // frosted glass navbar type
-      css('&.navbar__frosted-glass', [
-        css('&').styles(
-          raw: Css.nakiBottomNavBarStyle['frosted-glass'],
-        ),
-
-        css(
-          '& > .naki-navbar-tile',
-        ).styles(
-          raw: Css.nakiBottomNavBarStyle['frosted-glass-tile'],
-        ),
-
-        // css(
-        //   '& > .naki-navbar-tile:not([aria-current="page"]):hover',
-        // ).styles(raw: Css.nakiBottomNavBarStyle['frosted-glass-hover-tile']),
-        css(
-          '& > .naki-navbar-tile[aria-current="page"]',
-        ).styles(
-          raw: Css.nakiBottomNavBarStyle['frosted-glass-selected-tile'],
-        ),
-      ]),
-
-      // spread landscape layout
+      // css(
+      //   '& > .naki-navbar-tile:not([aria-current="page"]):hover',
+      // ).styles(raw: Css.nakiBottomNavBarStyle['frosted-glass-hover-tile']),
       css(
-        '&.navbar__spread-layout',
-      ).styles(
-        raw: Css.nakiBottomNavBarStyle['spread-layout'],
-      ),
+        '& > .naki-navbar-tile[aria-current="page"]',
+      ).styles(raw: Css.nakiBottomNavBarStyle['frosted-glass-selected-tile']),
+    ]),
 
-      // centered landscape layout
-      css(
-        '&.navbar__centered-layout',
-      ).styles(
-        raw: Css.nakiBottomNavBarStyle['centered-layout'],
-      ),
+    // spread landscape layout
+    css(
+      '&.navbar__spread-layout',
+    ).styles(raw: Css.nakiBottomNavBarStyle['spread-layout']),
 
-      // linear landscape layout
-      css(
-        '&.navbar__linear-layout',
-      ).styles(
-        raw: Css.nakiBottomNavBarStyle['linear-layout'],
-      ),
+    // centered landscape layout
+    css(
+      '&.navbar__centered-layout',
+    ).styles(raw: Css.nakiBottomNavBarStyle['centered-layout']),
 
-      // tile
-      css(
-        '.naki-navbar-tile',
-      ).styles(raw: Css.nakiBottomNavBarStyle['tile']),
+    // linear landscape layout
+    css(
+      '&.navbar__linear-layout',
+    ).styles(raw: Css.nakiBottomNavBarStyle['linear-layout']),
 
-      // tile label
-      css(
-        '.naki-navbar-label',
-      ).styles(raw: Css.nakiBottomNavBarStyle['label']),
-    ],
-  );
+    // tile
+    css('.naki-navbar-tile').styles(raw: Css.nakiBottomNavBarStyle['tile']),
+
+    // tile label
+    css('.naki-navbar-label').styles(raw: Css.nakiBottomNavBarStyle['label']),
+  ]);
 
   /// Button rules
   static final nakiButtonRules = css('.naki-button', [
     // button
     css('&').styles(
-      raw: Css.nakiButtonStyle.combine({
-        'transition': 'all $_fastTransition',
-      }),
+      raw: Css.nakiButtonStyle.combine({'transition': 'all $_fastTransition'}),
     ),
 
     // disabled state
@@ -929,14 +862,14 @@ class Rules {
     ),
 
     // hover state
-    css('&[hvr]:hover').styles(
+    css(
+      '&[hvr]:hover',
+    ).styles(
       raw: {'background-color': 'var(${Tokens.current.buttonHoverBgColor})'},
     ),
 
     // tap / pressed state
-    css('&:not(:disabled):active').styles(
-      raw: {'transform': 'scale(0.97)'},
-    ),
+    css('&:not(:disabled):active').styles(raw: {'transform': 'scale(0.97)'}),
   ]);
 
   /// Icon rules
@@ -953,30 +886,20 @@ class Rules {
     css('&').styles(raw: Css.nakiScaffoldStyle['wrapper']),
 
     // app bar
-    css(
-      '.naki-scaffold-appbar',
-    ).styles(raw: Css.nakiScaffoldStyle['appbar']),
+    css('.naki-scaffold-appbar').styles(raw: Css.nakiScaffoldStyle['appbar']),
 
     // layout
-    css(
-      '.naki-scaffold-layout',
-    ).styles(raw: Css.nakiScaffoldStyle['layout']),
+    css('.naki-scaffold-layout').styles(raw: Css.nakiScaffoldStyle['layout']),
 
     // sidebar
-    css(
-      '.naki-scaffold-sidebar',
-    ).styles(raw: Css.nakiScaffoldStyle['sidebar']),
+    css('.naki-scaffold-sidebar').styles(raw: Css.nakiScaffoldStyle['sidebar']),
 
     // body
-    css(
-      '.naki-scaffold-body',
-    ).styles(raw: Css.nakiScaffoldStyle['body']),
+    css('.naki-scaffold-body').styles(raw: Css.nakiScaffoldStyle['body']),
 
     // bottom navbar
     css('.naki-scaffold-bottom-navbar', [
-      css(
-        '&',
-      ).styles(raw: Css.nakiScaffoldStyle['bottom-navbar']),
+      css('&').styles(raw: Css.nakiScaffoldStyle['bottom-navbar']),
 
       // types
       css(
@@ -984,33 +907,25 @@ class Rules {
       ).styles(raw: {'position': 'fixed'}),
 
       // fixed type
-      css(
-        '.navbar__fixed',
-      ).styles(raw: {'bottom': '0', 'left': '0'}),
+      css('.navbar__fixed').styles(raw: {'bottom': '0', 'left': '0'}),
 
       // floating type
-      css('.navbar__floating').styles(
-        raw: {
-          'bottom': '16px',
-          'left': '50%',
-          'transform': 'translateX(-50%)',
-        },
+      css(
+        '.navbar__floating',
+      ).styles(
+        raw: {'bottom': '16px', 'left': '50%', 'transform': 'translateX(-50%)'},
       ),
 
       // frosted glass type
-      css('.navbar__frosted-glass').styles(
-        raw: {
-          'bottom': '16px',
-          'left': '50%',
-          'transform': 'translateX(-50%)',
-        },
+      css(
+        '.navbar__frosted-glass',
+      ).styles(
+        raw: {'bottom': '16px', 'left': '50%', 'transform': 'translateX(-50%)'},
       ),
     ]),
 
     // floating action button
-    css(
-      '.naki-scaffold-fab',
-    ).styles(raw: Css.nakiScaffoldStyle['fab']),
+    css('.naki-scaffold-fab').styles(raw: Css.nakiScaffoldStyle['fab']),
   ]);
 
   /// Stack rules
@@ -1029,9 +944,9 @@ class Rules {
   ).styles(raw: {'display': 'block', 'overflow': 'hidden'});
 
   /// Container rules
-  static final nakiContainerRules = css('.naki-container').styles(
-    raw: Css.nakiContainerStyle,
-  );
+  static final nakiContainerRules = css(
+    '.naki-container',
+  ).styles(raw: Css.nakiContainerStyle);
 
   /// Footer rules
   static final nakiFooterRules = css('.naki-footer').styles(
@@ -1049,25 +964,17 @@ class Rules {
     css('&').styles(raw: Css.nakiCardStyle['root']),
 
     // elevated card
-    css(
-      '&.naki-card--elevated',
-    ).styles(raw: Css.nakiCardStyle['elevated']),
+    css('&.naki-card--elevated').styles(raw: Css.nakiCardStyle['elevated']),
 
     // outlined card
-    css(
-      '&.naki-card--outlined',
-    ).styles(raw: Css.nakiCardStyle['outlined']),
+    css('&.naki-card--outlined').styles(raw: Css.nakiCardStyle['outlined']),
 
     // filled card
-    css(
-      '&.naki-card--filled',
-    ).styles(raw: Css.nakiCardStyle['filled']),
+    css('&.naki-card--filled').styles(raw: Css.nakiCardStyle['filled']),
 
     // interactive card
     css('&.naki-card--interactive', [
-      css('&').styles(
-        raw: {'cursor': 'pointer', 'user-select': 'none'},
-      ),
+      css('&').styles(raw: {'cursor': 'pointer', 'user-select': 'none'}),
 
       // hover state
       css('&[hvr]:hover').styles(
@@ -1089,71 +996,46 @@ class Rules {
     ).styles(raw: Css.nakiExpansionPanelStyle['list']),
 
     css('.naki-expansion-panel', [
-      css(
-        '&',
-      ).styles(raw: Css.nakiExpansionPanelStyle['panel']),
+      css('&').styles(raw: Css.nakiExpansionPanelStyle['panel']),
 
-      css(
-        '&:last-child',
-      ).styles(raw: {'border-bottom': 'none'}),
+      css('&:last-child').styles(raw: {'border-bottom': 'none'}),
     ]),
 
     css('.naki-expansion-panel__header', [
-      css(
-        '&',
-      ).styles(raw: Css.nakiExpansionPanelStyle['header']),
+      css('&').styles(raw: Css.nakiExpansionPanelStyle['header']),
 
       css(
         '&:not(:disabled):hover',
-      ).styles(
-        raw: {'color': 'var(${Tokens.current.hoverColor})'},
-      ),
+      ).styles(raw: {'color': 'var(${Tokens.current.hoverColor})'}),
 
-      css(
-        '&:disabled',
-      ).styles(raw: {'background-color': 'transparent'}),
+      css('&:disabled').styles(raw: {'background-color': 'transparent'}),
     ]),
 
     css('.naki-expansion-panel__chevron', [
-      css(
-        '&',
-      ).styles(raw: Css.nakiExpansionPanelStyle['chevron']),
+      css('&').styles(raw: Css.nakiExpansionPanelStyle['chevron']),
 
-      css(
-        '&.is-expanded',
-      ).styles(raw: {'transform': 'rotate(180deg)'}),
+      css('&.is-expanded').styles(raw: {'transform': 'rotate(180deg)'}),
     ]),
 
     css('.naki-expansion-panel__body-wrapper', [
-      css('&').styles(
-        raw: Css.nakiExpansionPanelStyle['body-wrapper'],
-      ),
+      css('&').styles(raw: Css.nakiExpansionPanelStyle['body-wrapper']),
 
-      css(
-        '&[aria-expanded="true"]',
-      ).styles(raw: {'grid-template-rows': '1fr'}),
+      css('&[aria-expanded="true"]').styles(raw: {'grid-template-rows': '1fr'}),
     ]),
 
     css(
       '.naki-expansion-panel__body-content',
-    ).styles(
-      raw: Css.nakiExpansionPanelStyle['body-content'],
-    ),
+    ).styles(raw: Css.nakiExpansionPanelStyle['body-content']),
 
     css(
       '.naki-expansion-panel__body-inner',
-    ).styles(
-      raw: Css.nakiExpansionPanelStyle['body-inner'],
-    ),
+    ).styles(raw: Css.nakiExpansionPanelStyle['body-inner']),
   ];
 
   /// Positioned rules
-  static final nakiPositionedRules = css('.naki-positioned').styles(
-    raw: {
-      'display': 'inline-flex',
-      'position': 'absolute',
-    },
-  );
+  static final nakiPositionedRules = css(
+    '.naki-positioned',
+  ).styles(raw: {'display': 'inline-flex', 'position': 'absolute'});
 
   /// Wrap rules
   static final nakiWrapRules = css(
@@ -1161,13 +1043,12 @@ class Rules {
   ).styles(raw: {'display': 'flex', 'flex-wrap': 'wrap'});
 
   /// ClipOval rules
-  static final nakiClipOvalRules = css('.naki-clip-oval').styles(
-    raw: {
-      'display': 'block',
-      'border-radius': '50%',
-      'overflow': 'hidden',
-    },
-  );
+  static final nakiClipOvalRules =
+      css(
+        '.naki-clip-oval',
+      ).styles(
+        raw: {'display': 'block', 'border-radius': '50%', 'overflow': 'clip'},
+      );
 
   /// Safearea rules
   static final nakiSafeareRules = css('naki-safearea').styles(
@@ -1192,26 +1073,18 @@ class Rules {
       css('&').styles(raw: Css.nakiRadioBtnStyle['input']),
 
       // dot indicator (default)
-      css(
-        '&::before',
-      ).styles(raw: Css.nakiRadioBtnStyle['before']),
+      css('&::before').styles(raw: Css.nakiRadioBtnStyle['before']),
 
       // radio (when checked)
-      css(
-        '&:checked',
-      ).styles(raw: Css.nakiRadioBtnStyle['checked']),
+      css('&:checked').styles(raw: Css.nakiRadioBtnStyle['checked']),
 
       // dot indicator (when checked)
       css(
         '&:checked::before',
-      ).styles(
-        raw: Css.nakiRadioBtnStyle['checked:before'],
-      ),
+      ).styles(raw: Css.nakiRadioBtnStyle['checked:before']),
 
       // radio (when disabled)
-      css(
-        '&:disabled',
-      ).styles(raw: Css.nakiRadioBtnStyle['disabled']),
+      css('&:disabled').styles(raw: Css.nakiRadioBtnStyle['disabled']),
     ]),
   ]);
 
@@ -1219,37 +1092,27 @@ class Rules {
   static final nakiDropdownRules = [
     css('naki-dropdown', [
       // wrapper
-      css(
-        '&',
-      ).styles(raw: Css.nakiDropdownStyle['wrapper']),
+      css('&').styles(raw: Css.nakiDropdownStyle['wrapper']),
 
       // no search result
       css(
         '.naki-dropdown-no-result',
-      ).styles(
-        raw: Css.nakiDropdownStyle['no-search-result'],
-      ),
+      ).styles(raw: Css.nakiDropdownStyle['no-search-result']),
 
       // search box
-      css(
-        'naki-textfield',
-      ).styles(raw: Css.nakiDropdownStyle['search-box']),
+      css('naki-textfield').styles(raw: Css.nakiDropdownStyle['search-box']),
 
       // default trigger
       css('.default_trigger', [
         css('&').styles(raw: Css.nakiDropdownStyle['trigger']),
 
         // arrow down (dropdown closed)
-        css(
-          '&::after',
-        ).styles(raw: Css.nakiDropdownStyle['inner:after']),
+        css('&::after').styles(raw: Css.nakiDropdownStyle['inner:after']),
 
         // arrow up (dropdown open)
         css(
           '&[aria-expanded="true"]::after',
-        ).styles(
-          raw: Css.nakiDropdownStyle['inner.is-open:after'],
-        ),
+        ).styles(raw: Css.nakiDropdownStyle['inner.is-open:after']),
 
         // hover state
         css('&[hvr]:hover').styles(raw: Css.nakiFieldHoverStyle),
@@ -1270,41 +1133,28 @@ class Rules {
         ),
 
         // disabled state
-        css(
-          '&[aria-disabled="true"]',
-        ).styles(raw: Css.nakiDisabledStyle),
+        css('&[aria-disabled="true"]').styles(raw: Css.nakiDisabledStyle),
       ]),
 
       // options menu (dropdown is closed)
       css(
         '.naki-dropdown-menu',
-      ).styles(
-        raw: Css.nakiDropdownStyle['options-wrapper'],
-      ),
+      ).styles(raw: Css.nakiDropdownStyle['options-wrapper']),
 
       // options menu (dropdown is open)
       css(
         '&[open] .naki-dropdown-menu',
-      ).styles(
-        raw: Css.nakiDropdownStyle['open:options-wrapper'],
-      ),
+      ).styles(raw: Css.nakiDropdownStyle['open:options-wrapper']),
 
       // upward: options menu (positioned above the trigger)
       css(
         '&[open] .naki-dropdown-menu.upward',
-      ).styles(
-        raw: Css.nakiDropdownStyle['upward:options-wrapper'],
-      ),
+      ).styles(raw: Css.nakiDropdownStyle['upward:options-wrapper']),
 
       // dropdown menu without search field
       css(
         '.naki-dropdown-menu:not([data-searchable])',
-      ).styles(
-        raw: {
-          'overscroll-behavior': 'none',
-          'overflow-y': 'auto',
-        },
-      ),
+      ).styles(raw: {'overscroll-behavior': 'none', 'overflow-y': 'auto'}),
 
       // dropdown menu with search field
       css('.naki-dropdown-menu[data-searchable]').styles(
@@ -1319,30 +1169,22 @@ class Rules {
       // option
       css('.naki-dropdown-option', [
         // default state
-        css(
-          '&',
-        ).styles(raw: Css.nakiDropdownStyle['option']),
+        css('&').styles(raw: Css.nakiDropdownStyle['option']),
 
         // selected state
         css(
           '&[aria-selected="true"]',
-        ).styles(
-          raw: Css.nakiDropdownStyle['option:selected'],
-        ),
+        ).styles(raw: Css.nakiDropdownStyle['option:selected']),
 
         // placeholder label in options
         css(
           '&.options-placeholder',
-        ).styles(
-          raw: Css.nakiDropdownStyle['placeholder.option'],
-        ),
+        ).styles(raw: Css.nakiDropdownStyle['placeholder.option']),
 
         // section label in options
         css(
           '&.options-section',
-        ).styles(
-          raw: Css.nakiDropdownStyle['section.option'],
-        ),
+        ).styles(raw: Css.nakiDropdownStyle['section.option']),
       ]),
     ]),
 
@@ -1385,9 +1227,7 @@ class Rules {
         ),
 
       // glassmorphism style
-      css(
-        '&.morphism',
-      ).styles(raw: Css.nakiSpinnerStyle['glass']),
+      css('&.morphism').styles(raw: Css.nakiSpinnerStyle['glass']),
     ]),
   ];
 
@@ -1423,9 +1263,7 @@ class Rules {
 
   /// Text rules
   static final nakiTextRules = css('.naki-text', [
-    css('&').styles(
-      raw: {'display': 'block', 'box-sizing': 'border-box'},
-    ),
+    css('&').styles(raw: {'display': 'block', 'box-sizing': 'border-box'}),
 
     // selection (standard)
     css('&::selection').styles(
@@ -1466,9 +1304,7 @@ class Rules {
   static final nakiGridViewRules = css('.naki-gridview', [
     css('&').styles(raw: Css.nakiGridViewStyle),
 
-    css(
-      '& > *',
-    ).styles(raw: {'height': '100%', 'width': '100%'}),
+    css('& > *').styles(raw: {'height': '100%', 'width': '100%'}),
   ]);
 
   /// PageView rules
@@ -1493,7 +1329,9 @@ class Rules {
     css('&').styles(raw: Css.nakiCarouselStyle),
 
     // carousel item scroll snapping and rounded card borders
-    css('.naki-carousel-item').styles(
+    css(
+      '.naki-carousel-item',
+    ).styles(
       raw: {
         'scroll-snap-align': 'start',
         'flex-shrink': '0',
@@ -1511,11 +1349,11 @@ class Rules {
     css('table').styles(raw: Css.nakiTableStyle['main']),
 
     // empty state content
-    css(
-      '.naki-table__empty',
-    ).styles(raw: Css.nakiTableStyle['empty']),
+    css('.naki-table__empty').styles(raw: Css.nakiTableStyle['empty']),
 
-    css('td#no-data').styles(
+    css(
+      'td#no-data',
+    ).styles(
       raw: {
         'width': '100%',
         'text-align': 'center',
@@ -1538,10 +1376,10 @@ class Rules {
     css('td').styles(raw: {'padding': '12px 16px'}),
 
     // row hover state
-    css('tbody tr:hover').styles(
-      raw: {
-        'background-color': 'var(${Tokens.current.tableRowHoverBg})',
-      },
+    css(
+      'tbody tr:hover',
+    ).styles(
+      raw: {'background-color': 'var(${Tokens.current.tableRowHoverBg})'},
     ),
   ]);
 
@@ -1550,44 +1388,32 @@ class Rules {
     '.naki-aspectratio',
   ).styles(raw: {'display': 'block', 'overflow': 'hidden'});
 
-  /// Expanded rules
-  static final nakiExpandedRules = css('.naki-expanded').styles(
-    raw: {
-      'min-height': '0',
-      'min-width': '0',
-      'display': 'block',
-    },
-  );
-
   /// Flexible rules
-  static final nakiFlexibleRules = css('.naki-flexible').styles(
-    raw: {
-      'min-height': '0',
-      'min-width': '0',
-      'display': 'block',
-    },
-  );
+  static final nakiFlexibleRules = [
+    css(
+      '.naki-flexible, .naki-expanded',
+    ).styles(raw: {'min-height': '0', 'min-width': '0', 'display': 'block'}),
+
+    css('.naki-expanded > *').styles(raw: {'width': '100%', 'height': '100%'}),
+  ];
 
   /// Hide rules
   static final nakiHide = css('.naki-hide').styles(raw: {'display': 'none'});
 
   /// StaggeredView rules
-  static final nakiStaggeredRules = css(
-    '.naki-staggeredview',
-    [
-      // wrapper
-      css('&').styles(raw: Css.nakiStaggeredStyle),
+  static final nakiStaggeredRules = css('.naki-staggeredview', [
+    // wrapper
+    css('&').styles(raw: Css.nakiStaggeredStyle),
 
-      // item
-      css('.naki-staggered-item').styles(
-        raw: {
-          'break-inside': 'avoid',
-          'page-break-inside': 'avoid',
-          '-webkit-column-break-inside': 'avoid',
-        },
-      ),
-    ],
-  );
+    // item
+    css('.naki-staggered-item').styles(
+      raw: {
+        'break-inside': 'avoid',
+        'page-break-inside': 'avoid',
+        '-webkit-column-break-inside': 'avoid',
+      },
+    ),
+  ]);
 
   /// Snackbar rules
   static final nakiSnackbarRules = css('.naki-snackbar', [
@@ -1613,7 +1439,9 @@ class Rules {
     ),
 
     // top-left position
-    css('&.sb-top-left').styles(
+    css(
+      '&.sb-top-left',
+    ).styles(
       raw: {
         'top': 'var(${Tokens.current.snackbarOffset}, 10px)',
         'left': '20px',
@@ -1621,7 +1449,9 @@ class Rules {
     ),
 
     // top-right position
-    css('&.sb-top-right').styles(
+    css(
+      '&.sb-top-right',
+    ).styles(
       raw: {
         'top': 'var(${Tokens.current.snackbarOffset}, 10px)',
         'right': '20px',
@@ -1629,7 +1459,9 @@ class Rules {
     ),
 
     // bottom-left position
-    css('&.sb-bottom-left').styles(
+    css(
+      '&.sb-bottom-left',
+    ).styles(
       raw: {
         'bottom': 'var(${Tokens.current.snackbarOffset}, 10px)',
         'left': '20px',
@@ -1637,7 +1469,9 @@ class Rules {
     ),
 
     // bottom-right position
-    css('&.sb-bottom-right').styles(
+    css(
+      '&.sb-bottom-right',
+    ).styles(
       raw: {
         'bottom': 'var(${Tokens.current.snackbarOffset}, 10px)',
         'right': '20px',
@@ -1663,9 +1497,7 @@ class Rules {
     ),
 
     // actions area
-    css(
-      '.banner-actions',
-    ).styles(raw: {'margin-top': '10px', 'gap': '10px'}),
+    css('.banner-actions').styles(raw: {'margin-top': '10px', 'gap': '10px'}),
 
     // info banner
     css('&.banner-info').styles(
@@ -1722,32 +1554,25 @@ class Rules {
     css('&').styles(raw: Css.nakiTooltipStyle['wrapper']),
 
     // tooltip content
-    css(
-      '.naki-tooltip-content',
-    ).styles(raw: Css.nakiTooltipStyle['content']),
+    css('.naki-tooltip-content').styles(raw: Css.nakiTooltipStyle['content']),
 
     // arrow spike base style
-    css('.naki-tooltip-content::after').styles(
-      raw: {
-        'content': '""',
-        'position': 'absolute',
-        'border-style': 'solid',
-      },
+    css(
+      '.naki-tooltip-content::after',
+    ).styles(
+      raw: {'content': '""', 'position': 'absolute', 'border-style': 'solid'},
     ),
 
     // show tooltip on target hover or focus
     css(
       '.naki-tooltip-target:is(:hover, :focus-within) ~ .naki-tooltip-content',
-    ).styles(
-      raw: {'opacity': '1', 'visibility': 'visible'},
-    ),
+    ).styles(raw: {'opacity': '1', 'visibility': 'visible'}),
 
     // Escape-dismissed tooltips remain hidden until pointer leave or refocus.
-    css('&[dismissed] .naki-tooltip-content').styles(
-      raw: {
-        'opacity': '0 !important',
-        'visibility': 'hidden !important',
-      },
+    css(
+      '&[dismissed] .naki-tooltip-content',
+    ).styles(
+      raw: {'opacity': '0 !important', 'visibility': 'hidden !important'},
     ),
 
     // top positioned tooltip
@@ -1774,7 +1599,9 @@ class Rules {
     ),
 
     // bottom positioned tooltip
-    css('.tooltip-bottom').styles(
+    css(
+      '.tooltip-bottom',
+    ).styles(
       raw: {
         'top': '100%',
         'left': '50%',
@@ -1819,7 +1646,9 @@ class Rules {
     ),
 
     // right positioned tooltip
-    css('.tooltip-right').styles(
+    css(
+      '.tooltip-right',
+    ).styles(
       raw: {
         'left': '100%',
         'top': '50%',
@@ -1849,14 +1678,10 @@ class Rules {
       css('&').styles(raw: Css.nakiPopoverStyle['wrapper']),
 
       // barrier (closes popover when tapped)
-      css(
-        '.naki-popover-barrier',
-      ).styles(raw: Css.nakiPopoverStyle['barrier']),
+      css('.naki-popover-barrier').styles(raw: Css.nakiPopoverStyle['barrier']),
 
       // popover content
-      css(
-        '.naki-popover-content',
-      ).styles(raw: Css.nakiPopoverStyle['popup']),
+      css('.naki-popover-content').styles(raw: Css.nakiPopoverStyle['popup']),
 
       // show popover content when trigger can be focused or hovered
       css(
@@ -1884,9 +1709,7 @@ class Rules {
         '&[aria-expanded="true"] .popover-top, .popover-top:hover, '
         '.popover-top:focus-within',
       ).styles(
-        raw: {
-          'transform': 'translateX(-50%) translateY(-8px) scale(1)',
-        },
+        raw: {'transform': 'translateX(-50%) translateY(-8px) scale(1)'},
       ),
 
       // bottom positioned popover (default state)
@@ -1905,11 +1728,7 @@ class Rules {
       css(
         '&[aria-expanded="true"] .popover-bottom, .popover-bottom:hover, '
         '.popover-bottom:focus-within',
-      ).styles(
-        raw: {
-          'transform': 'translateX(-50%) translateY(8px) scale(1)',
-        },
-      ),
+      ).styles(raw: {'transform': 'translateX(-50%) translateY(8px) scale(1)'}),
 
       // left positioned popover (default state)
       css('.popover-left', [
@@ -1928,9 +1747,7 @@ class Rules {
         '&[aria-expanded="true"] .popover-left, .popover-left:hover, '
         '.popover-left:focus-within',
       ).styles(
-        raw: {
-          'transform': 'translateY(-50%) translateX(-8px) scale(1)',
-        },
+        raw: {'transform': 'translateY(-50%) translateX(-8px) scale(1)'},
       ),
 
       // right positioned popover
@@ -1950,11 +1767,7 @@ class Rules {
         '&[aria-expanded="true"] .popover-right, '
         '.popover-right:hover, '
         '.popover-right:focus-within',
-      ).styles(
-        raw: {
-          'transform': 'translateY(-50%) translateX(8px) scale(1)',
-        },
-      ),
+      ).styles(raw: {'transform': 'translateY(-50%) translateX(8px) scale(1)'}),
 
       // top-left positioned popover (default state)
       css('.popover-top-left', [
@@ -1973,9 +1786,7 @@ class Rules {
         '&[aria-expanded="true"] .popover-top-left, '
         '.popover-top-left:hover, '
         '.popover-top-left:focus-within',
-      ).styles(
-        raw: {'transform': 'translateY(-8px) scale(1)'},
-      ),
+      ).styles(raw: {'transform': 'translateY(-8px) scale(1)'}),
 
       // top-right positioned popover (default state)
       css('.popover-top-right', [
@@ -1994,9 +1805,7 @@ class Rules {
         '&[aria-expanded="true"] .popover-top-right, '
         '.popover-top-right:hover, '
         '.popover-top-right:focus-within',
-      ).styles(
-        raw: {'transform': 'translateY(-8px) scale(1)'},
-      ),
+      ).styles(raw: {'transform': 'translateY(-8px) scale(1)'}),
 
       // bottom-left positioned popover (default state)
       css('.popover-bottom-left', [
@@ -2015,9 +1824,7 @@ class Rules {
         '&[aria-expanded="true"] .popover-bottom-left, '
         '.popover-bottom-left:hover, '
         '.popover-bottom-left:focus-within',
-      ).styles(
-        raw: {'transform': 'translateY(8px) scale(1)'},
-      ),
+      ).styles(raw: {'transform': 'translateY(8px) scale(1)'}),
 
       // bottom-right positioned popover (default state)
       css('.popover-bottom-right', [
@@ -2036,9 +1843,7 @@ class Rules {
         '&[aria-expanded="true"] .popover-bottom-right, '
         '.popover-bottom-right:hover, '
         '.popover-bottom-right:focus-within',
-      ).styles(
-        raw: {'transform': 'translateY(8px) scale(1)'},
-      ),
+      ).styles(raw: {'transform': 'translateY(8px) scale(1)'}),
     ]),
 
     // prevent background body scrolling when popover is open
@@ -2064,16 +1869,10 @@ class Rules {
     // pop in ease-in animation for dialog card
     css.keyframes('nakiDialogPopIn', {
       'from': const Styles(
-        raw: {
-          'opacity': '0',
-          'transform': 'scale(0.94) translateY(6px)',
-        },
+        raw: {'opacity': '0', 'transform': 'scale(0.94) translateY(6px)'},
       ),
       'to': const Styles(
-        raw: {
-          'opacity': '1',
-          'transform': 'scale(1) translateY(0)',
-        },
+        raw: {'opacity': '1', 'transform': 'scale(1) translateY(0)'},
       ),
     }),
 
@@ -2083,39 +1882,23 @@ class Rules {
       css('&').styles(raw: Css.nakiDialogStyle['backdrop']),
 
       // content container
-      css(
-        '.naki-dialog-content',
-      ).styles(raw: Css.nakiDialogStyle['container']),
+      css('.naki-dialog-content').styles(raw: Css.nakiDialogStyle['container']),
 
       // center position (default)
-      css(
-        '&.dialog-center',
-      ).styles(raw: {'align-items': 'center'}),
+      css('&.dialog-center').styles(raw: {'align-items': 'center'}),
 
       // top position
       css(
         '&.dialog-top',
-      ).styles(
-        raw: {
-          'align-items': 'flex-start',
-          'padding-top': '40px',
-        },
-      ),
+      ).styles(raw: {'align-items': 'flex-start', 'padding-top': '40px'}),
 
       // bottom position
       css(
         '&.dialog-bottom',
-      ).styles(
-        raw: {
-          'align-items': 'flex-end',
-          'padding-bottom': '40px',
-        },
-      ),
+      ).styles(raw: {'align-items': 'flex-end', 'padding-bottom': '40px'}),
 
       // dialog actions list
-      css(
-        '.naki-dialog-actions',
-      ).styles(raw: {'margin-top': '30px'}),
+      css('.naki-dialog-actions').styles(raw: {'margin-top': '30px'}),
     ]),
 
     // prevent background body scrolling when dialog is open
@@ -2135,22 +1918,14 @@ class Rules {
 
     // slide in left animation
     css.keyframes('nakiDrawerSlideInLeft', {
-      'from': const Styles(
-        raw: {'transform': 'translateX(-100%)'},
-      ),
-      'to': const Styles(
-        raw: {'transform': 'translateX(0)'},
-      ),
+      'from': const Styles(raw: {'transform': 'translateX(-100%)'}),
+      'to': const Styles(raw: {'transform': 'translateX(0)'}),
     }),
 
     // slide in right animation
     css.keyframes('nakiDrawerSlideInRight', {
-      'from': const Styles(
-        raw: {'transform': 'translateX(100%)'},
-      ),
-      'to': const Styles(
-        raw: {'transform': 'translateX(0)'},
-      ),
+      'from': const Styles(raw: {'transform': 'translateX(100%)'}),
+      'to': const Styles(raw: {'transform': 'translateX(0)'}),
     }),
 
     // main
@@ -2159,14 +1934,10 @@ class Rules {
       css('&').styles(raw: Css.nakiDrawerStyle['wrapper']),
 
       // barrier
-      css(
-        '.naki-drawer-barrier',
-      ).styles(raw: Css.nakiDrawerStyle['barrier']),
+      css('.naki-drawer-barrier').styles(raw: Css.nakiDrawerStyle['barrier']),
 
       // content
-      css(
-        '.naki-drawer-content',
-      ).styles(raw: Css.nakiDrawerStyle['content']),
+      css('.naki-drawer-content').styles(raw: Css.nakiDrawerStyle['content']),
 
       // persistent navigation variant (no barrier or viewport lock)
       css('&.persistent').styles(
@@ -2179,7 +1950,9 @@ class Rules {
       ),
 
       // persistent drawer content styles
-      css('&.persistent .naki-drawer-content').styles(
+      css(
+        '&.persistent .naki-drawer-content',
+      ).styles(
         raw: {
           'position': 'relative',
           'box-shadow': 'none',
@@ -2219,20 +1992,14 @@ class Rules {
   static final nakiBottomSheetRules = [
     // slide up animation for bottom sheet
     css.keyframes('nakiBottomSheetSlideUp', {
-      'from': const Styles(
-        raw: {'transform': 'translateY(100%)'},
-      ),
-      'to': const Styles(
-        raw: {'transform': 'translateY(0)'},
-      ),
+      'from': const Styles(raw: {'transform': 'translateY(100%)'}),
+      'to': const Styles(raw: {'transform': 'translateY(0)'}),
     }),
 
     // main
     css('.naki-bottom-sheet', [
       // backdrop
-      css(
-        '&',
-      ).styles(raw: Css.nakiBottomSheetStyle['backdrop']),
+      css('&').styles(raw: Css.nakiBottomSheetStyle['backdrop']),
 
       // container
       css(

@@ -43,8 +43,7 @@ enum AspectRatioType {
   ratio21_9('21/9'),
 
   /// 1:2 vertical ratio (e.g. phone screenshots).
-  ratio1_2('1/2')
-  ;
+  ratio1_2('1/2');
 
   /// Suitable for Instagram stories, Instagram reels,
   /// YouTube shorts, TikTok videos related content.
@@ -64,8 +63,8 @@ enum AspectRatioType {
   static const profile = AspectRatioType.ratio1_1;
 
   /// The standard CSS value representing the ratio type.
-  final String value;
-  const AspectRatioType(this.value);
+  final String css;
+  const AspectRatioType(this.css);
 }
 
 /// Represents the style of glyphs in a font (upright vs. italicized).
@@ -188,7 +187,7 @@ enum MainAxisSize {
 }
 
 /// How a flexible child component sizes itself along the main axis in a
-/// Flex container ([Row] or [Column]).
+/// Flex container Row or Column.
 enum FlexFit {
   /// The child is forced to expand to fill the available space along
   /// the main axis.
@@ -199,8 +198,8 @@ enum FlexFit {
   loose,
 }
 
-/// How an image should fit within its bounds.
-enum BoxFit {
+/// How a media content (like an image) should fit within its bounds.
+enum ObjectFit {
   /// Fill the target box by distorting the image's aspect ratio.
   fill('fill'),
 
@@ -216,12 +215,45 @@ enum BoxFit {
 
   /// Align the image within the target box and,
   /// if necessary, scale the image down to fit.
-  scaleDown('scale-down')
-  ;
+  scaleDown('scale-down');
 
-  /// The standard CSS value representing the box fit type.
-  final String name;
-  const BoxFit(this.name);
+  /// The standard CSS value representing the object-fit type.
+  final String css;
+  const ObjectFit(this.css);
+}
+
+/// How a media content (like an image) should be positioned within its bounds.
+enum ObjectPosition {
+  /// Positions the media content at its center point.
+  center('center'),
+
+  /// Positions the media content at the top edge, centered horizontally.
+  topCenter('top center'),
+
+  /// Positions the media content at the bottom edge, centered horizontally.
+  bottomCenter('bottom center'),
+
+  /// Positions the media content at the center of the left edge.
+  centerLeft('left center'),
+
+  /// Positions the media content at the center of the right edge.
+  centerRight('right center'),
+
+  /// Positions the media content at the top-left corner.
+  topLeft('top left'),
+
+  /// Positions the media content at the top-right corner.
+  topRight('top right'),
+
+  /// Positions the media content at the bottom-left corner.
+  bottomLeft('bottom left'),
+
+  /// Positions the media content at the bottom-right corner.
+  bottomRight('bottom right');
+
+  /// The standard CSS value representing the object-position type.
+  final String css;
+  const ObjectPosition(this.css);
 }
 
 /// Alignment points relative to a 2D box.
@@ -251,8 +283,7 @@ enum Alignment {
   bottomCenter('bottom-center'),
 
   /// The bottom-right corner.
-  bottomRight('bottom-right')
-  ;
+  bottomRight('bottom-right');
 
   /// The standard CSS value representing the alignment type.
   final String value;
@@ -448,8 +479,7 @@ enum Autofill {
   off('off'),
 
   /// Autocomplete is enabled.
-  on('on')
-  ;
+  on('on');
 
   /// The standard CSS value representing the autofill type.
   final String value;
@@ -489,8 +519,7 @@ enum Baseline {
 
   /// Aligns the bottom of the element with
   /// the bottom of the parent font (CSS: `text-bottom`).
-  textBottom('text-bottom')
-  ;
+  textBottom('text-bottom');
 
   /// The CSS value representing the vertical alignment type.
   final String value;
@@ -521,12 +550,11 @@ enum ScrollPhysicsType {
   clamping('clamping'),
 
   /// Snaps scrolling to the nearest item.
-  snapping('snapping')
-  ;
+  snapping('snapping');
 
   /// The CSS value representing the scrolling physics type.
-  final String name;
-  const ScrollPhysicsType(this.name);
+  final String value;
+  const ScrollPhysicsType(this.value);
 }
 
 /// Defines the alignment of items in a carousel view.
@@ -592,8 +620,7 @@ enum ThemeMode {
   light,
 
   /// Browser/device theme mode.
-  system
-  ;
+  system;
 
   /// Converts a string to a ThemeMode.
   ///
@@ -652,16 +679,15 @@ enum BackdropFilterType {
 
   /// Converts the background to a warm, vintage brown tint.
   /// Requires a value like 'Dim.percent(50)', 'Dim(1.5)', or 'Dim(0.4)'.
-  sepia._('sepia')
-  ;
+  sepia._('sepia');
 
   /// The standard CSS value representing the backdrop filter type.
-  final String cssName;
-  const BackdropFilterType._(this.cssName);
+  final String css;
+  const BackdropFilterType._(this.css);
 
   /// Converts the filter type and value to a CSS string
   /// (e.g., "blur(10px)").
-  String cssText(Dim value) => '$cssName($value)';
+  String cssText(Dim value) => '$css($value)';
 }
 
 /// Severity / intent type for `Banner` component.
@@ -700,8 +726,7 @@ enum SnackbarPosition {
   bottomLeft('sb-bottom-left'),
 
   /// Bottom right of the screen.
-  bottomRight('sb-bottom-right')
-  ;
+  bottomRight('sb-bottom-right');
 
   /// The standard CSS class name representing the snackbar position.
   final String className;
@@ -758,8 +783,7 @@ enum PopoverPosition {
   bottomLeft,
 
   /// Popover appears below and to the right of the target component.
-  bottomRight
-  ;
+  bottomRight;
 
   /// The CSS value representing the popover position.
   String get value => switch (this) {
@@ -893,8 +917,7 @@ enum ValidationPattern {
 
   /// Username format (3-30 alphanumeric chars, dots, hyphens, or underscores).
   /// Example: 'john_doe'
-  username(r'[a-zA-Z0-9_.-]{3,30}')
-  ;
+  username(r'[a-zA-Z0-9_.-]{3,30}');
 
   /// The standard CSS value representing the
   /// input validation pattern.
@@ -943,8 +966,7 @@ enum BottomNavigationBarType {
   /// The bottom navigation bar has an iOS-style frosted glass effect,
   /// is elevated, centered on the screen, and has a smaller width
   /// than the screen width.
-  frostedGlass('navbar__frosted-glass')
-  ;
+  frostedGlass('navbar__frosted-glass');
 
   /// The CSS class name representing the bottom navigation bar style.
   /// example: 'navbar__floating'
@@ -969,8 +991,7 @@ enum BottomNavigationBarLandscapeLayout {
   ///
   /// This layout is suitable on devices/screens that are wide enough
   /// (such as tablets and large desktop screens) in landscape orientation.
-  linear('navbar__linear-layout')
-  ;
+  linear('navbar__linear-layout');
 
   /// The CSS class name representing the bottom navbar landscape layout.
   /// example: 'navbar__linear-layout'
@@ -1014,10 +1035,7 @@ enum FileType {
   doc('application/msword', 'DOC'),
 
   /// Docx file.
-  docx(
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'DOCX',
-  ),
+  docx('application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'DOCX'),
 
   /// Js file.
   js('application/javascript', 'JS'),
@@ -1041,10 +1059,7 @@ enum FileType {
   xls('application/vnd.ms-excel', 'XLS'),
 
   /// Xlsx file.
-  xlsx(
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    'XSLX',
-  ),
+  xlsx('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'XSLX'),
 
   /// Unknown file type.
   other('application/octet-stream', 'Other'),
@@ -1086,12 +1101,11 @@ enum FileType {
   webm('video/webm', 'WEBM'),
 
   /// Ogg file.
-  ogg('video/ogg', 'OGG')
-  ;
+  ogg('video/ogg', 'OGG');
 
+  final String mime;
   final String value;
-  final String name;
-  const FileType(this.value, this.name);
+  const FileType(this.mime, this.value);
 }
 
 /// Defines BreakPoint sizes for responsive design.
@@ -1109,8 +1123,7 @@ enum BreakPoint {
   lg(kBreakpointLarge, 'br-lg'),
 
   /// Extra large screens (1024px and above) e.g. desktops.
-  xl(kBreakpointXLarge, 'br-xl')
-  ;
+  xl(kBreakpointXLarge, 'br-xl');
 
   /// Breakpoint for mobile phones (less than 480px).
   static BreakPoint get mobile => BreakPoint.xs;
@@ -1178,18 +1191,15 @@ enum GradientType {
   repeatingRadial('repeating-radial-gradient'),
 
   /// Repeating conic gradient.
-  repeatingConic('repeating-conic-gradient')
-  ;
+  repeatingConic('repeating-conic-gradient');
 
   /// The CSS class name representing the gradient style.
-  final String cssName;
-
-  /// Creates a new gradient type.
-  const GradientType(this.cssName);
+  final String css;
+  const GradientType(this.css);
 
   /// Converts the gradient type and stops to a CSS string
   /// (e.g., "linear-gradient(to right, red, blue)").
-  String cssText(List<String> stops) => '$cssName(${stops.join(", ")})';
+  String cssText(List<String> parts) => '$css(${parts.join(", ")})';
 }
 
 /// Defines direction for linear gradients.
@@ -1216,14 +1226,11 @@ enum LinearGradientDirection {
   toBottomLeft('to bottom left'),
 
   /// Gradients towards the bottom-right corner (`to bottom right`).
-  toBottomRight('to bottom right')
-  ;
+  toBottomRight('to bottom right');
 
   /// The standard CSS direction value.
-  final String value;
-
-  /// Creates a linear gradient direction.
-  const LinearGradientDirection(this.value);
+  final String css;
+  const LinearGradientDirection(this.css);
 }
 
 /// Defines center position for radial gradients.
@@ -1253,14 +1260,11 @@ enum RadialGradientPosition {
   bottomLeft('bottom left'),
 
   /// Bottom-right corner (`bottom right`).
-  bottomRight('bottom right')
-  ;
+  bottomRight('bottom right');
 
   /// The standard CSS position value.
-  final String value;
-
-  /// Creates a radial gradient position.
-  const RadialGradientPosition(this.value);
+  final String css;
+  const RadialGradientPosition(this.css);
 }
 
 /// Defines center position for conic gradients.
@@ -1290,14 +1294,11 @@ enum ConicGradientPosition {
   bottomLeft('bottom left'),
 
   /// Bottom-right corner (`bottom right`).
-  bottomRight('bottom right')
-  ;
+  bottomRight('bottom right');
 
   /// The standard CSS position value.
-  final String value;
-
-  /// Creates a conic gradient position.
-  const ConicGradientPosition(this.value);
+  final String css;
+  const ConicGradientPosition(this.css);
 }
 
 /// Defines geometric shape types for components, gradients, and clippings.
@@ -1318,12 +1319,9 @@ enum Shape {
   pill('pill'),
 
   /// Triangle shape (`triangle`).
-  triangle('triangle')
-  ;
+  triangle('triangle');
 
   /// The standard CSS value representing the shape.
-  final String value;
-
-  /// Creates a shape instance.
-  const Shape(this.value);
+  final String css;
+  const Shape(this.css);
 }

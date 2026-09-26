@@ -34,7 +34,10 @@ class SkillInfo {
 
     try {
       final content = skillFile.readAsStringSync();
-      final match = RegExp(r'^---\s*\n(.*?)\n---', dotAll: true).firstMatch(content);
+      final match = RegExp(
+        r'^---\s*\n(.*?)\n---',
+        dotAll: true,
+      ).firstMatch(content);
 
       if (match != null) {
         final yamlContent = match.group(1)!;
@@ -49,7 +52,8 @@ class SkillInfo {
             // Can override or match directory name
           }
 
-          if (doc['metadata'] is Map && (doc['metadata'] as Map)['version'] != null) {
+          if (doc['metadata'] is Map &&
+              (doc['metadata'] as Map)['version'] != null) {
             version = (doc['metadata'] as Map)['version'].toString();
           }
         }
@@ -82,7 +86,8 @@ class SkillOperationResult {
     this.errors = const [],
   });
 
-  bool get hasChanges => added.isNotEmpty || updated.isNotEmpty || removed.isNotEmpty;
+  bool get hasChanges =>
+      added.isNotEmpty || updated.isNotEmpty || removed.isNotEmpty;
   bool get hasErrors => errors.isNotEmpty;
 }
 
@@ -132,12 +137,16 @@ class SkillInstaller {
     final availableSkills = scanSkills(sourceDir);
 
     if (availableSkills.isEmpty) {
-      logger.error('No Naki UI skills found in source directory: ${sourceDir.path}');
+      logger.error(
+        'No Naki UI skills found in source directory: ${sourceDir.path}',
+      );
       return const SkillOperationResult(errors: ['No skills found in source.']);
     }
 
     final skillsToInstall = skillFilter != null
-        ? availableSkills.where((s) => s.name.toLowerCase() == skillFilter.toLowerCase()).toList()
+        ? availableSkills
+              .where((s) => s.name.toLowerCase() == skillFilter.toLowerCase())
+              .toList()
         : availableSkills;
 
     if (skillsToInstall.isEmpty && skillFilter != null) {
@@ -169,7 +178,8 @@ class SkillInstaller {
       final skillTargetDir = Directory(p.join(targetDir.path, skill.name));
       final skillTargetFile = File(p.join(skillTargetDir.path, 'SKILL.md'));
 
-      final isExisting = skillTargetDir.existsSync() && skillTargetFile.existsSync();
+      final isExisting =
+          skillTargetDir.existsSync() && skillTargetFile.existsSync();
 
       if (isExisting && !force) {
         // Compare content if not forced
@@ -185,10 +195,14 @@ class SkillInstaller {
 
       if (dryRun) {
         if (isExisting) {
-          logger.info('  ${yellow.wrap('~')} Would update ${styleBold.wrap(skill.name)}');
+          logger.info(
+            '  ${yellow.wrap('~')} Would update ${styleBold.wrap(skill.name)}',
+          );
           updated.add(skill.name);
         } else {
-          logger.info('  ${green.wrap('+')} Would add ${styleBold.wrap(skill.name)}');
+          logger.info(
+            '  ${green.wrap('+')} Would add ${styleBold.wrap(skill.name)}',
+          );
           added.add(skill.name);
         }
         continue;
@@ -237,7 +251,8 @@ class SkillInstaller {
         for (final skill in missingJasprSkills) {
           final skillTargetDir = Directory(p.join(targetDir.path, skill.name));
           final skillTargetFile = File(p.join(skillTargetDir.path, 'SKILL.md'));
-          final isExisting = skillTargetDir.existsSync() && skillTargetFile.existsSync();
+          final isExisting =
+              skillTargetDir.existsSync() && skillTargetFile.existsSync();
 
           if (dryRun) {
             if (isExisting) {
@@ -246,7 +261,9 @@ class SkillInstaller {
               );
               updated.add(skill.name);
             } else {
-              logger.info('  ${green.wrap('+')} Would add companion ${styleBold.wrap(skill.name)}');
+              logger.info(
+                '  ${green.wrap('+')} Would add companion ${styleBold.wrap(skill.name)}',
+              );
               added.add(skill.name);
             }
             continue;
@@ -256,6 +273,7 @@ class SkillInstaller {
             if (skillTargetDir.existsSync()) {
               skillTargetDir.deleteSync(recursive: true);
             }
+
             skillTargetDir.createSync(recursive: true);
             _copyDirectorySync(skill.sourceDir, skillTargetDir);
 
@@ -263,7 +281,9 @@ class SkillInstaller {
               logger.success('Updated companion ${styleBold.wrap(skill.name)}');
               updated.add(skill.name);
             } else {
-              logger.success('Installed companion ${styleBold.wrap(skill.name)}');
+              logger.success(
+                'Installed companion ${styleBold.wrap(skill.name)}',
+              );
               added.add(skill.name);
             }
           } catch (e) {
@@ -272,7 +292,9 @@ class SkillInstaller {
           }
         }
       } else {
-        logger.detail('All Jaspr companion skills are already installed in $relativeTarget.');
+        logger.detail(
+          'All Jaspr companion skills are already installed in $relativeTarget.',
+        );
       }
     }
 
@@ -307,7 +329,9 @@ class SkillInstaller {
 
     final availableSkills = scanSkills(sourceDir);
     final skillsToRemove = skillFilter != null
-        ? availableSkills.where((s) => s.name.toLowerCase() == skillFilter.toLowerCase()).toList()
+        ? availableSkills
+              .where((s) => s.name.toLowerCase() == skillFilter.toLowerCase())
+              .toList()
         : availableSkills;
 
     final removed = <String>[];
@@ -318,7 +342,9 @@ class SkillInstaller {
       if (!skillTargetDir.existsSync()) continue;
 
       if (dryRun) {
-        logger.info('  ${red.wrap('-')} Would remove ${styleBold.wrap(skill.name)}');
+        logger.info(
+          '  ${red.wrap('-')} Would remove ${styleBold.wrap(skill.name)}',
+        );
         removed.add(skill.name);
         continue;
       }

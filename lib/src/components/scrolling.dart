@@ -236,9 +236,7 @@ class _SingleChildScrollViewState extends State<SingleChildScrollView>
     };
 
     const baseClass = 'naki-singlechild-scrollview';
-    final effectiveClasses = component.classes.isNotNullAndEmpty
-        ? '$baseClass ${component.classes}'
-        : baseClass;
+    final effectiveClasses = joinClasses([?component.classes, baseClass]);
 
     final Component child = .element(
       tag: 'naki-scrollview',
@@ -581,9 +579,7 @@ class _ListViewState extends State<ListView> with NakiStatefulMixin {
     };
 
     const baseClass = 'naki-listview';
-    final effectiveClasses = component.classes.isNotNullAndEmpty
-        ? '$baseClass ${component.classes}'
-        : baseClass;
+    final effectiveClasses = joinClasses([?component.classes, baseClass]);
 
     final Component child = .element(
       tag: 'naki-listview',
@@ -841,9 +837,7 @@ class _ListViewBuilderState extends State<_ListViewBuilder>
     }
 
     const baseClass = 'naki-listview';
-    final effectiveClasses = component.classes.isNotNullAndEmpty
-        ? '$baseClass ${component.classes}'
-        : baseClass;
+    final effectiveClasses = joinClasses([?component.classes, baseClass]);
 
     final Component child = .element(
       tag: 'naki-listview',
@@ -1104,9 +1098,7 @@ class _ListViewSeparatedState extends State<_ListViewSeparated>
     };
 
     const baseClass = 'naki-listview';
-    final effectiveClasses = component.classes.isNotNullAndEmpty
-        ? '$baseClass ${component.classes}'
-        : baseClass;
+    final effectiveClasses = joinClasses([?component.classes, baseClass]);
 
     for (int i = 0; i < _renderedItemCount; i++) {
       items.add(component.itemBuilder(context, i));
@@ -1610,9 +1602,7 @@ class _GridViewState extends State<GridView> with NakiStatefulMixin {
     if (component.reverse) children = children.reversed.toList();
 
     const baseClass = 'naki-gridview';
-    final effectiveClasses = component.classes.isNotNullAndEmpty
-        ? '$baseClass ${component.classes}'
-        : baseClass;
+    final effectiveClasses = joinClasses([?component.classes, baseClass]);
 
     final Component child = .element(
       tag: 'naki-gridview',
@@ -1946,9 +1936,7 @@ class _GridViewBuilderState extends State<_GridViewBuilder>
     if (component.reverse) items = items.reversed.toList();
 
     const baseClass = 'naki-gridview';
-    final effectiveClasses = component.classes.isNotNullAndEmpty
-        ? '$baseClass ${component.classes}'
-        : baseClass;
+    final effectiveClasses = joinClasses([?component.classes, baseClass]);
 
     final Component child = .element(
       tag: 'naki-gridview',
@@ -2243,9 +2231,7 @@ class _PageViewState extends State<PageView> with NakiStatefulMixin {
     };
 
     const baseClass = 'naki-pageview';
-    final effectiveClasses = component.classes.isNotNullAndEmpty
-        ? '$baseClass ${component.classes}'
-        : baseClass;
+    final effectiveClasses = joinClasses([?component.classes, baseClass]);
 
     final Component child = .element(
       tag: 'naki-pageview',
@@ -2384,9 +2370,7 @@ class _PageViewBuilderState extends State<_PageViewBuilder>
     }
 
     const baseClass = 'naki-pageview';
-    final effectiveClasses = component.classes.isNotNullAndEmpty
-        ? '$baseClass ${component.classes}'
-        : baseClass;
+    final effectiveClasses = joinClasses([?component.classes, baseClass]);
 
     final Component child = .element(
       tag: 'naki-pageview',
@@ -2678,9 +2662,7 @@ class _CarouselViewState extends State<CarouselView> with NakiStatefulMixin {
     }
 
     const baseClass = 'naki-carouselview';
-    final effectiveClasses = component.classes.isNotNullAndEmpty
-        ? '$baseClass ${component.classes}'
-        : baseClass;
+    final effectiveClasses = joinClasses([?component.classes, baseClass]);
 
     final Component child = .element(
       tag: 'naki-carouselview',
@@ -2958,9 +2940,7 @@ class Table extends StatelessComponent {
     }
 
     const baseClass = 'naki-table';
-    final effectiveClasses = classes.isNotNullAndEmpty
-        ? '$baseClass $classes'
-        : baseClass;
+    final effectiveClasses = joinClasses([?classes, baseClass]);
 
     final effectiveStyles = {
       Tokens.current.tableHeaderBg.name: ?headerBackgroundColor?.value,
@@ -3251,9 +3231,7 @@ class _StaggeredViewState extends State<StaggeredView> with NakiStatefulMixin {
     }
 
     const baseClass = 'naki-staggeredview';
-    final effectiveClasses = component.classes.isNotNullAndEmpty
-        ? '$baseClass ${component.classes}'
-        : baseClass;
+    final effectiveClasses = joinClasses([?component.classes, baseClass]);
 
     final Component child = .element(
       tag: 'naki-staggered-view',

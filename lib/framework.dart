@@ -4,6 +4,8 @@
 /// and utilities.
 library;
 
+export 'package:universal_web/web.dart' hide Table;
+
 export 'src/framework/framework.dart';
 export 'src/framework/lifecycle.dart';
 
@@ -16,4 +18,5 @@ export 'src/models/scrolling.dart';
 export 'src/stub/index.dart';
 
 export 'src/utilities/debounce.dart';
-export 'src/utilities/enums.dart' hide BackdropFilterType, CardVariant;
+export 'src/utilities/enums.dart'
+    hide BackdropFilterType, CardVariant, GradientType;

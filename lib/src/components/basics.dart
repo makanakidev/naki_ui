@@ -359,7 +359,8 @@ class Image extends StatelessComponent with NakiStatelessMixin {
     final _id = nakiStableKey('image', src);
     final cachedSource = NakiStorage.get<String>(_id);
 
-    final shouldWrap = backgroundColor != null || gradient != null || padding != null;
+    final shouldWrap =
+        backgroundColor != null || gradient != null || padding != null;
 
     const baseClass = 'naki-image';
     final effectiveClasses = joinClasses([?classes, baseClass]);
@@ -445,7 +446,8 @@ class NakiText extends StatelessComponent with NakiTextScope {
   }
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('Text', [Rules.nakiTextRules]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('Text', [Rules.nakiTextRules]);
 }
 
 /// {@template Button}
@@ -563,7 +565,10 @@ class Button extends StatefulComponent {
     this.disabledColor,
     this.attributes,
     this.id,
-  }) : assert(!(validateForm && resetForm), 'validateForm and resetForm cannot both be true');
+  }) : assert(
+         !(validateForm && resetForm),
+         'validateForm and resetForm cannot both be true',
+       );
 
   /// Creates a filled button.
   ///
@@ -600,7 +605,10 @@ class Button extends StatefulComponent {
     this.attributes,
     this.id,
   }) : backgroundColor = color,
-       assert(!(validateForm && resetForm), 'validateForm and resetForm cannot both be true');
+       assert(
+         !(validateForm && resetForm),
+         'validateForm and resetForm cannot both be true',
+       );
 
   /// Creates an outlined button.
   ///
@@ -641,7 +649,10 @@ class Button extends StatefulComponent {
     this.attributes,
     this.id,
   }) : border = outline,
-       assert(!(validateForm && resetForm), 'validateForm and resetForm cannot both be true');
+       assert(
+         !(validateForm && resetForm),
+         'validateForm and resetForm cannot both be true',
+       );
 
   /// Creates an icon button.
   ///
@@ -679,7 +690,10 @@ class Button extends StatefulComponent {
     this.attributes,
     this.id,
   }) : child = Icon(icon, color: foregroundColor, size: size),
-       assert(!(validateForm && resetForm), 'validateForm and resetForm cannot both be true');
+       assert(
+         !(validateForm && resetForm),
+         'validateForm and resetForm cannot both be true',
+       );
 
   /// Creates an icon and text button with customizable icon position
   /// and alignment.
@@ -741,7 +755,10 @@ class Button extends StatefulComponent {
                  Icon(icon, color: foregroundColor, size: iconSize),
                ],
        ),
-       assert(!(validateForm && resetForm), 'validateForm and resetForm cannot both be true');
+       assert(
+         !(validateForm && resetForm),
+         'validateForm and resetForm cannot both be true',
+       );
 
   /// Creates a text button.
   ///
@@ -777,13 +794,17 @@ class Button extends StatefulComponent {
     this.attributes,
     this.id,
   }) : child = NakiText(text, style: style),
-       assert(!(validateForm && resetForm), 'validateForm and resetForm cannot both be true');
+       assert(
+         !(validateForm && resetForm),
+         'validateForm and resetForm cannot both be true',
+       );
 
   @override
   State<Button> createState() => _ButtonState();
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('Button', [Rules.nakiButtonRules]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('Button', [Rules.nakiButtonRules]);
 }
 
 class _ButtonState extends State<Button> {
@@ -822,10 +843,14 @@ class _ButtonState extends State<Button> {
   @override
   Component build(BuildContext context) {
     const String baseClass = 'naki-button';
-    final String effectiveClasses = joinClasses([?component.classes, baseClass]);
+    final String effectiveClasses = joinClasses([
+      ?component.classes,
+      baseClass,
+    ]);
 
     final Map<String, String> effectiveStyles = {
-      Tokens.current.buttonBackgroundColor.name: ?component.backgroundColor?.value,
+      Tokens.current.buttonBackgroundColor.name:
+          ?component.backgroundColor?.value,
       Tokens.current.buttonColor.name: ?component.foregroundColor?.value,
       Tokens.current.disabledBgColor.name: ?component.disabledColor?.value,
       Tokens.current.buttonHoverBgColor.name: ?component.hoverColor?.value,
@@ -841,7 +866,9 @@ class _ButtonState extends State<Button> {
     final isNativeSubmit = component.type == .submit && component.onTap == null;
 
     final shouldHandleClick =
-        !isNativeReset && !isNativeSubmit && (component.onTap != null || component.validateForm);
+        !isNativeReset &&
+        !isNativeSubmit &&
+        (component.onTap != null || component.validateForm);
 
     final ButtonType effectiveType = isNativeReset
         ? ButtonType.reset
@@ -943,16 +970,22 @@ class Icon extends StatelessComponent {
       size: size,
       color: color,
       classes: effectiveClasses,
-      attributes: semanticLabel.isNotNullAndEmpty ? {'aria-label': semanticLabel!} : null,
+      attributes: semanticLabel.isNotNullAndEmpty
+          ? {'aria-label': semanticLabel!}
+          : null,
       onClick: onTap,
     );
 
-    return onTap != null ? span(classes: 'naki-control-hitbox', [child]) : child;
+    return onTap != null
+        ? span(classes: 'naki-control-hitbox', [child])
+        : child;
   }
 
   @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('Icon', [Rules.nakiIconRules, Rules.nakiHitboxRules]);
+  static List<StyleRule> get styles => NakiStyleRegistry.once('Icon', [
+    Rules.nakiIconRules,
+    Rules.nakiHitboxRules,
+  ]);
 }
 
 /// {@template Spinner}
@@ -1065,14 +1098,19 @@ class Spinner extends StatelessComponent {
       key: key,
       tag: 'naki-spinner',
       classes: effectiveClasses,
-      attributes: {'role': 'status', 'aria-live': 'polite', 'aria-label': semanticLabel},
+      attributes: {
+        'role': 'status',
+        'aria-live': 'polite',
+        'aria-label': semanticLabel,
+      },
       styles: Styles(raw: effectiveStyles),
       children: [...?(iosClass.isNotEmpty ? spinnerBlades : null)],
     );
   }
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('Spinner', Rules.nakiSpinnerRules);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('Spinner', Rules.nakiSpinnerRules);
 }
 
 /// {@template RichText}
@@ -1113,7 +1151,13 @@ class RichText extends StatelessComponent with NakiTextScope {
   final String? classes;
 
   /// {@macro RichText}
-  const RichText({super.key, required this.text, this.textAlign, this.style, this.classes});
+  const RichText({
+    super.key,
+    required this.text,
+    this.textAlign,
+    this.style,
+    this.classes,
+  });
 
   @override
   Component build(BuildContext context) {
@@ -1123,19 +1167,24 @@ class RichText extends StatelessComponent with NakiTextScope {
     const baseClass = 'naki-richtext';
     final effectiveClasses = joinClasses([?classes, baseClass]);
 
-    final child = text is Component ? text as Component : const Component.empty();
+    final child = text is Component
+        ? text as Component
+        : const Component.empty();
 
     return .element(
       key: key,
       tag: 'naki-richtext',
       classes: effectiveClasses,
-      styles: Styles(raw: {...effectiveStyles, 'text-align': ?textAlign?.value}),
+      styles: Styles(
+        raw: {...effectiveStyles, 'text-align': ?textAlign?.value},
+      ),
       children: [child],
     );
   }
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('Text', [Rules.nakiTextRules]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('Text', [Rules.nakiTextRules]);
 }
 
 /// {@template TextSpan}
@@ -1264,7 +1313,8 @@ class TextSpan extends StatelessComponent implements InlineSpan {
   }
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('Text', [Rules.nakiTextRules]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('Text', [Rules.nakiTextRules]);
 }
 
 /// {@template ComponentSpan}
@@ -1353,7 +1403,8 @@ class ComponentSpan extends StatelessComponent implements InlineSpan {
   }
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('Text', [Rules.nakiTextRules]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('Text', [Rules.nakiTextRules]);
 }
 
 /// {@template GestureDetector}
@@ -1578,5 +1629,6 @@ class Banner extends StatelessComponent {
   }
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('Banner', [Rules.nakiBannerRules]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('Banner', [Rules.nakiBannerRules]);
 }

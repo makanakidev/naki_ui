@@ -12,7 +12,9 @@ class PackageResolver {
 
   /// Extracts the version of the `naki_ui` package from its `pubspec.yaml`.
   Future<String?> resolvePackageVersion({String? workspaceRoot}) async {
-    final skillsDir = await findSkillsSourceDirectory(workspaceRoot: workspaceRoot);
+    final skillsDir = await findSkillsSourceDirectory(
+      workspaceRoot: workspaceRoot,
+    );
     if (skillsDir != null) {
       final packageRoot = skillsDir.parent.path;
       final pubspec = File(p.join(packageRoot, 'pubspec.yaml'));
@@ -49,7 +51,9 @@ class PackageResolver {
   /// Locates the project root directory from [startPath] by walking up parent directories
   /// until a `pubspec.yaml` or `.git` directory is found. Defaults to [Directory.current.path].
   String findProjectRoot([String? startPath]) {
-    String current = p.normalize(p.absolute(startPath ?? Directory.current.path));
+    String current = p.normalize(
+      p.absolute(startPath ?? Directory.current.path),
+    );
     final root = p.rootPrefix(current);
 
     while (true) {
@@ -198,7 +202,9 @@ class PackageResolver {
     final root = p.rootPrefix(current);
 
     while (true) {
-      final configFile = File(p.join(current, '.dart_tool', 'package_config.json'));
+      final configFile = File(
+        p.join(current, '.dart_tool', 'package_config.json'),
+      );
 
       if (configFile.existsSync()) {
         return configFile;
@@ -217,7 +223,10 @@ class PackageResolver {
     return _resolvePackageFromConfig(packageConfigFile, 'naki_ui');
   }
 
-  Directory? _resolvePackageFromConfig(File packageConfigFile, String packageName) {
+  Directory? _resolvePackageFromConfig(
+    File packageConfigFile,
+    String packageName,
+  ) {
     try {
       final content = packageConfigFile.readAsStringSync();
       final config = jsonDecode(content) as Map<String, dynamic>;

@@ -27,9 +27,7 @@ mixin NakiStatelessMixin on StatelessComponent {
   ///
   /// Can return a cleanup function to be executed when
   /// the component is unmounted.
-  FutureOr<VoidCallback?> afterRender(
-    BuildContext context,
-  ) => null;
+  FutureOr<VoidCallback?> afterRender(BuildContext context) => null;
 
   @override
   Element createElement() {
@@ -69,9 +67,7 @@ mixin NakiStatefulMixin<T extends StatefulComponent> on State<T> {
   ///
   /// Can return a cleanup function to be executed when
   /// the component is unmounted.
-  FutureOr<VoidCallback?> afterRender(
-    BuildContext context,
-  ) => null;
+  FutureOr<VoidCallback?> afterRender(BuildContext context) => null;
 
   @override
   void initState() {
@@ -117,7 +113,7 @@ mixin _NakiScheduler on BuildableElement {
   @override
   void update(Component newComponent) {
     super.update(newComponent);
-    _schedule();
+    _schedule(newComponent);
   }
 
   @override
@@ -127,13 +123,15 @@ mixin _NakiScheduler on BuildableElement {
     super.unmount();
   }
 
-  void _schedule() {
-    if (component is NakiStatelessMixin) {
+  void _schedule([Component? newComponent]) {
+    final target = newComponent ?? component;
+
+    if (target is NakiStatelessMixin) {
       onComponentRendered(() async {
         _cleanup?.call();
         _cleanup = null;
 
-        final nState = component as NakiStatelessMixin;
+        final nState = target;
         final result = await nState.afterRender(this);
 
         if (result is VoidCallback) _cleanup = result;

@@ -165,7 +165,9 @@ bool showValidationError(
   if (fieldWrapper == null) return false;
 
   // link input element to validation error element
-  final inputElem = document.getElementById(isSegmentedInput ? '${id}_0' : id) as HTMLElement?;
+  final inputElem =
+      document.getElementById(isSegmentedInput ? '${id}_0' : id)
+          as HTMLElement?;
 
   <String, String>{
     'aria-describedby': validationId,
@@ -199,7 +201,8 @@ void removeValidationError(String id) {
     document.getElementById(validationId)?.remove();
 
     final rawId = id.replaceAll('_validation', '');
-    final targetInput = document.getElementById(rawId) ?? document.getElementById('${rawId}_0');
+    final targetInput =
+        document.getElementById(rawId) ?? document.getElementById('${rawId}_0');
 
     targetInput?.removeAttribute('aria-describedby');
     targetInput?.setAttribute('aria-invalid', 'false');
@@ -216,7 +219,9 @@ void clearAllValidationErrors() {
 
       if (elem != null) {
         final rawId = elem.id.replaceAll('_validation', '');
-        final targetInput = document.getElementById(rawId) ?? document.getElementById('${rawId}_0');
+        final targetInput =
+            document.getElementById(rawId) ??
+            document.getElementById('${rawId}_0');
 
         targetInput?.removeAttribute('aria-describedby');
         targetInput?.setAttribute('aria-invalid', 'false');
@@ -340,7 +345,8 @@ HTMLElement? _findScrollableAncestor(HTMLElement elem) {
 
     // check if the parent element has scrollable content
     final hasScrollableContent =
-        parent.scrollHeight > parent.clientHeight || parent.scrollWidth > parent.clientWidth;
+        parent.scrollHeight > parent.clientHeight ||
+        parent.scrollWidth > parent.clientWidth;
 
     if (isScrollable && hasScrollableContent) {
       return parent as HTMLElement;
@@ -380,7 +386,9 @@ void hapticFeedback({
     }
 
     // default vibration duration
-    final durationMs = duration.inMilliseconds.clamp(0, double.infinity).toInt();
+    final durationMs = duration.inMilliseconds
+        .clamp(0, double.infinity)
+        .toInt();
 
     window.navigator.vibrate(durationMs.toJS);
   } catch (_) {}
@@ -393,7 +401,11 @@ void saveAsFile(String content, String fileName, {FileType mimeType = .txt}) {
   if (kIsServer) return;
 
   // convert content to a data URL
-  final url = Uri.dataFromString(content, mimeType: mimeType.value, encoding: utf8).toString();
+  final url = Uri.dataFromString(
+    content,
+    mimeType: mimeType.value,
+    encoding: utf8,
+  ).toString();
 
   // create an anchor element to trigger download
   final anchor = document.createElement('a') as HTMLAnchorElement;

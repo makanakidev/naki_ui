@@ -29,7 +29,10 @@ void main() {
 
       expect(
         find.byComponentPredicate(
-          (c) => c is DomComponent && c.tag == 'base' && c.attributes?['href'] == '/naki_ui/',
+          (c) =>
+              c is DomComponent &&
+              c.tag == 'base' &&
+              c.attributes?['href'] == '/naki_ui/',
           description: 'base href tag',
         ),
         findsOneComponent,
@@ -53,7 +56,8 @@ void main() {
               c is DomComponent &&
               c.tag == 'meta' &&
               c.attributes?['property'] == 'og:image' &&
-              c.attributes?['content'] == 'https://makanakidev.github.io/naki_ui/assets/logo.png',
+              c.attributes?['content'] ==
+                  'https://makanakidev.github.io/naki_ui/assets/logo.png',
           description: 'og:image meta tag',
         ),
         findsOneComponent,

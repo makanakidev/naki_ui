@@ -86,25 +86,36 @@ class ResponsiveBuilder extends StatelessComponent {
     final responsiveComponents = <Component>[];
 
     if (breakpoint != null && child != null) {
-      responsiveComponents.add(.wrapElement(child: child!, classes: breakpoint!.className));
+      responsiveComponents.add(
+        .wrapElement(child: child!, classes: breakpoint!.className),
+      );
     }
 
     if (mobile != null) {
-      responsiveComponents.add(.wrapElement(child: mobile!, classes: BreakPoint.mobile.className));
+      responsiveComponents.add(
+        .wrapElement(child: mobile!, classes: BreakPoint.mobile.className),
+      );
     }
 
     if (largerMobile != null) {
       responsiveComponents.add(
-        .wrapElement(child: largerMobile!, classes: BreakPoint.largerPhone.className),
+        .wrapElement(
+          child: largerMobile!,
+          classes: BreakPoint.largerPhone.className,
+        ),
       );
     }
 
     if (tablet != null) {
-      responsiveComponents.add(.wrapElement(child: tablet!, classes: BreakPoint.tablet.className));
+      responsiveComponents.add(
+        .wrapElement(child: tablet!, classes: BreakPoint.tablet.className),
+      );
     }
 
     if (laptop != null) {
-      responsiveComponents.add(.wrapElement(child: laptop!, classes: BreakPoint.laptop.className));
+      responsiveComponents.add(
+        .wrapElement(child: laptop!, classes: BreakPoint.laptop.className),
+      );
     }
 
     if (desktop != null) {
@@ -145,12 +156,19 @@ class BreakPointWrapper extends StatelessComponent {
   final double? maxWidth;
 
   /// {@macro BreakPointWrapper}
-  BreakPointWrapper({super.key, required this.child, this.minWidth, this.maxWidth})
-    : assert(minWidth != null || maxWidth != null, 'Either provide a minWidth or maxWidth'),
-      assert(
-        minWidth == null || maxWidth == null || minWidth < maxWidth,
-        'minWidth must be less than maxWidth',
-      );
+  BreakPointWrapper({
+    super.key,
+    required this.child,
+    this.minWidth,
+    this.maxWidth,
+  }) : assert(
+         minWidth != null || maxWidth != null,
+         'Either provide a minWidth or maxWidth',
+       ),
+       assert(
+         minWidth == null || maxWidth == null || minWidth < maxWidth,
+         'minWidth must be less than maxWidth',
+       );
 
   @override
   Component build(BuildContext context) {
@@ -159,7 +177,10 @@ class BreakPointWrapper extends StatelessComponent {
 
     if (minWidth != null && maxWidth != null) {
       id = 'mn${minWidth!.roundDown}mx${maxWidth!.roundDown}';
-      query = MediaQuery.screen(minWidth: (minWidth! + 0.02).px, maxWidth: maxWidth!.px);
+      query = MediaQuery.screen(
+        minWidth: (minWidth! + 0.02).px,
+        maxWidth: maxWidth!.px,
+      );
     } else if (minWidth != null) {
       id = 'mn${minWidth!.roundDown}';
       query = MediaQuery.screen(minWidth: (minWidth! + 0.02).px);

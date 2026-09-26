@@ -27,7 +27,8 @@ class FlexScope extends InheritedComponent {
   }
 
   @override
-  bool updateShouldNotify(FlexScope oldComponent) => scrollable != oldComponent.scrollable;
+  bool updateShouldNotify(FlexScope oldComponent) =>
+      scrollable != oldComponent.scrollable;
 }
 
 /// {@template FormScope}
@@ -82,7 +83,8 @@ class FormScope extends InheritedComponent {
   }
 
   @override
-  bool updateShouldNotify(FormScope oldComponent) => _formKey != oldComponent._formKey;
+  bool updateShouldNotify(FormScope oldComponent) =>
+      _formKey != oldComponent._formKey;
 }
 
 /// Allocates hydration-stable DOM ids within a root theme tree.
@@ -94,7 +96,10 @@ final class NakiDomIdRegistry {
 
   String resolve(BuildContext owner, String prefix) {
     final ownerIds = _ids[owner] ??= <String, String>{};
-    return ownerIds.putIfAbsent(prefix, () => '${prefix}_nakidom_${(_nextId++).toRadixString(36)}');
+    return ownerIds.putIfAbsent(
+      prefix,
+      () => '${prefix}_nakidom_${(_nextId++).toRadixString(36)}',
+    );
   }
 }
 
@@ -108,7 +113,8 @@ class NakiStyleScope extends InheritedComponent {
       context.dependOnInheritedComponentOfExactType<NakiStyleScope>();
 
   @override
-  bool updateShouldNotify(NakiStyleScope oldComponent) => registry != oldComponent.registry;
+  bool updateShouldNotify(NakiStyleScope oldComponent) =>
+      registry != oldComponent.registry;
 }
 
 /// Provides one request-local DOM id registry to the complete themed tree.
@@ -121,7 +127,8 @@ class NakiDomIdScope extends InheritedComponent {
       context.dependOnInheritedComponentOfExactType<NakiDomIdScope>();
 
   @override
-  bool updateShouldNotify(NakiDomIdScope oldComponent) => registry != oldComponent.registry;
+  bool updateShouldNotify(NakiDomIdScope oldComponent) =>
+      registry != oldComponent.registry;
 }
 
 /// {@template ScaffoldScope}
@@ -144,7 +151,8 @@ class ScaffoldScope extends InheritedComponent {
       context.dependOnInheritedComponentOfExactType<ScaffoldScope>();
 
   @override
-  bool updateShouldNotify(ScaffoldScope oldComponent) => state != oldComponent.state;
+  bool updateShouldNotify(ScaffoldScope oldComponent) =>
+      state != oldComponent.state;
 }
 
 /// {@template AppScope}

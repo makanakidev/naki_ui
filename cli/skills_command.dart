@@ -22,7 +22,8 @@ class SkillsCommand extends Command<int> {
   final List<String> aliases = const ['install-skills', 'skill'];
 
   @override
-  final String description = 'Installs and manages Naki UI skills for AI coding agents.';
+  final String description =
+      'Installs and manages Naki UI skills for AI coding agents.';
 
   @override
   final String invocation = 'naki_ui skills [arguments]';
@@ -49,7 +50,8 @@ class SkillsCommand extends Command<int> {
         argParser.addFlag(
           agent.cliName,
           negatable: false,
-          help: 'Install skills for ${agent.displayName} (${agent.skillsRelativePath}).',
+          help:
+              'Install skills for ${agent.displayName} (${agent.skillsRelativePath}).',
         );
       }
 
@@ -77,7 +79,8 @@ class SkillsCommand extends Command<int> {
       argParser.addOption(
         'skill',
         abbr: 's',
-        help: 'Install or remove only a specific skill by name (e.g. naki-ui-theming).',
+        help:
+            'Install or remove only a specific skill by name (e.g. naki-ui-theming).',
       );
     }
 
@@ -118,7 +121,8 @@ class SkillsCommand extends Command<int> {
       argParser.addFlag(
         'remove',
         negatable: false,
-        help: 'Remove installed Naki UI skills from the target agent directory.',
+        help:
+            'Remove installed Naki UI skills from the target agent directory.',
       );
     }
 
@@ -197,7 +201,8 @@ class SkillsCommand extends Command<int> {
       return _handleList(sourceDir, installer, logger);
     }
 
-    final isRemove = (argResults?['remove'] == true) || (argResults?['clean'] == true);
+    final isRemove =
+        (argResults?['remove'] == true) || (argResults?['clean'] == true);
     final isDryRun = (argResults?['dry-run'] == true);
     final isForce = (argResults?['force'] == true);
     final skillFilter = argResults?['skill'] as String?;
@@ -223,7 +228,8 @@ class SkillsCommand extends Command<int> {
             agentsToInstall.add(agent);
           } else {
             for (final alias in agent.aliases) {
-              if (argResults?.wasParsed(alias) == true && argResults?[alias] == true) {
+              if (argResults?.wasParsed(alias) == true &&
+                  argResults?[alias] == true) {
                 agentsToInstall.add(agent);
                 break;
               }
@@ -239,7 +245,9 @@ class SkillsCommand extends Command<int> {
             agentsToInstall.add(agent);
           } else if (agent == null) {
             logger.error('Unknown agent "$requestedAgent".');
-            logger.info('Supported agents: ${TargetAgent.allCliNames.join(', ')}');
+            logger.info(
+              'Supported agents: ${TargetAgent.allCliNames.join(', ')}',
+            );
             return 1;
           }
         }
@@ -266,7 +274,9 @@ class SkillsCommand extends Command<int> {
     final jasprExplicit = argResults?['jaspr-source'] as String?;
     final jasprSourceDir = jasprExplicit != null
         ? Directory(jasprExplicit)
-        : await resolver.findJasprSkillsSourceDirectory(workspaceRoot: projectRoot);
+        : await resolver.findJasprSkillsSourceDirectory(
+            workspaceRoot: projectRoot,
+          );
     final includeJaspr = (argResults?['jaspr'] as bool?) ?? true;
 
     if (customTarget != null) {

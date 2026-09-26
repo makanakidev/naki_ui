@@ -56,7 +56,10 @@ void main() {
       expect(TargetAgent.claudeCode.isDetected(tempDir.path), isTrue);
 
       final detected = TargetAgent.detectAll(tempDir.path);
-      expect(detected, containsAll([TargetAgent.cursor, TargetAgent.claudeCode]));
+      expect(
+        detected,
+        containsAll([TargetAgent.cursor, TargetAgent.claudeCode]),
+      );
     });
   });
 }

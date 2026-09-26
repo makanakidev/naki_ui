@@ -26,29 +26,50 @@ dependencies:
       }
     });
 
-    test('installs skills to Antigravity (.agents/skills) via --antigravity', () async {
-      final code = await runner.run([
-        'skills',
-        '--antigravity',
-        '--project',
-        tempWorkspace.path,
-      ]);
+    test(
+      'installs skills to Antigravity (.agents/skills) via --antigravity',
+      () async {
+        final code = await runner.run([
+          'skills',
+          '--antigravity',
+          '--project',
+          tempWorkspace.path,
+        ]);
 
-      expect(code, 0);
-      final frameworkSkill = File(
-        p.join(tempWorkspace.path, '.agents', 'skills', 'naki-ui-framework', 'SKILL.md'),
-      );
-      final themingSkill = File(
-        p.join(tempWorkspace.path, '.agents', 'skills', 'naki-ui-theming', 'SKILL.md'),
-      );
-      final fundamentalsSkill = File(
-        p.join(tempWorkspace.path, '.agents', 'skills', 'naki-ui-fundamentals', 'SKILL.md'),
-      );
+        expect(code, 0);
+        final frameworkSkill = File(
+          p.join(
+            tempWorkspace.path,
+            '.agents',
+            'skills',
+            'naki-ui-framework',
+            'SKILL.md',
+          ),
+        );
+        final themingSkill = File(
+          p.join(
+            tempWorkspace.path,
+            '.agents',
+            'skills',
+            'naki-ui-theming',
+            'SKILL.md',
+          ),
+        );
+        final fundamentalsSkill = File(
+          p.join(
+            tempWorkspace.path,
+            '.agents',
+            'skills',
+            'naki-ui-fundamentals',
+            'SKILL.md',
+          ),
+        );
 
-      expect(frameworkSkill.existsSync(), isTrue);
-      expect(themingSkill.existsSync(), isTrue);
-      expect(fundamentalsSkill.existsSync(), isTrue);
-    });
+        expect(frameworkSkill.existsSync(), isTrue);
+        expect(themingSkill.existsSync(), isTrue);
+        expect(fundamentalsSkill.existsSync(), isTrue);
+      },
+    );
 
     test('installs skills to Cursor (.cursor/skills) via --cursor', () async {
       final code = await runner.run([
@@ -61,7 +82,12 @@ dependencies:
       expect(code, 0);
       expect(
         Directory(
-          p.join(tempWorkspace.path, '.cursor', 'skills', 'naki-ui-fundamentals'),
+          p.join(
+            tempWorkspace.path,
+            '.cursor',
+            'skills',
+            'naki-ui-fundamentals',
+          ),
         ).existsSync(),
         isTrue,
       );
@@ -117,7 +143,9 @@ dependencies:
 
       expect(code, 0);
       expect(
-        Directory(p.join(tempWorkspace.path, '.agents', 'skills', 'naki-ui-theming')).existsSync(),
+        Directory(
+          p.join(tempWorkspace.path, '.agents', 'skills', 'naki-ui-theming'),
+        ).existsSync(),
         isTrue,
       );
       expect(
@@ -153,7 +181,9 @@ dependencies:
         tempWorkspace.path,
       ]);
       expect(
-        Directory(p.join(tempWorkspace.path, '.agents', 'skills', 'naki-ui-theming')).existsSync(),
+        Directory(
+          p.join(tempWorkspace.path, '.agents', 'skills', 'naki-ui-theming'),
+        ).existsSync(),
         isTrue,
       );
 
@@ -167,7 +197,9 @@ dependencies:
       ]);
       expect(code, 0);
       expect(
-        Directory(p.join(tempWorkspace.path, '.agents', 'skills', 'naki-ui-theming')).existsSync(),
+        Directory(
+          p.join(tempWorkspace.path, '.agents', 'skills', 'naki-ui-theming'),
+        ).existsSync(),
         isFalse,
       );
     });
@@ -184,7 +216,12 @@ dependencies:
       expect(code, 0);
       expect(
         Directory(
-          p.join(tempWorkspace.path, '.cursor', 'skills', 'naki-ui-fundamentals'),
+          p.join(
+            tempWorkspace.path,
+            '.cursor',
+            'skills',
+            'naki-ui-fundamentals',
+          ),
         ).existsSync(),
         isTrue,
       );
@@ -194,38 +231,58 @@ dependencies:
       final versionCode = await runner.run(['--version']);
       expect(versionCode, 0);
 
-      final listCode = await runner.run(['skills', '--list', '--project', tempWorkspace.path]);
-      expect(listCode, 0);
-    });
-
-    test('installs missing Jaspr companion skills alongside Naki skills', () async {
-      final code = await runner.run([
+      final listCode = await runner.run([
         'skills',
-        '--cursor',
+        '--list',
         '--project',
         tempWorkspace.path,
       ]);
-
-      expect(code, 0);
-      // Naki UI skills
-      expect(
-        Directory(
-          p.join(tempWorkspace.path, '.cursor', 'skills', 'naki-ui-fundamentals'),
-        ).existsSync(),
-        isTrue,
-      );
-      // Companion Jaspr skills
-      expect(
-        Directory(
-          p.join(tempWorkspace.path, '.cursor', 'skills', 'jaspr-fundamentals'),
-        ).existsSync(),
-        isTrue,
-      );
-      expect(
-        Directory(p.join(tempWorkspace.path, '.cursor', 'skills', 'jaspr-styling')).existsSync(),
-        isTrue,
-      );
+      expect(listCode, 0);
     });
+
+    test(
+      'installs missing Jaspr companion skills alongside Naki skills',
+      () async {
+        final code = await runner.run([
+          'skills',
+          '--cursor',
+          '--project',
+          tempWorkspace.path,
+        ]);
+
+        expect(code, 0);
+        // Naki UI skills
+        expect(
+          Directory(
+            p.join(
+              tempWorkspace.path,
+              '.cursor',
+              'skills',
+              'naki-ui-fundamentals',
+            ),
+          ).existsSync(),
+          isTrue,
+        );
+        // Companion Jaspr skills
+        expect(
+          Directory(
+            p.join(
+              tempWorkspace.path,
+              '.cursor',
+              'skills',
+              'jaspr-fundamentals',
+            ),
+          ).existsSync(),
+          isTrue,
+        );
+        expect(
+          Directory(
+            p.join(tempWorkspace.path, '.cursor', 'skills', 'jaspr-styling'),
+          ).existsSync(),
+          isTrue,
+        );
+      },
+    );
 
     test('respects --no-jaspr flag to skip companion skills', () async {
       final code = await runner.run([
@@ -239,7 +296,12 @@ dependencies:
       expect(code, 0);
       expect(
         Directory(
-          p.join(tempWorkspace.path, '.cursor', 'skills', 'naki-ui-fundamentals'),
+          p.join(
+            tempWorkspace.path,
+            '.cursor',
+            'skills',
+            'naki-ui-fundamentals',
+          ),
         ).existsSync(),
         isTrue,
       );

@@ -115,7 +115,9 @@ enum TargetAgent {
         // Only auto-detect copilot if .github/skills exists or .github/copilot-instructions.md exists
         // because .github is used for generic workflows.
         if (Directory(p.join(projectRoot, '.github', 'skills')).existsSync() ||
-            File(p.join(projectRoot, '.github', 'copilot-instructions.md')).existsSync()) {
+            File(
+              p.join(projectRoot, '.github', 'copilot-instructions.md'),
+            ).existsSync()) {
           return true;
         }
 
@@ -147,15 +149,20 @@ enum TargetAgent {
   }
 
   /// All unique CLI option names across all agents.
-  static List<String> get allCliNames => TargetAgent.values.map((e) => e.cliName).toList();
+  static List<String> get allCliNames =>
+      TargetAgent.values.map((e) => e.cliName).toList();
 
   /// All registered alias names and canonical names.
-  static List<String> get allSupportedNames =>
-      TargetAgent.values.expand((e) => [e.cliName, ...e.aliases]).toSet().toList();
+  static List<String> get allSupportedNames => TargetAgent.values
+      .expand((e) => [e.cliName, ...e.aliases])
+      .toSet()
+      .toList();
 
   /// Detects all matching agents present in [projectRoot].
   static List<TargetAgent> detectAll(String projectRoot) {
-    return TargetAgent.values.where((agent) => agent.isDetected(projectRoot)).toList();
+    return TargetAgent.values
+        .where((agent) => agent.isDetected(projectRoot))
+        .toList();
   }
 
   /// Auto-detects the most suitable agent for [projectRoot].

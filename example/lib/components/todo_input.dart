@@ -39,9 +39,7 @@ class _TodoInputState extends State<TodoInput> {
         type: InputType.text,
         expand: true,
         decoration: InputDecoration(
-          border: BorderData(
-            color: context.borderColor.withOpacity(0.3),
-          ),
+          border: BorderData(color: context.borderColor.withOpacity(0.3)),
           placeholderText: 'What needs to be done?',
         ),
         onTyping: (value) => _currentText = value,

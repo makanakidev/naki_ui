@@ -47,7 +47,8 @@ final class PlatformData extends BrowserPlatform {
   }
 
   @override
-  String get currentPath => _currentPath ?? location.href.replaceFirst(baseUrl, '');
+  String get currentPath =>
+      _currentPath ?? location.href.replaceFirst(baseUrl, '');
 
   @override
   String get device {
@@ -73,13 +74,16 @@ final class PlatformData extends BrowserPlatform {
   int get width => _width ?? window.innerWidth;
 
   @override
-  bool get isMobile => window.matchMedia('(max-width: 768px) and (pointer: coarse)').matches;
+  bool get isMobile =>
+      window.matchMedia('(max-width: 768px) and (pointer: coarse)').matches;
 
   @override
-  bool get isTablet => window.matchMedia('(pointer: coarse) and (hover: none)').matches;
+  bool get isTablet =>
+      window.matchMedia('(pointer: coarse) and (hover: none)').matches;
 
   @override
-  bool get isDesktop => window.matchMedia('(pointer: fine) and (hover: hover)').matches;
+  bool get isDesktop =>
+      window.matchMedia('(pointer: fine) and (hover: hover)').matches;
 
   @override
   bool get isPWA => window.matchMedia('(display-mode: standalone)').matches;
@@ -88,7 +92,8 @@ final class PlatformData extends BrowserPlatform {
   bool get isIphone => _ua.contains('iphone');
 
   @override
-  bool get isiPad => _ua.contains('ipad') || (isMacOS && navigator.maxTouchPoints > 1);
+  bool get isiPad =>
+      _ua.contains('ipad') || (isMacOS && navigator.maxTouchPoints > 1);
 
   @override
   bool get isMacOS => _ua.contains('macintosh') || _ua.contains('mac os');

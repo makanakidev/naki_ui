@@ -5,7 +5,6 @@ import '../theme/tokens.dart';
 import '../utilities/enums.dart';
 import '../utilities/extensions.dart';
 
-import '../utilities/helpers.dart';
 import 'naki.dart';
 
 bool _listEquals<T>(List<T>? a, List<T>? b) {
@@ -44,13 +43,19 @@ class Dim {
   static const Dim defaultFontSize = Dim(14, unit: 'px');
 
   /// Max content.
-  const Dim.maxContent([this.important = false]) : value = null, unit = 'max-content';
+  const Dim.maxContent([this.important = false])
+    : value = null,
+      unit = 'max-content';
 
   /// Min content.
-  const Dim.minContent([this.important = false]) : value = null, unit = 'min-content';
+  const Dim.minContent([this.important = false])
+    : value = null,
+      unit = 'min-content';
 
   /// Fit content.
-  const Dim.fitContent([this.important = false]) : value = null, unit = 'fit-content';
+  const Dim.fitContent([this.important = false])
+    : value = null,
+      unit = 'fit-content';
 
   /// Zero.
   const Dim.zero([this.important = false]) : value = 0, unit = '';
@@ -65,14 +70,19 @@ class Dim {
   const Dim.normal([this.important = false]) : value = null, unit = 'normal';
 
   /// Variable (e.g. variable name: `--naki-primary-color`).
-  const Dim.variable(String variableName, {this.important = false, String? defaultValue})
-    : value = null,
-      unit = defaultValue != null && defaultValue != ''
-          ? 'var($variableName, $defaultValue)'
-          : 'var($variableName)';
+  const Dim.variable(
+    String variableName, {
+    this.important = false,
+    String? defaultValue,
+  }) : value = null,
+       unit = defaultValue != null && defaultValue != ''
+           ? 'var($variableName, $defaultValue)'
+           : 'var($variableName)';
 
   /// Raw expression (e.g. `calc(100% - 48px)`).
-  const Dim.raw(String expression, [this.important = false]) : value = null, unit = expression;
+  const Dim.raw(String expression, [this.important = false])
+    : value = null,
+      unit = expression;
 
   /// Pixels unit.
   const Dim.px(this.value, [this.important = false]) : unit = 'px';
@@ -213,11 +223,20 @@ class BorderRadiusData implements NakiStylable {
   final Dim? bottomRight;
 
   /// Create a new radius.
-  const BorderRadiusData({this.topLeft, this.topRight, this.bottomLeft, this.bottomRight});
+  const BorderRadiusData({
+    this.topLeft,
+    this.topRight,
+    this.bottomLeft,
+    this.bottomRight,
+  });
 
   /// Create a symmetric border radius.
-  factory BorderRadiusData.all(Dim value) =>
-      BorderRadiusData(topLeft: value, topRight: value, bottomLeft: value, bottomRight: value);
+  factory BorderRadiusData.all(Dim value) => BorderRadiusData(
+    topLeft: value,
+    topRight: value,
+    bottomLeft: value,
+    bottomRight: value,
+  );
 
   /// Circular border radius.
   static const circular = BorderRadiusData(
@@ -228,7 +247,8 @@ class BorderRadiusData implements NakiStylable {
   );
 
   /// iOS-style squircle border radius.
-  static BorderRadiusData get squircle => BorderRadiusData.all(const Dim.percent(22.5));
+  static BorderRadiusData get squircle =>
+      BorderRadiusData.all(const Dim.percent(22.5));
 
   /// A radius with all corners set to zero.
   static const zero = BorderRadiusData(
@@ -242,7 +262,12 @@ class BorderRadiusData implements NakiStylable {
   static const none = zero;
 
   /// Create a new radius with optional changes to corner values.
-  BorderRadiusData copyWith({Dim? topLeft, Dim? topRight, Dim? bottomLeft, Dim? bottomRight}) {
+  BorderRadiusData copyWith({
+    Dim? topLeft,
+    Dim? topRight,
+    Dim? bottomLeft,
+    Dim? bottomRight,
+  }) {
     return BorderRadiusData(
       topLeft: topLeft ?? this.topLeft,
       topRight: topRight ?? this.topRight,
@@ -421,7 +446,10 @@ class BorderData implements NakiStylable {
   Map<String, String> get props => {
     if (_isNone) ...{
       'border': 'none',
-    } else if (top != null || right != null || bottom != null || left != null) ...{
+    } else if (top != null ||
+        right != null ||
+        bottom != null ||
+        left != null) ...{
       'border-top': ?top?.value,
       'border-right': ?right?.value,
       'border-bottom': ?bottom?.value,
@@ -450,7 +478,8 @@ class BorderData implements NakiStylable {
           width == other.width;
 
   @override
-  int get hashCode => Object.hash(color, radius, style, width, top, right, bottom, left);
+  int get hashCode =>
+      Object.hash(color, radius, style, width, top, right, bottom, left);
 }
 
 /// Size attributes of a component.
@@ -541,7 +570,8 @@ class SizeConstraints implements NakiStylable {
           maxHeight == other.maxHeight;
 
   @override
-  int get hashCode => Object.hash(width, height, minWidth, minHeight, maxWidth, maxHeight);
+  int get hashCode =>
+      Object.hash(width, height, minWidth, minHeight, maxWidth, maxHeight);
 }
 
 /// The border, label, hint, and helper text styles used to
@@ -689,7 +719,11 @@ class EdgeInsets {
   final Dim? left;
 
   /// Creates spacing where all four sides have the same `value`.
-  const EdgeInsets.all(Dim value) : top = value, right = value, bottom = value, left = value;
+  const EdgeInsets.all(Dim value)
+    : top = value,
+      right = value,
+      bottom = value,
+      left = value;
 
   /// Creates spacing with symmetrical vertical and horizontal offsets.
   const EdgeInsets.symmetric({Dim? vertical, Dim? horizontal})
@@ -706,9 +740,16 @@ class EdgeInsets {
 
   /// Converts padding attributes to a CSS style map.
   Map<String, String> get pProps => {
-    if (top != null && top == right && bottom == left && top == bottom && right == left) ...{
+    if (top != null &&
+        top == right &&
+        bottom == left &&
+        top == bottom &&
+        right == left) ...{
       'padding': top!.cssText,
-    } else if (top != null && right != null && top == bottom && right == left) ...{
+    } else if (top != null &&
+        right != null &&
+        top == bottom &&
+        right == left) ...{
       'padding': '${top!.cssText} ${right!.cssText}',
     } else ...{
       'padding-top': ?top?.cssText,
@@ -720,9 +761,16 @@ class EdgeInsets {
 
   /// Converts margin attributes to a CSS style map.
   Map<String, String> get mProps => {
-    if (top != null && top == right && bottom == left && top == bottom && right == left) ...{
+    if (top != null &&
+        top == right &&
+        bottom == left &&
+        top == bottom &&
+        right == left) ...{
       'margin': top!.cssText,
-    } else if (top != null && right != null && top == bottom && right == left) ...{
+    } else if (top != null &&
+        right != null &&
+        top == bottom &&
+        right == left) ...{
       'margin': '${top!.cssText} ${right!.cssText}',
     } else ...{
       'margin-top': ?top?.cssText,
@@ -870,7 +918,7 @@ class BoxDecoration implements NakiStylable {
   String? get _normalizedBackgroundImage => switch (backgroundImage) {
     final bg? when bg.contains('gradient') => null,
     final bg? when bg.startsWith('url(') => bg,
-    final bg? => 'url("${normaliseLink(bg)}")',
+    final bg? => 'url("$bg")',
     null => null,
   };
 
@@ -959,13 +1007,29 @@ class Shadow implements NakiStylable {
   final Color? color;
 
   /// Create a new shadow.
-  const Shadow({this.offsetX, this.offsetY, this.blurRadius, this.spreadRadius, this.color});
+  const Shadow({
+    this.offsetX,
+    this.offsetY,
+    this.blurRadius,
+    this.spreadRadius,
+    this.color,
+  });
 
   /// Small shadow
-  static const small = Shadow(offsetX: 0, offsetY: 2, blurRadius: 8.0, color: Colors.black);
+  static const small = Shadow(
+    offsetX: 0,
+    offsetY: 2,
+    blurRadius: 8.0,
+    color: Colors.black,
+  );
 
   /// Medium shadow
-  static const medium = Shadow(offsetX: 0, offsetY: 4, blurRadius: 16.0, color: Colors.black);
+  static const medium = Shadow(
+    offsetX: 0,
+    offsetY: 4,
+    blurRadius: 16.0,
+    color: Colors.black,
+  );
 
   /// Large shadow
   static const large = Shadow(
@@ -1047,7 +1111,8 @@ class Shadow implements NakiStylable {
           color == other.color;
 
   @override
-  int get hashCode => Object.hash(offsetX, offsetY, blurRadius, spreadRadius, color);
+  int get hashCode =>
+      Object.hash(offsetX, offsetY, blurRadius, spreadRadius, color);
 }
 
 /// Position properties of a component.
@@ -1236,7 +1301,8 @@ class ComponentStatesColor implements NakiStylable {
     hoverColor: hoverColor ?? this.hoverColor,
     hoverBackgroundColor: hoverBackgroundColor ?? this.hoverBackgroundColor,
     errorTextColor: errorTextColor ?? this.errorTextColor,
-    disabledBackgroundColor: disabledBackgroundColor ?? this.disabledBackgroundColor,
+    disabledBackgroundColor:
+        disabledBackgroundColor ?? this.disabledBackgroundColor,
     disabledColor: disabledColor ?? this.disabledColor,
   );
 
@@ -1290,13 +1356,21 @@ class BorderSideData {
   final BorderStyle style;
 
   /// Creates a [BorderSideData] definition.
-  const BorderSideData({this.color, this.width = const Dim.px(1), this.style = BorderStyle.solid});
+  const BorderSideData({
+    this.color,
+    this.width = const Dim.px(1),
+    this.style = BorderStyle.solid,
+  });
 
   /// A border side with no width/border.
-  static const BorderSideData none = BorderSideData(width: Dim.zero(), style: BorderStyle.none);
+  static const BorderSideData none = BorderSideData(
+    width: Dim.zero(),
+    style: BorderStyle.none,
+  );
 
   /// Get the border side CSS value.
-  String get value => style == BorderStyle.none && width.value == 0 && color == null
+  String get value =>
+      style == BorderStyle.none && width.value == 0 && color == null
       ? 'none'
       : '${width.cssText} ${style.value} ${color?.value ?? 'currentcolor'}';
 
@@ -1453,12 +1527,17 @@ class Filter implements NakiStylable {
 
   /// Generates a CSS map entry for the filter.
   @override
-  Map<String, String> get props => {'backdrop-filter': cssText, '-webkit-backdrop-filter': cssText};
+  Map<String, String> get props => {
+    'backdrop-filter': cssText,
+    '-webkit-backdrop-filter': cssText,
+  };
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is Filter && runtimeType == other.runtimeType && _listEquals(_filters, other._filters);
+      other is Filter &&
+          runtimeType == other.runtimeType &&
+          _listEquals(_filters, other._filters);
 
   @override
   int get hashCode => Object.hashAll(_filters);
@@ -1554,7 +1633,8 @@ class SegmentedInputStyle {
       focusBorderColor: focusBorderColor ?? this.focusBorderColor,
       errorBorderColor: errorBorderColor ?? this.errorBorderColor,
       backgroundColor: backgroundColor ?? this.backgroundColor,
-      filledBackgroundColor: filledBackgroundColor ?? this.filledBackgroundColor,
+      filledBackgroundColor:
+          filledBackgroundColor ?? this.filledBackgroundColor,
       textStyle: textStyle ?? this.textStyle,
       shape: shape ?? this.shape,
       margin: margin ?? this.margin,
@@ -1949,7 +2029,10 @@ class Gradient implements NakiStylable {
 
   /// Sunset gradient preset.
   static final sunset = Gradient()
-    ..applyLinear(colors: const [Color('#ff7e5f'), Color('#feb47b')], angle: 135);
+    ..applyLinear(
+      colors: const [Color('#ff7e5f'), Color('#feb47b')],
+      angle: 135,
+    );
 
   /// Ocean breeze gradient preset.
   static final oceanBreeze = Gradient()

@@ -18,9 +18,18 @@ void main() {
       final skillsDir = await resolver.findSkillsSourceDirectory();
       expect(skillsDir, isNotNull);
       expect(skillsDir!.existsSync(), isTrue);
-      expect(Directory(p.join(skillsDir.path, 'naki-ui-framework')).existsSync(), isTrue);
-      expect(Directory(p.join(skillsDir.path, 'naki-ui-fundamentals')).existsSync(), isTrue);
-      expect(Directory(p.join(skillsDir.path, 'naki-ui-theming')).existsSync(), isTrue);
+      expect(
+        Directory(p.join(skillsDir.path, 'naki-ui-framework')).existsSync(),
+        isTrue,
+      );
+      expect(
+        Directory(p.join(skillsDir.path, 'naki-ui-fundamentals')).existsSync(),
+        isTrue,
+      );
+      expect(
+        Directory(p.join(skillsDir.path, 'naki-ui-theming')).existsSync(),
+        isTrue,
+      );
     });
 
     test('extracts version dynamically from pubspec.yaml', () async {

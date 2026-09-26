@@ -87,9 +87,7 @@ class _ContentState extends State<Content> {
 
   void _toggleScrollPhysics() {
     setState(() => _scrollPhysics = _scrollPhysics.reversed.toList());
-    _showFeedback(
-      '${_scrollPhysics.first.type.name} scroll physics',
-    );
+    _showFeedback('${_scrollPhysics.first.type.name} scroll physics');
   }
 
   // void _clearCompleted() {

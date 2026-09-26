@@ -16,7 +16,9 @@ class TodoHeader extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
-    final double percent = totalCount == 0 ? 0.0 : (completedCount / totalCount);
+    final double percent = totalCount == 0
+        ? 0.0
+        : (completedCount / totalCount);
     final percentInt = (percent * 100).roundTo(2);
 
     return Card.filled(

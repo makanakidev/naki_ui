@@ -1,7 +1,8 @@
 enum TodoFilter {
   all('All'),
   active('Active'),
-  completed('Completed');
+  completed('Completed')
+  ;
 
   const TodoFilter(this.label);
   final String label;

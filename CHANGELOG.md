@@ -1,3 +1,10 @@
+## 1.0.2
+
+- Added `leadingIcon` and `trailingIcon` properties to `TextField` component.
+- Added `position` property to `Image` component.
+- Added new `Sidebar` component for persistent side navigation in large screens.
+- Improved `BoxDecoration` model to support `gradient`, `backgroundImage`, `imagePosition` and `imageFit` properties for `Card` and `Container` components.
+
 ## 1.0.1
 
 - Added `head` property to `Scaffold` component for injecting page-specific head elements like script, style, meta tags, etc.

@@ -70,14 +70,21 @@ class Align extends StatefulComponent {
     this.widthFactor,
     this.heightFactor,
     this.classes,
-  }) : assert(widthFactor == null || widthFactor >= 0.0, 'widthFactor must be non-negative'),
-       assert(heightFactor == null || heightFactor >= 0.0, 'heightFactor must be non-negative');
+  }) : assert(
+         widthFactor == null || widthFactor >= 0.0,
+         'widthFactor must be non-negative',
+       ),
+       assert(
+         heightFactor == null || heightFactor >= 0.0,
+         'heightFactor must be non-negative',
+       );
 
   @override
   State<Align> createState() => _AlignState();
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('Align', [Rules.nakiAlignRules]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('Align', [Rules.nakiAlignRules]);
 }
 
 class _AlignState extends State<Align> with NakiStatefulMixin {
@@ -151,7 +158,8 @@ class _AlignState extends State<Align> with NakiStatefulMixin {
     final width = _width != null ? '${_width!.toCleanString}px' : null;
     final height = _height != null ? '${_height!.toCleanString}px' : null;
 
-    final hasFactor = component.heightFactor != null || component.widthFactor != null;
+    final hasFactor =
+        component.heightFactor != null || component.widthFactor != null;
 
     const baseClass = 'naki-align';
     final effectiveClasses = joinClasses([?component.classes, baseClass]);
@@ -200,7 +208,12 @@ class AspectRatio extends StatelessComponent {
   final String? classes;
 
   /// {@macro AspectRatio}
-  const AspectRatio({super.key, required this.child, required this.aspectRatio, this.classes});
+  const AspectRatio({
+    super.key,
+    required this.child,
+    required this.aspectRatio,
+    this.classes,
+  });
 
   @override
   Component build(BuildContext context) {
@@ -269,7 +282,10 @@ class Flexible extends StatelessComponent {
   Component build(BuildContext context) {
     final flexScope = FlexScope.of(context);
 
-    assert(flexScope != null, 'Flexible must be a direct child of a Row or Column.');
+    assert(
+      flexScope != null,
+      'Flexible must be a direct child of a Row or Column.',
+    );
 
     assert(
       flexScope == null || !flexScope.scrollable,
@@ -281,7 +297,9 @@ class Flexible extends StatelessComponent {
     final effectiveClasses = joinClasses([?classes, baseClass]);
 
     final flexValue = fit == FlexFit.tight ? '$flex 1 0%' : '0 $flex auto';
-    final effectiveTag = fit == FlexFit.tight ? 'naki-expanded' : 'naki-flexible';
+    final effectiveTag = fit == FlexFit.tight
+        ? 'naki-expanded'
+        : 'naki-flexible';
 
     return .element(
       tag: effectiveTag,
@@ -293,7 +311,8 @@ class Flexible extends StatelessComponent {
   }
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('Flexible', Rules.nakiFlexibleRules);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('Flexible', Rules.nakiFlexibleRules);
 }
 
 /// {@template Expanded}
@@ -316,8 +335,12 @@ class Flexible extends StatelessComponent {
 /// {@endtemplate}
 class Expanded extends Flexible {
   /// {@macro Expanded}
-  const Expanded({super.key, required super.child, super.flex = 1, super.classes})
-    : super(fit: FlexFit.tight);
+  const Expanded({
+    super.key,
+    required super.child,
+    super.flex = 1,
+    super.classes,
+  }) : super(fit: FlexFit.tight);
 }
 
 /// {@template Padding}
@@ -342,7 +365,12 @@ class Padding extends StatelessComponent {
   final String? classes;
 
   /// {@macro Padding}
-  const Padding({super.key, required this.child, required this.padding, this.classes});
+  const Padding({
+    super.key,
+    required this.child,
+    required this.padding,
+    this.classes,
+  });
 
   @override
   Component build(BuildContext context) {
@@ -381,7 +409,12 @@ class Margin extends StatelessComponent {
   final String? classes;
 
   /// {@macro Margin}
-  const Margin({super.key, required this.child, required this.margin, this.classes});
+  const Margin({
+    super.key,
+    required this.child,
+    required this.margin,
+    this.classes,
+  });
 
   @override
   Component build(BuildContext context) {
@@ -426,7 +459,13 @@ class SizedBox extends StatelessComponent {
   final String? classes;
 
   /// {@macro SizedBox}
-  const SizedBox({super.key, this.child, this.width, this.height, this.classes});
+  const SizedBox({
+    super.key,
+    this.child,
+    this.width,
+    this.height,
+    this.classes,
+  });
 
   /// Creates a SizedBox of the given size.
   const SizedBox.fromSize({required Dim size, this.child, this.classes})
@@ -434,10 +473,16 @@ class SizedBox extends StatelessComponent {
       height = size;
 
   /// Creates a SizedBox that is an empty spacer of the given height.
-  const SizedBox.height(this.height) : width = null, child = null, classes = null;
+  const SizedBox.height(this.height)
+    : width = null,
+      child = null,
+      classes = null;
 
   /// Creates a SizedBox that is an empty spacer of the given width.
-  const SizedBox.width(this.width) : height = null, child = null, classes = null;
+  const SizedBox.width(this.width)
+    : height = null,
+      child = null,
+      classes = null;
 
   @override
   Component build(BuildContext context) {
@@ -450,7 +495,9 @@ class SizedBox extends StatelessComponent {
       tag: 'naki-sizedbox',
       key: key,
       classes: effectiveClasses,
-      styles: Styles(raw: {'width': ?width?.cssText, 'height': ?height?.cssText}),
+      styles: Styles(
+        raw: {'width': ?width?.cssText, 'height': ?height?.cssText},
+      ),
       children: [?child],
     );
   }
@@ -491,12 +538,18 @@ class Stack extends StatelessComponent {
     final effectiveClasses = joinClasses([?classes, baseClass]);
 
     return StackScope(
-      child: .element(tag: 'naki-stack', key: key, classes: effectiveClasses, children: children),
+      child: .element(
+        tag: 'naki-stack',
+        key: key,
+        classes: effectiveClasses,
+        children: children,
+      ),
     );
   }
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('Stack', [Rules.nakiStackRules]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('Stack', [Rules.nakiStackRules]);
 }
 
 /// {@template Positioned}
@@ -644,8 +697,12 @@ class Wrap extends StatelessComponent {
     final align = NakiAlignProps.mapCrossAxisAlignment(crossAxisAlignment);
     final isHoriz = direction == Direction.horizontal;
 
-    final effectiveSpacing = spacing != null ? '${spacing!.toCleanString}px' : null;
-    final effectiveRunSpacing = runSpacing != null ? '${runSpacing!.toCleanString}px' : null;
+    final effectiveSpacing = spacing != null
+        ? '${spacing!.toCleanString}px'
+        : null;
+    final effectiveRunSpacing = runSpacing != null
+        ? '${runSpacing!.toCleanString}px'
+        : null;
 
     return .element(
       tag: 'naki-wrap',
@@ -665,7 +722,8 @@ class Wrap extends StatelessComponent {
   }
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('Wrap', [Rules.nakiWrapRules]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('Wrap', [Rules.nakiWrapRules]);
 }
 
 /// {@template SafeArea}
@@ -731,7 +789,8 @@ class SafeArea extends StatelessComponent {
   }
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('SafeArea', [Rules.nakiSafeareRules]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('SafeArea', [Rules.nakiSafeareRules]);
 }
 
 /// {@template Container}
@@ -962,15 +1021,15 @@ class Card extends StatelessComponent {
     this.clip = false,
     this.classes,
     this.onTap,
-  }) : assert(color != null || gradient != null, 'Card.filled must have a color or gradient'),
-       elevation = 0,
+  }) : elevation = 0,
        _variant = CardVariant.filled;
 
   static String? _elevationToBoxShadow(double? elevation, Color? shadowColor) {
     if (elevation == null) return null;
     if (elevation <= 0) return 'none';
 
-    final col = shadowColor?.value ?? 'var(--naki-shadow-color, rgba(0, 0, 0, 0.1))';
+    final col =
+        shadowColor?.value ?? 'var(--naki-shadow-color, rgba(0, 0, 0, 0.1))';
     final y = (elevation * 2).clamp(1, 24).toInt();
     final blur = (elevation * 4).clamp(2, 48).toInt();
     final spread = (elevation * 0.5).clamp(0, 8).toInt();
@@ -1008,7 +1067,8 @@ class Card extends StatelessComponent {
           _variant == CardVariant.elevated &&
           elevation != 1.0)
         'box-shadow': ?_elevationToBoxShadow(elevation, shadow?.color),
-      if (elevation == 0 && _variant == CardVariant.elevated) 'box-shadow': 'none',
+      if (elevation == 0 && _variant == CardVariant.elevated)
+        'box-shadow': 'none',
     };
 
     return .element(
@@ -1030,17 +1090,21 @@ class Card extends StatelessComponent {
               },
             ).toMap
           : null,
-      attributes: isInteractive ? {'tabindex': '0', 'role': 'button', 'hvr': ''} : null,
+      attributes: isInteractive
+          ? {'tabindex': '0', 'role': 'button', 'hvr': ''}
+          : null,
       children: [child],
     );
   }
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('Card', [Rules.nakiCardRules]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('Card', [Rules.nakiCardRules]);
 }
 
 /// Signature for [ExpansionPanel] header builder.
-typedef ExpansionPanelHeaderBuilder = Component Function(BuildContext context, bool isExpanded);
+typedef ExpansionPanelHeaderBuilder =
+    Component Function(BuildContext context, bool isExpanded);
 
 /// Signature for [ExpansionPanelList] expansion callback.
 typedef ExpansionPanelCallback = void Function(int panelIndex, bool isExpanded);
@@ -1262,8 +1326,10 @@ class ExpansionPanelList extends StatefulComponent {
   State<ExpansionPanelList> createState() => _ExpansionPanelListState();
 
   @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('ExpansionPanelList', Rules.nakiExpansionPanelRules);
+  static List<StyleRule> get styles => NakiStyleRegistry.once(
+    'ExpansionPanelList',
+    Rules.nakiExpansionPanelRules,
+  );
 }
 
 class _ExpansionPanelListState extends State<ExpansionPanelList> {
@@ -1297,7 +1363,8 @@ class _ExpansionPanelListState extends State<ExpansionPanelList> {
       final child = component.children[i];
 
       final isInitialPanel =
-          component.initialOpenPanelValue != null && child.value == component.initialOpenPanelValue;
+          component.initialOpenPanelValue != null &&
+          child.value == component.initialOpenPanelValue;
 
       if (child.isExpanded || isInitialPanel) {
         _openIndices.add(i);
@@ -1329,7 +1396,8 @@ class _ExpansionPanelListState extends State<ExpansionPanelList> {
     return Icon(
       LucideIcons.icon_chevron_down,
       size: 20,
-      classes: 'naki-expansion-panel__chevron${isExpanded ? " is-expanded" : ""}',
+      classes:
+          'naki-expansion-panel__chevron${isExpanded ? " is-expanded" : ""}',
     );
   }
 
@@ -1402,7 +1470,9 @@ class _ExpansionPanelListState extends State<ExpansionPanelList> {
                   'aria-expanded': isExpanded ? 'true' : 'false',
                   'aria-controls': bodyId,
                 },
-                onTap: panel.canTapOnHeader && !panel.disabled ? () => _handleToggle(i) : null,
+                onTap: panel.canTapOnHeader && !panel.disabled
+                    ? () => _handleToggle(i)
+                    : null,
               ),
               styles: Styles(raw: panel.headerPadding?.pProps),
             ),
@@ -1584,11 +1654,17 @@ class _ExpansionTileState extends State<ExpansionTile> {
 
   @override
   Component build(BuildContext context) {
-    final activeBg = _isExpanded ? component.backgroundColor : component.collapsedBackgroundColor;
+    final activeBg = _isExpanded
+        ? component.backgroundColor
+        : component.collapsedBackgroundColor;
 
-    final activeGradient = _isExpanded ? component.gradient : component.collapsedGradient;
+    final activeGradient = _isExpanded
+        ? component.gradient
+        : component.collapsedGradient;
 
-    final activeShape = _isExpanded ? component.shape : component.collapsedShape;
+    final activeShape = _isExpanded
+        ? component.shape
+        : component.collapsedShape;
 
     final effectiveClasses = joinClasses([
       ?component.classes,
@@ -1604,7 +1680,9 @@ class _ExpansionTileState extends State<ExpansionTile> {
       ...?activeGradient?.props,
     };
 
-    final trailing = component.trailing ?? _ExpansionPanelListState._defaultChevron(_isExpanded);
+    final trailing =
+        component.trailing ??
+        _ExpansionPanelListState._defaultChevron(_isExpanded);
 
     return .element(
       key: component.key,
@@ -1649,7 +1727,10 @@ class _ExpansionTileState extends State<ExpansionTile> {
         // Collapsible body
         div(
           classes: 'naki-expansion-panel__body-wrapper',
-          attributes: {'role': 'region', if (_isExpanded) 'aria-expanded': 'true'},
+          attributes: {
+            'role': 'region',
+            if (_isExpanded) 'aria-expanded': 'true',
+          },
           [
             div(classes: 'naki-expansion-panel__body-content', [
               div(

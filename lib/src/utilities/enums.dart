@@ -43,7 +43,8 @@ enum AspectRatioType {
   ratio21_9('21/9'),
 
   /// 1:2 vertical ratio (e.g. phone screenshots).
-  ratio1_2('1/2');
+  ratio1_2('1/2')
+  ;
 
   /// Suitable for Instagram stories, Instagram reels,
   /// YouTube shorts, TikTok videos related content.
@@ -215,7 +216,8 @@ enum ObjectFit {
 
   /// Align the image within the target box and,
   /// if necessary, scale the image down to fit.
-  scaleDown('scale-down');
+  scaleDown('scale-down')
+  ;
 
   /// The standard CSS value representing the object-fit type.
   final String css;
@@ -249,7 +251,8 @@ enum ObjectPosition {
   bottomLeft('bottom left'),
 
   /// Positions the media content at the bottom-right corner.
-  bottomRight('bottom right');
+  bottomRight('bottom right')
+  ;
 
   /// The standard CSS value representing the object-position type.
   final String css;
@@ -283,7 +286,8 @@ enum Alignment {
   bottomCenter('bottom-center'),
 
   /// The bottom-right corner.
-  bottomRight('bottom-right');
+  bottomRight('bottom-right')
+  ;
 
   /// The standard CSS value representing the alignment type.
   final String value;
@@ -479,7 +483,8 @@ enum Autofill {
   off('off'),
 
   /// Autocomplete is enabled.
-  on('on');
+  on('on')
+  ;
 
   /// The standard CSS value representing the autofill type.
   final String value;
@@ -519,7 +524,8 @@ enum Baseline {
 
   /// Aligns the bottom of the element with
   /// the bottom of the parent font (CSS: `text-bottom`).
-  textBottom('text-bottom');
+  textBottom('text-bottom')
+  ;
 
   /// The CSS value representing the vertical alignment type.
   final String value;
@@ -550,7 +556,8 @@ enum ScrollPhysicsType {
   clamping('clamping'),
 
   /// Snaps scrolling to the nearest item.
-  snapping('snapping');
+  snapping('snapping')
+  ;
 
   /// The CSS value representing the scrolling physics type.
   final String value;
@@ -620,7 +627,8 @@ enum ThemeMode {
   light,
 
   /// Browser/device theme mode.
-  system;
+  system
+  ;
 
   /// Converts a string to a ThemeMode.
   ///
@@ -679,7 +687,8 @@ enum BackdropFilterType {
 
   /// Converts the background to a warm, vintage brown tint.
   /// Requires a value like 'Dim.percent(50)', 'Dim(1.5)', or 'Dim(0.4)'.
-  sepia._('sepia');
+  sepia._('sepia')
+  ;
 
   /// The standard CSS value representing the backdrop filter type.
   final String css;
@@ -726,7 +735,8 @@ enum SnackbarPosition {
   bottomLeft('sb-bottom-left'),
 
   /// Bottom right of the screen.
-  bottomRight('sb-bottom-right');
+  bottomRight('sb-bottom-right')
+  ;
 
   /// The standard CSS class name representing the snackbar position.
   final String className;
@@ -783,7 +793,8 @@ enum PopoverPosition {
   bottomLeft,
 
   /// Popover appears below and to the right of the target component.
-  bottomRight;
+  bottomRight
+  ;
 
   /// The CSS value representing the popover position.
   String get value => switch (this) {
@@ -917,7 +928,8 @@ enum ValidationPattern {
 
   /// Username format (3-30 alphanumeric chars, dots, hyphens, or underscores).
   /// Example: 'john_doe'
-  username(r'[a-zA-Z0-9_.-]{3,30}');
+  username(r'[a-zA-Z0-9_.-]{3,30}')
+  ;
 
   /// The standard CSS value representing the
   /// input validation pattern.
@@ -966,7 +978,8 @@ enum BottomNavigationBarType {
   /// The bottom navigation bar has an iOS-style frosted glass effect,
   /// is elevated, centered on the screen, and has a smaller width
   /// than the screen width.
-  frostedGlass('navbar__frosted-glass');
+  frostedGlass('navbar__frosted-glass')
+  ;
 
   /// The CSS class name representing the bottom navigation bar style.
   /// example: 'navbar__floating'
@@ -991,7 +1004,8 @@ enum BottomNavigationBarLandscapeLayout {
   ///
   /// This layout is suitable on devices/screens that are wide enough
   /// (such as tablets and large desktop screens) in landscape orientation.
-  linear('navbar__linear-layout');
+  linear('navbar__linear-layout')
+  ;
 
   /// The CSS class name representing the bottom navbar landscape layout.
   /// example: 'navbar__linear-layout'
@@ -1035,7 +1049,10 @@ enum FileType {
   doc('application/msword', 'DOC'),
 
   /// Docx file.
-  docx('application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'DOCX'),
+  docx(
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'DOCX',
+  ),
 
   /// Js file.
   js('application/javascript', 'JS'),
@@ -1059,7 +1076,10 @@ enum FileType {
   xls('application/vnd.ms-excel', 'XLS'),
 
   /// Xlsx file.
-  xlsx('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'XSLX'),
+  xlsx(
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'XSLX',
+  ),
 
   /// Unknown file type.
   other('application/octet-stream', 'Other'),
@@ -1101,7 +1121,8 @@ enum FileType {
   webm('video/webm', 'WEBM'),
 
   /// Ogg file.
-  ogg('video/ogg', 'OGG');
+  ogg('video/ogg', 'OGG')
+  ;
 
   final String mime;
   final String value;
@@ -1123,7 +1144,8 @@ enum BreakPoint {
   lg(kBreakpointLarge, 'br-lg'),
 
   /// Extra large screens (1024px and above) e.g. desktops.
-  xl(kBreakpointXLarge, 'br-xl');
+  xl(kBreakpointXLarge, 'br-xl')
+  ;
 
   /// Breakpoint for mobile phones (less than 480px).
   static BreakPoint get mobile => BreakPoint.xs;
@@ -1191,7 +1213,8 @@ enum GradientType {
   repeatingRadial('repeating-radial-gradient'),
 
   /// Repeating conic gradient.
-  repeatingConic('repeating-conic-gradient');
+  repeatingConic('repeating-conic-gradient')
+  ;
 
   /// The CSS class name representing the gradient style.
   final String css;
@@ -1226,7 +1249,8 @@ enum LinearGradientDirection {
   toBottomLeft('to bottom left'),
 
   /// Gradients towards the bottom-right corner (`to bottom right`).
-  toBottomRight('to bottom right');
+  toBottomRight('to bottom right')
+  ;
 
   /// The standard CSS direction value.
   final String css;
@@ -1260,7 +1284,8 @@ enum RadialGradientPosition {
   bottomLeft('bottom left'),
 
   /// Bottom-right corner (`bottom right`).
-  bottomRight('bottom right');
+  bottomRight('bottom right')
+  ;
 
   /// The standard CSS position value.
   final String css;
@@ -1294,7 +1319,8 @@ enum ConicGradientPosition {
   bottomLeft('bottom left'),
 
   /// Bottom-right corner (`bottom right`).
-  bottomRight('bottom right');
+  bottomRight('bottom right')
+  ;
 
   /// The standard CSS position value.
   final String css;
@@ -1319,7 +1345,8 @@ enum Shape {
   pill('pill'),
 
   /// Triangle shape (`triangle`).
-  triangle('triangle');
+  triangle('triangle')
+  ;
 
   /// The standard CSS value representing the shape.
   final String css;

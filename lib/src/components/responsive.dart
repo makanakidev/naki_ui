@@ -192,7 +192,7 @@ class BreakPointWrapper extends StatelessComponent {
     final styles = [
       css('.br-$id').styles(raw: {'display': 'none !important'}),
       css.media(query, [
-        css('.br-$id').styles(raw: {'display': 'revert !important'}),
+        css('.br-$id').styles(raw: {'display': 'inherit !important'}),
       ]),
     ];
 

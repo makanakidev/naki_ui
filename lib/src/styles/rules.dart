@@ -239,7 +239,7 @@ class Rules {
     css.media(
       const MediaQuery.screen(maxWidth: Unit.pixels(kBreakpointXSmall)),
       [
-        css('.br-xs').styles(raw: {'display': 'revert !important'}),
+        css('.br-xs').styles(raw: {'display': 'inherit !important'}),
       ],
     ),
 
@@ -250,7 +250,7 @@ class Rules {
         maxWidth: Unit.pixels(kBreakpointSmall),
       ),
       [
-        css('.br-sm').styles(raw: {'display': 'revert !important'}),
+        css('.br-sm').styles(raw: {'display': 'inherit !important'}),
       ],
     ),
 
@@ -261,7 +261,7 @@ class Rules {
         maxWidth: Unit.pixels(kBreakpointMedium),
       ),
       [
-        css('.br-md').styles(raw: {'display': 'revert !important'}),
+        css('.br-md').styles(raw: {'display': 'inherit !important'}),
       ],
     ),
 
@@ -272,7 +272,7 @@ class Rules {
         maxWidth: Unit.pixels(kBreakpointLarge),
       ),
       [
-        css('.br-lg').styles(raw: {'display': 'revert !important'}),
+        css('.br-lg').styles(raw: {'display': 'inherit !important'}),
       ],
     ),
 
@@ -280,7 +280,7 @@ class Rules {
     css.media(
       const MediaQuery.screen(minWidth: Unit.pixels(kBreakpointLarge + 0.02)),
       [
-        css('.br-xl').styles(raw: {'display': 'revert !important'}),
+        css('.br-xl').styles(raw: {'display': 'inherit !important'}),
       ],
     ),
   ];

@@ -550,38 +550,43 @@ class Transform extends StatelessComponent {
   /// Creates a translation transformation.
   ///
   /// - [offsetX] (horizontal displacement) and
-  /// - [offsetY] (vertical displacement) are in pixels.
+  /// - [offsetY] (vertical displacement) can be specified in pixels, percentage
+  /// or any other valid CSS unit.
   ///
   /// ### Example
   /// ```dart
   /// Transform.translate(
-  ///   offsetX: 10,
-  ///   offsetY: 20,
+  ///   offsetX: Dim.px(10),
+  ///   offsetY: Dim.percent(20),
   ///   child: NakiText('I am translated'),
   /// );
   /// ```
   Transform.translate({
     super.key,
-    required double offsetX,
-    required double offsetY,
+    Dim? offsetX,
+    Dim? offsetY,
     required this.child,
     this.alignment,
     this.classes,
-  }) : transform = 'translate(${offsetX.toPx}, ${offsetY.toPx})';
+  }) : transform = offsetX != null && offsetY != null
+           ? 'translate(${offsetX.cssText}, ${offsetY.cssText})'
+           : offsetX != null
+           ? 'translateX(${offsetX.cssText})'
+           : offsetY != null
+           ? 'translateY(${offsetY.cssText})'
+           : 'none';
 
   @override
   Component build(BuildContext context) {
-    final alignmentProps = alignment != null
-        ? NakiAlignProps.mapAlignment(alignment!)
-        : null;
-
     const baseClass = 'naki-transform';
     final effectiveClasses = joinClasses([?classes, baseClass]);
 
     final effectiveStyles = {
-      'display': alignment != null ? 'flex' : 'block',
+      'display': 'inline-block',
       'transform': transform,
-      ...?alignmentProps,
+      'transform-origin': ?(alignment != null
+          ? NakiAlignProps.mapTransformOrigin(alignment!)
+          : null),
     };
 
     return .element(

@@ -14,6 +14,7 @@ Import every API in this reference from `package:naki_ui/framework.dart`.
 | Tables        | `TableBorder`, `TableRow`, `FlexColumnWidth`, `FixedColumnWidth`, `IntrinsicColumnWidth`, `FractionColumnWidth`                                                                                                                                                      |
 | Shared models | `DropdownItem<T>`, `InlineSpan`, `SEO`, `CalendarDay`, `CalendarMonth`, `BottomNavigationBarItem`                                                                                                                                                                    |
 | Utilities     | `NakiDebounce`                                                                                                                                                                                                                                                       |
+| Extensions    | `BuildContext`, `String`, `num`, `DateTime`, `ValueListenable`, and `Map<String, String>` styling utilities                                                                                                                                                          |
 | Enums         | Placement, aspect ratio, type style, direction, orientation, decoration, flex, fit, alignment, autofill, baseline, scrolling, carousel, table, theme, feedback, overlay position, segmented input, validation, calendar, brightness, navigation, and file type enums |
 
 The public barrel intentionally hides internal layout mixins, text scopes, snackbar registries, and selected internal enums. Do not bypass that boundary with a `src` import.
@@ -34,3 +35,4 @@ Pass values in the normalized animation range expected by the consuming API.
 - Lifecycle and browser observers: [lifecycle-and-browser.md](lifecycle-and-browser.md)
 - Overlay, scroll, page, physics, grid, and table APIs: [controllers.md](controllers.md)
 - Events, data models, enums, and debounce: [events-models-and-utilities.md](events-models-and-utilities.md)
+- Extensions on context, strings, numbers, dates, CSS, and listenables: [extensions.md](extensions.md)

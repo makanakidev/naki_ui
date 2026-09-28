@@ -136,7 +136,7 @@ class MediaQueryProvider extends StatefulComponent {
   ///
   /// Returns `null` if no such [MediaQueryProvider] is found.
   static double? widthOf(BuildContext context) =>
-      _maybeOf(context)?.isComponent ?? false
+      _maybeOf(context)?.isComponent == true
       ? _maybeOf(context)?.width?.value
       : null;
 
@@ -145,7 +145,7 @@ class MediaQueryProvider extends StatefulComponent {
   ///
   /// Returns `null` if no such [MediaQueryProvider] is found.
   static double? heightOf(BuildContext context) =>
-      _maybeOf(context)?.isComponent ?? false
+      _maybeOf(context)?.isComponent == true
       ? _maybeOf(context)?.height?.value
       : null;
 
@@ -154,7 +154,7 @@ class MediaQueryProvider extends StatefulComponent {
   ///
   /// Returns `null` if no such [MediaQueryProvider] is found.
   static Orientation? orientationOf(BuildContext context) =>
-      _maybeOf(context)?.isComponent ?? false
+      _maybeOf(context)?.isComponent == true
       ? _maybeOf(context)?.orientation
       : null;
 

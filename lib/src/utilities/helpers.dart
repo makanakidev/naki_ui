@@ -6,7 +6,6 @@ import 'package:universal_web/web.dart';
 
 import '../framework/inherited.dart';
 import '../stub/index.dart';
-import '../styles/css.dart';
 
 import 'constants.dart';
 import 'enums.dart';
@@ -58,12 +57,12 @@ void onComponentRendered(VoidCallback action) {
 }
 
 /// Download image and save as DataURL to local storage for offline use
-Future<void> cacheImage(String src, [String? basePath]) async {
-  src = normaliseLink(src, basePath);
-
+Future<void> cacheImage(String src, [String? baseUrl]) async {
   // use the complete URL to derive a stable cache key and avoid suffix
   // collisions between unrelated image hosts and paths.
   final id = nakiStableKey('image', src);
+
+  src = normaliseLink(src, baseUrl);
 
   if (kIsWeb && src.startsWith('http') && NakiStorage.get<String>(id) == null) {
     try {
@@ -141,7 +140,7 @@ bool showValidationError(
 }) {
   if (kIsServer) return false;
 
-  // remove previous validation error
+  // remove previous validation error if present
   final validationId = '${id}_validation';
   removeValidationError(validationId);
 
@@ -179,11 +178,7 @@ bool showValidationError(
   validationElem.id = validationId;
   validationElem.role = 'alert';
   validationElem.textContent = text;
-
-  // apply error styles
-  validationElem.style.cssText = Css.nakiErrorTextStyle
-      .copyWith(extra: {'margin-top': '8px'})
-      .cssText;
+  validationElem.style.cssText = {'margin-top': '8px'}.cssText;
 
   // place validation error as the last child of the field
   fieldWrapper.insertAdjacentElement('beforeend', validationElem);
@@ -513,5 +508,7 @@ String normaliseLink(String link, [String? siteUrl]) {
 
 /// Joins non-empty CSS classes with a single space.
 String joinClasses(List<String> classes) {
-  return classes.reversed.where((c) => c.isNotEmpty).join(' ');
+  classes = List.from(classes.reversed);
+  classes.removeWhere((c) => c.trim().isEmpty);
+  return classes.join(' ');
 }

@@ -174,14 +174,14 @@ class GlassmorphicPromoCard extends StatelessComponent {
         ..applyBlur(16)
         ..applyContrast(110),
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: Dim.px(24),
-          vertical: Dim.px(20),
-        ),
         constraints: const SizeConstraints(
           maxWidth: Dim.px(420),
         ),
         decoration: BoxDecoration(
+          padding: const EdgeInsets.symmetric(
+            horizontal: Dim.px(24),
+            vertical: Dim.px(20),
+          ),
           gradient: Gradient()
             ..applyLinear(
               colors: [

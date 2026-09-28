@@ -76,6 +76,73 @@ class NakiAlignProps {
         return {'justify-content': 'flex-end', 'align-items': 'flex-end'};
     }
   }
+
+  /// Maps [Alignment] to its CSS `transform-origin` equivalent.
+  static String mapTransformOrigin(Alignment alignment) {
+    switch (alignment) {
+      case Alignment.topLeft:
+        return 'top left';
+      case Alignment.topCenter:
+        return 'top center';
+      case Alignment.topRight:
+        return 'top right';
+      case Alignment.centerLeft:
+        return 'center left';
+      case Alignment.center:
+        return 'center';
+      case Alignment.centerRight:
+        return 'center right';
+      case Alignment.bottomLeft:
+        return 'bottom left';
+      case Alignment.bottomCenter:
+        return 'bottom center';
+      case Alignment.bottomRight:
+        return 'bottom right';
+    }
+  }
+
+  /// Maps [Alignment] and [StackFit] to its CSS Grid equivalent (`place-items`).
+  static Map<String, String> mapGridAlignment(
+    Alignment alignment, [
+    StackFit fit = StackFit.loose,
+  ]) {
+    if (fit == StackFit.expand) {
+      return {
+        'place-items': 'stretch stretch',
+        'width': '100%',
+        'height': '100%',
+      };
+    }
+
+    if (fit == StackFit.passthrough) {
+      return {
+        'place-items': 'normal normal',
+        'width': 'inherit',
+        'height': 'inherit',
+      };
+    }
+
+    switch (alignment) {
+      case Alignment.topLeft:
+        return {'place-items': 'start start'};
+      case Alignment.topCenter:
+        return {'place-items': 'start center'};
+      case Alignment.topRight:
+        return {'place-items': 'start end'};
+      case Alignment.centerLeft:
+        return {'place-items': 'center start'};
+      case Alignment.center:
+        return {'place-items': 'center center'};
+      case Alignment.centerRight:
+        return {'place-items': 'center end'};
+      case Alignment.bottomLeft:
+        return {'place-items': 'end start'};
+      case Alignment.bottomCenter:
+        return {'place-items': 'end center'};
+      case Alignment.bottomRight:
+        return {'place-items': 'end end'};
+    }
+  }
 }
 
 /// Represents a single item in the Dropdown component.

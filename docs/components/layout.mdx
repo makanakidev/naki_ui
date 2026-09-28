@@ -62,7 +62,6 @@ Container(
     border: BorderData(color: Color('#e2e8f0'), width: Dim.px(1)),
     shadow: Shadow.medium,
   ),
-  leadingIcon: const Icon(MaterialIcons.account_circle),
   child: const NakiText('Container Content with custom decoration'),
 )
 
@@ -85,10 +84,14 @@ Card(
 
 ## `Stack` & `Positioned`
 
-Layer components with absolute or pinned positioning:
+Layer components with grid-based stacking, alignment, and coordinate or pinned positioning:
 
 ```dart
 Stack(
+  alignment: Alignment.center,
+  fit: StackFit.loose,
+  width: Dim.px(400),
+  height: Dim.px(220),
   children: [
     Image(
       'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=600',
@@ -100,9 +103,7 @@ Stack(
       fit: ObjectFit.cover,
       radius: const BorderRadiusData.all(Dim.px(12)),
     ),
-    Positioned(
-      bottom: const Dim.px(16),
-      left: const Dim.px(16),
+    Positioned.badge(
       child: Container(
         decoration: const BoxDecoration(
           backgroundColor: Color('rgba(15, 23, 42, 0.8)'),
@@ -114,13 +115,35 @@ Stack(
         ),
         child: const NakiText(
           'Featured Post',
-          style: TextStyle(color: Color('#ffffff')),
+          style: TextStyle(color: Colors.white),
         ),
       ),
     ),
   ],
 )
 ```
+
+### `Stack` Properties
+
+- **`alignment`** (`Alignment`): Controls how non-positioned children are aligned in the stack (e.g. `Alignment.center`, `Alignment.topRight`). Defaults to `Alignment.topLeft`.
+- **`fit`** (`StackFit`): Controls child sizing constraints:
+  - `StackFit.loose` _(default)_: Non-positioned children retain their intrinsic size.
+  - `StackFit.expand`: Non-positioned children stretch to fill 100% width and height.
+  - `StackFit.passthrough`: Passes parent sizing constraints unmodified.
+- **`width` / `height`** (`Dim?`): Optional explicit dimensions for the stack canvas.
+
+### `Positioned` Constructors & Properties
+
+In addition to standard insets (`top`, `left`, `right`, `bottom`, `width`, `height`, `transform`), `Positioned` provides convenient named constructors:
+
+- `Positioned.fill(...)`: Insets all 4 edges to `Dim.zero()`.
+- `Positioned.center(...)`: Centers child horizontally and vertically via `translate(-50%, -50%)`.
+- `Positioned.centerHorizontal(...)`: Centers child along the horizontal axis via `translateX(-50%)`.
+- `Positioned.centerVertical(...)`: Centers child along the vertical axis via `translateY(-50%)`.
+- `Positioned.badge(...)`: Anchors at `top: 0, right: 0` with `translate(50%, -50%)` for corner badges/dots.
+- `Positioned.topLeft(...)` / `Positioned.topRight(...)`: Anchors to top corners.
+- `Positioned.bottomLeft(...)` / `Positioned.bottomRight(...)`: Anchors to bottom corners.
+- `Positioned.top(...)` / `Positioned.bottom(...)`: Stretches horizontally across the top or bottom edge.
 
 ---
 

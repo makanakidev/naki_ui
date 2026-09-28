@@ -329,17 +329,18 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
 
   /// Validates user input
   void _validate() {
-    NakiDebounce.run(
-      'validate_$id',
-      const Duration(milliseconds: 500),
-      _showError,
-    );
+    if (autoValidate) {
+      NakiDebounce.run(
+        'validate_$id',
+        const Duration(milliseconds: 500),
+        _showError,
+      );
+    }
   }
 
   /// Handles input changes
   void _handleInput(dynamic value) {
     _validate();
-
     final inputValue = value.toString().trim();
     if (inputValue.isNotEmpty) onTyping?.call(inputValue);
   }
@@ -356,8 +357,8 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
 
   @override
   Component build(BuildContext context) {
-    final effectiveWidth = expand ? null : width;
     final hasIcon = leadingIcon != null || trailingIcon != null;
+    final effectiveWidth = expand ? null : width;
 
     final baseClass = 'naki-${isMultiline ? 'textarea' : 'input'}';
     final effectiveClasses = joinClasses([?classes, baseClass]);
@@ -459,9 +460,9 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
             events: effectiveEvents.toMap,
           );
 
-    if (hasIcon) {
-      if (expand) inputArea = Expanded(child: inputArea);
+    if (expand) inputArea = Expanded(child: inputArea);
 
+    if (hasIcon) {
       inputArea = .wrapElement(
         classes: effectiveClasses,
         attributes: {
@@ -477,11 +478,7 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
           color: backgroundColor,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ?leadingIcon,
-              inputArea,
-              ?trailingIcon,
-            ],
+            children: [?leadingIcon, inputArea, ?trailingIcon],
           ),
         ),
       );
@@ -530,6 +527,7 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
     Rules.nakiFormFieldRules,
     Rules.nakiTextareaRules,
     Rules.nakiHelperRules,
+    Rules.nakiErrorRules,
   ]);
 }
 
@@ -579,16 +577,13 @@ class FormBuilder extends StatelessComponent {
   final double? spacing;
 
   /// If `true`, the native browser form validation is disabled when a descendant
-  /// button with type `submit` is clicked. Otherwise, the browser blocks form
-  /// submission and shows validation errors when a descendant button with type
-  /// `submit` is clicked.
+  /// button with type `submit` is clicked allowing for more explicit control
+  /// over the validation process.
+  ///
+  /// Otherwise, the browser blocks form submission and shows validation
+  /// errors when a descendant button with type `submit` is clicked and form
+  /// fields are not valid.
   final bool bypassValidation;
-
-  /// Use [bypassValidation] instead.
-  @Deprecated(
-    'Use bypassValidation instead, this will be removed in v1.0.3 and later.',
-  )
-  final bool autoValidate;
 
   /// Key used to identify and control the form.
   final GlobalNodeKey<HTMLFormElement> formKey;
@@ -599,7 +594,6 @@ class FormBuilder extends StatelessComponent {
     required this.children,
     this.direction = Direction.vertical,
     this.bypassValidation = false,
-    this.autoValidate = false,
     this.spacing,
     this.classes,
     this.name,
@@ -621,7 +615,7 @@ class FormBuilder extends StatelessComponent {
         key: formKey,
         name: name,
         classes: effectiveClasses,
-        noValidate: bypassValidation || autoValidate,
+        noValidate: bypassValidation,
         attributes: attributes,
         styles: Styles(raw: effectiveSyles),
         children,
@@ -1064,6 +1058,7 @@ class SegmentedInput extends StatefulComponent {
         ...Rules.nakiSegmentedInputRules,
         Rules.nakiFormFieldRules,
         Rules.nakiHelperRules,
+        Rules.nakiErrorRules,
       ]);
 }
 
@@ -1648,6 +1643,7 @@ class Calendar extends StatefulComponent {
     ...Rules.nakiCalendarRules,
     Rules.nakiFormFieldRules,
     Rules.nakiHelperRules,
+    Rules.nakiErrorRules,
   ]);
 }
 
@@ -2110,10 +2106,7 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
     final allowFocus =
         focusColor != null && !component.disable && !component.readOnly;
 
-    final effectiveClasses = joinClasses([
-      ?component.classes,
-      'naki-calendar',
-    ]);
+    final effectiveClasses = joinClasses([?component.classes, 'naki-calendar']);
 
     final content = currentValue != null
         ? _displayedValue(currentValue!)

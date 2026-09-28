@@ -36,7 +36,7 @@ Add `naki_ui` to your `pubspec.yaml`:
 ```yaml
 dependencies:
   jaspr: ^0.23.4
-  naki_ui: ^1.0.2
+  naki_ui: ^1.0.3
 ```
 
 Then fetch the dependencies:
@@ -311,7 +311,7 @@ Naki UI provides 80+ components grouped into intuitive categories:
 
 Build responsive web application layouts:
 
-- `NakiApp`, `Scaffold`, `AppBar`, `Drawer`, `BottomNavigationBar`
+- `NakiApp`, `Scaffold`, `AppBar`, `Drawer`, `Sidebar`, `BottomNavigationBar`
 - `ResponsiveBuilder`, `BreakPointWrapper`, `MediaQueryProvider`, `Align`, `Expanded`, `Flexible`, `SizedBox`
 - `ExpansionPanelList`, `ExpansionPanelList.radio`, `ExpansionTile`
 - `Card`, `Card.outlined`, `Card.filled`

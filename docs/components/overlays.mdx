@@ -45,7 +45,7 @@ final dialogController = OverlayController();
 Dialog(
   controller: dialogController,
   title: 'Confirm Deletion',
-  content: const NakiText('Are you sure you want to permanently delete this project?'),
+  subtitle: 'Are you sure you want to permanently delete this project?',
   actions: [
     Button.text(
       'Cancel',
@@ -118,3 +118,38 @@ Tooltip(
 )
 ```
 
+---
+
+## `Drawer`
+
+Modal navigation drawer that slides in from the left or right edge over a darkened backdrop:
+
+```dart
+final drawerController = OverlayController();
+
+// Trigger button
+Button.icon(
+  MaterialIcons.menu,
+  semanticLabel: 'Open Navigation Drawer',
+  onTap: () => drawerController.open(),
+)
+
+// Modal Drawer component
+Drawer(
+  controller: drawerController,
+  position: DrawerPosition.left,
+  width: const Dim.px(300),
+  child: Padding(
+    padding: const EdgeInsets.all(Dim.px(16)),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: 12,
+      children: [
+        const Heading('Navigation', level: 3),
+        Button.text('Dashboard', onTap: () => drawerController.close()),
+        Button.text('Settings', onTap: () => drawerController.close()),
+      ],
+    ),
+  ),
+)
+```

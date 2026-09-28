@@ -148,7 +148,7 @@ Clip a child to rectangular bounds, optionally with rounded corners.
 ClipRect(
   borderRadius: const BorderRadiusData.all(Dim.px(12)),
   child: Image(
-    '/images/cover.webp',
+    'images/cover.webp',
     fit: ObjectFit.cover,
     position: ObjectPosition.center,
   ),
@@ -165,7 +165,7 @@ Clip a child to an oval or circular silhouette.
 const ClipOval(
   child: SizedBox.fromSize(
     size: Dim.px(64),
-    child: Image('/images/avatar.webp', alt: 'Amina Yusuf'),
+    child: Image('images/avatar.webp', alt: 'Amina Yusuf'),
   ),
 )
 ```
@@ -210,8 +210,8 @@ Transform.scale(
 ```dart
 // Pixel translation
 Transform.translate(
-  offsetX: 8,
-  offsetY: -4,
+  offsetX: const Dim.px(8),
+  offsetY: const Dim.px(-4),
   child: const NakiText('Translated'),
 )
 ```

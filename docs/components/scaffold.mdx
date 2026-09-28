@@ -75,6 +75,50 @@ class DashboardLayout extends StatelessComponent {
 
 ---
 
+## `Drawer` & `Sidebar` Navigation
+
+`Scaffold` provides dedicated slots for both modal drawer navigation and persistent desktop sidebar navigation:
+- **`drawer` (`Drawer`)**: Modal slide-in navigation overlay with a darkened barrier backdrop. Can be opened programmatically using `Scaffold.maybeOf(context)?.openDrawer()`.
+- **`sideBar` (`Sidebar`)**: Persistent side navigation panel docked alongside the page body without an overlay backdrop barrier.
+
+```dart
+Scaffold(
+  drawer: Drawer(
+    position: DrawerPosition.left,
+    child: Padding(
+      padding: const EdgeInsets.all(Dim.px(16)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 8,
+        children: [
+          const Heading('Menu', level: 3),
+          Button.text('Home', onTap: () {}),
+          Button.text('Settings', onTap: () {}),
+        ],
+      ),
+    ),
+  ),
+  sideBar: Sidebar(
+    width: const Dim.px(240),
+    child: Padding(
+      padding: const EdgeInsets.all(Dim.px(16)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 8,
+        children: [
+          const Heading('Workspace', level: 4),
+          Button.text('Overview', onTap: () {}),
+          Button.text('Analytics', onTap: () {}),
+        ],
+      ),
+    ),
+  ),
+  body: const NakiText('Page body content'),
+)
+```
+
+---
+
 ## `AppBar`
 
 `AppBar` renders a theme-aware top navigation header with elevation, leading component slot, title text/component, and action items:

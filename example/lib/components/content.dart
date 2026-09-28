@@ -85,9 +85,16 @@ class _ContentState extends State<Content> {
     _save();
   }
 
-  void _toggleScrollPhysics() {
+  void _toggleScrollPhysics(bool canScroll) {
+    if (!canScroll) {
+      _showFeedback('Tasks list is not scrollable');
+      return;
+    }
+
     setState(() => _scrollPhysics = _scrollPhysics.reversed.toList());
-    _showFeedback('${_scrollPhysics.first.type.name} scroll physics');
+    _showFeedback(
+      '${_scrollPhysics.first.type.name} scroll physics'.toSentenceCase(),
+    );
   }
 
   // void _clearCompleted() {
@@ -120,6 +127,7 @@ class _ContentState extends State<Content> {
             final activeCount = totalCount - completedCount;
 
             final mqHeight = MediaQueryProvider.heightOf(context) ?? 0;
+            final isScrollable = mqHeight > PlatformData().height;
 
             final filteredTodos = _todos.where((todo) {
               switch (_filter) {
@@ -155,9 +163,7 @@ class _ContentState extends State<Content> {
                       currentFilter: _filter,
                       onFilterChanged: (f) => setState(() => _filter = f),
                       hasCompleted: completedCount > 0,
-                      toggle: mqHeight > PlatformData().height
-                          ? _toggleScrollPhysics
-                          : null,
+                      toggle: () => _toggleScrollPhysics(isScrollable),
                     ),
 
                   // items

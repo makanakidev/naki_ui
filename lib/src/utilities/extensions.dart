@@ -101,28 +101,37 @@ extension StringExtension on String {
   ///
   /// Example:
   /// ```dart
-  /// final text = 'hello there';
+  /// final text = "hello there, it's great";
   /// final formatted = text.toTitleCase();
-  /// // returns: 'Hello There'
+  /// // returns: "Hello There, It's Great"
   /// ```
   String toTitleCase() {
-    final value = trim()
-        .split(' ')
-        .map((s) {
-          s = s.withoutSymbols;
-          if (s.isEmpty) return '';
+    if (trim().isEmpty) return this;
 
-          if (s.length == 1) return s.toUpperCase();
+    final regex = RegExp(r'\b\p{L}', unicode: true);
+    return toLowerCase().replaceAllMapped(
+      regex,
+      (match) => match.group(0)!.toUpperCase(),
+    );
+  }
 
-          final first = s[0].toUpperCase();
-          final rest = s.substring(1).toLowerCase();
+  /// Formats text to sentence case.
+  ///
+  /// Example:
+  /// ```dart
+  /// final text = "hello there. how are you?";
+  /// final formatted = text.toSentenceCase();
+  /// // returns: "Hello there. How are you?"
+  /// ```
+  String toSentenceCase() {
+    if (trim().isEmpty) return this;
 
-          return '$first$rest';
-        })
-        .join(' ')
-        .trim();
-
-    return value.isEmpty ? this : value;
+    final regex = RegExp(r'(^\s*|[.!?]\s+)(\p{L})', unicode: true);
+    return toLowerCase().replaceAllMapped(regex, (match) {
+      final prefix = match.group(1) ?? '';
+      final char = match.group(2) ?? '';
+      return '$prefix${char.toUpperCase()}';
+    });
   }
 
   /// Normalizes currency symbol (e.g NGN -> ₦, USD -> $)
@@ -160,13 +169,13 @@ extension StringExtension on String {
   /// Example:
   /// ```dart
   /// final text = '2500.56';
-  /// final currency = text.toCurrency();
+  /// final currency = text.toCurrency('USD');
   /// // returns: '$2,500.56'
   /// ```
   String toCurrency([String symbol = '\$']) {
     if (isEmpty) return this;
 
-    symbol = symbol.normalizeCurrency;
+    final normalizedSymbol = symbol.normalizeCurrency;
 
     // remove letters and symbols except dot
     final value = replaceAll(RegExp(r'[^0-9.]'), '');
@@ -179,7 +188,9 @@ extension StringExtension on String {
     final RegExp reg = RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))');
     final result = parts[0].replaceAllMapped(reg, mathFunc);
 
-    return parts[1] == '00' ? '$symbol$result' : '$symbol$result.${parts[1]}';
+    return parts[1] == '00'
+        ? '$normalizedSymbol$result'
+        : '$normalizedSymbol$result.${parts[1]}';
   }
 
   /// Removes `data:*/*;base64,` from a Data URL.

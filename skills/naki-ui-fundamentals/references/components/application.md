@@ -34,6 +34,7 @@ class App extends StatelessComponent {
 ```
 
 Provide either `home` or `pageBuilder`:
+
 - **`home`**: Use when the root component is self-contained or `const` (e.g. `home: const Scaffold(...)`), and does not need immediate access to `BuildContext` provided by `NakiApp`'s inner `NakiThemeProvider` during instantiation.
 - **`pageBuilder`**: Use `pageBuilder: (context, child)` when the root view itself needs direct access to `context` (such as reading `context.themeTokens`, toggling themes via `context.toggleTheme` in the top app bar, or wrapping the visual tree in application-specific providers).
 
@@ -105,7 +106,6 @@ MediaQueryProvider(
     final width = MediaQueryProvider.widthOf(context) ?? 0;
 
     return Container(
-      blockBox: true,
       child: NakiText('Panel width: $width px'),
     );
   },

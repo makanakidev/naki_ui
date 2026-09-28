@@ -296,7 +296,7 @@ class Flexible extends StatelessComponent {
     final baseClass = fit == FlexFit.tight ? 'naki-expanded' : 'naki-flexible';
     final effectiveClasses = joinClasses([?classes, baseClass]);
 
-    final flexValue = fit == FlexFit.tight ? '$flex 1 0%' : '0 $flex auto';
+    final flexValue = fit == FlexFit.tight ? '$flex 1 0%' : '$flex 1 auto';
     final effectiveTag = fit == FlexFit.tight
         ? 'naki-expanded'
         : 'naki-flexible';
@@ -381,7 +381,7 @@ class Padding extends StatelessComponent {
       tag: 'naki-padding',
       key: key,
       classes: effectiveClasses,
-      styles: Styles(raw: {...padding.pProps, 'display': 'block'}),
+      styles: Styles(raw: {...padding.pProps, 'display': 'inline-block'}),
       children: [child],
     );
   }
@@ -425,7 +425,7 @@ class Margin extends StatelessComponent {
       tag: 'naki-margin',
       key: key,
       classes: effectiveClasses,
-      styles: Styles(raw: {...margin.mProps, 'display': 'block'}),
+      styles: Styles(raw: {...margin.mProps, 'display': 'inline-block'}),
       children: [child],
     );
   }
@@ -501,6 +501,10 @@ class SizedBox extends StatelessComponent {
       children: [?child],
     );
   }
+
+  @css
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('SizedBox', [Rules.nakiSizedBoxRules]);
 }
 
 /// {@template Stack}
@@ -524,24 +528,54 @@ class Stack extends StatelessComponent {
   /// Components to display in the stack. These components are rendered
   /// on top of each other, with later components appearing on top of
   /// earlier components.
+  ///
+  /// Typically [Positioned] components, but accepts any [Component].
   final List<Component> children;
+
+  /// How to align the non-positioned components in the stack.
+  final Alignment alignment;
+
+  /// How the size of the stack children are constrained.
+  final StackFit fit;
+
+  /// Width of the stack component.
+  final Dim? width;
+
+  /// Height of the stack component.
+  final Dim? height;
 
   /// Additional CSS classes applied to the stack component.
   final String? classes;
 
   /// {@macro Stack}
-  const Stack({super.key, required this.children, this.classes});
+  const Stack({
+    super.key,
+    required this.children,
+    this.alignment = Alignment.topLeft,
+    this.fit = StackFit.loose,
+    this.width,
+    this.height,
+    this.classes,
+  });
 
   @override
   Component build(BuildContext context) {
     const baseClass = 'naki-stack';
     final effectiveClasses = joinClasses([?classes, baseClass]);
+    final alignStyles = NakiAlignProps.mapGridAlignment(alignment, fit);
 
     return StackScope(
       child: .element(
         tag: 'naki-stack',
         key: key,
         classes: effectiveClasses,
+        styles: Styles(
+          raw: {
+            'width': ?width?.cssText,
+            'height': ?height?.cssText,
+            ...alignStyles,
+          },
+        ),
         children: children,
       ),
     );
@@ -590,6 +624,9 @@ class Positioned extends StatelessComponent {
   /// Height of the positioned component.
   final Dim? height;
 
+  /// CSS transform property (e.g. `translate(-50%, -50%)`).
+  final String? transform;
+
   /// Additional CSS classes applied to the positioned component.
   final String? classes;
 
@@ -603,8 +640,155 @@ class Positioned extends StatelessComponent {
     this.bottom,
     this.width,
     this.height,
+    this.transform,
     this.classes,
   });
+
+  /// Creates a [Positioned] component with [left],
+  /// [top], [right], and [bottom] all set to 0.
+  const Positioned.fill({
+    super.key,
+    required this.child,
+    this.width,
+    this.height,
+    this.transform,
+    this.classes,
+  }) : left = const Dim.zero(),
+       top = const Dim.zero(),
+       right = const Dim.zero(),
+       bottom = const Dim.zero();
+
+  /// Creates a [Positioned] component centered both
+  /// horizontally and vertically within the stack.
+  const Positioned.center({
+    super.key,
+    required this.child,
+    this.width,
+    this.height,
+    this.classes,
+  }) : top = const Dim.percent(50),
+       left = const Dim.percent(50),
+       right = null,
+       bottom = null,
+       transform = 'translate(-50%, -50%)';
+
+  /// Creates a [Positioned] component centered horizontally within the stack.
+  const Positioned.centerHorizontal({
+    super.key,
+    required this.child,
+    this.top,
+    this.bottom,
+    this.width,
+    this.height,
+    this.classes,
+  }) : left = const Dim.percent(50),
+       right = null,
+       transform = 'translateX(-50%)';
+
+  /// Creates a [Positioned] component centered vertically within the stack.
+  const Positioned.centerVertical({
+    super.key,
+    required this.child,
+    this.left,
+    this.right,
+    this.width,
+    this.height,
+    this.classes,
+  }) : top = const Dim.percent(50),
+       bottom = null,
+       transform = 'translateY(-50%)';
+
+  /// Creates a [Positioned] component placed at the top-right corner with a
+  /// `translate(50%, -50%)` offset, ideal for badge and notification dot overlays.
+  const Positioned.badge({
+    super.key,
+    required this.child,
+    this.bottom,
+    this.left,
+    this.width,
+    this.height,
+    this.classes,
+  }) : right = const Dim.zero(),
+       top = const Dim.zero(),
+       transform = 'translate(50%, -50%)';
+
+  /// Creates a [Positioned] component anchored to the top-left corner.
+  const Positioned.topLeft({
+    super.key,
+    required this.child,
+    this.width,
+    this.height,
+    this.transform,
+    this.classes,
+  }) : top = const Dim.zero(),
+       left = const Dim.zero(),
+       right = null,
+       bottom = null;
+
+  /// Creates a [Positioned] component anchored to the top-right corner.
+  const Positioned.topRight({
+    super.key,
+    required this.child,
+    this.width,
+    this.height,
+    this.transform,
+    this.classes,
+  }) : top = const Dim.zero(),
+       right = const Dim.zero(),
+       left = null,
+       bottom = null;
+
+  /// Creates a [Positioned] component anchored to the bottom-left corner.
+  const Positioned.bottomLeft({
+    super.key,
+    required this.child,
+    this.width,
+    this.height,
+    this.transform,
+    this.classes,
+  }) : bottom = const Dim.zero(),
+       left = const Dim.zero(),
+       top = null,
+       right = null;
+
+  /// Creates a [Positioned] component anchored to the bottom-right corner.
+  const Positioned.bottomRight({
+    super.key,
+    required this.child,
+    this.width,
+    this.height,
+    this.transform,
+    this.classes,
+  }) : bottom = const Dim.zero(),
+       right = const Dim.zero(),
+       top = null,
+       left = null;
+
+  /// Creates a [Positioned] component stretched horizontally across the top edge.
+  const Positioned.top({
+    super.key,
+    required this.child,
+    this.height,
+    this.transform,
+    this.classes,
+  }) : top = const Dim.zero(),
+       left = const Dim.zero(),
+       right = const Dim.zero(),
+       bottom = null,
+       width = null;
+
+  /// Creates a [Positioned] component stretched horizontally across the bottom edge.
+  const Positioned.bottom({
+    super.key,
+    required this.child,
+    this.height,
+    this.transform,
+    this.classes,
+  }) : bottom = const Dim.zero(),
+       left = const Dim.zero(),
+       right = const Dim.zero(),
+       top = null,
+       width = null;
 
   @override
   Component build(BuildContext context) {
@@ -626,6 +810,7 @@ class Positioned extends StatelessComponent {
           'bottom': ?bottom?.cssText,
           'width': ?width?.cssText,
           'height': ?height?.cssText,
+          'transform': ?transform,
         },
       ),
       children: [child],
@@ -836,19 +1021,10 @@ class Container extends StatelessComponent {
   /// Custom CSS classes applied to the container.
   final String? classes;
 
-  /// When `true` and [BoxDecoration.alignment] is not set, the container
-  /// will be rendered as a block box.
-  final bool blockBox;
-
-  /// When `true`, [child] component will not overflow the container.
-  final bool clip;
-
   /// {@macro Container}
   const Container({
     super.key,
     required this.child,
-    this.blockBox = false,
-    this.clip = false,
     this.height,
     this.width,
     this.constraints,
@@ -862,8 +1038,6 @@ class Container extends StatelessComponent {
     final effectiveClasses = joinClasses([?classes, baseClass]);
 
     final effectiveStyles = {
-      'display': ?(blockBox ? 'block' : null),
-      'overflow': ?(clip ? 'hidden' : null),
       'height': ?height?.cssText,
       'width': ?width?.cssText,
       ...?constraints?.props,
@@ -1090,9 +1264,7 @@ class Card extends StatelessComponent {
               },
             ).toMap
           : null,
-      attributes: isInteractive
-          ? {'tabindex': '0', 'role': 'button', 'hvr': ''}
-          : null,
+      attributes: isInteractive ? {'tabindex': '0', 'role': 'button'} : null,
       children: [child],
     );
   }

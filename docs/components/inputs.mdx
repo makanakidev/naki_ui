@@ -46,10 +46,10 @@ TextField(
 final formKey = GlobalNodeKey<HTMLFormElement>();
 
 FormBuilder(
-  key: formKey,
+  formKey: formKey,
   direction: Direction.vertical,
   spacing: 16,
-  autoValidate: true,
+  bypassValidation: true,
   children: [
     const Heading('Account Information'),
     TextField(

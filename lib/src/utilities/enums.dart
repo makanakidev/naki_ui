@@ -1352,3 +1352,15 @@ enum Shape {
   final String css;
   const Shape(this.css);
 }
+
+/// How to size the non-positioned children of a Stack.
+enum StackFit {
+  /// The non-positioned children are allowed to take their intrinsic size.
+  loose,
+
+  /// The non-positioned children are forced to expand to fit the stack.
+  expand,
+
+  /// Sizing constraints are passed unmodified.
+  passthrough,
+}

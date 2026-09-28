@@ -89,7 +89,7 @@ Use `fire(tag)` to immediately run pending work and `cancelAll()` only when the 
 
 ## Enum groups
 
-- Layout: `Placement`, `Position`, `AspectRatioType`, `Direction`, `Orientation`, `MainAxisAlignment`, `CrossAxisAlignment`, `MainAxisSize`, `FlexFit`, `ObjectFit`, `ObjectPosition`, `Alignment`, `Baseline`, `BreakPoint`, `Shape`.
+- Layout: `Placement`, `Position`, `AspectRatioType`, `Direction`, `Orientation`, `MainAxisAlignment`, `CrossAxisAlignment`, `MainAxisSize`, `FlexFit`, `ObjectFit`, `ObjectPosition`, `Alignment`, `StackFit`, `Baseline`, `BreakPoint`, `Shape`.
 - Text: `FontStyle`, `TextDecorationStyle`.
 - Forms: `Autofill`, `ValidationPattern`, `SegmentedInputType`, `SegmentedInputShape`, `CalendarType`, `FileType`.
 - Scrolling and data: `ScrollDirection`, `ScrollPhysicsType`, `CarouselAlignment`, `TableRowCellAlignment`, `TableHeaderCellAlignment`.

@@ -196,7 +196,7 @@ class NakiApp extends StatefulComponent {
   ///       // router can be returned directly, or wrapped in a component
   ///       // such as providers, builders, etc.
   ///     } else {
-  ///       return NakiContainer();
+  ///       return Container();
   ///     }
   ///   },
   /// );

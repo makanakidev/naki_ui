@@ -29,6 +29,7 @@ TextField(
     return null;
   },
   onTyping: updateEmail,
+  leadingIcon: Icon(MaterialIcons.icon_round_add),
   onSubmit: submitEmail,
 )
 ```
@@ -46,10 +47,10 @@ class _ContactFormState extends State<ContactForm> {
   @override
   Component build(BuildContext context) {
     return FormBuilder(
-      key: formKey,
+      formKey: formKey,
       name: 'contact',
-      autoValidate: true,
       spacing: 16,
+      bypassValidation: true,
       children: [
         TextField(
           id: 'contact-name',

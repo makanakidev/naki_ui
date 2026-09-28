@@ -8,42 +8,79 @@ Naki UI provides 80+ modular, accessible UI components. All components are expor
 ---
 
 <Info>
-  **Latest Additions:**
-  - **[`ResponsiveBuilder`](/components/responsive#responsivebuilder)**: Build adaptive layouts across discrete standard breakpoints (`xs`, `sm`, `md`, `lg`, `xl`) using zero-runtime CSS media queries.
-  - **[`BreakPointWrapper`](/components/responsive#breakpointwrapper)**: Conditionally render components within custom pixel width boundaries (`minWidth`, `maxWidth`, or both) with automated style registration.
+  **Latest Additions:** -
+  **[`ResponsiveBuilder`](/components/responsive#responsivebuilder)**: Build
+  adaptive layouts across discrete standard breakpoints (`xs`, `sm`, `md`, `lg`,
+  `xl`) using zero-runtime CSS media queries. -
+  **[`BreakPointWrapper`](/components/responsive#breakpointwrapper)**:
+  Conditionally render components within custom pixel width boundaries
+  (`minWidth`, `maxWidth`, or both) with automated style registration.
 </Info>
 
 ## Component Categories
 
 <CardGroup cols={2}>
-  <Card title="Scaffolding & Navigation" icon="table-columns" href="/components/scaffold">
-    `Scaffold`, `AppBar`, `Drawer`, `Drawer.sidebar`, `BottomNavigationBar`, and `BottomNavigationBarItem`.
+  <Card
+    title="Scaffolding & Navigation"
+    icon="table-columns"
+    href="/components/scaffold"
+  >
+    `Scaffold`, `AppBar`, `Drawer`, `Sidebar`, `BottomNavigationBar`, and
+    `BottomNavigationBarItem`.
   </Card>
   <Card title="Layout & Containers" icon="shapes" href="/components/layout">
-    `Column`, `Row`, `Stack`, `Positioned`, `Container`, `Card`, `Padding`, `Margin`, `Align`, `SizedBox`, `Expanded`, `Flexible`, `Wrap`, `SafeArea`, `ExpansionTile`, and `ExpansionPanelList`.
+    `Column`, `Row`, `Stack`, `Positioned`, `Container`, `Card`, `Padding`,
+    `Margin`, `Align`, `SizedBox`, `Expanded`, `Flexible`, `Wrap`, `SafeArea`,
+    `ExpansionTile`, and `ExpansionPanelList`.
   </Card>
-  <Card title="Scrolling Views" icon="arrows-up-down" href="/components/scrolling">
-    `SingleChildScrollView`, `ListView`, `GridView`, `GridTile`, `PageView`, `CarouselView`, `Table`, `StaggeredView`, `ScrollBarWrapper`, and `ScrollController`.
+  <Card
+    title="Scrolling Views"
+    icon="arrows-up-down"
+    href="/components/scrolling"
+  >
+    `SingleChildScrollView`, `ListView`, `GridView`, `GridTile`, `PageView`,
+    `CarouselView`, `Table`, `StaggeredView`, `ScrollBarWrapper`, and
+    `ScrollController`.
   </Card>
   <Card title="Form & Inputs" icon="pen-to-square" href="/components/inputs">
-    `TextField`, `FormBuilder`, `AutoCompleteField`, `SegmentedInput`, `Calendar`, and `Label`.
+    `TextField`, `FormBuilder`, `AutoCompleteField`, `SegmentedInput`,
+    `Calendar`, and `Label`.
   </Card>
-  <Card title="Selection Controls" icon="square-check" href="/components/selection">
+  <Card
+    title="Selection Controls"
+    icon="square-check"
+    href="/components/selection"
+  >
     `Checkbox`, `RadioButton`, `Switch`, `Slider`, and `Dropdown`.
   </Card>
   <Card title="Basic & Content" icon="cube" href="/components/basics">
-    `Button`, `NakiText`, `Bold`, `Italic`, `Underline`, `Strikethrough`, `Heading`, `SubHeading`, `RichText`, `TextSpan`, `Icon`, `Image`, `Spinner`, `Banner`, and `GestureDetector`.
+    `Button`, `NakiText`, `Bold`, `Italic`, `Underline`, `Strikethrough`,
+    `Heading`, `SubHeading`, `RichText`, `TextSpan`, `Icon`, `Image`, `Spinner`,
+    `Banner`, and `GestureDetector`.
   </Card>
-  <Card title="Overlays & Feedback" icon="window-restore" href="/components/overlays">
+  <Card
+    title="Overlays & Feedback"
+    icon="window-restore"
+    href="/components/overlays"
+  >
     `Dialog`, `BottomSheet`, `Snackbar`, `Drawer`, `Popover`, and `Tooltip`.
   </Card>
-  <Card title="Painting & Visual Effects" icon="brush" href="/components/painting">
-    `DecoratedBox`, `ColoredBox`, `Opacity`, `Visibility`, `ClipRect`, `ClipOval`, `RotatedBox`, `Transform`, and `BackdropFilter`.
+  <Card
+    title="Painting & Visual Effects"
+    icon="brush"
+    href="/components/painting"
+  >
+    `DecoratedBox`, `ColoredBox`, `Opacity`, `Visibility`, `ClipRect`,
+    `ClipOval`, `RotatedBox`, `Transform`, and `BackdropFilter`.
   </Card>
   <Card title="Asynchronous Builders" icon="bolt" href="/components/async">
     `NakiFutureBuilder` and `NakiStreamBuilder`.
   </Card>
-  <Card title="Responsive & Custom Breakpoints" icon="ruler-combined" href="/components/responsive">
+  <Card
+    title="Responsive & Custom Breakpoints"
+    icon="ruler-combined"
+    href="/components/responsive"
+  >
     `ResponsiveBuilder` and `BreakPointWrapper`.
   </Card>
 </CardGroup>
@@ -52,16 +89,16 @@ Naki UI provides 80+ modular, accessible UI components. All components are expor
 
 ## Complete Component Reference
 
-| Category | Exported Components | Reference Doc |
-| :--- | :--- | :--- |
-| **Application** | `NakiApp`, `SEO`, `ThemeMode` | [Getting Started](/getting-started) |
-| **Scaffolding** | `Scaffold`, `AppBar`, `Drawer`, `BottomNavigationBar`, `BottomNavigationBarItem` | [Scaffolding & Navigation](/components/scaffold) |
-| **Layout** | `Column`, `Row`, `Stack`, `Positioned`, `Container`, `Card`, `Padding`, `Margin`, `Align`, `AspectRatio`, `SizedBox`, `Expanded`, `Flexible`, `Wrap`, `SafeArea`, `ExpansionTile`, `ExpansionPanelList` | [Layout & Containers](/components/layout) |
-| **Scrolling** | `SingleChildScrollView`, `ListView`, `GridView`, `GridTile`, `PageView`, `CarouselView`, `Table`, `TableRow`, `StaggeredView`, `StaggeredTile`, `ScrollBarWrapper` | [Scrolling Views](/components/scrolling) |
-| **Inputs** | `TextField`, `FormBuilder`, `AutoCompleteField`, `SegmentedInput`, `Calendar`, `Label` | [Form & Inputs](/components/inputs) |
-| **Selection** | `Checkbox`, `RadioButton`, `Switch`, `Slider`, `Dropdown`, `DropdownItem` | [Selection Controls](/components/selection) |
-| **Content** | `Button`, `NakiText`, `Bold`, `Italic`, `Underline`, `Strikethrough`, `Heading`, `SubHeading`, `RichText`, `TextSpan`, `ComponentSpan`, `Icon`, `Image`, `Spinner`, `Banner`, `GestureDetector` | [Basic & Content](/components/basics) |
-| **Overlays** | `Dialog`, `BottomSheet`, `Snackbar`, `Drawer`, `Popover`, `Tooltip` | [Overlays & Feedback](/components/overlays) |
-| **Painting** | `DecoratedBox`, `ColoredBox`, `Opacity`, `Visibility`, `ClipRect`, `ClipOval`, `RotatedBox`, `Transform`, `BackdropFilter` | [Painting & Visual Effects](/components/painting) |
-| **Async** | `NakiFutureBuilder`, `NakiStreamBuilder` | [Asynchronous Builders](/components/async) |
-| **Responsive** | `ResponsiveBuilder`, `BreakPointWrapper` | [Responsive & Custom Breakpoints](/components/responsive) |
+| Category        | Exported Components                                                                                                                                                                                     | Reference Doc                                             |
+| :-------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :-------------------------------------------------------- |
+| **Application** | `NakiApp`, `SEO`, `ThemeMode`                                                                                                                                                                           | [Getting Started](/getting-started)                       |
+| **Scaffolding** | `Scaffold`, `AppBar`, `Drawer`, `Sidebar`, `BottomNavigationBar`, `BottomNavigationBarItem`                                                                                                             | [Scaffolding & Navigation](/components/scaffold)          |
+| **Layout**      | `Column`, `Row`, `Stack`, `Positioned`, `Container`, `Card`, `Padding`, `Margin`, `Align`, `AspectRatio`, `SizedBox`, `Expanded`, `Flexible`, `Wrap`, `SafeArea`, `ExpansionTile`, `ExpansionPanelList` | [Layout & Containers](/components/layout)                 |
+| **Scrolling**   | `SingleChildScrollView`, `ListView`, `GridView`, `GridTile`, `PageView`, `CarouselView`, `Table`, `TableRow`, `StaggeredView`, `StaggeredTile`, `ScrollBarWrapper`                                      | [Scrolling Views](/components/scrolling)                  |
+| **Inputs**      | `TextField`, `FormBuilder`, `AutoCompleteField`, `SegmentedInput`, `Calendar`, `Label`                                                                                                                  | [Form & Inputs](/components/inputs)                       |
+| **Selection**   | `Checkbox`, `RadioButton`, `Switch`, `Slider`, `Dropdown`, `DropdownItem`                                                                                                                               | [Selection Controls](/components/selection)               |
+| **Content**     | `Button`, `NakiText`, `Bold`, `Italic`, `Underline`, `Strikethrough`, `Heading`, `SubHeading`, `RichText`, `TextSpan`, `ComponentSpan`, `Icon`, `Image`, `Spinner`, `Banner`, `GestureDetector`         | [Basic & Content](/components/basics)                     |
+| **Overlays**    | `Dialog`, `BottomSheet`, `Snackbar`, `Drawer`, `Popover`, `Tooltip`                                                                                                                                     | [Overlays & Feedback](/components/overlays)               |
+| **Painting**    | `DecoratedBox`, `ColoredBox`, `Opacity`, `Visibility`, `ClipRect`, `ClipOval`, `RotatedBox`, `Transform`, `BackdropFilter`                                                                              | [Painting & Visual Effects](/components/painting)         |
+| **Async**       | `NakiFutureBuilder`, `NakiStreamBuilder`                                                                                                                                                                | [Asynchronous Builders](/components/async)                |
+| **Responsive**  | `ResponsiveBuilder`, `BreakPointWrapper`                                                                                                                                                                | [Responsive & Custom Breakpoints](/components/responsive) |

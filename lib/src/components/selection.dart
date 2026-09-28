@@ -938,11 +938,23 @@ class _DropdownState<T> extends State<Dropdown<T>> with NakiStatefulMixin {
         : (current + delta) % selectable.length;
 
     // update active option
-    setState(() => _activeOption = selectable[next]);
+    _activeOption = selectable[next];
+    _selectedOption = _activeOption!;
+    setState(() {});
+
+    final selectedId = _selectedItemId;
+    if (selectedId != null) {
+      scrollToView(
+        id: selectedId,
+        offset: component.enableSearch ? _searchFieldHeight : 0,
+      );
+    }
   }
 
   /// Handles keyboard events
   void _handleDropdownKeyDown(KeyboardEvent event) {
+    if (component.disabled) return;
+
     switch (event.key) {
       case 'ArrowDown':
         event.preventDefault();
@@ -1194,9 +1206,6 @@ class _DropdownState<T> extends State<Dropdown<T>> with NakiStatefulMixin {
                     },
                     events: Events(
                       onClick: (_) => _updateSelection(item),
-                      onPointerEnter: !item.disabled
-                          ? (_) => setState(() => _activeOption = item)
-                          : null,
                     ).toMap,
                     [.text(item.label!)],
                   ),

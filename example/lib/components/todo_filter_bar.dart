@@ -46,17 +46,16 @@ class TodoFilterBar extends StatelessComponent {
           spacing: 6,
           children: [
             // toggle scroll physics button
-            if (toggle != null)
-              Button.text(
-                'Toggle scroll physics',
-                gradient: Gradient.oceanBreeze,
-                margin: const EdgeInsets.only(right: Dim.px(5)),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: Dim.rem(0.9),
-                ),
-                onTap: toggle,
+            Button.text(
+              'Toggle scroll physics',
+              gradient: Gradient.oceanBreeze,
+              margin: const EdgeInsets.only(right: Dim.px(5)),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: Dim.rem(0.9),
               ),
+              onTap: toggle,
+            ),
 
             ...TodoFilter.values.map((filter) {
               if (filter == currentFilter) {

@@ -95,12 +95,12 @@ Scaffold(
 )
 ```
 
-Use `drawer` for modal navigation and `sideBar` for persistent navigation. Descendants can obtain `ScaffoldState` with `Scaffold.maybeOf(context)` and call `openDrawer`, `closeDrawer`, or `toggleDrawer`. Supply page-specific `SEO` when metadata differs from the application root.
+Use `Drawer` for modal navigation and `Sidebar` for persistent navigation. Descendants can obtain `ScaffoldState` with `Scaffold.maybeOf(context)` and call `openDrawer`, `closeDrawer`, or `toggleDrawer`. Supply page-specific `SEO` when metadata differs from the application root.
 
 ## `BottomNavigationBarType` Enum Variants
 
-| Enum Variant | Description |
-| --- | --- |
+| Enum Variant                           | Description                                                                                                                                          |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `BottomNavigationBarType.frostedGlass` | The bottom navigation bar has an iOS-style frosted glass effect, is elevated, centered on the screen, and has a smaller width than the screen width. |
-| `BottomNavigationBarType.floating` | The bottom navigation bar is elevated, centered on the screen, and has a smaller width than the screen width. |
-| `BottomNavigationBarType.fixed` | The bottom navigation bar is fixed to the bottom of the screen and has the full width of the screen. |
+| `BottomNavigationBarType.floating`     | The bottom navigation bar is elevated, centered on the screen, and has a smaller width than the screen width.                                        |
+| `BottomNavigationBarType.fixed`        | The bottom navigation bar is fixed to the bottom of the screen and has the full width of the screen.                                                 |

@@ -10,6 +10,7 @@ import '../framework/inherited.dart';
 import '../models/gesture.dart';
 import '../models/naki.dart';
 import '../models/styling.dart';
+import '../stub/index.dart';
 import '../styles/rules.dart';
 import '../styles/text_style.dart';
 import '../theme/tokens.dart';
@@ -350,7 +351,7 @@ class Image extends StatelessComponent with NakiStatelessMixin {
 
   @override
   FutureOr<VoidCallback?> afterRender(BuildContext context) {
-    if (cache) cacheImage(src, context.binding.basePath);
+    if (cache) cacheImage(src, PlatformData().baseUrl);
     return null;
   }
 
@@ -392,7 +393,6 @@ class Image extends StatelessComponent with NakiStatelessMixin {
               padding: padding,
               alignment: Alignment.center,
             ),
-            clip: true,
           )
         : image;
   }
@@ -887,7 +887,15 @@ class _ButtonState extends State<Button> {
       disabled: component.disabled,
       attributes: {'hvr': ?(canHover ? '' : null), ...?component.attributes},
       onClick: shouldHandleClick ? _onClick : null,
-      [_isLoading ? Spinner(ios: component.ios) : component.child],
+      [
+        _isLoading
+            ? Spinner(
+                ios: component.ios,
+                color: component.foregroundColor,
+                thickness: 2,
+              )
+            : component.child,
+      ],
     );
   }
 }
@@ -1055,10 +1063,10 @@ class Spinner extends StatelessComponent {
     this.size = const Dim.px(24),
     this.thickness = 2.0,
     this.color,
-    this.trackColor,
     this.classes,
     this.semanticLabel = 'Loading',
   }) : ios = true,
+       trackColor = null,
        surfaceColor = null;
 
   /// Creates a glassmorphism-style spinner.
@@ -1075,11 +1083,13 @@ class Spinner extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
-    final iosClass = ios && surfaceColor == null ? ' ios' : '';
-    final morphismClass = surfaceColor != null && !ios ? ' morphism' : '';
+    final iosClass = ios && surfaceColor == null ? 'ios' : '';
+    final morphismClass = surfaceColor != null && !ios ? 'morphism' : '';
 
-    final baseClass = 'naki-spinner$iosClass$morphismClass';
-    final effectiveClasses = joinClasses([?classes, baseClass]);
+    const baseClass = 'naki-spinner';
+    final effectiveClasses = joinClasses(
+      [?classes, baseClass, iosClass, morphismClass],
+    );
 
     final effectiveStyles = {
       Tokens.current.spinnerSize.name: size.cssText,

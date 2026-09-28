@@ -816,11 +816,9 @@ class _DialogState extends State<Dialog> with _AccessibleOverlay<Dialog> {
 /// A component that renders a side panel which slides smoothly from the
 /// left or right edge of the viewport with a backdrop barrier.
 ///
-/// It can be used as a modal overlay or a persistent side panel.
-///
 /// **NOTE**: Use [Sidebar] for a simplified interface for rendering a persistent side panel.
 ///
-/// ### Example (Modal Drawer - default)
+/// ### Example
 /// ```dart
 /// final drawerController = OverlayController();
 ///
@@ -830,19 +828,18 @@ class _DialogState extends State<Dialog> with _AccessibleOverlay<Dialog> {
 ///   onTap: () => drawerController.open(),
 /// )
 ///
-/// // The Drawer - will only render when opened via controller
+/// // The Drawer will only render when opened via controller
 /// Drawer(
 ///   controller: drawerController,
 ///   position: DrawerPosition.left,
-///   child: NakiText('Drawer Navigation'),
-/// )
-/// ```
-///
-/// ### Persistent drawer for side-navigation on large screens.
-/// ```dart
-/// Drawer.sidebar(
-///   position: DrawerPosition.left,
-///   child: NakiText('Persistent navigation'),
+///   child: Column(
+///     children: [
+///       NakiText('Navigation'),
+///       Button.text('Item 1', onTap: () {}),
+///       Button.text('Item 2', onTap: () {}),
+///       Button.text('Item 3', onTap: () {}),
+///     ],
+///   ),
 /// )
 /// ```
 /// {@endtemplate}
@@ -909,27 +906,16 @@ class Drawer extends StatefulComponent {
   }) : modal = true;
 
   /// Creates a [Drawer] suitable for side navigation on large screens.
-  ///
-  /// ### Example
-  /// ```dart
-  /// Drawer.sidebar(
-  ///   position: DrawerPosition.left,
-  ///   child: NakiText('Sidebar Navigation'),
-  /// )
-  /// ```
-  @Deprecated(
-    'Use Sidebar component instead, this will be removed in v1.0.3 and later.',
-  )
-  const Drawer.sidebar({
+  const Drawer._sidebar({
     super.key,
     required this.child,
-    this.position = DrawerPosition.left,
     this.semanticLabel = 'Navigation drawer',
     this.width,
     this.backgroundColor,
     this.gradient,
     this.classes,
   }) : modal = false,
+       position = DrawerPosition.left,
        barrierDismissible = false,
        barrierColor = null,
        controller = null,
@@ -966,10 +952,9 @@ class Drawer extends StatefulComponent {
             barrierColor: barrierColor ?? this.barrierColor,
             classes: classes ?? this.classes,
           )
-        : Drawer.sidebar(
+        : Drawer._sidebar(
             key: key ?? this.key,
             child: child ?? this.child,
-            position: position ?? this.position,
             semanticLabel: semanticLabel ?? this.semanticLabel,
             width: width ?? this.width,
             backgroundColor: backgroundColor ?? this.backgroundColor,
@@ -1049,15 +1034,17 @@ class _DrawerState extends State<Drawer> with _AccessibleOverlay<Drawer> {
       ...?component.gradient?.props,
     };
 
-    final baseClass = component.modal
-        ? 'naki-drawer'
-        : 'naki-drawer persistent';
-    final effectiveClasses = joinClasses([?component.classes, baseClass]);
-
     final showBarrier = component.modal && component.barrierDismissible;
 
+    final baseClass = component.modal ? 'naki-drawer' : 'naki-sidebar';
+    final effectiveClasses = joinClasses([?component.classes, baseClass]);
+
+    final contentClass = component.modal
+        ? 'naki-drawer-content drawer-${component.position.name}'
+        : 'naki-sidebar-content';
+
     return .element(
-      tag: 'naki-drawer',
+      tag: baseClass,
       key: component.key,
       classes: effectiveClasses,
       styles: Styles(raw: effectiveStyles),
@@ -1073,7 +1060,7 @@ class _DrawerState extends State<Drawer> with _AccessibleOverlay<Drawer> {
         // Content
         aside(
           key: overlaySurfaceKey,
-          classes: 'naki-drawer-content drawer-${component.position.name}',
+          classes: contentClass,
           attributes: {
             if (component.modal) 'role': 'dialog',
             if (component.modal) 'aria-modal': 'true',
@@ -1091,17 +1078,15 @@ class _DrawerState extends State<Drawer> with _AccessibleOverlay<Drawer> {
 }
 
 /// {@template Sidebar}
-/// A persistent side navigation component designed for large
-/// screens and responsive layouts.
+/// A component that renders a persistent side navigation alongside main content.
 ///
-/// Unlike a modal [Drawer], a [Sidebar] remains permanently visible alongside
-/// main content, does not render a backdrop barrier, and does not require an
-/// [OverlayController].
+/// Unlike [Drawer], [Sidebar] remains permanently visible, does not render a
+/// backdrop barrier, and does not require an [OverlayController].
 ///
 /// ### Example
 /// ```dart
 /// Sidebar(
-///   position: DrawerPosition.left,
+///   placement: SidebarPlacement.left,
 ///   width: Dim.px(260),
 ///   child: Column(
 ///     children: [
@@ -1114,17 +1099,37 @@ class _DrawerState extends State<Drawer> with _AccessibleOverlay<Drawer> {
 /// ```
 /// {@endtemplate}
 class Sidebar extends Drawer {
+  /// Width of the sidebar.
+  final Dim? width;
+
+  /// Background color of the sidebar.
+  final Color? backgroundColor;
+
+  /// Background gradient of the sidebar.
+  final Gradient? gradient;
+
+  /// Additional CSS classes applied to the sidebar.
+  final String? classes;
+
   /// {@macro Sidebar}
   const Sidebar({
     super.key,
     required super.child,
-    super.position = DrawerPosition.left,
     super.semanticLabel = 'Navigation sidebar',
-    super.width,
-    super.backgroundColor,
-    super.gradient,
-    super.classes,
-  }) : super.sidebar();
+    this.width,
+    this.backgroundColor,
+    this.gradient,
+    this.classes,
+  }) : super._sidebar(
+         width: width,
+         backgroundColor: backgroundColor,
+         gradient: gradient,
+         classes: classes,
+       );
+
+  @css
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('Sidebar', Rules.nakiDrawerRules);
 }
 
 /// {@template BottomSheet}

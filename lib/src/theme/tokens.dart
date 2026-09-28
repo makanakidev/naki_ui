@@ -17,11 +17,7 @@ class Token {
   final Color? color;
 
   /// Creates a constant [Token] definition.
-  const Token({
-    required this.value,
-    required this.name,
-    this.color,
-  });
+  const Token({required this.value, required this.name, this.color});
 
   /// Returns the CSS variable name, allowing the token to
   /// be interpolated directly.
@@ -181,9 +177,7 @@ abstract class Tokens {
   Token get selectedTextBgColor => Token(
     value: selectedTextBgColorValue,
     name: '--naki-selected-text-background-color',
-    color: const Color(
-      'var(--naki-selected-text-background-color)',
-    ),
+    color: const Color('var(--naki-selected-text-background-color)'),
   );
 
   /// Default value for [selectedTextColor].
@@ -498,105 +492,75 @@ abstract class Tokens {
 
   /// Default font family family stack
   /// (default: `helvetica`, CSS variable: `--naki-font-family`).
-  Token get fontFamily => const Token(
-    value: 'helvetica',
-    name: '--naki-font-family',
-  );
+  Token get fontFamily =>
+      const Token(value: 'helvetica', name: '--naki-font-family');
 
   /// Small font size (default: `12px`, CSS variable: `--naki-font-size-sm`).
-  Token get fontSizeSm => const Token(
-    value: '12px',
-    name: '--naki-font-size-sm',
-  );
+  Token get fontSizeSm =>
+      const Token(value: '12px', name: '--naki-font-size-sm');
 
   /// Medium font size (default: `14px`, CSS variable: `--naki-font-size-md`).
-  Token get fontSizeMd => const Token(
-    value: '14px',
-    name: '--naki-font-size-md',
-  );
+  Token get fontSizeMd =>
+      const Token(value: '14px', name: '--naki-font-size-md');
 
   /// Large font size (default: `16px`, CSS variable: `--naki-font-size-lg`).
-  Token get fontSizeLg => const Token(
-    value: '16px',
-    name: '--naki-font-size-lg',
-  );
+  Token get fontSizeLg =>
+      const Token(value: '16px', name: '--naki-font-size-lg');
 
   /// Extra large font size (default: `18px`,
   /// CSS variable: `--naki-font-size-xl`).
-  Token get fontSizeXl => const Token(
-    value: '18px',
-    name: '--naki-font-size-xl',
-  );
+  Token get fontSizeXl =>
+      const Token(value: '18px', name: '--naki-font-size-xl');
 
   /// 2X large title font size (default: `20px`,
   /// CSS variable: `--naki-font-size-2xl`).
-  Token get fontSize2xl => const Token(
-    value: '20px',
-    name: '--naki-font-size-2xl',
-  );
+  Token get fontSize2xl =>
+      const Token(value: '20px', name: '--naki-font-size-2xl');
 
   /// 3X large title font size (default: `24px`,
   /// CSS variable: `--naki-font-size-3xl`).
-  Token get fontSize3xl => const Token(
-    value: '24px',
-    name: '--naki-font-size-3xl',
-  );
+  Token get fontSize3xl =>
+      const Token(value: '24px', name: '--naki-font-size-3xl');
 
   /// 4X large title font size (default: `28px`,
   /// CSS variable: `--naki-font-size-4xl`).
-  Token get fontSize4xl => const Token(
-    value: '28px',
-    name: '--naki-font-size-4xl',
-  );
+  Token get fontSize4xl =>
+      const Token(value: '28px', name: '--naki-font-size-4xl');
 
   /// 5X large title font size (default: `32px`,
   /// CSS variable: `--naki-font-size-5xl`).
-  Token get fontSize5xl => const Token(
-    value: '32px',
-    name: '--naki-font-size-5xl',
-  );
+  Token get fontSize5xl =>
+      const Token(value: '32px', name: '--naki-font-size-5xl');
 
   /// Section header font size (default: `15px`,
   /// CSS variable: `--naki-font-size-section-header`).
-  Token get fontSizeSectionHeader => const Token(
-    value: '15px',
-    name: '--naki-font-size-section-header',
-  );
+  Token get fontSizeSectionHeader =>
+      const Token(value: '15px', name: '--naki-font-size-section-header');
 
   /// Default input text font size
   /// (default: `14px`, CSS variable: `--naki-font-size-input`).
-  Token get fontSizeInput => const Token(
-    value: '14px',
-    name: '--naki-font-size-input',
-  );
+  Token get fontSizeInput =>
+      const Token(value: '14px', name: '--naki-font-size-input');
 
   /// Default validation error text font size
   /// (default: `12px`, CSS variable: `--naki-font-size-error`).
-  Token get fontSizeError => const Token(
-    value: '12px',
-    name: '--naki-font-size-error',
-  );
+  Token get fontSizeError =>
+      const Token(value: '12px', name: '--naki-font-size-error');
 
   /// Default helper/hint text font size
   /// (default: `12px`, CSS variable: `--naki-font-size-hint`).
-  Token get fontSizeHint => const Token(
-    value: '12px',
-    name: '--naki-font-size-hint',
-  );
+  Token get fontSizeHint =>
+      const Token(value: '12px', name: '--naki-font-size-hint');
 
   /// Default label text font size
   /// (default: `15px`, CSS variable: `--naki-font-size-label`).
-  Token get fontSizeLabel => const Token(
-    value: '15px',
-    name: '--naki-font-size-label',
-  );
+  Token get fontSizeLabel =>
+      const Token(value: '15px', name: '--naki-font-size-label');
 
   /// Font size for dropdown option label
   /// (default: `14px`, CSS variable: `--naki-font-size-dropdown-option`).
-  Token get fontSizeDropdownOption => const Token(
-    value: '14px',
-    name: '--naki-font-size-dropdown-option',
-  );
+  Token get fontSizeDropdownOption =>
+      const Token(value: '14px', name: '--naki-font-size-dropdown-option');
 
   // ===========================================================================
   // Font Weight Tokens
@@ -604,38 +568,28 @@ abstract class Tokens {
 
   /// Normal font weight (default: `400`,
   /// CSS variable: `--naki-font-weight-normal`).
-  Token get fontWeightNormal => const Token(
-    value: '400',
-    name: '--naki-font-weight-normal',
-  );
+  Token get fontWeightNormal =>
+      const Token(value: '400', name: '--naki-font-weight-normal');
 
   /// Medium font weight (default: `500`,
   /// CSS variable: `--naki-font-weight-medium`).
-  Token get fontWeightMedium => const Token(
-    value: '500',
-    name: '--naki-font-weight-medium',
-  );
+  Token get fontWeightMedium =>
+      const Token(value: '500', name: '--naki-font-weight-medium');
 
   /// Semi-bold font weight (default: `600`,
   /// CSS variable: `--naki-font-weight-semibold`).
-  Token get fontWeightSemiBold => const Token(
-    value: '600',
-    name: '--naki-font-weight-semibold',
-  );
+  Token get fontWeightSemiBold =>
+      const Token(value: '600', name: '--naki-font-weight-semibold');
 
   /// Bold font weight
   /// (default: `700`, CSS variable: `--naki-font-weight-bold`).
-  Token get fontWeightBold => const Token(
-    value: '700',
-    name: '--naki-font-weight-bold',
-  );
+  Token get fontWeightBold =>
+      const Token(value: '700', name: '--naki-font-weight-bold');
 
   /// Font weight for section headers (default: `600`,
   /// CSS variable: `--naki-font-weight-section-header`).
-  Token get fontWeightSectionHeader => const Token(
-    value: '600',
-    name: '--naki-font-weight-section-header',
-  );
+  Token get fontWeightSectionHeader =>
+      const Token(value: '600', name: '--naki-font-weight-section-header');
 
   // ===========================================================================
   // Spinner Tokens
@@ -643,17 +597,13 @@ abstract class Tokens {
 
   /// Default spinner size (default: `24px`,
   /// CSS variable: `--naki-spinner-size`).
-  Token get spinnerSize => const Token(
-    value: '24px',
-    name: '--naki-spinner-size',
-  );
+  Token get spinnerSize =>
+      const Token(value: '24px', name: '--naki-spinner-size');
 
   /// Default spinner border width (default: `2px`,
   /// CSS variable: `--naki-spinner-border-width`).
-  Token get spinnerBorderWidth => const Token(
-    value: '2px',
-    name: '--naki-spinner-border-width',
-  );
+  Token get spinnerBorderWidth =>
+      const Token(value: '2px', name: '--naki-spinner-border-width');
 
   /// Default value for [spinnerTrackColor].
   String get spinnerTrackColorValue => 'rgba(0, 0, 0, 0.15)';
@@ -790,38 +740,28 @@ abstract class Tokens {
 
   /// Text maximum lines (default: `1`,
   /// CSS variable: `--naki-text-max-lines`).
-  Token get textMaxLines => const Token(
-    value: '1',
-    name: '--naki-text-max-lines',
-  );
+  Token get textMaxLines =>
+      const Token(value: '1', name: '--naki-text-max-lines');
 
   /// Default form field / input element height
   /// (default: `45px`, CSS variable: `--naki-input-height`).
-  Token get inputHeight => const Token(
-    value: '45px',
-    name: '--naki-input-height',
-  );
+  Token get inputHeight =>
+      const Token(value: '45px', name: '--naki-input-height');
 
   /// Default dropdown trigger container height
   /// (default: `45px`, CSS variable: `--naki-dropdown-height`).
-  Token get dropdownHeight => const Token(
-    value: '45px',
-    name: '--naki-dropdown-height',
-  );
+  Token get dropdownHeight =>
+      const Token(value: '45px', name: '--naki-dropdown-height');
 
   /// Default dropdown trigger container width
   /// (default: `100%`, CSS variable: `--naki-dropdown-width`).
-  Token get dropdownWidth => const Token(
-    value: '100%',
-    name: '--naki-dropdown-width',
-  );
+  Token get dropdownWidth =>
+      const Token(value: '100%', name: '--naki-dropdown-width');
 
   /// Default height for dropdown menu
   /// (default: `200px`, CSS variable: `--naki-dropdown-menu-height`).
-  Token get dropdownMenuHeight => const Token(
-    value: '200px',
-    name: '--naki-dropdown-menu-height',
-  );
+  Token get dropdownMenuHeight =>
+      const Token(value: '200px', name: '--naki-dropdown-menu-height');
 
   /// Default value for [dropdownMenuBgColor].
   String get dropdownMenuBgColorValue => '#ffffff';
@@ -836,17 +776,13 @@ abstract class Tokens {
 
   /// Font size of dropdown menu options
   /// (default: `14px`, CSS variable: `--naki-dropdown-option-font-size`).
-  Token get dropdownOptionFontSize => const Token(
-    value: '14px',
-    name: '--naki-dropdown-option-font-size',
-  );
+  Token get dropdownOptionFontSize =>
+      const Token(value: '14px', name: '--naki-dropdown-option-font-size');
 
   /// Padding for dropdown options
   /// (default: `10px`, CSS variable: `--naki-dropdown-option-padding`).
-  Token get dropdownOptionPadding => const Token(
-    value: '10px',
-    name: '--naki-dropdown-option-padding',
-  );
+  Token get dropdownOptionPadding =>
+      const Token(value: '10px', name: '--naki-dropdown-option-padding');
 
   /// Default value for [inputTextColor].
   String get inputTextColorValue => '#000000';
@@ -909,17 +845,13 @@ abstract class Tokens {
 
   /// Button height
   /// (default: `auto`, CSS variable: `--naki-button-height`).
-  Token get buttonHeight => const Token(
-    value: 'auto',
-    name: '--naki-button-height',
-  );
+  Token get buttonHeight =>
+      const Token(value: 'auto', name: '--naki-button-height');
 
   /// Button width
   /// (default: `auto`, CSS variable: `--naki-button-width`).
-  Token get buttonWidth => const Token(
-    value: 'auto',
-    name: '--naki-button-width',
-  );
+  Token get buttonWidth =>
+      const Token(value: 'auto', name: '--naki-button-width');
 
   /// Default value for [fieldBackgroundColor].
   String get fieldBackgroundColorValue => '#ffffff';
@@ -959,10 +891,8 @@ abstract class Tokens {
 
   /// Slider thumb size
   /// (default: `24px`, CSS variable: `--naki-slider-thumb-size`).
-  Token get sliderThumbSize => const Token(
-    value: '24px',
-    name: '--naki-slider-thumb-size',
-  );
+  Token get sliderThumbSize =>
+      const Token(value: '24px', name: '--naki-slider-thumb-size');
 
   /// Default value for [switchThumbColor].
   String get switchThumbColorValue => 'currentcolor';
@@ -977,10 +907,8 @@ abstract class Tokens {
 
   /// Radio button radius
   /// (default: `24px`, CSS variable: `--naki-radio-btn-radius`).
-  Token get radioBtnRadius => const Token(
-    value: '24px',
-    name: '--naki-radio-btn-radius',
-  );
+  Token get radioBtnRadius =>
+      const Token(value: '24px', name: '--naki-radio-btn-radius');
 
   /// Default value for [radioBtnColor].
   String get radioBtnColorValue => 'currentcolor';
@@ -1006,10 +934,8 @@ abstract class Tokens {
 
   /// Default appbar height
   /// (default: `56px`, CSS variable: `--naki-appbar-height`).
-  Token get appbarHeight => const Token(
-    value: '56px',
-    name: '--naki-appbar-height',
-  );
+  Token get appbarHeight =>
+      const Token(value: '56px', name: '--naki-appbar-height');
 
   /// Default value for [bottomNavbarBgColor]
   String get bottomNavbarBgColorValue => '#f5f5f5';
@@ -1024,10 +950,8 @@ abstract class Tokens {
 
   /// Default bottom navbar height
   /// (default: `64px`, CSS variable: `--naki-bottom-navbar-height`).
-  Token get bottomNavbarHeight => const Token(
-    value: '64px',
-    name: '--naki-bottom-navbar-height',
-  );
+  Token get bottomNavbarHeight =>
+      const Token(value: '64px', name: '--naki-bottom-navbar-height');
 
   // ===========================================================================
   // Scrolling Component Tokens
@@ -1035,16 +959,12 @@ abstract class Tokens {
 
   /// Carousel item extent (default: `280px`,
   /// CSS variable: `--naki-carousel-item-extent`).
-  Token get carouselItemExtent => const Token(
-    value: '280px',
-    name: '--naki-carousel-item-extent',
-  );
+  Token get carouselItemExtent =>
+      const Token(value: '280px', name: '--naki-carousel-item-extent');
 
   /// Carousel gap (default: `0px`, CSS variable: `--naki-carousel-gap`).
-  Token get carouselGap => const Token(
-    value: '0px',
-    name: '--naki-carousel-gap',
-  );
+  Token get carouselGap =>
+      const Token(value: '0px', name: '--naki-carousel-gap');
 
   /// Default value for [tableHeaderBg].
   String get tableHeaderBgValue => 'transparent';
@@ -1110,24 +1030,18 @@ abstract class Tokens {
 
   /// Snackbar border radius
   /// (default: `12px`, CSS variable: `--naki-snackbar-border-radius`).
-  Token get snackbarBorderRadius => const Token(
-    value: '12px',
-    name: '--naki-snackbar-border-radius',
-  );
+  Token get snackbarBorderRadius =>
+      const Token(value: '12px', name: '--naki-snackbar-border-radius');
 
   /// Snackbar padding
   /// (default: `10px`, CSS variable: `--naki-snackbar-padding`).
-  Token get snackbarPadding => const Token(
-    value: '10px',
-    name: '--naki-snackbar-padding',
-  );
+  Token get snackbarPadding =>
+      const Token(value: '10px', name: '--naki-snackbar-padding');
 
   /// Snackbar vertical offset
   /// (default: `10px`, CSS variable: `--naki-snackbar-offset-y`).
-  Token get snackbarOffset => const Token(
-    value: '10px',
-    name: '--naki-snackbar-offset-y',
-  );
+  Token get snackbarOffset =>
+      const Token(value: '10px', name: '--naki-snackbar-offset-y');
 
   /// Default value for [bannerBgColor].
   String get bannerBgColorValue => '#f8fafc';
@@ -1153,17 +1067,13 @@ abstract class Tokens {
 
   /// Banner border radius
   /// (default: `12px`, CSS variable: `--naki-banner-border-radius`).
-  Token get bannerBorderRadius => const Token(
-    value: '12px',
-    name: '--naki-banner-border-radius',
-  );
+  Token get bannerBorderRadius =>
+      const Token(value: '12px', name: '--naki-banner-border-radius');
 
   /// Banner padding
   /// (default: `10px`, CSS variable: `--naki-banner-padding`).
-  Token get bannerPadding => const Token(
-    value: '10px',
-    name: '--naki-banner-padding',
-  );
+  Token get bannerPadding =>
+      const Token(value: '10px', name: '--naki-banner-padding');
 
   /// Default value for [bannerBorderColor].
   String get bannerBorderColorValue => '#e2e8f0';
@@ -1200,24 +1110,18 @@ abstract class Tokens {
 
   /// Tooltip border radius
   /// (default: `12px`, CSS variable: `--naki-tooltip-border-radius`).
-  Token get tooltipBorderRadius => const Token(
-    value: '12px',
-    name: '--naki-tooltip-border-radius',
-  );
+  Token get tooltipBorderRadius =>
+      const Token(value: '12px', name: '--naki-tooltip-border-radius');
 
   /// Tooltip padding
   /// (default: `6px`, CSS variable: `--naki-tooltip-padding`).
-  Token get tooltipPadding => const Token(
-    value: '6px',
-    name: '--naki-tooltip-padding',
-  );
+  Token get tooltipPadding =>
+      const Token(value: '6px', name: '--naki-tooltip-padding');
 
   /// Tooltip font size
   /// (default: `12px`, CSS variable: `--naki-tooltip-font-size`).
-  Token get tooltipFontSize => const Token(
-    value: '12px',
-    name: '--naki-tooltip-font-size',
-  );
+  Token get tooltipFontSize =>
+      const Token(value: '12px', name: '--naki-tooltip-font-size');
 
   /// Default value for [popoverBgColor].
   String get popoverBgColorValue => '#ffffff';
@@ -1254,17 +1158,13 @@ abstract class Tokens {
 
   /// Popover border radius
   /// (default: `12px`, CSS variable: `--naki-popover-border-radius`).
-  Token get popoverBorderRadius => const Token(
-    value: '12px',
-    name: '--naki-popover-border-radius',
-  );
+  Token get popoverBorderRadius =>
+      const Token(value: '12px', name: '--naki-popover-border-radius');
 
   /// Popover padding
   /// (default: `10px`, CSS variable: `--naki-popover-padding`).
-  Token get popoverPadding => const Token(
-    value: '10px',
-    name: '--naki-popover-padding',
-  );
+  Token get popoverPadding =>
+      const Token(value: '10px', name: '--naki-popover-padding');
 
   /// Default value for [popoverShadow].
   String get popoverShadowValue =>
@@ -1274,10 +1174,8 @@ abstract class Tokens {
   /// (default: `0 10px 15px -3px rgba(0, 0, 0, 0.1),
   /// 0 4px 6px -4px rgba(0, 0, 0, 0.1)`,
   /// CSS variable: `--naki-popover-shadow`).
-  Token get popoverShadow => Token(
-    value: popoverShadowValue,
-    name: '--naki-popover-shadow',
-  );
+  Token get popoverShadow =>
+      Token(value: popoverShadowValue, name: '--naki-popover-shadow');
 
   /// Default value for [dialogBgColor].
   String get dialogBgColorValue => '#ffffff';
@@ -1292,17 +1190,13 @@ abstract class Tokens {
 
   /// Dialog border radius
   /// (default: `12px`, CSS variable: `--naki-dialog-border-radius`).
-  Token get dialogBorderRadius => const Token(
-    value: '12px',
-    name: '--naki-dialog-border-radius',
-  );
+  Token get dialogBorderRadius =>
+      const Token(value: '12px', name: '--naki-dialog-border-radius');
 
   /// Dialog padding (default: `24px`,
   /// CSS variable: `--naki-dialog-padding`).
-  Token get dialogPadding => const Token(
-    value: '24px',
-    name: '--naki-dialog-padding',
-  );
+  Token get dialogPadding =>
+      const Token(value: '24px', name: '--naki-dialog-padding');
 
   /// Default value for [dialogBarrierBg].
   String get dialogBarrierBgValue => 'rgba(0, 0, 0, 0.5)';
@@ -1328,10 +1222,8 @@ abstract class Tokens {
   );
 
   /// Drawer width (default: `320px`, CSS variable: `--naki-drawer-width`).
-  Token get drawerWidth => const Token(
-    value: '320px',
-    name: '--naki-drawer-width',
-  );
+  Token get drawerWidth =>
+      const Token(value: '320px', name: '--naki-drawer-width');
 
   /// Default value for [drawerBarrierBg].
   String get drawerBarrierBgValue => 'rgba(0, 0, 0, 0.5)';
@@ -1358,10 +1250,8 @@ abstract class Tokens {
 
   /// BottomSheet maximum height
   /// (default: `80vh`, CSS variable: `--naki-bottom-sheet-max-height`).
-  Token get bottomSheetMaxHeight => const Token(
-    value: '80vh',
-    name: '--naki-bottom-sheet-max-height',
-  );
+  Token get bottomSheetMaxHeight =>
+      const Token(value: '80vh', name: '--naki-bottom-sheet-max-height');
 
   /// BottomSheet border radius
   /// (default: `12px 12px 0 0`,

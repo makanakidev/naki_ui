@@ -157,7 +157,7 @@ class Css {
   static final nakiPlaceholderStyle = {
     'color':
         'var(${Tokens.current.placeholderColor}, ${Tokens.current.placeholderColor.value})',
-    'opacity': '1',
+    'opacity': '0.6',
   };
 
   /// Default inline-block alignment and size styling rule for icons.
@@ -272,8 +272,12 @@ class Css {
   /// Default CSS styles map for stacked layers.
   static final nakiStackStyle = {
     'position': 'relative',
-    'display': 'block',
+    'display': 'grid',
+    'grid-template-areas': '"stack"',
+    'place-items': 'start start',
     'isolation': 'isolate',
+    'height': 'fit-content',
+    'width': 'fit-content',
   };
 
   /// Default CSS styles map for styling check boxes
@@ -1097,10 +1101,7 @@ class Css {
 
   /// Default CSS styles map for Tooltip.
   static final nakiTooltipStyle = {
-    'wrapper': {
-      'position': 'relative',
-      'display': 'inline-block',
-    },
+    'wrapper': {'position': 'relative', 'display': 'inline-block'},
 
     'content': {
       'position': 'absolute',
@@ -1131,10 +1132,7 @@ class Css {
 
   /// Default CSS styles map for Popover.
   static final nakiPopoverStyle = {
-    'wrapper': {
-      'position': 'relative',
-      'display': 'inline-block',
-    },
+    'wrapper': {'position': 'relative', 'display': 'inline-block'},
 
     'barrier': {
       'position': 'fixed',
@@ -1214,6 +1212,25 @@ class Css {
       'box-sizing': 'border-box',
       'animation':
           'nakiDialogPopIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+    },
+  };
+
+  /// Default CSS styles map for Sidebar.
+  static final nakiSidebarStyle = {
+    'wrapper': {
+      'position': 'sticky',
+      'overflow': 'auto',
+      'overscroll-behavior': 'none',
+    },
+
+    'content': {
+      'position': 'relative',
+      'width':
+          'var(${Tokens.current.drawerWidth}, ${Tokens.current.drawerWidth.value})',
+      'background-color':
+          'var(${Tokens.current.drawerBgColor}, ${Tokens.current.drawerBgColor.value})',
+      'box-sizing': 'border-box',
+      'overflow': 'auto',
     },
   };
 
@@ -1379,8 +1396,16 @@ class Css {
     },
   };
 
+  /// Default CSS styles map for SizedBox.
+  static final nakiSizedBoxStyle = {
+    'display': 'block',
+    'box-sizing': 'border-box',
+    'flex-shrink': '0',
+  };
+
   /// Default CSS styles map for Container.
   static final nakiContainerStyle = {
+    'display': 'block',
     'height': 'auto',
     'width': 'auto',
     'box-sizing': 'border-box',
@@ -1481,9 +1506,6 @@ class Css {
       'text-wrap-mode': 'wrap',
     },
 
-    'body-inner': {
-      'padding': '5px 16px 16px 16px',
-      'box-sizing': 'border-box',
-    },
+    'body-inner': {'padding': '5px 16px 16px 16px', 'box-sizing': 'border-box'},
   };
 }

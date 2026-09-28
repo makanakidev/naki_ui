@@ -22,7 +22,7 @@ Constrain a child to a predefined ratio.
 ```dart
 const AspectRatio(
   aspectRatio: AspectRatioType.ratio16_9,
-  child: Image('/images/video-cover.webp', fit: ObjectFit.cover),
+  child: Image('images/video-cover.webp', fit: ObjectFit.cover),
 )
 ```
 
@@ -113,34 +113,66 @@ Use `SizedBox.fromSize(size: ...)` for a square and `.height` or `.width` for on
 
 ## Stack
 
-Layer children in one positioning context.
+Layer children in one positioning context. Supports alignment, sizing constraints (`fit`), and explicit dimensions.
 
 ```dart
-const Stack(
+Stack(
+  alignment: Alignment.center,
+  fit: StackFit.loose,
+  width: Dim.px(320),
+  height: Dim.px(200),
   children: [
-    Image('/images/cover.webp', alt: 'Coastal landscape'),
-    Positioned(
-      left: Dim.px(12),
-      bottom: Dim.px(12),
+    Image('images/cover.webp', alt: 'Coastal landscape'),
+    Positioned.badge(
+      child: Container(
+        decoration: const BoxDecoration(
+          backgroundColor: Color('rgba(15, 23, 42, 0.8)'),
+          padding: EdgeInsets.symmetric(horizontal: Dim.px(8), vertical: Dim.px(4)),
+          borderRadius: BorderRadiusData.all(Dim.px(4)),
+        ),
+        child: const NakiText('New', style: TextStyle(color: Colors.white)),
+      ),
+    ),
+    Positioned.bottom(
       child: Card(child: NakiText('Featured')),
     ),
   ],
 )
 ```
 
-Use `Positioned` for offsets. Constrain the stack through its parent so absolute positioning has a stable containing box.
+- `alignment`: Controls placement of non-positioned children (`Alignment.topLeft` by default).
+- `fit`: Sizing constraint behavior using `StackFit`:
+  - `StackFit.loose` (default): Children size to their content/intrinsic size.
+  - `StackFit.expand`: Children stretch to fill 100% width and height.
+  - `StackFit.passthrough`: Inherits sizing constraints unmodified.
+- `width` / `height`: Optional explicit dimensions on the stack container.
 
 ## Positioned
 
-Place one stack child by edges or explicit size.
+Place one stack child by edges, explicit size, or transform offsets.
 
 ```dart
+// Standard insets
 const Positioned(
   top: Dim.px(8),
   right: Dim.px(8),
   width: Dim.px(96),
+  transform: 'translate(50%, -50%)',
   child: NakiText('Top right'),
 )
+
+// Convenient named constructors
+Positioned.fill(child: BackdropFilter(...))
+Positioned.center(child: Spinner())
+Positioned.centerHorizontal(top: Dim.px(16), child: NakiText('Centered Title'))
+Positioned.centerVertical(left: Dim.px(16), child: Icon(MaterialIcons.arrow_back))
+Positioned.badge(child: NotificationDot())
+Positioned.topLeft(child: Icon(MaterialIcons.menu))
+Positioned.topRight(child: Icon(MaterialIcons.close))
+Positioned.bottomLeft(child: NakiText('Bottom Left'))
+Positioned.bottomRight(child: NakiText('Bottom Right'))
+Positioned.top(height: Dim.px(56), child: HeaderBar())
+Positioned.bottom(height: Dim.px(48), child: ActionBar())
 ```
 
 Use only as a direct `Stack` child. Avoid setting conflicting edge and size combinations unless the intended stretch behavior is clear.
@@ -186,8 +218,6 @@ Combine constraints and a typed `BoxDecoration` around one child.
 
 ```dart
 Container(
-  blockBox: true,
-  clip: true,
   constraints: const SizeConstraints(
     width: Dim.percent(100),
     maxWidth: Dim.px(720),
@@ -197,12 +227,9 @@ Container(
     borderRadius: BorderRadiusData.all(Dim.px(12)),
     padding: const EdgeInsets.all(Dim.px(20)),
   ),
-  trailingIcon: const Icon(MaterialIcons.account_circle),
   child: const NakiText('Container content'),
 )
 ```
-
-Set `blockBox: true` when the container should occupy block layout. Set `clip: true` when descendants must not paint outside the rounded or constrained box.
 
 ## Card
 

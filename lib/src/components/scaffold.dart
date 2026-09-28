@@ -18,7 +18,7 @@ import '../utilities/helpers.dart';
 import 'basics.dart' show Column, GestureDetector, Icon, NakiText, Row;
 import 'layout.dart' show Padding;
 import 'media_query.dart' show MediaQueryProvider;
-import 'overlays.dart' show Drawer, Tooltip;
+import 'overlays.dart' show Drawer, Sidebar, Tooltip;
 
 // /////////////////////////////////////////////////////////////////////////////
 // SCAFFOLD & NAVIGATION COMPONENTS
@@ -594,7 +594,7 @@ class _BottomNavigationBarState extends State<BottomNavigationBar> {
 class Scaffold extends StatefulComponent {
   /// App bar to display at the top of the scaffold.
   ///
-  /// Typically an instance of [AppBar], but accepts any [Component].
+  /// Typically an [AppBar], but accepts any [Component].
   final Component? appBar;
 
   /// SEO tags for the page.
@@ -605,7 +605,7 @@ class Scaffold extends StatefulComponent {
 
   /// Modal drawer to display when opened.
   ///
-  /// Typically an instance of [Drawer], but accepts any [Component].
+  /// Typically a [Drawer], but accepts any [Component].
   final Component? drawer;
 
   /// Additional components (such as script, link) for font loading,
@@ -614,11 +614,13 @@ class Scaffold extends StatefulComponent {
 
   /// Persistent sidebar or navigation rail (non-modal) displayed
   /// beside the [body] content.
+  ///
+  /// Typically a [Sidebar], but accepts any [Component].
   final Component? sideBar;
 
   /// Bottom navigation bar to display at the bottom of the scaffold.
   ///
-  /// Typically an instance of [BottomNavigationBar], but accepts any [Component].
+  /// Typically a [BottomNavigationBar], but accepts any [Component].
   final Component? bottomNavigationBar;
 
   /// Button displayed floating above the body in the bottom-right corner.

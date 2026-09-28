@@ -18,9 +18,11 @@ Common constructors include pixels, rem, em, percentages, viewport units, dynami
 
 ```dart
 Container(
-  padding: const EdgeInsets.symmetric(
-    horizontal: Dim.rem(1.25),
-    vertical: Dim.rem(1),
+  decoration: BoxDecoration(
+    padding: const EdgeInsets.symmetric(
+      horizontal: Dim.rem(1.25),
+      vertical: Dim.rem(1),
+    ),
   ),
   constraints: const SizeConstraints(
     maxWidth: Dim.rem(42),
@@ -36,6 +38,10 @@ Use `EdgeInsets.all`, `symmetric`, `only`, or the directional constructors expos
 ```dart
 Container(
   decoration: BoxDecoration(
+    padding: const EdgeInsets.symmetric(
+      horizontal: Dim.rem(1.25),
+      vertical: Dim.rem(1),
+    ),
     backgroundColor: context.surfaceColor,
     border: BorderData(
       color: context.borderColor,
@@ -121,9 +127,11 @@ class GlassmorphicPromoCard extends StatelessComponent {
         ..applyBlur(16)
         ..applyContrast(110),
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: Dim.px(24),
-          vertical: Dim.px(20),
+        decoration: BoxDecoration(
+          padding: const EdgeInsets.symmetric(
+            horizontal: Dim.px(24),
+            vertical: Dim.px(20),
+          ),
         ),
         constraints: const SizeConstraints(
           maxWidth: Dim.px(420),

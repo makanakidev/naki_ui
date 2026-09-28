@@ -857,6 +857,17 @@ bool _listEquals<T>(List<T>? a, List<T>? b) {
   return true;
 }
 
+/// Normalizes a list of font family names by adding quotes to font names that contain spaces.
+String _normaliseFontFamily(List<String> fonts) {
+  return fonts
+      .map(
+        (f) => f.contains(' ') && !f.startsWith('"') && !f.startsWith("'")
+            ? '"$f"'
+            : f,
+      )
+      .join(', ');
+}
+
 /// Represents customizable base and semantic color variables.
 class ColorSeed {
   /// Primary color.
@@ -2296,7 +2307,7 @@ class LightThemeData extends _LightModeTokens {
   Token get fontFamily =>
       typography?.fontFamily != null && typography!.fontFamily!.isNotEmpty
       ? Token(
-          value: typography!.fontFamily!.join(','),
+          value: _normaliseFontFamily(typography!.fontFamily!),
           name: super.fontFamily.name,
         )
       : super.fontFamily;
@@ -3110,7 +3121,7 @@ class DarkThemeData extends _DarkModeTokens {
   Token get fontFamily =>
       typography?.fontFamily != null && typography!.fontFamily!.isNotEmpty
       ? Token(
-          value: typography!.fontFamily!.join(','),
+          value: _normaliseFontFamily(typography!.fontFamily!),
           name: super.fontFamily.name,
         )
       : super.fontFamily;

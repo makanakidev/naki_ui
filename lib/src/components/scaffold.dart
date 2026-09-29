@@ -1,10 +1,13 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:jaspr/dom.dart' hide Orientation, Padding;
 import 'package:jaspr/jaspr.dart';
+import 'package:universal_web/web.dart' hide Document;
 
 import '../framework/framework.dart';
 import '../framework/inherited.dart';
+import '../framework/lifecycle.dart';
 import '../models/gesture.dart';
 import '../models/naki.dart';
 import '../models/overlays.dart';
@@ -661,6 +664,9 @@ class Scaffold extends StatefulComponent {
 class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
   late final _drawerController = OverlayController();
 
+  final appbarKey = GlobalNodeKey<HTMLElement>();
+  final bottomNavbarKey = GlobalNodeKey<HTMLElement>();
+
   /// Controller managing the scaffold's modal drawer open/close state.
   OverlayController? get drawerController => switch (component.drawer) {
     final Drawer d => d.controller ?? _drawerController,
@@ -675,18 +681,6 @@ class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
 
   /// Whether the scaffold has a persistent sidebar.
   bool get hasSideBar => component.sideBar != null;
-
-  /// Returns the computed height of the app bar.
-  String? get appBarHeight => switch (component.appBar) {
-    final AppBar bar => bar.height?.cssText,
-    _ => null,
-  };
-
-  /// Returns the computed height of the bottom navigation bar.
-  String? get bottomNavbarHeight => switch (component.bottomNavigationBar) {
-    final BottomNavigationBar bar => bar.height?.cssText,
-    _ => null,
-  };
 
   /// Whether the scaffold has a bottom navigation bar.
   bool get hasBottomNavbar => component.bottomNavigationBar != null;
@@ -705,6 +699,35 @@ class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
 
   /// Toggles the scaffold's drawer open or closed.
   void toggleDrawer() => drawerController?.toggle();
+
+  @override
+  FutureOr<VoidCallback?> afterRender(BuildContext context) {
+    final observer = BrowserLifecycleListeners();
+
+    observer.observeComponentSize(
+      (height, width, orientation) {
+        document.body?.style.setProperty(
+          Tokens.current.appbarHeight.name,
+          height.cssText,
+        );
+      },
+      key: appbarKey,
+    );
+
+    observer.observeComponentSize(
+      (height, width, orientation) {
+        document.body?.style.setProperty(
+          Tokens.current.bottomNavbarHeight.name,
+          height.cssText,
+        );
+      },
+      key: bottomNavbarKey,
+    );
+
+    observer.register();
+
+    return observer.dispose;
+  }
 
   /// Returns SEO meta tags for the scaffold
   List<Component> get seoTags {
@@ -811,7 +834,11 @@ class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
     final drawer = component.drawer;
     final sideBar = component.sideBar;
 
-    // Ensure non-modal mode if Drawer is passed as sideBar
+    final hasAppScope = AppScope.of(context) != null;
+    final hasParentScaffold = ScaffoldScope.of(context) != null;
+    final isStandaloneRoot = !hasAppScope && !hasParentScaffold;
+
+    // ensures non-modal mode if Drawer is passed as sideBar
     final effectiveSideBar = hasSideBar
         ? (sideBar is Drawer && sideBar.modal
               ? sideBar.copyWith(modal: false)
@@ -834,49 +861,58 @@ class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
 
     return ScaffoldScope(
       state: this,
-      child: MediaQueryProvider(
-        builder: (context) {
-          return .element(
-            key: component.key,
-            tag: 'naki-scaffold',
-            classes: effectiveClasses,
-            children: [
-              // Head components with SEO meta tags
-              Document.head(children: [...component.head, ...seoTags]),
+      child: .fragment([
+        // main scaffold
+        MediaQueryProvider(
+          builder: (context) {
+            return .element(
+              key: component.key,
+              tag: 'naki-scaffold',
+              classes: effectiveClasses,
+              children: [
+                // Head components with SEO meta tags
+                Document.head(children: [...component.head, ...seoTags]),
 
-              // App bar
-              if (component.appBar != null)
-                .wrapElement(
-                  classes: 'naki-scaffold-appbar',
-                  child: component.appBar!,
-                ),
+                // App bar
+                if (component.appBar != null)
+                  .wrapElement(
+                    key: appbarKey,
+                    classes: 'naki-scaffold-appbar',
+                    child: component.appBar!,
+                  ),
 
-              // Body content
-              bodyContent,
+                // Body content
+                bodyContent,
 
-              // Floating action button
-              if (component.floatingActionButton != null)
-                .wrapElement(
-                  classes: 'naki-scaffold-fab',
-                  child: component.floatingActionButton!,
-                ),
+                // Floating action button
+                if (component.floatingActionButton != null)
+                  .wrapElement(
+                    classes: 'naki-scaffold-fab',
+                    child: component.floatingActionButton!,
+                  ),
 
-              // Bottom navigation bar
-              if (component.bottomNavigationBar != null)
-                .wrapElement(
-                  classes: 'naki-scaffold-bottom-navbar',
-                  child: component.bottomNavigationBar!,
-                ),
+                // Bottom navigation bar
+                if (component.bottomNavigationBar != null)
+                  .wrapElement(
+                    key: bottomNavbarKey,
+                    classes: 'naki-scaffold-bottom-navbar',
+                    child: component.bottomNavigationBar!,
+                  ),
 
-              // Modal Drawer
-              if (drawer != null)
-                drawer is Drawer
-                    ? drawer.copyWith(controller: drawerController)
-                    : drawer,
-            ],
-          );
-        },
-      ),
+                // Modal Drawer
+                if (drawer != null)
+                  drawer is Drawer
+                      ? drawer.copyWith(controller: drawerController)
+                      : drawer,
+              ],
+            );
+          },
+        ),
+
+        // overlay region if NakiApp or NakiScaffold
+        // is not present in the DOM
+        if (isStandaloneRoot) const OverlayRegion(),
+      ]),
     );
   }
 }

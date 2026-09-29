@@ -10,6 +10,7 @@ import '../framework/inherited.dart';
 import '../models/gesture.dart' show Events;
 import '../models/naki.dart';
 import '../models/styling.dart';
+import '../styles/css.dart';
 import '../styles/rules.dart';
 import '../theme/tokens.dart' show Tokens;
 import '../utilities/enums.dart';
@@ -155,8 +156,8 @@ class _AlignState extends State<Align> with NakiStatefulMixin {
   @override
   Component build(BuildContext context) {
     final alignment = NakiAlignProps.mapAlignment(component.alignment);
-    final width = _width != null ? '${_width!.toCleanString}px' : null;
-    final height = _height != null ? '${_height!.toCleanString}px' : null;
+    final width = _width != null ? _width!.toPx : null;
+    final height = _height != null ? _height!.toPx : null;
 
     final hasFactor =
         component.heightFactor != null || component.widthFactor != null;
@@ -281,25 +282,26 @@ class Flexible extends StatelessComponent {
   @override
   Component build(BuildContext context) {
     final flexScope = FlexScope.of(context);
+    final isExpanded = fit == FlexFit.tight;
 
-    assert(
-      flexScope != null,
-      'Flexible must be a direct child of a Row or Column.',
-    );
+    if (isExpanded) {
+      assert(
+        flexScope != null,
+        'Expanded must be a direct child of a Row or Column.',
+      );
 
-    assert(
-      flexScope == null || !flexScope.scrollable,
-      'Flexible cannot be used in a scrollable Row or '
-      'Column. The main axis is unbounded.',
-    );
+      assert(
+        flexScope == null || !flexScope.scrollable,
+        'Expanded cannot be used in a scrollable Row or '
+        'Column. The main axis is unbounded.',
+      );
+    }
 
-    final baseClass = fit == FlexFit.tight ? 'naki-expanded' : 'naki-flexible';
+    final baseClass = isExpanded ? 'naki-expanded' : 'naki-flexible';
     final effectiveClasses = joinClasses([?classes, baseClass]);
 
-    final flexValue = fit == FlexFit.tight ? '$flex 1 0%' : '$flex 1 auto';
-    final effectiveTag = fit == FlexFit.tight
-        ? 'naki-expanded'
-        : 'naki-flexible';
+    final flexValue = isExpanded ? '$flex 1 0%' : '$flex 1 auto';
+    final effectiveTag = isExpanded ? 'naki-expanded' : 'naki-flexible';
 
     return .element(
       tag: effectiveTag,
@@ -374,15 +376,11 @@ class Padding extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
-    const baseClass = 'naki-padding';
-    final effectiveClasses = joinClasses([?classes, baseClass]);
-
-    return .element(
-      tag: 'naki-padding',
+    return .wrapElement(
       key: key,
-      classes: effectiveClasses,
-      styles: Styles(raw: {...padding.pProps, 'display': 'inline-block'}),
-      children: [child],
+      classes: classes,
+      styles: Styles(raw: {...padding.pProps}),
+      child: child,
     );
   }
 }
@@ -418,21 +416,18 @@ class Margin extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
-    const baseClass = 'naki-margin';
-    final effectiveClasses = joinClasses([?classes, baseClass]);
-
-    return .element(
-      tag: 'naki-margin',
+    return .wrapElement(
       key: key,
-      classes: effectiveClasses,
-      styles: Styles(raw: {...margin.mProps, 'display': 'inline-block'}),
-      children: [child],
+      classes: classes,
+      styles: Styles(raw: {...margin.mProps}),
+      child: child,
     );
   }
 }
 
 /// {@template SizedBox}
-/// A component that provides a bounded size for its descendants when [child] is provided.
+/// A component that provides a bounded size for its descendants when
+/// [child] is provided.
 ///
 /// It can also act as an empty spacer when [child] is not provided.
 ///
@@ -882,13 +877,6 @@ class Wrap extends StatelessComponent {
     final align = NakiAlignProps.mapCrossAxisAlignment(crossAxisAlignment);
     final isHoriz = direction == Direction.horizontal;
 
-    final effectiveSpacing = spacing != null
-        ? '${spacing!.toCleanString}px'
-        : null;
-    final effectiveRunSpacing = runSpacing != null
-        ? '${runSpacing!.toCleanString}px'
-        : null;
-
     return .element(
       tag: 'naki-wrap',
       key: key,
@@ -898,8 +886,8 @@ class Wrap extends StatelessComponent {
           'flex-direction': isHoriz ? 'row' : 'column',
           'justify-content': justify,
           'align-items': align,
-          'column-gap': ?(isHoriz ? effectiveSpacing : effectiveRunSpacing),
-          'row-gap': ?(!isHoriz ? effectiveSpacing : effectiveRunSpacing),
+          'column-gap': ?(isHoriz ? spacing?.toPx : runSpacing?.toPx),
+          'row-gap': ?(!isHoriz ? spacing?.toPx : runSpacing?.toPx),
         },
       ),
       children: children,
@@ -954,28 +942,23 @@ class SafeArea extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
-    const baseClass = 'naki-safearea';
-    final effectiveClasses = joinClasses([?classes, baseClass]);
+    final styles = Css.nakiSafeAreaStyles;
 
-    return .element(
-      tag: 'naki-safearea',
+    return .wrapElement(
       key: key,
-      classes: effectiveClasses,
+      classes: classes,
       styles: Styles(
         raw: {
-          'padding-top': ?(top ? null : 'unset'),
-          'padding-left': ?(left ? null : 'unset'),
-          'padding-right': ?(right ? null : 'unset'),
-          'padding-bottom': ?(bottom ? null : 'unset'),
+          'padding-top': ?(top ? styles['padding-top'] : null),
+          'padding-left': ?(left ? styles['padding-left'] : null),
+          'padding-right': ?(right ? styles['padding-right'] : null),
+          'padding-bottom': ?(bottom ? styles['padding-bottom'] : null),
+          'margin': ?styles['margin'],
         },
       ),
-      children: [child],
+      child: child,
     );
   }
-
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('SafeArea', [Rules.nakiSafeareRules]);
 }
 
 /// {@template Container}

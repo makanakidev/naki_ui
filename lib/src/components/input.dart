@@ -127,10 +127,10 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
   /// Initial value of the text field.
   final String? initialValue;
 
-  /// Text field width.
+  /// Input container width.
   final Dim? width;
 
-  /// Text field height.
+  /// Input container height.
   final Dim? height;
 
   /// Icon shown at the left edge of the input field.
@@ -340,18 +340,16 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
 
   /// Handles input changes
   void _handleInput(dynamic value) {
+    onTyping?.call(value.toString().trim());
     _validate();
-    final inputValue = value.toString().trim();
-    if (inputValue.isNotEmpty) onTyping?.call(inputValue);
   }
 
   /// Handles submit action on enter key press
   void _handleSubmit(KeyboardEvent event) {
     if (event.key == 'Enter' && !isMultiline) {
       event.preventDefault();
+      onSubmit?.call(currentValue ?? '');
       _validate();
-      final inputValue = currentValue ?? '';
-      if (inputValue.isNotEmpty) onSubmit?.call(inputValue);
     }
   }
 
@@ -361,7 +359,7 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
     final effectiveWidth = expand ? null : width;
 
     final baseClass = 'naki-${isMultiline ? 'textarea' : 'input'}';
-    final effectiveClasses = joinClasses([?classes, baseClass]);
+    final effectiveClasses = joinClasses([?classes, 'naki-form-field']);
 
     final labelText = decoration?.labelText ?? '';
     final placeholderText = decoration?.placeholderText;
@@ -403,7 +401,7 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
             key: key,
             id: id,
             name: id,
-            classes: hasIcon ? null : effectiveClasses,
+            classes: hasIcon ? null : baseClass,
             styles: Styles(raw: effectiveInputStyles),
             disabled: disable,
             required: required,
@@ -432,7 +430,7 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
             key: key,
             id: id,
             name: id,
-            classes: hasIcon ? null : effectiveClasses,
+            classes: hasIcon ? null : baseClass,
             styles: Styles(raw: effectiveInputStyles),
             type: type,
             disabled: disable,
@@ -460,11 +458,14 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
             events: effectiveEvents.toMap,
           );
 
-    if (expand) inputArea = Expanded(child: inputArea);
+    if (expand) {
+      inputArea = Expanded(child: inputArea);
+      if (!hasIcon) inputArea = Row(children: [inputArea]);
+    }
 
     if (hasIcon) {
       inputArea = .wrapElement(
-        classes: effectiveClasses,
+        classes: baseClass,
         attributes: {
           'hvr': ?(allowHover ? '' : null),
           'fcs': ?(allowFocus ? '' : null),
@@ -487,7 +488,7 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
     return .element(
       tag: 'naki-textfield',
       id: '${id}__textfield',
-      classes: 'naki-form-field',
+      classes: effectiveClasses,
       styles: Styles(
         raw: {
           Tokens.current.inputHeight.name: ?height?.cssText,

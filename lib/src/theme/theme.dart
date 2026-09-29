@@ -339,7 +339,7 @@ class _NakiThemeProviderState extends State<NakiThemeProvider>
     if (!hasNakiApp && !hasCustomTokens) {
       // scroll bar styles
       if (scrollBarConfig != null) {
-        styles.addAll(Rules.buildScrollbarRules('html', scrollBarConfig));
+        styles.addAll(Rules.buildScrollbarRules('root', scrollBarConfig));
       }
 
       // default styles
@@ -353,7 +353,7 @@ class _NakiThemeProviderState extends State<NakiThemeProvider>
     if (hasCustomTokens) {
       // scroll bar styles
       if (scrollBarConfig != null) {
-        styles.addAll(Rules.buildScrollbarRules('html', scrollBarConfig));
+        styles.addAll(Rules.buildScrollbarRules('root', scrollBarConfig));
       }
 
       // light mode styles

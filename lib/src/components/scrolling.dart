@@ -182,9 +182,7 @@ class _SingleChildScrollViewState extends State<SingleChildScrollView>
       : null;
 
   @override
-  FutureOr<VoidCallback?> afterRender(
-    BuildContext context,
-  ) {
+  FutureOr<VoidCallback?> afterRender(BuildContext context) {
     final element =
         _key?.currentNode ?? document.getElementById(_id) as HTMLElement?;
 
@@ -198,9 +196,7 @@ class _SingleChildScrollViewState extends State<SingleChildScrollView>
   }
 
   @override
-  void didUpdateComponent(
-    SingleChildScrollView oldComponent,
-  ) {
+  void didUpdateComponent(SingleChildScrollView oldComponent) {
     super.didUpdateComponent(oldComponent);
 
     if (oldComponent.controller != component.controller ||
@@ -231,6 +227,8 @@ class _SingleChildScrollViewState extends State<SingleChildScrollView>
           : (component.reverse ? 'column-reverse' : 'column'),
       'width': '100%',
       'height': '100%',
+      'min-height': '0',
+      'min-width': '0',
       ...?component.padding?.pProps,
       ...?component.physics?.props(component.direction),
     };
@@ -386,11 +384,7 @@ class ListView extends StatefulComponent {
   factory ListView.builder({
     Key? key,
     required int itemCount,
-    required Component Function(
-      BuildContext context,
-      int index,
-    )
-    itemBuilder,
+    required Component Function(BuildContext context, int index) itemBuilder,
     ScrollDirection direction = ScrollDirection.vertical,
     bool reverse = false,
     bool shrinkWrap = false,
@@ -466,15 +460,8 @@ class ListView extends StatefulComponent {
   factory ListView.separated({
     Key? key,
     required int itemCount,
-    required Component Function(
-      BuildContext context,
-      int index,
-    )
-    itemBuilder,
-    required Component Function(
-      BuildContext context,
-      int index,
-    )
+    required Component Function(BuildContext context, int index) itemBuilder,
+    required Component Function(BuildContext context, int index)
     separatorBuilder,
     ScrollDirection direction = ScrollDirection.vertical,
     bool reverse = false,
@@ -511,9 +498,8 @@ class ListView extends StatefulComponent {
   State<ListView> createState() => _ListViewState();
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('ListView', [
-    Rules.nakiListViewRules,
-  ]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('ListView', [Rules.nakiListViewRules]);
 }
 
 class _ListViewState extends State<ListView> with NakiStatefulMixin {
@@ -526,9 +512,7 @@ class _ListViewState extends State<ListView> with NakiStatefulMixin {
       : null;
 
   @override
-  FutureOr<VoidCallback?> afterRender(
-    BuildContext context,
-  ) {
+  FutureOr<VoidCallback?> afterRender(BuildContext context) {
     final element =
         _key?.currentNode ?? document.getElementById(_id) as HTMLElement?;
 
@@ -637,10 +621,7 @@ class _ListViewBuilder extends ListView {
     super.classes,
     super.scrollBarConfiguration,
     super.children = const [],
-  }) : assert(
-         itemCount > 0,
-         'itemCount must be greater than 0',
-       ),
+  }) : assert(itemCount > 0, 'itemCount must be greater than 0'),
        assert(
          initialItemCount == null || initialItemCount > 0,
          'initialItemCount must be greater than 0',
@@ -686,9 +667,7 @@ class _ListViewBuilderState extends State<_ListViewBuilder>
   }
 
   @override
-  FutureOr<VoidCallback?> afterRender(
-    BuildContext context,
-  ) {
+  FutureOr<VoidCallback?> afterRender(BuildContext context) {
     final element =
         _key?.currentNode ?? document.getElementById(_id) as HTMLElement?;
 
@@ -737,10 +716,7 @@ class _ListViewBuilderState extends State<_ListViewBuilder>
   /// Returns the initial number of items to render
   int _initialRenderedCount() => component.initialItemCount == null
       ? component.itemCount
-      : math.min(
-          component.itemCount,
-          component.initialItemCount!,
-        );
+      : math.min(component.itemCount, component.initialItemCount!);
 
   /// Loads more items if needed
   void _loadMoreIfNeeded(HTMLElement element) {
@@ -775,40 +751,37 @@ class _ListViewBuilderState extends State<_ListViewBuilder>
     final oldScrollExtent = isVert ? element.scrollHeight : element.scrollWidth;
     final oldScrollOffset = isVert ? element.scrollTop : element.scrollLeft;
 
-    Future.delayed(
-      const Duration(milliseconds: _defaultLoadMoreDelay),
-      () {
-        if (!mounted) return;
+    Future.delayed(const Duration(milliseconds: _defaultLoadMoreDelay), () {
+      if (!mounted) return;
 
-        setState(() {
-          _renderedItemCount = math.min(
-            component.itemCount,
-            _renderedItemCount + component.loadMoreItemCount,
-          );
+      setState(() {
+        _renderedItemCount = math.min(
+          component.itemCount,
+          _renderedItemCount + component.loadMoreItemCount,
+        );
 
-          _isLoadingMore = false;
-        });
+        _isLoadingMore = false;
+      });
 
-        onComponentRendered(() {
-          if (component.reverse && mounted) {
-            final newScrollExtent = isVert
-                ? element.scrollHeight
-                : element.scrollWidth;
+      onComponentRendered(() {
+        if (component.reverse && mounted) {
+          final newScrollExtent = isVert
+              ? element.scrollHeight
+              : element.scrollWidth;
 
-            final delta = newScrollExtent - oldScrollExtent;
+          final delta = newScrollExtent - oldScrollExtent;
 
-            if (delta > 0) {
-              if (isVert) {
-                element.scrollTop = oldScrollOffset + delta;
-              } else {
-                element.scrollLeft = oldScrollOffset + delta;
-              }
+          if (delta > 0) {
+            if (isVert) {
+              element.scrollTop = oldScrollOffset + delta;
+            } else {
+              element.scrollLeft = oldScrollOffset + delta;
             }
           }
-          _loadMoreIfNeeded(element);
-        });
-      },
-    );
+        }
+        _loadMoreIfNeeded(element);
+      });
+    });
   }
 
   @override
@@ -901,10 +874,7 @@ class _ListViewSeparated extends ListView {
     super.scrollBarConfiguration,
     super.classes,
     super.children = const [],
-  }) : assert(
-         itemCount > 0,
-         'itemCount must be greater than 0',
-       ),
+  }) : assert(itemCount > 0, 'itemCount must be greater than 0'),
        assert(
          initialItemCount == null || initialItemCount > 0,
          'initialItemCount must be greater than 0',
@@ -950,9 +920,7 @@ class _ListViewSeparatedState extends State<_ListViewSeparated>
   }
 
   @override
-  FutureOr<VoidCallback?> afterRender(
-    BuildContext context,
-  ) {
+  FutureOr<VoidCallback?> afterRender(BuildContext context) {
     final element =
         _key?.currentNode ?? document.getElementById(_id) as HTMLElement?;
 
@@ -1001,10 +969,7 @@ class _ListViewSeparatedState extends State<_ListViewSeparated>
   /// Returns the initial number of items to render
   int _initialRenderedCount() => component.initialItemCount == null
       ? component.itemCount
-      : math.min(
-          component.itemCount,
-          component.initialItemCount!,
-        );
+      : math.min(component.itemCount, component.initialItemCount!);
 
   /// Loads more items if needed
   void _loadMoreIfNeeded(HTMLElement element) {
@@ -1039,41 +1004,38 @@ class _ListViewSeparatedState extends State<_ListViewSeparated>
     final oldScrollExtent = isVert ? element.scrollHeight : element.scrollWidth;
     final oldScrollOffset = isVert ? element.scrollTop : element.scrollLeft;
 
-    Future.delayed(
-      const Duration(milliseconds: _defaultLoadMoreDelay),
-      () {
-        if (!mounted) return;
+    Future.delayed(const Duration(milliseconds: _defaultLoadMoreDelay), () {
+      if (!mounted) return;
 
-        setState(() {
-          _renderedItemCount = math.min(
-            component.itemCount,
-            _renderedItemCount + component.loadMoreItemCount,
-          );
+      setState(() {
+        _renderedItemCount = math.min(
+          component.itemCount,
+          _renderedItemCount + component.loadMoreItemCount,
+        );
 
-          _isLoadingMore = false;
-        });
+        _isLoadingMore = false;
+      });
 
-        onComponentRendered(() {
-          if (component.reverse && mounted) {
-            final newScrollExtent = isVert
-                ? element.scrollHeight
-                : element.scrollWidth;
+      onComponentRendered(() {
+        if (component.reverse && mounted) {
+          final newScrollExtent = isVert
+              ? element.scrollHeight
+              : element.scrollWidth;
 
-            final delta = newScrollExtent - oldScrollExtent;
+          final delta = newScrollExtent - oldScrollExtent;
 
-            if (delta > 0) {
-              if (isVert) {
-                element.scrollTop = oldScrollOffset + delta;
-              } else {
-                element.scrollLeft = oldScrollOffset + delta;
-              }
+          if (delta > 0) {
+            if (isVert) {
+              element.scrollTop = oldScrollOffset + delta;
+            } else {
+              element.scrollLeft = oldScrollOffset + delta;
             }
           }
+        }
 
-          _loadMoreIfNeeded(element);
-        });
-      },
-    );
+        _loadMoreIfNeeded(element);
+      });
+    });
   }
 
   @override
@@ -1416,11 +1378,7 @@ class GridView extends StatefulComponent {
   factory GridView.builder({
     Key? key,
     required int itemCount,
-    required Component Function(
-      BuildContext context,
-      int index,
-    )
-    itemBuilder,
+    required Component Function(BuildContext context, int index) itemBuilder,
     required SliverGridDelegate gridDelegate,
     ScrollDirection direction = ScrollDirection.vertical,
     bool reverse = false,
@@ -1459,9 +1417,8 @@ class GridView extends StatefulComponent {
   State<GridView> createState() => _GridViewState();
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('GridView', [
-    Rules.nakiGridViewRules,
-  ]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('GridView', [Rules.nakiGridViewRules]);
 }
 
 class _GridViewState extends State<GridView> with NakiStatefulMixin {
@@ -1474,9 +1431,7 @@ class _GridViewState extends State<GridView> with NakiStatefulMixin {
       : null;
 
   @override
-  FutureOr<VoidCallback?> afterRender(
-    BuildContext context,
-  ) {
+  FutureOr<VoidCallback?> afterRender(BuildContext context) {
     final element =
         _key?.currentNode ?? document.getElementById(_id) as HTMLElement?;
 
@@ -1585,10 +1540,7 @@ class _GridViewState extends State<GridView> with NakiStatefulMixin {
           : null;
 
       final effectiveChild = mainAxisExtent == null
-          ? AspectRatio(
-              child: child,
-              aspectRatio: childAspect,
-            )
+          ? AspectRatio(child: child, aspectRatio: childAspect)
           : child;
 
       children.add(
@@ -1660,10 +1612,7 @@ class _GridViewBuilder extends GridView {
     super.padding,
     super.classes,
     super.children = const [],
-  }) : assert(
-         itemCount > 0,
-         'itemCount must be greater than 0',
-       ),
+  }) : assert(itemCount > 0, 'itemCount must be greater than 0'),
        assert(
          initialItemCount == null || initialItemCount > 0,
          'initialItemCount must be greater than 0',
@@ -1709,9 +1658,7 @@ class _GridViewBuilderState extends State<_GridViewBuilder>
   }
 
   @override
-  FutureOr<VoidCallback?> afterRender(
-    BuildContext context,
-  ) {
+  FutureOr<VoidCallback?> afterRender(BuildContext context) {
     final element =
         _key?.currentNode ?? document.getElementById(_id) as HTMLElement?;
 
@@ -1760,10 +1707,7 @@ class _GridViewBuilderState extends State<_GridViewBuilder>
   /// Returns the initial number of items to render
   int _initialRenderedCount() => component.initialItemCount == null
       ? component.itemCount
-      : math.min(
-          component.itemCount,
-          component.initialItemCount!,
-        );
+      : math.min(component.itemCount, component.initialItemCount!);
 
   /// Loads more items if needed
   void _loadMoreIfNeeded(HTMLElement element) {
@@ -1798,41 +1742,38 @@ class _GridViewBuilderState extends State<_GridViewBuilder>
     final oldScrollExtent = isVert ? element.scrollHeight : element.scrollWidth;
     final oldScrollOffset = isVert ? element.scrollTop : element.scrollLeft;
 
-    Future.delayed(
-      const Duration(milliseconds: _defaultLoadMoreDelay),
-      () {
-        if (!mounted) return;
+    Future.delayed(const Duration(milliseconds: _defaultLoadMoreDelay), () {
+      if (!mounted) return;
 
-        setState(() {
-          _renderedItemCount = math.min(
-            component.itemCount,
-            _renderedItemCount + component.loadMoreItemCount,
-          );
+      setState(() {
+        _renderedItemCount = math.min(
+          component.itemCount,
+          _renderedItemCount + component.loadMoreItemCount,
+        );
 
-          _isLoadingMore = false;
-        });
+        _isLoadingMore = false;
+      });
 
-        onComponentRendered(() {
-          if (component.reverse && mounted) {
-            final newScrollExtent = isVert
-                ? element.scrollHeight
-                : element.scrollWidth;
+      onComponentRendered(() {
+        if (component.reverse && mounted) {
+          final newScrollExtent = isVert
+              ? element.scrollHeight
+              : element.scrollWidth;
 
-            final delta = newScrollExtent - oldScrollExtent;
+          final delta = newScrollExtent - oldScrollExtent;
 
-            if (delta > 0) {
-              if (isVert) {
-                element.scrollTop = oldScrollOffset + delta;
-              } else {
-                element.scrollLeft = oldScrollOffset + delta;
-              }
+          if (delta > 0) {
+            if (isVert) {
+              element.scrollTop = oldScrollOffset + delta;
+            } else {
+              element.scrollLeft = oldScrollOffset + delta;
             }
           }
+        }
 
-          _loadMoreIfNeeded(element);
-        });
-      },
-    );
+        _loadMoreIfNeeded(element);
+      });
+    });
   }
 
   @override
@@ -1919,10 +1860,7 @@ class _GridViewBuilderState extends State<_GridViewBuilder>
           : null;
 
       final effectiveChild = mainAxisExtent == null
-          ? AspectRatio(
-              child: child,
-              aspectRatio: childAspect,
-            )
+          ? AspectRatio(child: child, aspectRatio: childAspect)
           : child;
 
       items.add(
@@ -2108,11 +2046,7 @@ class PageView extends StatefulComponent {
   factory PageView.builder({
     Key? key,
     required int itemCount,
-    required Component Function(
-      BuildContext context,
-      int index,
-    )
-    itemBuilder,
+    required Component Function(BuildContext context, int index) itemBuilder,
     ScrollDirection direction = ScrollDirection.horizontal,
     bool reverse = false,
     bool pageSnapping = true,
@@ -2141,9 +2075,8 @@ class PageView extends StatefulComponent {
   State<PageView> createState() => _PageViewState();
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('PageView', [
-    Rules.nakiPageViewRules,
-  ]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('PageView', [Rules.nakiPageViewRules]);
 }
 
 class _PageViewState extends State<PageView> with NakiStatefulMixin {
@@ -2155,9 +2088,7 @@ class _PageViewState extends State<PageView> with NakiStatefulMixin {
   /// The page controller used by this component
   PageController get _effectiveController =>
       component.controller ??
-      (_internalController ??= PageController(
-        direction: component.direction,
-      ));
+      (_internalController ??= PageController(direction: component.direction));
 
   /// Returns the component's global key
   GlobalNodeKey<HTMLElement>? get _key =>
@@ -2187,9 +2118,7 @@ class _PageViewState extends State<PageView> with NakiStatefulMixin {
   }
 
   @override
-  FutureOr<VoidCallback?> afterRender(
-    BuildContext context,
-  ) {
+  FutureOr<VoidCallback?> afterRender(BuildContext context) {
     final element =
         _key?.currentNode ?? document.getElementById(_id) as HTMLElement?;
 
@@ -2278,10 +2207,7 @@ class _PageViewBuilder extends PageView {
 
 class _PageViewBuilderState extends State<_PageViewBuilder>
     with NakiStatefulMixin {
-  late final String _id = nakiDomId(
-    context,
-    'pageview-builder',
-  );
+  late final String _id = nakiDomId(context, 'pageview-builder');
 
   int _currentPage = 0;
   PageController? _internalController;
@@ -2289,9 +2215,7 @@ class _PageViewBuilderState extends State<_PageViewBuilder>
   /// The page controller used by this component
   PageController get _effectiveController =>
       component.controller ??
-      (_internalController ??= PageController(
-        direction: component.direction,
-      ));
+      (_internalController ??= PageController(direction: component.direction));
 
   /// Returns the component's global key
   GlobalNodeKey<HTMLElement>? get _key =>
@@ -2321,9 +2245,7 @@ class _PageViewBuilderState extends State<_PageViewBuilder>
   }
 
   @override
-  FutureOr<VoidCallback?> afterRender(
-    BuildContext context,
-  ) {
+  FutureOr<VoidCallback?> afterRender(BuildContext context) {
     final element =
         _key?.currentNode ?? document.getElementById(_id) as HTMLElement?;
 
@@ -2560,16 +2482,12 @@ class CarouselView extends StatefulComponent {
   State<CarouselView> createState() => _CarouselViewState();
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('CarouselView', [
-    Rules.nakiCarouselRules,
-  ]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('CarouselView', [Rules.nakiCarouselRules]);
 }
 
 class _CarouselViewState extends State<CarouselView> with NakiStatefulMixin {
-  late final String _id = nakiDomId(
-    context,
-    'carousel-view',
-  );
+  late final String _id = nakiDomId(context, 'carousel-view');
 
   /// Returns the component's global key
   GlobalNodeKey<HTMLElement>? get _key =>
@@ -2578,9 +2496,7 @@ class _CarouselViewState extends State<CarouselView> with NakiStatefulMixin {
       : null;
 
   @override
-  FutureOr<VoidCallback?> afterRender(
-    BuildContext context,
-  ) {
+  FutureOr<VoidCallback?> afterRender(BuildContext context) {
     final element =
         _key?.currentNode ?? document.getElementById(_id) as HTMLElement?;
 
@@ -2846,15 +2762,10 @@ class Table extends StatelessComponent {
           ],
         );
 
-    emptyState = .wrapElement(
-      classes: 'naki-table__empty',
-      child: emptyState,
-    );
+    emptyState = .wrapElement(classes: 'naki-table__empty', child: emptyState);
 
     emptyState = tr([
-      td(colspan: headers.length, id: 'no-data', [
-        emptyState,
-      ]),
+      td(colspan: headers.length, id: 'no-data', [emptyState]),
     ]);
 
     // Column widths
@@ -2869,9 +2780,7 @@ class Table extends StatelessComponent {
             ? columnWidths![i]!.cssWidth
             : null;
 
-        colGroup.add(
-          col(styles: Styles(raw: {'width': ?width})),
-        );
+        colGroup.add(col(styles: Styles(raw: {'width': ?width})));
       }
     }
 
@@ -2880,12 +2789,7 @@ class Table extends StatelessComponent {
       for (int i = 0; i < headers.length; i++) {
         final h = headers[i];
         final alignment = headerAlignment?.name;
-        headCells.add(
-          th(
-            styles: Styles(raw: {'text-align': ?alignment}),
-            [h],
-          ),
-        );
+        headCells.add(th(styles: Styles(raw: {'text-align': ?alignment}), [h]));
       }
     }
 
@@ -2971,9 +2875,8 @@ class Table extends StatelessComponent {
   }
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('Table', [
-    Rules.nakiTableRules,
-  ]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('Table', [Rules.nakiTableRules]);
 }
 
 /// {@template StaggeredView}
@@ -3059,10 +2962,7 @@ class StaggeredView extends StatefulComponent {
     this.physics,
     this.scrollBarConfiguration,
     this.classes,
-  }) : assert(
-         crossAxisCount > 0,
-         'crossAxisCount must be greater than 0',
-       );
+  }) : assert(crossAxisCount > 0, 'crossAxisCount must be greater than 0');
 
   /// Creates a staggered grid view with a fixed number of columns.
   ///
@@ -3132,16 +3032,12 @@ class StaggeredView extends StatefulComponent {
   State<StaggeredView> createState() => _StaggeredViewState();
 
   @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('StaggeredView', [
-    Rules.nakiStaggeredRules,
-  ]);
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('StaggeredView', [Rules.nakiStaggeredRules]);
 }
 
 class _StaggeredViewState extends State<StaggeredView> with NakiStatefulMixin {
-  late final String _id = nakiDomId(
-    context,
-    'staggered-view',
-  );
+  late final String _id = nakiDomId(context, 'staggered-view');
 
   /// Returns the component's global key
   GlobalNodeKey<HTMLElement>? get _key =>
@@ -3150,9 +3046,7 @@ class _StaggeredViewState extends State<StaggeredView> with NakiStatefulMixin {
       : null;
 
   @override
-  FutureOr<VoidCallback?> afterRender(
-    BuildContext context,
-  ) {
+  FutureOr<VoidCallback?> afterRender(BuildContext context) {
     final element =
         _key?.currentNode ?? document.getElementById(_id) as HTMLElement?;
 
@@ -3270,11 +3164,7 @@ class StaggeredTile extends StatelessComponent {
   final bool fullWidth;
 
   /// {@macro StaggeredTile}
-  const StaggeredTile({
-    super.key,
-    required this.child,
-    this.fullWidth = false,
-  });
+  const StaggeredTile({super.key, required this.child, this.fullWidth = false});
 
   @override
   Component build(BuildContext context) => child;

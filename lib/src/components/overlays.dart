@@ -230,6 +230,7 @@ class Snackbar extends StatefulComponent {
 class _SnackbarState extends State<Snackbar> {
   Timer? _timer;
   late bool _localIsOpen;
+  late final _id = nakiDomId(context, 'snackbar');
 
   @override
   void setState(VoidCallback fn) {
@@ -300,12 +301,11 @@ class _SnackbarState extends State<Snackbar> {
     final scaffold = Scaffold.maybeOf(context);
 
     if (scaffold != null) {
-      final appBarHeight =
-          scaffold.appBarHeight ?? Tokens.current.appbarHeight.value;
+      String appbarHeight = Tokens.current.appbarHeight.name;
+      String bottomNavbarHeight = Tokens.current.bottomNavbarHeight.name;
 
-      final bottomNavbarHeight =
-          scaffold.bottomNavbarHeight ??
-          Tokens.current.bottomNavbarHeight.value;
+      appbarHeight = 'var($appbarHeight, 56px)';
+      bottomNavbarHeight = 'var($bottomNavbarHeight, 64px)';
 
       final isTopPosition =
           component.position == .top ||
@@ -320,7 +320,7 @@ class _SnackbarState extends State<Snackbar> {
       if (isTopPosition && scaffold.hasAppbar) {
         return {
           Tokens.current.snackbarOffset.name:
-              'calc($appBarHeight + env(--safe-area-inset-top, 0px) + 5px)',
+              'calc($appbarHeight + env(--safe-area-inset-top, 0px) + 5px)',
         };
       }
 
@@ -370,13 +370,17 @@ class _SnackbarState extends State<Snackbar> {
         ),
     ];
 
-    return .element(
-      tag: 'naki-snackbar',
-      key: component.key,
-      classes: effectiveClasses,
-      attributes: const {'role': 'status', 'aria-live': 'polite'},
-      styles: Styles(raw: effectiveStyles),
-      children: effectiveChildren,
+    return OverlayScope(
+      id: _id,
+      child: .element(
+        tag: 'naki-snackbar',
+        id: _id,
+        key: component.key,
+        classes: effectiveClasses,
+        attributes: const {'role': 'status', 'aria-live': 'polite'},
+        styles: Styles(raw: effectiveStyles),
+        children: effectiveChildren,
+      ),
     );
   }
 }
@@ -685,6 +689,7 @@ class Dialog extends StatefulComponent {
 
 class _DialogState extends State<Dialog> with _AccessibleOverlay<Dialog> {
   bool _localIsOpen = false;
+  late final _id = nakiDomId(context, 'dialog');
 
   @override
   void setState(VoidCallback fn) {
@@ -779,35 +784,39 @@ class _DialogState extends State<Dialog> with _AccessibleOverlay<Dialog> {
         ),
     ];
 
-    return .element(
-      tag: 'naki-dialog',
-      key: component.key,
-      classes: effectiveClasses,
-      styles: Styles(raw: effectiveStyles),
-      events: component.barrierDismissible
-          ? {'click': (_) => component.controller.close()}
-          : null,
-      children: [
-        div(
-          key: overlaySurfaceKey,
-          classes: 'naki-dialog-content',
-          attributes: {
-            'role': 'dialog',
-            'aria-modal': 'true',
-            'aria-label':
-                component.semanticLabel ?? component.title ?? 'Dialog',
-            'tabindex': '-1',
-          },
-          events: {'click': (e) => e.stopPropagation()},
-          styles: Styles(
-            raw: {
-              ...?component.gradient?.props,
-              ...?component.sizeConstraints?.props,
+    return OverlayScope(
+      id: _id,
+      child: .element(
+        tag: 'naki-dialog',
+        id: _id,
+        key: component.key,
+        classes: effectiveClasses,
+        styles: Styles(raw: effectiveStyles),
+        events: component.barrierDismissible
+            ? {'click': (_) => component.controller.close()}
+            : null,
+        children: [
+          div(
+            key: overlaySurfaceKey,
+            classes: 'naki-dialog-content',
+            attributes: {
+              'role': 'dialog',
+              'aria-modal': 'true',
+              'aria-label':
+                  component.semanticLabel ?? component.title ?? 'Dialog',
+              'tabindex': '-1',
             },
+            events: {'click': (e) => e.stopPropagation()},
+            styles: Styles(
+              raw: {
+                ...?component.gradient?.props,
+                ...?component.sizeConstraints?.props,
+              },
+            ),
+            dialogChildren,
           ),
-          dialogChildren,
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -973,6 +982,7 @@ class Drawer extends StatefulComponent {
 
 class _DrawerState extends State<Drawer> with _AccessibleOverlay<Drawer> {
   bool _localIsOpen = false;
+  late final _id = nakiDomId(context, 'drawer');
 
   @override
   void setState(VoidCallback fn) {
@@ -1043,9 +1053,10 @@ class _DrawerState extends State<Drawer> with _AccessibleOverlay<Drawer> {
         ? 'naki-drawer-content drawer-${component.position.name}'
         : 'naki-sidebar-content';
 
-    return .element(
+    final drawer = Component.element(
       tag: baseClass,
       key: component.key,
+      id: _id,
       classes: effectiveClasses,
       styles: Styles(raw: effectiveStyles),
       children: [
@@ -1074,6 +1085,8 @@ class _DrawerState extends State<Drawer> with _AccessibleOverlay<Drawer> {
         ),
       ],
     );
+
+    return component.modal ? OverlayScope(id: _id, child: drawer) : drawer;
   }
 }
 
@@ -1235,6 +1248,7 @@ class BottomSheet extends StatefulComponent {
 class _BottomSheetState extends State<BottomSheet>
     with _AccessibleOverlay<BottomSheet> {
   bool _localIsOpen = false;
+  late final _id = nakiDomId(context, 'bottomsheet');
 
   @override
   void setState(VoidCallback fn) {
@@ -1299,32 +1313,38 @@ class _BottomSheetState extends State<BottomSheet>
       component.child,
     ];
 
-    return .element(
-      tag: 'naki-bottomsheet',
-      key: component.key,
-      classes: effectiveClasses,
-      styles: Styles(raw: effectiveStyles),
-      events: component.barrierDismissible ? {'click': (_) => _close()} : null,
-      children: [
-        div(
-          key: overlaySurfaceKey,
-          classes: 'naki-bottom-sheet-content',
-          attributes: {
-            'role': 'dialog',
-            'aria-modal': 'true',
-            'aria-label': component.semanticLabel,
-            'tabindex': '-1',
-          },
-          events: {'click': (e) => e.stopPropagation()},
-          styles: Styles(
-            raw: {
-              'max-width': ?component.maxWidth?.cssText,
-              ...?component.gradient?.props,
+    return OverlayScope(
+      id: _id,
+      child: .element(
+        tag: 'naki-bottomsheet',
+        id: _id,
+        key: component.key,
+        classes: effectiveClasses,
+        styles: Styles(raw: effectiveStyles),
+        events: component.barrierDismissible
+            ? {'click': (_) => _close()}
+            : null,
+        children: [
+          div(
+            key: overlaySurfaceKey,
+            classes: 'naki-bottom-sheet-content',
+            attributes: {
+              'role': 'dialog',
+              'aria-modal': 'true',
+              'aria-label': component.semanticLabel,
+              'tabindex': '-1',
             },
+            events: {'click': (e) => e.stopPropagation()},
+            styles: Styles(
+              raw: {
+                'max-width': ?component.maxWidth?.cssText,
+                ...?component.gradient?.props,
+              },
+            ),
+            effectiveChildren,
           ),
-          effectiveChildren,
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

@@ -6,6 +6,7 @@ import 'package:jaspr_router/jaspr_router.dart';
 
 import '../framework/inherited.dart' show AppScope;
 import '../models/naki.dart';
+import '../models/overlays.dart';
 import '../models/styling.dart';
 import '../styles/rules.dart';
 import '../styles/text_style.dart';
@@ -771,6 +772,9 @@ class _NakiAppState extends State<NakiApp> {
 
         // app body
         _appBody,
+
+        // overlay region
+        const OverlayRegion(),
       ]),
     );
   }

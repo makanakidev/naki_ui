@@ -202,10 +202,7 @@ class BrowserLifecycleListeners {
     String? id,
   }) {
     if (id.isNullOrEmpty && key == null) {
-      debugPrint(
-        'Component key or id must be provided',
-        true,
-      );
+      debugPrint('Component key or id must be provided');
       return;
     }
 
@@ -216,10 +213,9 @@ class BrowserLifecycleListeners {
 
       if (element == null) {
         debugPrint(
-          'The component to observe for size change is not found.'
+          'The component to observe for size change is not found. '
           'Ensure a global node key or unique id assigned to the component '
           'is provided.',
-          true,
         );
         return;
       }
@@ -240,10 +236,7 @@ class BrowserLifecycleListeners {
     String? id,
   }) {
     if (id.isNullOrEmpty && key == null) {
-      debugPrint(
-        'Component key or id must be provided',
-        true,
-      );
+      debugPrint('Component key or id must be provided');
       return;
     }
 
@@ -270,10 +263,7 @@ class BrowserLifecycleListeners {
     String? id,
   }) {
     if (id.isNullOrEmpty && key == null) {
-      debugPrint(
-        'Component key or id must be provided',
-        true,
-      );
+      debugPrint('Component key or id must be provided');
       return;
     }
 
@@ -284,10 +274,9 @@ class BrowserLifecycleListeners {
 
       if (element == null) {
         debugPrint(
-          'The component to observe for viewport visibility is not found.'
+          'The component to observe for viewport visibility is not found. '
           'Ensure a global node key or unique id assigned to the component '
           'is provided.',
-          true,
         );
         return;
       }
@@ -308,10 +297,7 @@ class BrowserLifecycleListeners {
     String? id,
   }) {
     if (id.isNullOrEmpty && key == null) {
-      debugPrint(
-        'Component key or id must be provided',
-        true,
-      );
+      debugPrint('Component key or id must be provided');
       return;
     }
 
@@ -755,6 +741,7 @@ class BrowserLifecycleListeners {
             () {
               final fn = _elementResizeCallbacks[element];
               if (fn == null) return;
+
               onComponentRendered(() {
                 fn(Dim.px(height), Dim.px(width), orientation);
               });
@@ -814,21 +801,15 @@ class BrowserLifecycleListeners {
   /// It should be called once in the main entry point of a stateful component
   /// or main entry point of the application.
   ///
-  /// #### NOTE: Calling this in server environment will throw an exception.
+  /// #### NOTE: Calling this in server-side will do nothing.
   void register() {
     if (kIsServer) {
-      debugPrint(
-        'BrowserLifecycle cannot be registered in server-side',
-        true,
-      );
+      debugPrint('BrowserLifecycle will not be registered in server-side');
       return;
     }
 
     if (_isRegistered) {
-      debugPrint(
-        'BrowserLifecycle is already registered',
-        true,
-      );
+      debugPrint('BrowserLifecycle is already registered');
       return;
     }
 

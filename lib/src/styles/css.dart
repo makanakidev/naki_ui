@@ -116,7 +116,8 @@ class Css {
     color: .variable(
       '${Tokens.current.mutedColor}, ${Tokens.current.mutedColor.value}',
     ),
-    margin: const EdgeInsets.only(top: Dim.px(5)),
+    padding: const EdgeInsets.only(top: Dim.px(5)),
+    margin: EdgeInsets.zero,
     extra: {'white-space': 'pre-wrap', 'word-break': 'break-word'},
   );
 
@@ -158,6 +159,8 @@ class Css {
     'color':
         'var(${Tokens.current.placeholderColor}, ${Tokens.current.placeholderColor.value})',
     'opacity': '0.6',
+    'z-index': '0',
+    'position': 'absolute',
   };
 
   /// Default inline-block alignment and size styling rule for icons.
@@ -278,6 +281,15 @@ class Css {
     'isolation': 'isolate',
     'height': 'fit-content',
     'width': 'fit-content',
+  };
+
+  /// Default CSS styles map for safe area.
+  static final nakiSafeAreaStyles = {
+    'margin': '0',
+    'padding-top': 'env(safe-area-inset-top, 0px)',
+    'padding-left': 'env(safe-area-inset-left, 0px)',
+    'padding-right': 'env(safe-area-inset-right, 0px)',
+    'padding-bottom': 'env(safe-area-inset-bottom, 0px)',
   };
 
   /// Default CSS styles map for styling check boxes
@@ -973,6 +985,8 @@ class Css {
     'display': 'flex',
     'justify-content': 'flex-start',
     'flex-direction': 'column',
+    'min-height': '0',
+    'min-width': '0',
     'overflow': 'auto',
   };
 
@@ -980,6 +994,7 @@ class Css {
   static final nakiSingleChildScrollViewStyle = {
     'display': 'flex',
     'box-sizing': 'border-box',
+    'flex': '1',
     'scrollbar-width': 'none',
   };
 
@@ -987,6 +1002,9 @@ class Css {
   static final nakiListViewStyle = {
     'display': 'flex',
     'box-sizing': 'border-box',
+    'flex': '1',
+    'min-height': '0',
+    'min-width': '0',
     'scrollbar-width': 'none',
   };
 
@@ -1005,8 +1023,10 @@ class Css {
     'box-sizing': 'border-box',
     'overflow-x': 'auto',
     'overflow-y': 'auto',
+    'flex': '1',
+    'min-height': '0',
+    'min-width': '0',
     'scrollbar-width': 'none',
-    '-ms-overflow-style': 'none',
   };
 
   /// Default CSS styles map for CarouselView.
@@ -1310,7 +1330,9 @@ class Css {
           'var(${Tokens.current.bottomSheetBorderRadius}, ${Tokens.current.bottomSheetBorderRadius.value})',
       'box-shadow': Tokens.current.largeShadow.value,
       'box-sizing': 'border-box',
-      'overflow-y': 'auto',
+      'overflow-y': 'hidden',
+      'display': 'flex',
+      'flex-direction': 'column',
       'animation':
           'nakiBottomSheetSlideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards',
     },

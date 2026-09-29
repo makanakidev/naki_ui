@@ -140,7 +140,7 @@ class Rules {
         // base
         css('&').styles(
           raw: {
-            'scrollbar-width': 'thin',
+            'scrollbar-width': 'thin !important',
             'scrollbar-gutter': 'stable',
             'scrollbar-color': '${thumbColor.value} ${trackColor.value}',
           },
@@ -212,6 +212,8 @@ class Rules {
     // global element styles
     css('*').styles(
       raw: {
+        'z-index': '1',
+        'scrollbar-width': 'none',
         'box-sizing': 'border-box',
         'font-family':
             'var(${Tokens.current.fontFamily}, ${Tokens.current.fontFamily.value})',
@@ -227,7 +229,6 @@ class Rules {
             'var(${Tokens.current.baseTextColor}, ${Tokens.current.baseTextColor.value})',
         'font-size':
             'var(${Tokens.current.fontSizeMd}, ${Tokens.current.fontSizeMd.value})',
-        'scrollbar-width': 'none',
       },
     ),
   ];
@@ -966,18 +967,15 @@ class Rules {
   ]);
 
   /// Align rules
-  static final nakiAlignRules =
-      css(
-        '.naki-align',
-      ).styles(
-        raw: {
-          'width': '100%',
-          'height': '100%',
-          'display': 'flex',
-          'box-sizing': 'border-box',
-          'flex-shrink': '0',
-        },
-      );
+  static final nakiAlignRules = css('.naki-align').styles(
+    raw: {
+      'width': '100%',
+      'height': '100%',
+      'display': 'flex',
+      'box-sizing': 'border-box',
+      'flex-shrink': '0',
+    },
+  );
 
   /// Cliprect rules
   static final nakiClipRectRules = css(
@@ -1095,19 +1093,6 @@ class Rules {
       ).styles(
         raw: {'display': 'block', 'border-radius': '50%', 'overflow': 'clip'},
       );
-
-  /// Safearea rules
-  static final nakiSafeareRules = css('naki-safearea').styles(
-    raw: {
-      'box-sizing': 'border-box',
-      'display': 'inline-block',
-      'margin': '0 !important',
-      'padding-top': 'env(safe-area-inset-top, 0px)',
-      'padding-left': 'env(safe-area-inset-left, 0px)',
-      'padding-right': 'env(safe-area-inset-right, 0px)',
-      'padding-bottom': 'env(safe-area-inset-bottom, 0px)',
-    },
-  );
 
   /// Radio button rules
   static final nakiRadioBtnRules = css('naki-radiobtn', [
@@ -1427,7 +1412,9 @@ class Rules {
     css('td').styles(raw: {'padding': '12px 16px'}),
 
     // row hover state
-    css('tbody tr:hover').styles(
+    css(
+      'tbody tr:hover',
+    ).styles(
       raw: {'background-color': 'var(${Tokens.current.tableRowHoverBg})'},
     ),
   ]);
@@ -1435,15 +1422,20 @@ class Rules {
   /// Aspect ratio rules
   static final nakiAspectRatioRules = css(
     '.naki-aspectratio',
-  ).styles(raw: {'display': 'inline-block', 'overflow': 'hidden'});
+  ).styles(raw: {'display': 'block', 'overflow': 'hidden'});
 
   /// Flexible rules
   static final nakiFlexibleRules = [
-    css(
-      '.naki-flexible, .naki-expanded',
-    ).styles(
-      raw: {'min-height': '0', 'min-width': '0', 'display': 'inline-block'},
+    css('.naki-flexible, .naki-expanded').styles(
+      raw: {
+        'min-height': '0',
+        'min-width': '0',
+        'display': 'flex',
+        'flex-direction': 'column',
+      },
     ),
+
+    css('.naki-flexible > *').styles(raw: {'flex-shrink': '1'}),
 
     css('.naki-expanded > *').styles(raw: {'width': '100%'}),
   ];

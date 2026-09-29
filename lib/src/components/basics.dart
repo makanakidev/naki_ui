@@ -689,7 +689,7 @@ class Button extends StatefulComponent {
     this.disabledColor,
     this.attributes,
     this.id,
-  }) : child = Icon(icon, color: foregroundColor, size: size),
+  }) : child = Icon(icon, color: Tokens.current.buttonColor.color, size: size),
        assert(
          !(validateForm && resetForm),
          'validateForm and resetForm cannot both be true',
@@ -747,12 +747,30 @@ class Button extends StatefulComponent {
          spacing: spacing,
          children: iconPosition == Position.left
              ? [
-                 Icon(icon, color: foregroundColor, size: iconSize),
-                 NakiText(text, style: textStyle),
+                 Icon(
+                   icon,
+                   color: Tokens.current.buttonColor.color,
+                   size: iconSize,
+                 ),
+                 NakiText(
+                   text,
+                   style: TextStyle(
+                     color: Tokens.current.buttonColor.color,
+                   ).combineWith(textStyle),
+                 ),
                ]
              : [
-                 NakiText(text, style: textStyle),
-                 Icon(icon, color: foregroundColor, size: iconSize),
+                 NakiText(
+                   text,
+                   style: TextStyle(
+                     color: Tokens.current.buttonColor.color,
+                   ).combineWith(textStyle),
+                 ),
+                 Icon(
+                   icon,
+                   color: Tokens.current.buttonColor.color,
+                   size: iconSize,
+                 ),
                ],
        ),
        assert(
@@ -793,7 +811,12 @@ class Button extends StatefulComponent {
     this.disabledColor,
     this.attributes,
     this.id,
-  }) : child = NakiText(text, style: style),
+  }) : child = NakiText(
+         text,
+         style: TextStyle(
+           color: Tokens.current.buttonColor.color,
+         ).combineWith(style),
+       ),
        assert(
          !(validateForm && resetForm),
          'validateForm and resetForm cannot both be true',
@@ -1087,9 +1110,12 @@ class Spinner extends StatelessComponent {
     final morphismClass = surfaceColor != null && !ios ? 'morphism' : '';
 
     const baseClass = 'naki-spinner';
-    final effectiveClasses = joinClasses(
-      [?classes, baseClass, iosClass, morphismClass],
-    );
+    final effectiveClasses = joinClasses([
+      ?classes,
+      baseClass,
+      iosClass,
+      morphismClass,
+    ]);
 
     final effectiveStyles = {
       Tokens.current.spinnerSize.name: size.cssText,

@@ -1,5 +1,9 @@
 ## 1.0.3
 
+- Bumped `jaspr` dependency to the latest version.
+- Added `OverlayRegion` and `OverlayScope` components for portal-based overlay rendering (`Snackbar`, `Dialog`, `Drawer`, `BottomSheet`), projecting active overlays to the root DOM layer for proper z-indexing and unclipped rendering.
+- Integrated `OverlayRegion` automatically into `NakiApp` and as an automatic fallback in standalone `Scaffold` configurations.
+- Enhanced `Scaffold` with dynamic lifecycle observers (`BrowserLifecycleListeners`) to track and synchronize CSS variables used to dynamically resolve `Snackbar` positioning when app bar and bottom navigation bar are present.
 - Added `alignment`, `fit`, `width`, and `height` properties to `Stack` component, utilizing a CSS Grid layout model for layered stacking.
 - Added `StackFit` enum (`loose`, `expand`, `passthrough`) for flexible child sizing constraints in `Stack`.
 - Added `transform` property and named convenience constructors (`fill`, `center`, `centerHorizontal`, `centerVertical`, `badge`, `topLeft`, `topRight`, `bottomLeft`, `bottomRight`, `top`, `bottom`) to `Positioned` component.
@@ -8,7 +12,6 @@
 - Enhanced `Flexible` component with `FlexFit.loose` for proportional flexible space distribution.
 - Deprecated `autoValidate` property in `FormBuilder` component and replaced with `bypassValidation` property. Native browser validation will now be done by default on submission and only skipped when `bypassValidation` is set to `true` - allowing for more explicit control over the validation process.
 - Deprecated `Drawer.sidebar` constructor in favor of `Sidebar` component - `Drawer` is now only for modal drawers.
-- Bumped `jaspr` dependency to the latest version.
 
 ## 1.0.2
 

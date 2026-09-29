@@ -12,7 +12,7 @@ export 'src/framework/lifecycle.dart';
 export 'src/models/animation.dart';
 export 'src/models/gesture.dart';
 export 'src/models/naki.dart' hide NakiAlignProps, NakiStylable, NakiTextScope;
-export 'src/models/overlays.dart' hide SnackbarRegistry;
+export 'src/models/overlays.dart' hide OverlayScope, SnackbarRegistry;
 export 'src/models/scrolling.dart';
 
 export 'src/stub/index.dart';

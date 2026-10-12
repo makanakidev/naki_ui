@@ -87,40 +87,37 @@ class ResponsiveBuilder extends StatelessComponent {
 
     if (breakpoint != null && child != null) {
       responsiveComponents.add(
-        .wrapElement(child: child!, classes: breakpoint!.className),
+        span(classes: breakpoint!.className, [child!]),
       );
     }
 
     if (mobile != null) {
       responsiveComponents.add(
-        .wrapElement(child: mobile!, classes: BreakPoint.mobile.className),
+        span(classes: BreakPoint.mobile.className, [mobile!]),
       );
     }
 
     if (largerMobile != null) {
       responsiveComponents.add(
-        .wrapElement(
-          child: largerMobile!,
-          classes: BreakPoint.largerPhone.className,
-        ),
+        span(classes: BreakPoint.largerPhone.className, [largerMobile!]),
       );
     }
 
     if (tablet != null) {
       responsiveComponents.add(
-        .wrapElement(child: tablet!, classes: BreakPoint.tablet.className),
+        span(classes: BreakPoint.tablet.className, [tablet!]),
       );
     }
 
     if (laptop != null) {
       responsiveComponents.add(
-        .wrapElement(child: laptop!, classes: BreakPoint.laptop.className),
+        span(classes: BreakPoint.laptop.className, [laptop!]),
       );
     }
 
     if (desktop != null) {
       responsiveComponents.add(
-        .wrapElement(child: desktop!, classes: BreakPoint.desktop.className),
+        span(classes: BreakPoint.desktop.className, [desktop!]),
       );
     }
 
@@ -192,13 +189,13 @@ class BreakPointWrapper extends StatelessComponent {
     final styles = [
       css('.br-$id').styles(raw: {'display': 'none !important'}),
       css.media(query, [
-        css('.br-$id').styles(raw: {'display': 'inherit !important'}),
+        css('.br-$id').styles(raw: {'display': 'revert !important'}),
       ]),
     ];
 
     return .fragment([
       Document.head(children: [StyleRules(styles, id: id)]),
-      .wrapElement(child: child, classes: 'br-$id'),
+      span(classes: 'br-$id', [child]),
     ]);
   }
 }

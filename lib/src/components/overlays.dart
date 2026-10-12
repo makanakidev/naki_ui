@@ -14,6 +14,7 @@ import '../theme/tokens.dart';
 import '../utilities/enums.dart';
 import '../utilities/extensions.dart';
 import '../utilities/helpers.dart';
+
 import 'basics.dart';
 import 'scaffold.dart';
 import 'styling.dart';
@@ -229,6 +230,7 @@ class Snackbar extends StatefulComponent {
 
 class _SnackbarState extends State<Snackbar> {
   Timer? _timer;
+
   late bool _localIsOpen;
   late final _id = nakiDomId(context, 'snackbar');
 
@@ -268,7 +270,7 @@ class _SnackbarState extends State<Snackbar> {
   }
 
   /// Handles controller changes
-  void _onControllerChanged() {
+  Future<void> _onControllerChanged() async {
     if (_localIsOpen == component.controller.isOpen) return;
 
     _localIsOpen = component.controller.isOpen;
@@ -276,6 +278,11 @@ class _SnackbarState extends State<Snackbar> {
     if (_localIsOpen) {
       SnackbarRegistry.onOpen(component.controller);
       _scheduleAutoDismiss();
+
+      final elem = document.getElementById(_id) as HTMLElement?;
+      elem?.dataset['exiting'] = 'true';
+
+      await Future.delayed(const Duration(milliseconds: 150 * 2));
     } else {
       SnackbarRegistry.onClose(component.controller);
     }
@@ -468,6 +475,7 @@ class Tooltip extends StatelessComponent with NakiStatelessMixin {
   FutureOr<VoidCallback?> afterRender(BuildContext context) {
     final tooltipId = nakiDomId(context, 'tooltip', id: id);
     final root = document.getElementById(tooltipId) as HTMLElement?;
+
     final target =
         root?.querySelector(
               '.naki-tooltip-target a[href], .naki-tooltip-target button, '
@@ -722,15 +730,29 @@ class _DialogState extends State<Dialog> with _AccessibleOverlay<Dialog> {
   }
 
   /// Handles controller changes
-  void _onControllerChanged() {
+  Future<void> _onControllerChanged() async {
     _localIsOpen = component.controller.isOpen;
-    if (!_localIsOpen) component.onClose?.call();
+
+    if (!_localIsOpen) {
+      final barrier = document.getElementById(_id) as HTMLElement?;
+
+      barrier?.dataset['exiting'] = 'true';
+      overlaySurfaceKey.currentNode?.dataset['exiting'] = 'true';
+
+      await Future.delayed(const Duration(milliseconds: 250 * 2));
+    }
+
     setState(() {});
+  }
+
+  void _onClose() {
+    component.onClose?.call();
+    component.controller.close();
   }
 
   @override
   Component build(BuildContext context) {
-    syncOverlayAccessibility(_localIsOpen, component.controller.close);
+    syncOverlayAccessibility(_localIsOpen, _onClose);
 
     if (!_localIsOpen) return const .empty();
 
@@ -793,7 +815,7 @@ class _DialogState extends State<Dialog> with _AccessibleOverlay<Dialog> {
         classes: effectiveClasses,
         styles: Styles(raw: effectiveStyles),
         events: component.barrierDismissible
-            ? {'click': (_) => component.controller.close()}
+            ? {'click': (_) => _onClose()}
             : null,
         children: [
           div(
@@ -982,6 +1004,7 @@ class Drawer extends StatefulComponent {
 
 class _DrawerState extends State<Drawer> with _AccessibleOverlay<Drawer> {
   bool _localIsOpen = false;
+
   late final _id = nakiDomId(context, 'drawer');
 
   @override
@@ -1015,20 +1038,25 @@ class _DrawerState extends State<Drawer> with _AccessibleOverlay<Drawer> {
   }
 
   /// Handles changes to the controller's open/close state.
-  void _onControllerChanged() {
-    final isOpen = component.controller?.isOpen ?? _localIsOpen;
-    if (_localIsOpen != isOpen) setState(() => _localIsOpen = isOpen);
+  Future<void> _onControllerChanged() async {
+    _localIsOpen = component.controller?.isOpen ?? _localIsOpen;
+
+    if (!_localIsOpen) {
+      final barrier = document.getElementById(_id) as HTMLElement?;
+
+      barrier?.dataset['exiting'] = 'true';
+      overlaySurfaceKey.currentNode?.dataset['exiting'] = 'true';
+
+      await Future.delayed(const Duration(milliseconds: 250 * 2));
+    }
+
+    setState(() {});
   }
 
   /// Closes the drawer.
   void _close() {
-    if (component.controller != null) {
-      component.controller!.close();
-    } else {
-      setState(() => _localIsOpen = false);
-    }
-
     component.onClose?.call();
+    component.controller?.close();
   }
 
   @override
@@ -1248,6 +1276,7 @@ class BottomSheet extends StatefulComponent {
 class _BottomSheetState extends State<BottomSheet>
     with _AccessibleOverlay<BottomSheet> {
   bool _localIsOpen = false;
+
   late final _id = nakiDomId(context, 'bottomsheet');
 
   @override
@@ -1281,8 +1310,19 @@ class _BottomSheetState extends State<BottomSheet>
   }
 
   /// Handles controller open/close changes.
-  void _onControllerChanged() {
-    setState(() => _localIsOpen = component.controller.isOpen);
+  Future<void> _onControllerChanged() async {
+    _localIsOpen = component.controller.isOpen;
+
+    if (!_localIsOpen) {
+      final barrier = document.getElementById(_id) as HTMLElement?;
+
+      barrier?.dataset['exiting'] = 'true';
+      overlaySurfaceKey.currentNode?.dataset['exiting'] = 'true';
+
+      await Future.delayed(const Duration(milliseconds: 300 * 2));
+    }
+
+    setState(() {});
   }
 
   /// Closes the bottom sheet.
@@ -1304,12 +1344,12 @@ class _BottomSheetState extends State<BottomSheet>
           ?component.borderRadius?.value,
     };
 
-    const baseClass = 'naki-bottom-sheet';
+    const baseClass = 'naki-bottomsheet';
     final effectiveClasses = joinClasses([?component.classes, baseClass]);
 
     final effectiveChildren = [
       if (component.showHandle)
-        const div(classes: 'naki-bottom-sheet-handle', []),
+        const span(classes: 'naki-bottomsheet-handle', []),
       component.child,
     ];
 
@@ -1327,7 +1367,7 @@ class _BottomSheetState extends State<BottomSheet>
         children: [
           div(
             key: overlaySurfaceKey,
-            classes: 'naki-bottom-sheet-content',
+            classes: 'naki-bottomsheet-content',
             attributes: {
               'role': 'dialog',
               'aria-modal': 'true',
@@ -1467,7 +1507,7 @@ class Popover extends StatelessComponent {
         'aria-haspopup': 'dialog',
       },
       children: [
-        // Backdrop for dismissing popover
+        // backdrop
         if (visible)
           div(
             classes: 'naki-popover-barrier',
@@ -1475,14 +1515,14 @@ class Popover extends StatelessComponent {
             const [],
           ),
 
-        // Popover trigger
+        // trigger
         .wrapElement(
           child: child,
           classes: 'naki-popover-trigger',
           attributes: {'canfocus': ?(!visible && onClose == null ? '' : null)},
         ),
 
-        // Popover content
+        // content
         .wrapElement(
           classes: effectiveClasses,
           attributes: {'role': 'dialog', 'aria-label': semanticLabel},

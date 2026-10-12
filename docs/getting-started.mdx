@@ -25,7 +25,7 @@ Ensure your environment meets the minimum version requirements:
     ```yaml
     dependencies:
       jaspr: ^0.23.4
-      naki_ui: ^1.0.3
+      naki_ui: ^1.0.4
     ```
 
     Install the packages:
@@ -33,6 +33,7 @@ Ensure your environment meets the minimum version requirements:
     ```shell
     dart pub get
     ```
+
   </Step>
 
   <Step title="Wrap your root component in NakiApp">
@@ -106,6 +107,7 @@ Ensure your environment meets the minimum version requirements:
       },
     )
     ```
+
   </Step>
 
   <Step title="Configure interactive client hydration">
@@ -114,6 +116,7 @@ Ensure your environment meets the minimum version requirements:
     <Info>
       A single `@client` annotation at the highest interactive ancestor boundary is sufficient. Descendant components automatically participate in client hydration without duplicating annotations.
     </Info>
+
   </Step>
 
   <Step title="Install coding agent skills (Optional)">
@@ -123,6 +126,7 @@ Ensure your environment meets the minimum version requirements:
     dart pub global activate naki_ui  # only needed for first time
     naki_ui skills --antigravity
     ```
+
   </Step>
 </Steps>
 

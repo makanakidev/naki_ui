@@ -285,7 +285,6 @@ class Css {
 
   /// Default CSS styles map for safe area.
   static final nakiSafeAreaStyles = {
-    'margin': '0',
     'padding-top': 'env(safe-area-inset-top, 0px)',
     'padding-left': 'env(safe-area-inset-left, 0px)',
     'padding-right': 'env(safe-area-inset-right, 0px)',
@@ -1095,7 +1094,7 @@ class Css {
         'var(${Tokens.current.largeShadow}, ${Tokens.current.largeShadow.value})',
     'box-sizing': 'border-box',
     'line-height': '1',
-    'transition': 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+    'animation': 'nakiDialogFadeIn 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards',
   };
 
   /// Default CSS styles map for Banner.
@@ -1231,7 +1230,7 @@ class Css {
       'box-shadow': Tokens.current.largeShadow.value,
       'box-sizing': 'border-box',
       'animation':
-          'nakiDialogPopIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+          'nakiDialogPopIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards',
     },
   };
 
@@ -1334,7 +1333,7 @@ class Css {
       'display': 'flex',
       'flex-direction': 'column',
       'animation':
-          'nakiBottomSheetSlideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+          'nakiBottomSheetSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
     },
 
     'handle': {

@@ -246,10 +246,8 @@ void updateRootTheme(String mode) {
       document.startViewTransition(applyTheme.toJS);
     } catch (_) {
       final root = document.documentElement as HTMLElement;
-
       root.classList.add('switching-theme');
       applyTheme();
-
       Future.delayed(const Duration(milliseconds: 500), () {
         root.classList.remove('switching-theme');
         if (root.classList.length < 1) root.removeAttribute('class');

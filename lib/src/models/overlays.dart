@@ -19,7 +19,6 @@ class SnackbarRegistry {
     if (_currentController != null && _currentController != controller) {
       _currentController?.close();
     }
-
     _currentController = controller;
   }
 

@@ -38,24 +38,26 @@ class DashboardPage extends StatelessComponent {
 ```
 
 <Warning>
-  Do NOT add `@client` annotations to descendant child components when an ancestor already possesses the `@client` boundary. Redundant annotations create separate, unnecessary client bundles.
+  Do NOT add `@client` annotations to descendant child components when an
+  ancestor already possesses the `@client` boundary. Redundant annotations
+  create separate, unnecessary client bundles.
 </Warning>
 
 ---
 
 ## Visual SSR vs Client Interactivity
 
-| Component | Static / Server Rendering (No `@client`) | Client Interactive (With `@client`) |
-| :--- | :--- | :--- |
-| `NakiApp` | Injects CSS design tokens & meta tags into `<head>` | Listens to system theme changes & caches preferences |
-| `Scaffold` / `AppBar` | Renders layout structure, headers, and navigation slots | Handles drawer open/close transitions and responsive menus |
-| `Button` | Renders native `<button>` with styles | Executes Dart `onTap` callbacks and loading spinners |
-| `TextField` | Renders styled `<input>` / `<textarea>` | Binds `onTyping`, `onSubmit`, and client-side validators |
-| `Dialog` / `BottomSheet` | Not rendered in initial static markup | Mounted dynamically via `OverlayController` on DOM body |
-| `NakiFutureBuilder` | Renders initial fallback or pre-rendered data | Re-evaluates future updates and streams in the browser |
+| Component                | Static / Server Rendering (No `@client`)                | Client Interactive (With `@client`)                        |
+| :----------------------- | :------------------------------------------------------ | :--------------------------------------------------------- |
+| `NakiApp`                | Injects CSS design tokens & meta tags into `<head>`     | Listens to system theme changes & caches preferences       |
+| `Scaffold` / `AppBar`    | Renders layout structure, headers, and navigation slots | Handles drawer open/close transitions and responsive menus |
+| `Button`                 | Renders native `<button>` with styles                   | Executes Dart `onTap` callbacks and loading spinners       |
+| `TextField`              | Renders styled `<input>` / `<textarea>`                 | Binds `onTyping`, `onSubmit`, and client-side validators   |
+| `Dialog` / `BottomSheet` | Not rendered in initial static markup                   | Mounted dynamically via `OverlayController` on DOM body    |
+| `NakiFutureBuilder`      | Renders initial fallback or pre-rendered data           | Re-evaluates future updates and streams in the browser     |
 
 ---
 
 ## Token CSS Injection During SSR
 
-`NakiApp` automatically generates a `<style id="naki-theme-tokens">` tag during initial page rendering. This ensures zero "Flash of Unstyled Content" (FOUC) when loading statically generated or server-rendered pages.
+`NakiApp` automatically generates a `<style id="tokens">` tag during initial page rendering. This ensures zero "Flash of Unstyled Content" (FOUC) when loading statically generated or server-rendered pages.

@@ -229,6 +229,7 @@ class Rules {
             'var(${Tokens.current.baseTextColor}, ${Tokens.current.baseTextColor.value})',
         'font-size':
             'var(${Tokens.current.fontSizeMd}, ${Tokens.current.fontSizeMd.value})',
+        'touch-action': 'manipulation',
       },
     ),
   ];
@@ -244,7 +245,7 @@ class Rules {
     css.media(
       const MediaQuery.screen(maxWidth: Unit.pixels(kBreakpointXSmall)),
       [
-        css('.br-xs').styles(raw: {'display': 'inherit !important'}),
+        css('.br-xs').styles(raw: {'display': 'revert !important'}),
       ],
     ),
 
@@ -255,7 +256,7 @@ class Rules {
         maxWidth: Unit.pixels(kBreakpointSmall),
       ),
       [
-        css('.br-sm').styles(raw: {'display': 'inherit !important'}),
+        css('.br-sm').styles(raw: {'display': 'revert !important'}),
       ],
     ),
 
@@ -266,7 +267,7 @@ class Rules {
         maxWidth: Unit.pixels(kBreakpointMedium),
       ),
       [
-        css('.br-md').styles(raw: {'display': 'inherit !important'}),
+        css('.br-md').styles(raw: {'display': 'revert !important'}),
       ],
     ),
 
@@ -277,7 +278,7 @@ class Rules {
         maxWidth: Unit.pixels(kBreakpointLarge),
       ),
       [
-        css('.br-lg').styles(raw: {'display': 'inherit !important'}),
+        css('.br-lg').styles(raw: {'display': 'revert !important'}),
       ],
     ),
 
@@ -285,7 +286,7 @@ class Rules {
     css.media(
       const MediaQuery.screen(minWidth: Unit.pixels(kBreakpointLarge + 0.02)),
       [
-        css('.br-xl').styles(raw: {'display': 'inherit !important'}),
+        css('.br-xl').styles(raw: {'display': 'revert !important'}),
       ],
     ),
   ];
@@ -300,6 +301,7 @@ class Rules {
 
     // focus state
     css('&[fcs]:focus').styles(raw: Css.nakiFocusBorderStyle),
+    css('&[data-focused]').styles(raw: Css.nakiFocusBorderStyle),
 
     // placeholder
     css('&::-webkit-input-placeholder').styles(raw: Css.nakiPlaceholderStyle),
@@ -359,6 +361,7 @@ class Rules {
 
     // focus state
     css('&[fcs]:focus').styles(raw: Css.nakiFocusBorderStyle),
+    css('&[data-focused]').styles(raw: Css.nakiFocusBorderStyle),
 
     // placeholder
     css('&::-webkit-input-placeholder').styles(raw: Css.nakiPlaceholderStyle),
@@ -1463,6 +1466,14 @@ class Rules {
     // wrapper
     css('&').styles(raw: Css.nakiSnackbarStyle),
 
+    // exit
+    css('&[data-exiting=true]').styles(
+      raw: {
+        'animation':
+            'nakiDialogFadeOut 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards',
+      },
+    ),
+
     // top position
     css('&.sb-top').styles(
       raw: {
@@ -1909,6 +1920,12 @@ class Rules {
       'to': const Styles(raw: {'opacity': '1'}),
     }),
 
+    // fade out animation for backdrop
+    css.keyframes('nakiDialogFadeOut', {
+      'from': const Styles(raw: {'opacity': '1'}),
+      'to': const Styles(raw: {'opacity': '0'}),
+    }),
+
     // pop in ease-in animation for dialog card
     css.keyframes('nakiDialogPopIn', {
       'from': const Styles(
@@ -1919,13 +1936,34 @@ class Rules {
       ),
     }),
 
+    // pop out ease-out animation for dialog card
+    css.keyframes('nakiDialogPopOut', {
+      'from': const Styles(raw: {'opacity': '1', 'transform': 'scale(1)'}),
+      'to': const Styles(
+        raw: {'opacity': '0', 'transform': 'scale(0.94) translateY(6px)'},
+      ),
+    }),
+
     // main
     css('.naki-dialog', [
       // backdrop
       css('&').styles(raw: Css.nakiDialogStyle['backdrop']),
 
+      // exit backdrop
+      css('&[data-exiting="true"]').styles(
+        raw: {'animation': 'nakiDialogFadeOut 0.2s 0.05s linear forwards'},
+      ),
+
       // content container
       css('.naki-dialog-content').styles(raw: Css.nakiDialogStyle['container']),
+
+      // exit content
+      css('.naki-dialog-content[data-exiting="true"]').styles(
+        raw: {
+          'animation':
+              'nakiDialogPopOut 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        },
+      ),
 
       // center position (default)
       css('&.dialog-center').styles(raw: {'align-items': 'center'}),
@@ -1959,6 +1997,12 @@ class Rules {
       'to': const Styles(raw: {'opacity': '1'}),
     }),
 
+    // fade out animation for backdrop
+    css.keyframes('nakiDrawerFadeOut', {
+      'from': const Styles(raw: {'opacity': '1'}),
+      'to': const Styles(raw: {'opacity': '0'}),
+    }),
+
     // slide in left animation
     css.keyframes('nakiDrawerSlideInLeft', {
       'from': const Styles(raw: {'transform': 'translateX(-100%)'}),
@@ -1971,10 +2015,27 @@ class Rules {
       'to': const Styles(raw: {'transform': 'translateX(0)'}),
     }),
 
+    // slide out left animation
+    css.keyframes('nakiDrawerSlideOutLeft', {
+      'from': const Styles(raw: {'transform': 'translateX(0)'}),
+      'to': const Styles(raw: {'transform': 'translateX(-100%)'}),
+    }),
+
+    // slide out right animation
+    css.keyframes('nakiDrawerSlideOutRight', {
+      'from': const Styles(raw: {'transform': 'translateX(0)'}),
+      'to': const Styles(raw: {'transform': 'translateX(100%)'}),
+    }),
+
     // main
     css('.naki-drawer', [
       // wrapper
       css('&').styles(raw: Css.nakiDrawerStyle['wrapper']),
+
+      // wrapper exit
+      css('&[data-exiting="true"]').styles(
+        raw: {'animation': 'nakiDrawerFadeOut 0.2s 0.05s linear forwards'},
+      ),
 
       // barrier
       css('.naki-drawer-barrier').styles(raw: Css.nakiDrawerStyle['barrier']),
@@ -1992,12 +2053,30 @@ class Rules {
         },
       ),
 
+      // left drawer exit
+      css('.drawer-left[data-exiting="true"]').styles(
+        raw: {
+          'animation':
+              'nakiDrawerSlideOutLeft 0.25s '
+              'cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        },
+      ),
+
       // right drawer
       css('.drawer-right').styles(
         raw: {
           'right': '0',
           'animation':
               'nakiDrawerSlideInRight 0.25s '
+              'cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        },
+      ),
+
+      // right drawer exit
+      css('.drawer-right[data-exiting="true"]').styles(
+        raw: {
+          'animation':
+              'nakiDrawerSlideOutRight 0.25s '
               'cubic-bezier(0.16, 1, 0.3, 1) forwards',
         },
       ),
@@ -2024,25 +2103,48 @@ class Rules {
 
   /// BottomSheet rules
   static final nakiBottomSheetRules = [
-    // slide up animation for bottom sheet
+    // slide up animation
     css.keyframes('nakiBottomSheetSlideUp', {
       'from': const Styles(raw: {'transform': 'translateY(100%)'}),
       'to': const Styles(raw: {'transform': 'translateY(0)'}),
     }),
 
+    // slide down animation
+    css.keyframes('nakiBottomSheetSlideDown', {
+      'from': const Styles(raw: {'transform': 'translateY(0)'}),
+      'to': const Styles(raw: {'transform': 'translateY(100%)'}),
+    }),
+
     // main
-    css('.naki-bottom-sheet', [
+    css('.naki-bottomsheet', [
       // backdrop
       css('&').styles(raw: Css.nakiBottomSheetStyle['backdrop']),
 
-      // container
+      // backdrop exit
       css(
-        '.naki-bottom-sheet-content',
+        '&[data-exiting="true"]',
+      ).styles(
+        raw: {'animation': 'nakiDrawerFadeOut 0.2s 0.1s linear forwards'},
+      ),
+
+      // content
+      css(
+        '.naki-bottomsheet-content',
       ).styles(raw: Css.nakiBottomSheetStyle['container']),
+
+      // content exit
+      css(
+        '.naki-bottomsheet-content[data-exiting="true"]',
+      ).styles(
+        raw: {
+          'animation':
+              'nakiBottomSheetSlideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        },
+      ),
 
       // handle
       css(
-        '.naki-bottom-sheet-handle',
+        '.naki-bottomsheet-handle',
       ).styles(raw: Css.nakiBottomSheetStyle['handle']),
     ]),
 

@@ -379,7 +379,7 @@ class Padding extends StatelessComponent {
     return .wrapElement(
       key: key,
       classes: classes,
-      styles: Styles(raw: {...padding.pProps}),
+      styles: Styles(raw: padding.pProps),
       child: child,
     );
   }
@@ -419,7 +419,7 @@ class Margin extends StatelessComponent {
     return .wrapElement(
       key: key,
       classes: classes,
-      styles: Styles(raw: {...margin.mProps}),
+      styles: Styles(raw: margin.mProps),
       child: child,
     );
   }
@@ -481,7 +481,9 @@ class SizedBox extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
-    if (width == null && height == null) return child ?? const .empty();
+    if (width == null && height == null && child == null) {
+      return const .empty();
+    }
 
     const baseClass = 'naki-sizedbox';
     final effectiveClasses = joinClasses([?classes, baseClass]);
@@ -944,7 +946,8 @@ class SafeArea extends StatelessComponent {
   Component build(BuildContext context) {
     final styles = Css.nakiSafeAreaStyles;
 
-    return .wrapElement(
+    return .element(
+      tag: 'naki-safearea',
       key: key,
       classes: classes,
       styles: Styles(
@@ -953,10 +956,11 @@ class SafeArea extends StatelessComponent {
           'padding-left': ?(left ? styles['padding-left'] : null),
           'padding-right': ?(right ? styles['padding-right'] : null),
           'padding-bottom': ?(bottom ? styles['padding-bottom'] : null),
-          'margin': ?styles['margin'],
+          'display': 'block',
+          'box-sizing': 'border-box',
         },
       ),
-      child: child,
+      children: [child],
     );
   }
 }

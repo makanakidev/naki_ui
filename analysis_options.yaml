@@ -15,6 +15,7 @@ analyzer:
     unused_field: ignore
     unawaited_futures: error
     avoid_void_async: error
+    inference_failure_on_instance_creation: ignore
 
 linter:
   rules:

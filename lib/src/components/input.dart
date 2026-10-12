@@ -62,12 +62,13 @@ class Label extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
-    return label(
+    return .element(
       key: key,
+      tag: fieldId.isNotNullAndEmpty ? 'label' : 'span',
       classes: 'naki-label',
       styles: Styles(raw: style?.props),
-      htmlFor: fieldId,
-      [.text(text)],
+      attributes: {'for': ?fieldId},
+      children: [.text(text)],
     );
   }
 
@@ -355,6 +356,8 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
 
   @override
   Component build(BuildContext context) {
+    final iconsWrapperId = nakiDomId(context, 'iconsWrapper');
+
     final hasIcon = leadingIcon != null || trailingIcon != null;
     final effectiveWidth = expand ? null : width;
 
@@ -381,10 +384,25 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
     final allowHover = hoverColor != null && !disable && !readOnly;
     final allowFocus = focusColor != null && !disable && !readOnly;
 
+    void _focusIconsWrapper(bool isFocus) {
+      final wrapper = document.getElementById(iconsWrapperId) as HTMLElement?;
+      if (wrapper == null || !allowFocus) return;
+
+      if (isFocus) {
+        wrapper.setAttribute('data-focused', '');
+      } else {
+        wrapper.removeAttribute('data-focused');
+      }
+    }
+
     final defaultEvents = InputEvents(
-      onFocusOut: (_) => _validate(),
       onInvalid: _invalid,
       onKeyDown: _handleSubmit,
+      onFocusIn: hasIcon ? (_) => _focusIconsWrapper(true) : null,
+      onFocusOut: (_) {
+        _focusIconsWrapper(false);
+        _validate();
+      },
     );
 
     final effectiveEvents = events?.merge(defaultEvents) ?? defaultEvents;
@@ -465,6 +483,7 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
 
     if (hasIcon) {
       inputArea = .wrapElement(
+        id: iconsWrapperId,
         classes: baseClass,
         attributes: {
           'hvr': ?(allowHover ? '' : null),
@@ -808,7 +827,7 @@ class _AutoCompleteFieldState extends State<AutoCompleteField>
       _activeOptionIndex = null;
     });
 
-    // update text field value
+    // update input value
     inputNode?.value = value;
 
     // invoke callback
@@ -824,6 +843,7 @@ class _AutoCompleteFieldState extends State<AutoCompleteField>
         _activeOptionIndex = null;
         _filteredOptions.value = [];
       });
+
       return;
     }
 
@@ -835,9 +855,7 @@ class _AutoCompleteFieldState extends State<AutoCompleteField>
       final delta = event.key == 'ArrowDown' ? 1 : -1;
       final current = _activeOptionIndex ?? (delta > 0 ? -1 : 0);
 
-      _activeOptionIndex = (current + delta) % options.length;
-
-      setState(() {});
+      setState(() => _activeOptionIndex = (current + delta) % options.length);
       return;
     }
 

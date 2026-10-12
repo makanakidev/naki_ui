@@ -1,3 +1,9 @@
+## 1.0.4
+
+- Added smooth exit animations and graceful dismissal handling for `Snackbar`, `Dialog`, `Drawer`, and `BottomSheet`.
+- Enhanced `NakiApp` component with improved viewport settings and browser zoom prevention on touch devices when typing.
+- Fixed `TextField` component focus styling when `leadingIcon` or `trailingIcon` is present.
+
 ## 1.0.3
 
 - Bumped `jaspr` dependency to the latest version.

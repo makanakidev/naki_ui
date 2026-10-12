@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_const_literals_to_create_immutables
-
 import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
 import 'package:jaspr_router/jaspr_router.dart';
@@ -12,6 +10,7 @@ import '../styles/rules.dart';
 import '../styles/text_style.dart';
 import '../theme/theme.dart';
 import '../theme/tokens.dart';
+import '../utilities/constants.dart';
 import '../utilities/enums.dart';
 import '../utilities/extensions.dart';
 import '../utilities/helpers.dart';
@@ -21,7 +20,8 @@ import 'layout.dart';
 import 'scaffold.dart';
 import 'styling.dart';
 
-const String _defaultViewport = 'width=device-width, initial-scale=1.0';
+const String _defaultViewport =
+    'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
 const String _defaultCharset = 'utf-8';
 const String _defaultLocale = 'en';
 const String _defaultBasePath = '/';
@@ -717,6 +717,27 @@ class _NakiAppState extends State<NakiApp> {
     ];
   }
 
+  String get mergedViewport {
+    final viewport = (component.viewport ?? '').split(',');
+    if (viewport.isEmpty) return _defaultViewport;
+
+    final defaultViewportItems = _defaultViewport.split(', ');
+    final viewportItems = viewport.map((v) => v.trim()).toList();
+
+    final map = <String, String>{};
+    final mergedViewport = {...defaultViewportItems, ...viewportItems}.toSet();
+
+    for (final v in mergedViewport) {
+      if (!v.contains('=')) continue;
+      final split = v.split('=');
+      map[split.first] = split.last;
+    }
+
+    return map.isEmpty
+        ? _defaultViewport
+        : map.entries.map((e) => '${e.key}=${e.value}').join(', ');
+  }
+
   @override
   Component build(BuildContext context) {
     final fontFamilyVar = Tokens.current.fontFamily.name;
@@ -734,9 +755,12 @@ class _NakiAppState extends State<NakiApp> {
         Document.head(
           title: effectiveTitle.isEmpty ? null : effectiveTitle,
           meta: {
-            'viewport': component.viewport ?? _defaultViewport,
+            'viewport': mergedViewport,
             'designed-with': 'https://pub.dev/packages/naki_ui',
             'charset': component.charset ?? _defaultCharset,
+            'mobile-web-app-capable': 'yes',
+            'apple-mobile-web-app-capable': 'yes',
+            'apple-touch-fullscreen': 'yes',
             ...component.metaTags,
           },
           children: [
@@ -754,6 +778,9 @@ class _NakiAppState extends State<NakiApp> {
             // theme script
             script(content: themeScript, id: 'nts'),
 
+            // browser pinch stop script
+            const script(content: kPinchStopScript, id: 'nps'),
+
             // icon
             if (favicon case (final href, final type))
               link(href: href, rel: 'icon', type: type),
@@ -763,7 +790,10 @@ class _NakiAppState extends State<NakiApp> {
 
             // set font family
             if (fontFamily.isNotNullAndEmpty)
-              StyleRules([fontFamilyCSS], attributes: {'type': 'text/css'}),
+              StyleRules(
+                [fontFamilyCSS],
+                attributes: const {'type': 'text/css'},
+              ),
 
             // additional head components
             ...component.head,

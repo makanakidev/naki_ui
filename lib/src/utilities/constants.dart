@@ -57,6 +57,15 @@ const String kThemeSwitchingScript = '''
 })({{CACHE}});
 ''';
 
+/// Stop pinch gesture in browsers
+const String kPinchStopScript = '''
+!(function () {
+  ["gesturestart", "gesturechange", "gestureend"].forEach((g) => {
+    document.addEventListener(g, (e) => e.preventDefault());
+  });
+})();
+''';
+
 /// Breakpoint width `480px` for mobile phones.
 const double kBreakpointXSmall = 480.0;
 

@@ -36,7 +36,7 @@ Add `naki_ui` to your `pubspec.yaml`:
 ```yaml
 dependencies:
   jaspr: ^0.23.4
-  naki_ui: ^1.0.4
+  naki_ui: ^1.0.5
 ```
 
 Then fetch the dependencies:

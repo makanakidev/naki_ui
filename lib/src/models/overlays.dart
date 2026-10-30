@@ -55,7 +55,9 @@ class OverlayController {
 
   /// Notifies all registered listeners of a state change.
   void notifyListeners() {
-    for (final listener in _listeners) listener();
+    for (final listener in List<VoidCallback>.of(_listeners)) {
+      if (_listeners.contains(listener)) listener();
+    }
   }
 
   /// Opens / shows the target overlay.

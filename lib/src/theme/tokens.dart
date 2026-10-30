@@ -1,7 +1,6 @@
 import 'package:jaspr/dom.dart';
 
 import '../../theme.dart' show LightThemeData, NakiThemeProvider;
-import '../styles/css.dart';
 
 /// Represents an individual design token consisting of a fallback CSS value
 /// and its corresponding CSS variable name (e.g. `--naki-green`).
@@ -829,10 +828,10 @@ abstract class Tokens {
   );
 
   /// Default value for [buttonColor].
-  String get buttonColorValue => '#000000';
+  String get buttonColorValue => 'currentColor';
 
   /// Button foreground color
-  /// (default: `#000000`, CSS variable: `--naki-button-color`).
+  /// (default: `currentColor`, CSS variable: `--naki-button-color`).
   Token get buttonColor => Token(
     value: buttonColorValue,
     name: '--naki-button-color',
@@ -877,8 +876,7 @@ abstract class Tokens {
   );
 
   /// Default value for [sliderTrackColor].
-  String get sliderTrackColorValue =>
-      Css.applyOpacity(const Color('currentcolor'), 70).value;
+  String get sliderTrackColorValue => Color.currentColor.withOpacity(0.7).value;
 
   /// Slider track color
   /// (default: `70% of current color`,
@@ -952,6 +950,23 @@ abstract class Tokens {
   /// (default: `64px`, CSS variable: `--naki-bottom-navbar-height`).
   Token get bottomNavbarHeight =>
       const Token(value: '64px', name: '--naki-bottom-navbar-height');
+
+  /// Height of the viewport area covered by the bottom navigation bar,
+  /// including a floating bar's bottom gap
+  /// (CSS variable: `--naki-bottom-navbar-offset`).
+  Token get bottomNavbarOffset =>
+      const Token(value: '64px', name: '--naki-bottom-navbar-offset');
+
+  /// Default appbar offset
+  /// (default: `0px`, CSS variable: `--naki-appbar-offset`).
+  Token get appbarOffset =>
+      const Token(value: '0px', name: '--naki-appbar-offset');
+
+  /// Height of the `Scaffold` body covered by a floating bottom navigation
+  /// bar; `0px` when the bar is laid out below the body
+  /// (CSS variable: `--naki-bottom-navbar-inset`).
+  Token get bottomNavbarInset =>
+      const Token(value: '0px', name: '--naki-bottom-navbar-inset');
 
   // ===========================================================================
   // Scrolling Component Tokens
@@ -1273,6 +1288,137 @@ abstract class Tokens {
     color: const Color('var(--naki-bottom-sheet-barrier-bg)'),
   );
 
+  /// Calendar day cell width and height
+  /// (default: `42px`, CSS variable: `--naki-calendar-cell-size`).
+  Token get calendarCellSize =>
+      const Token(value: '42px', name: '--naki-calendar-cell-size');
+
+  /// Calendar day number font size
+  /// (default: `14px`, CSS variable: `--naki-calendar-date-font-size`).
+  Token get calendarDateFontSize =>
+      const Token(value: '14px', name: '--naki-calendar-date-font-size');
+
+  /// Calendar weekday header font size
+  /// (default: `13px`, CSS variable: `--naki-calendar-weekday-font-size`).
+  Token get calendarWeekdayFontSize =>
+      const Token(value: '13px', name: '--naki-calendar-weekday-font-size');
+
+  /// Calendar spacing around weekday headers
+  /// (default: `5px`, CSS variable: `--naki-calendar-weekday-gap`).
+  Token get calendarWeekdayGap =>
+      const Token(value: '5px', name: '--naki-calendar-weekday-gap');
+
+  /// Calendar month / year title font size
+  /// (default: `16px`, CSS variable: `--naki-calendar-title-font-size`).
+  Token get calendarTitleFontSize =>
+      const Token(value: '16px', name: '--naki-calendar-title-font-size');
+
+  /// Calendar time stepper width
+  /// (default: `100px`, CSS variable: `--naki-calendar-stepper-width`).
+  Token get calendarStepperWidth =>
+      const Token(value: '100px', name: '--naki-calendar-stepper-width');
+
+  /// Calendar time stepper input height
+  /// (default: `50px`, CSS variable: `--naki-calendar-stepper-height`).
+  Token get calendarStepperHeight =>
+      const Token(value: '50px', name: '--naki-calendar-stepper-height');
+
+  /// Calendar time stepper font size
+  /// (default: `18px`, CSS variable: `--naki-calendar-stepper-font-size`).
+  Token get calendarStepperFontSize =>
+      const Token(value: '18px', name: '--naki-calendar-stepper-font-size');
+
+  /// Calendar picker top offset, set at runtime when the picker flips above its trigger
+  /// (default: `85%`, CSS variable: `--naki-calendar-top`).
+  Token get calendarTop =>
+      const Token(value: '85%', name: '--naki-calendar-top');
+
+  /// Calendar picker bottom offset, set at runtime when the picker flips above its trigger
+  /// (default: `auto`, CSS variable: `--naki-calendar-bottom`).
+  Token get calendarBottom =>
+      const Token(value: 'auto', name: '--naki-calendar-bottom');
+
+  /// Calendar picker gap from its trigger (negative when placed above)
+  /// (default: `10px`, CSS variable: `--naki-calendar-gap`).
+  Token get calendarGap =>
+      const Token(value: '10px', name: '--naki-calendar-gap');
+
+  /// Calendar picker horizontal shift, set at runtime to keep it inside the viewport
+  /// (default: `0px`, CSS variable: `--naki-calendar-shift-x`).
+  Token get calendarShiftX =>
+      const Token(value: '0px', name: '--naki-calendar-shift-x');
+
+  /// Calendar picker maximum height, capped at runtime to the available space
+  /// (default: `calc(100dvh - 16px)`, CSS variable: `--naki-calendar-max-height`).
+  Token get calendarMaxHeight => const Token(
+    value: 'calc(100dvh - 16px)',
+    name: '--naki-calendar-max-height',
+  );
+
+  /// ListView item height for vertical lists with `itemExtent`
+  /// (default: `auto`, CSS variable: `--naki-listview-item-extent-h`).
+  Token get listViewItemExtentHeight =>
+      const Token(value: 'auto', name: '--naki-listview-item-extent-h');
+
+  /// ListView item width for horizontal lists with `itemExtent`
+  /// (default: `auto`, CSS variable: `--naki-listview-item-extent-w`).
+  Token get listViewItemExtentWidth =>
+      const Token(value: 'auto', name: '--naki-listview-item-extent-w');
+
+  /// Small-screen cap for [calendarCellSize]: day cell size:
+  /// (viewport - screen margins - modal padding) / 7 days minus cell padding
+  /// (cap: `max(28px, calc((100dvw - 26px) / 7 - 6px))`,
+  /// CSS variable: `--naki-calendar-compact-cell-size`)
+  Token get calendarCompactCellSize => const Token(
+    value: 'max(28px, calc((100dvw - 26px) / 7 - 6px))',
+    name: '--naki-calendar-compact-cell-size',
+  );
+
+  /// Small-screen cap for [calendarDateFontSize]: day number font size
+  /// (cap: `13px`, CSS variable: `--naki-calendar-compact-date-font-size`).
+  Token get calendarCompactDateFontSize => const Token(
+    value: '13px',
+    name: '--naki-calendar-compact-date-font-size',
+  );
+
+  /// Small-screen cap for [calendarWeekdayFontSize]: weekday header font size
+  /// (cap: `12px`, CSS variable: `--naki-calendar-compact-weekday-font-size`).
+  Token get calendarCompactWeekdayFontSize => const Token(
+    value: '12px',
+    name: '--naki-calendar-compact-weekday-font-size',
+  );
+
+  /// Small-screen cap for [calendarWeekdayGap]: weekday header spacing
+  /// (cap: `2px`, CSS variable: `--naki-calendar-compact-weekday-gap`).
+  Token get calendarCompactWeekdayGap =>
+      const Token(value: '2px', name: '--naki-calendar-compact-weekday-gap');
+
+  /// Small-screen cap for [calendarTitleFontSize]: title font size
+  /// (cap: `15px`, CSS variable: `--naki-calendar-compact-title-font-size`).
+  Token get calendarCompactTitleFontSize => const Token(
+    value: '15px',
+    name: '--naki-calendar-compact-title-font-size',
+  );
+
+  /// Small-screen cap for [calendarStepperHeight]: time stepper input height
+  /// (cap: `40px`, CSS variable: `--naki-calendar-compact-stepper-height`).
+  Token get calendarCompactStepperHeight => const Token(
+    value: '40px',
+    name: '--naki-calendar-compact-stepper-height',
+  );
+
+  /// Small-screen cap for [calendarStepperFontSize]: time stepper font size
+  /// (cap: `15px`, CSS variable: `--naki-calendar-compact-stepper-font-size`).
+  Token get calendarCompactStepperFontSize => const Token(
+    value: '15px',
+    name: '--naki-calendar-compact-stepper-font-size',
+  );
+
+  /// Marker variable on the first default style rule
+  /// (CSS variable: `--naki-default-styles`).
+  Token get defaultStylesMarker =>
+      const Token(value: '""', name: '--naki-default-styles');
+
   /// Returns a map of all CSS variable names to their values.
   Map<String, String> get variables => {
     // Color scheme
@@ -1497,6 +1643,32 @@ abstract class Tokens {
     bottomSheetMaxHeight.name: bottomSheetMaxHeight.value,
     bottomSheetBorderRadius.name: bottomSheetBorderRadius.value,
     bottomSheetBarrierBg.name: bottomSheetBarrierBg.value,
+
+    // ListView tokens
+    listViewItemExtentHeight.name: listViewItemExtentHeight.value,
+    listViewItemExtentWidth.name: listViewItemExtentWidth.value,
+
+    // Calendar tokens
+    calendarCellSize.name: calendarCellSize.value,
+    calendarDateFontSize.name: calendarDateFontSize.value,
+    calendarWeekdayFontSize.name: calendarWeekdayFontSize.value,
+    calendarWeekdayGap.name: calendarWeekdayGap.value,
+    calendarTitleFontSize.name: calendarTitleFontSize.value,
+    calendarStepperWidth.name: calendarStepperWidth.value,
+    calendarStepperHeight.name: calendarStepperHeight.value,
+    calendarStepperFontSize.name: calendarStepperFontSize.value,
+    calendarCompactCellSize.name: calendarCompactCellSize.value,
+    calendarCompactDateFontSize.name: calendarCompactDateFontSize.value,
+    calendarCompactWeekdayFontSize.name: calendarCompactWeekdayFontSize.value,
+    calendarCompactWeekdayGap.name: calendarCompactWeekdayGap.value,
+    calendarCompactTitleFontSize.name: calendarCompactTitleFontSize.value,
+    calendarCompactStepperHeight.name: calendarCompactStepperHeight.value,
+    calendarCompactStepperFontSize.name: calendarCompactStepperFontSize.value,
+    calendarTop.name: calendarTop.value,
+    calendarBottom.name: calendarBottom.value,
+    calendarGap.name: calendarGap.value,
+    calendarShiftX.name: calendarShiftX.value,
+    calendarMaxHeight.name: calendarMaxHeight.value,
 
     // Custom styles
     ...?customVariables,

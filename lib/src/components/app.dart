@@ -10,7 +10,6 @@ import '../styles/rules.dart';
 import '../styles/text_style.dart';
 import '../theme/theme.dart';
 import '../theme/tokens.dart';
-import '../utilities/constants.dart';
 import '../utilities/enums.dart';
 import '../utilities/extensions.dart';
 import '../utilities/helpers.dart';
@@ -21,7 +20,7 @@ import 'scaffold.dart';
 import 'styling.dart';
 
 const String _defaultViewport =
-    'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
+    'width=device-width, initial-scale=1.0, viewport-fit=cover';
 const String _defaultCharset = 'utf-8';
 const String _defaultLocale = 'en';
 const String _defaultBasePath = '/';
@@ -475,6 +474,12 @@ class _NakiAppState extends State<NakiApp> {
     }
   }
 
+  /// Places the [OverlayRegion] next to [child] so
+  /// overlays share its theme and text style context.
+  Component _withOverlayRegion(Component child) {
+    return .fragment([child, const OverlayRegion()]);
+  }
+
   Component get _appBody {
     final textStyles = component.textStyle;
     final homeChild = component.home;
@@ -497,6 +502,7 @@ class _NakiAppState extends State<NakiApp> {
       }
 
       base = NakiThemeProvider.fromConfig(
+        configuration: _themeConfig,
         builder: (themeCtx) {
           Component? effectiveChild = router;
 
@@ -512,11 +518,13 @@ class _NakiAppState extends State<NakiApp> {
                     );
                   }
 
-                  return effectiveChild ??
-                      const PageNotFound(
-                        errorTitle: 'Unable to apply text style',
-                        errorText: 'No routes or builder provided',
-                      );
+                  return _withOverlayRegion(
+                    effectiveChild ??
+                        const PageNotFound(
+                          errorTitle: 'Unable to apply text style',
+                          errorText: 'No routes or builder provided',
+                        ),
+                  );
                 },
               ),
             );
@@ -526,13 +534,14 @@ class _NakiAppState extends State<NakiApp> {
             effectiveChild = component.builder!(themeCtx, effectiveChild);
           }
 
-          return effectiveChild ??
-              const PageNotFound(
-                errorTitle: 'Unable to build application router',
-                errorText: 'No routes or builder provided',
-              );
+          return _withOverlayRegion(
+            effectiveChild ??
+                const PageNotFound(
+                  errorTitle: 'Unable to build application router',
+                  errorText: 'No routes or builder provided',
+                ),
+          );
         },
-        configuration: _themeConfig,
       );
 
       return base;
@@ -555,11 +564,13 @@ class _NakiAppState extends State<NakiApp> {
                   );
                 }
 
-                return effectiveChild ??
-                    const PageNotFound(
-                      errorTitle: 'Unable to apply text style',
-                      errorText: 'No home component or builder provided',
-                    );
+                return _withOverlayRegion(
+                  effectiveChild ??
+                      const PageNotFound(
+                        errorTitle: 'Unable to apply text style',
+                        errorText: 'No home component or builder provided',
+                      ),
+                );
               },
             ),
           );
@@ -569,11 +580,13 @@ class _NakiAppState extends State<NakiApp> {
           effectiveChild = component.pageBuilder!(themeCtx, effectiveChild);
         }
 
-        return effectiveChild ??
-            const PageNotFound(
-              errorTitle: 'Unable to build application page',
-              errorText: 'No home component or builder provided',
-            );
+        return _withOverlayRegion(
+          effectiveChild ??
+              const PageNotFound(
+                errorTitle: 'Unable to build application page',
+                errorText: 'No home component or builder provided',
+              ),
+        );
       },
       configuration: _themeConfig,
     );
@@ -592,8 +605,7 @@ class _NakiAppState extends State<NakiApp> {
   }
 
   (String, String)? get favicon {
-    final base = component.seo?.url ?? context.binding.basePath;
-    final favico = normaliseLink(component.favicon ?? '', base);
+    final favico = component.favicon ?? '';
     String? type;
 
     if (favico.isNotEmpty) {
@@ -612,7 +624,7 @@ class _NakiAppState extends State<NakiApp> {
   }
 
   String get normalisedBasePath {
-    String base = component.basePath ?? '';
+    String base = component.basePath ?? context.binding.basePath;
     if (base.isEmpty) return _defaultBasePath;
 
     if (!base.startsWith('/')) base = '/$base';
@@ -621,101 +633,11 @@ class _NakiAppState extends State<NakiApp> {
     return base;
   }
 
-  List<Component> get seoTags {
-    final seo = component.seo;
-    if (seo == null) return [];
-
-    final base = seo.url ?? context.binding.basePath;
-    final pageUrl = normaliseLink(base);
-    final logoUrl = normaliseLink(seo.logo ?? '', base);
-    final pageTitle = seo.title ?? component.title ?? '';
-
-    final smTitle = seo.socialMediaTitle ?? pageTitle;
-    final smDesc = seo.socialMediaDescription ?? seo.description ?? '';
-    final smImg = normaliseLink(seo.socialMediaBanner ?? logoUrl, base);
-
-    final isValidLogo = logoUrl.isNotEmpty && logoUrl.startsWith('http');
-    final isValidSmImg = smImg.isNotEmpty && smImg.startsWith('http');
-    final isValidPageUrl = pageUrl.isNotEmpty && pageUrl.startsWith('http');
-
-    return [
-      if (isValidPageUrl) link(href: pageUrl, rel: 'canonical'),
-
-      if (seo.description.isNotNullAndEmpty)
-        meta(name: 'description', content: seo.description),
-
-      if (seo.keywords != null && seo.keywords!.isNotEmpty)
-        meta(name: 'keywords', content: seo.keywords!.join(', ')),
-
-      if (seo.robots != null && seo.robots!.isNotEmpty)
-        meta(name: 'robots', content: seo.robots!.join(', ')),
-
-      // Open Graph Tags
-      ...[
-        if (pageTitle.isNotEmpty) ...[
-          meta(
-            attributes: const {'property': 'og:title'},
-            content: pageTitle,
-            id: 'ogtitle',
-          ),
-          meta(
-            attributes: const {'property': 'og:site_name'},
-            content: pageTitle,
-            id: 'ogsitename',
-          ),
-        ],
-
-        if (seo.description.isNotNullAndEmpty)
-          meta(
-            attributes: const {'property': 'og:description'},
-            content: seo.description,
-            id: 'ogdesc',
-          ),
-
-        const meta(
-          attributes: {'property': 'og:type'},
-          content: 'website',
-          id: 'ogtype',
-        ),
-
-        if (isValidPageUrl)
-          meta(
-            attributes: const {'property': 'og:url'},
-            content: pageUrl,
-            id: 'ogurl',
-          ),
-
-        if (isValidLogo) ...[
-          meta(
-            attributes: const {'property': 'og:image'},
-            content: logoUrl,
-            id: 'ogimg',
-          ),
-
-          if (pageTitle.isNotEmpty)
-            meta(
-              attributes: const {'property': 'og:image:alt'},
-              content: pageTitle,
-              id: 'ogimgalt',
-            ),
-        ],
-      ],
-
-      // Social Media Graph Tags
-      if (smTitle.isNotEmpty) ...[
-        if (smTitle.isNotEmpty) meta(name: 'twitter:title', content: smTitle),
-        if (smDesc.isNotEmpty)
-          meta(name: 'twitter:description', content: smDesc),
-
-        if (isValidSmImg) ...[
-          meta(name: 'twitter:image', content: smImg),
-          if (smTitle.isNotEmpty)
-            meta(name: 'twitter:image:alt', content: smTitle),
-          const meta(name: 'twitter:card', content: 'summary_large_image'),
-        ],
-      ],
-    ];
-  }
+  List<Component> get seoTags => seoTagBuilder(
+    component.seo,
+    context: context,
+    defaultTitle: component.title,
+  );
 
   String get mergedViewport {
     final viewport = (component.viewport ?? '').split(',');
@@ -751,13 +673,21 @@ class _NakiAppState extends State<NakiApp> {
 
     return AppScope(
       child: .fragment([
+        Document.head(
+          children: [
+            .element(
+              tag: 'meta',
+              attributes: {'charset': component.charset ?? _defaultCharset},
+            ),
+          ],
+        ),
+
         // meta tags
         Document.head(
           title: effectiveTitle.isEmpty ? null : effectiveTitle,
           meta: {
             'viewport': mergedViewport,
             'designed-with': 'https://pub.dev/packages/naki_ui',
-            'charset': component.charset ?? _defaultCharset,
             'mobile-web-app-capable': 'yes',
             'apple-mobile-web-app-capable': 'yes',
             'apple-touch-fullscreen': 'yes',
@@ -778,9 +708,6 @@ class _NakiAppState extends State<NakiApp> {
             // theme script
             script(content: themeScript, id: 'nts'),
 
-            // browser pinch stop script
-            const script(content: kPinchStopScript, id: 'nps'),
-
             // icon
             if (favicon case (final href, final type))
               link(href: href, rel: 'icon', type: type),
@@ -800,11 +727,8 @@ class _NakiAppState extends State<NakiApp> {
           ],
         ),
 
-        // app body
+        // app body (includes the overlay region)
         _appBody,
-
-        // overlay region
-        const OverlayRegion(),
       ]),
     );
   }

@@ -96,12 +96,9 @@ class ScrollController {
   void attach(HTMLElement element) {
     detach();
 
-    if (!isElementScrollable(element)) {
-      throw StateError(
-        'Only scrollable components like Row, Column, ListView, GridView, '
-        'or the like can be attached to a ScrollController.',
-      );
-    }
+    // Elements with `overflow: hidden` (e.g. NeverScrollableScrollPhysics,
+    // or shrink-wrapped content that does not overflow yet) can still be
+    // scrolled programmatically.
 
     // store the scrollable element
     _attachedElement = element;
@@ -666,7 +663,7 @@ class SliverGridDelegateWithFixedCrossAxisCount extends SliverGridDelegate {
   final Dim crossAxisSpacing;
 
   /// Ratio of the cross-axis to the main-axis extent of each child.
-  final AspectRatioType childAspectRatio;
+  final AspectRatioType? childAspectRatio;
 
   /// Main axis size of child (overrides [childAspectRatio] if specified).
   ///
@@ -679,7 +676,7 @@ class SliverGridDelegateWithFixedCrossAxisCount extends SliverGridDelegate {
     required this.crossAxisCount,
     this.mainAxisSpacing = const Dim.px(16),
     this.crossAxisSpacing = const Dim.px(16),
-    this.childAspectRatio = AspectRatioType.ratio1_1,
+    this.childAspectRatio,
     this.mainAxisExtent,
   }) : assert(crossAxisCount > 0, 'crossAxisCount must be greater than 0');
 }
@@ -699,7 +696,7 @@ class SliverGridDelegateWithMaxCrossAxisExtent extends SliverGridDelegate {
   final Dim crossAxisSpacing;
 
   /// Ratio of the cross-axis to the main-axis extent of each child.
-  final AspectRatioType childAspectRatio;
+  final AspectRatioType? childAspectRatio;
 
   /// Main axis size of child (overrides [childAspectRatio] if specified).
   ///
@@ -713,7 +710,7 @@ class SliverGridDelegateWithMaxCrossAxisExtent extends SliverGridDelegate {
     required this.maxCrossAxisExtent,
     this.mainAxisSpacing = const Dim.px(16),
     this.crossAxisSpacing = const Dim.px(16),
-    this.childAspectRatio = AspectRatioType.ratio1_1,
+    this.childAspectRatio,
     this.mainAxisExtent,
   });
 }

@@ -6,6 +6,7 @@ import 'package:jaspr_icons_pack/jaspr_icons_pack.dart';
 import 'package:universal_web/web.dart';
 
 import '../framework/framework.dart';
+import '../framework/overlay_stack.dart';
 import '../models/overlays.dart';
 import '../models/styling.dart';
 import '../styles/rules.dart';
@@ -31,6 +32,9 @@ mixin _AccessibleOverlay<T extends StatefulComponent> on State<T> {
     if (_requestedOpen == open) return;
 
     _requestedOpen = open;
+
+    // capture the trigger before the overlay renders and autofocus moves focus
+    if (open && kIsWeb) _previousFocus = document.activeElement as HTMLElement?;
 
     onComponentRendered(() {
       if (!mounted) return;
@@ -63,7 +67,7 @@ mixin _AccessibleOverlay<T extends StatefulComponent> on State<T> {
     final surface = overlaySurfaceKey.currentNode;
     if (surface == null) return;
 
-    _previousFocus = document.activeElement as HTMLElement?;
+    NakiOverlayStack.push(this);
 
     final focusable = _focusableElements(surface);
     (focusable.isNotEmpty ? focusable.first : surface).focus();
@@ -72,8 +76,13 @@ mixin _AccessibleOverlay<T extends StatefulComponent> on State<T> {
     _keyboardSubscription = EventStreamProviders.keyDownEvent
         .forTarget(document)
         .listen((event) {
+          // only the top-most overlay handles keyboard
+          // dismissal and trapping
+          if (!NakiOverlayStack.isTop(this)) return;
+
           if (event.key == 'Escape') {
             event.preventDefault();
+            event.stopPropagation();
             close();
             return;
           }
@@ -104,6 +113,7 @@ mixin _AccessibleOverlay<T extends StatefulComponent> on State<T> {
   }
 
   void _deactivateOverlay() {
+    NakiOverlayStack.remove(this);
     _keyboardSubscription?.cancel();
     _keyboardSubscription = null;
     _previousFocus?.focus();
@@ -114,6 +124,79 @@ mixin _AccessibleOverlay<T extends StatefulComponent> on State<T> {
   @override
   void dispose() {
     _deactivateOverlay();
+    super.dispose();
+  }
+}
+
+/// Invokes [close] only when the barrier itself (not overlay content) was
+/// clicked, so content clicks keep bubbling for outside-click handlers.
+void _onBarrierClick(Event event, VoidCallback close) {
+  if (identical(event.target, event.currentTarget)) close();
+}
+
+/// Shared open / exit-animation state machine for overlays.
+///
+/// Exit state is owned by Dart and rendered through attributes, so reopening
+/// during an exit animation cancels it instead of leaving a stale
+/// `data-exiting` attribute on a reused DOM node.
+mixin _OverlayVisibility<T extends StatefulComponent> on State<T> {
+  bool _visible = false;
+  bool _exiting = false;
+
+  Timer? _exitTimer;
+
+  /// Duration of the exit animation (matches the CSS keyframes).
+  Duration get exitDuration;
+
+  /// Whether the overlay is open and not animating out.
+  bool get isInteractive => _visible && !_exiting;
+
+  /// Attributes applied to animated elements while exiting.
+  Map<String, String> get exitAttributes =>
+      _exiting ? const {'data-exiting': 'true', 'inert': ''} : const {};
+
+  /// Updates visibility; pass `rebuild: false` from lifecycle methods that
+  /// are already followed by a build.
+  void syncVisibility(bool open, {bool rebuild = true}) {
+    void update(VoidCallback fn) => rebuild ? setState(fn) : fn();
+
+    if (open) {
+      _exitTimer?.cancel();
+      _exitTimer = null;
+
+      if (_visible && !_exiting) return;
+
+      update(() {
+        _visible = true;
+        _exiting = false;
+      });
+
+      return;
+    }
+
+    if (!_visible || _exiting) return;
+
+    // nothing to animate on the server
+    if (!kIsWeb) {
+      _visible = false;
+      return;
+    }
+
+    update(() => _exiting = true);
+
+    _exitTimer = Timer(exitDuration, () {
+      _exitTimer = null;
+
+      setState(() {
+        _visible = false;
+        _exiting = false;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _exitTimer?.cancel();
     super.dispose();
   }
 }
@@ -228,11 +311,13 @@ class Snackbar extends StatefulComponent {
       NakiStyleRegistry.once('Snackbar', [Rules.nakiSnackbarRules]);
 }
 
-class _SnackbarState extends State<Snackbar> {
+class _SnackbarState extends State<Snackbar> with _OverlayVisibility<Snackbar> {
   Timer? _timer;
 
-  late bool _localIsOpen;
   late final _id = nakiDomId(context, 'snackbar');
+
+  @override
+  Duration get exitDuration => const Duration(milliseconds: 200);
 
   @override
   void setState(VoidCallback fn) {
@@ -243,10 +328,12 @@ class _SnackbarState extends State<Snackbar> {
   void initState() {
     super.initState();
 
-    _localIsOpen = component.controller.isOpen;
-    if (_localIsOpen) SnackbarRegistry.onOpen(component.controller);
+    final isOpen = component.controller.isOpen;
+    syncVisibility(isOpen, rebuild: false);
 
+    if (isOpen) SnackbarRegistry.onOpen(component.controller);
     component.controller.addListener(_onControllerChanged);
+
     _scheduleAutoDismiss();
   }
 
@@ -257,9 +344,9 @@ class _SnackbarState extends State<Snackbar> {
     if (oldComponent.controller != component.controller) {
       oldComponent.controller.removeListener(_onControllerChanged);
       component.controller.addListener(_onControllerChanged);
-    }
 
-    _localIsOpen = component.controller.isOpen;
+      syncVisibility(component.controller.isOpen, rebuild: false);
+    }
   }
 
   @override
@@ -270,35 +357,33 @@ class _SnackbarState extends State<Snackbar> {
   }
 
   /// Handles controller changes
-  Future<void> _onControllerChanged() async {
-    if (_localIsOpen == component.controller.isOpen) return;
+  void _onControllerChanged() {
+    final isOpen = component.controller.isOpen;
+    if (isOpen == isInteractive) return;
 
-    _localIsOpen = component.controller.isOpen;
-
-    if (_localIsOpen) {
+    if (isOpen) {
       SnackbarRegistry.onOpen(component.controller);
       _scheduleAutoDismiss();
-
-      final elem = document.getElementById(_id) as HTMLElement?;
-      elem?.dataset['exiting'] = 'true';
-
-      await Future.delayed(const Duration(milliseconds: 150 * 2));
     } else {
+      _timer?.cancel();
+      _timer = null;
       SnackbarRegistry.onClose(component.controller);
     }
 
-    setState(() {});
+    syncVisibility(isOpen);
   }
 
   /// Schedules the auto-dismiss timer
   void _scheduleAutoDismiss() {
     _timer?.cancel();
     final isOpen = component.controller.isOpen;
-    if (isOpen) _timer = Timer(component.duration, _close);
+    if (isOpen && kIsWeb) _timer = Timer(component.duration, _close);
   }
 
   /// Closes the snackbar
   void _close() {
+    _timer?.cancel();
+    _timer = null;
     component.onClose?.call();
     component.controller.close();
   }
@@ -314,6 +399,14 @@ class _SnackbarState extends State<Snackbar> {
       appbarHeight = 'var($appbarHeight, 56px)';
       bottomNavbarHeight = 'var($bottomNavbarHeight, 64px)';
 
+      final appbarOffset =
+          'var(${Tokens.current.appbarOffset}, '
+          'calc($appbarHeight + env(safe-area-inset-top, 0px)))';
+
+      final bottomNavbarOffset =
+          'var(${Tokens.current.bottomNavbarOffset}, '
+          'calc($bottomNavbarHeight + env(safe-area-inset-bottom, 0px)))';
+
       final isTopPosition =
           component.position == .top ||
           component.position == .topLeft ||
@@ -326,15 +419,13 @@ class _SnackbarState extends State<Snackbar> {
 
       if (isTopPosition && scaffold.hasAppbar) {
         return {
-          Tokens.current.snackbarOffset.name:
-              'calc($appbarHeight + env(--safe-area-inset-top, 0px) + 5px)',
+          Tokens.current.snackbarOffset.name: 'calc($appbarOffset + 5px)',
         };
       }
 
       if (isBottomPosition && scaffold.hasBottomNavbar) {
         return {
-          Tokens.current.snackbarOffset.name:
-              'calc($bottomNavbarHeight + env(--safe-area-inset-bottom, 0px) + 5px)',
+          Tokens.current.snackbarOffset.name: 'calc($bottomNavbarOffset + 5px)',
         };
       }
     }
@@ -344,7 +435,7 @@ class _SnackbarState extends State<Snackbar> {
 
   @override
   Component build(BuildContext context) {
-    if (!_localIsOpen) return const .empty();
+    if (!_visible) return const .empty();
 
     final effectiveStyles = {
       Tokens.current.snackbarBgColor.name: ?component.backgroundColor?.value,
@@ -384,7 +475,11 @@ class _SnackbarState extends State<Snackbar> {
         id: _id,
         key: component.key,
         classes: effectiveClasses,
-        attributes: const {'role': 'status', 'aria-live': 'polite'},
+        attributes: {
+          'role': 'status',
+          'aria-live': 'polite',
+          ...exitAttributes,
+        },
         styles: Styles(raw: effectiveStyles),
         children: effectiveChildren,
       ),
@@ -478,8 +573,8 @@ class Tooltip extends StatelessComponent with NakiStatelessMixin {
 
     final target =
         root?.querySelector(
-              '.naki-tooltip-target a[href], .naki-tooltip-target button, '
-              '.naki-tooltip-target input, .naki-tooltip-target [tabindex]',
+              ':is(.naki-tooltip-target, .naki-tooltip-target *)'
+              ':is(a[href], button, input, select, textarea, [tabindex])',
             )
             as HTMLElement?;
 
@@ -695,9 +790,12 @@ class Dialog extends StatefulComponent {
       NakiStyleRegistry.once('Dialog', Rules.nakiDialogRules);
 }
 
-class _DialogState extends State<Dialog> with _AccessibleOverlay<Dialog> {
-  bool _localIsOpen = false;
+class _DialogState extends State<Dialog>
+    with _AccessibleOverlay<Dialog>, _OverlayVisibility<Dialog> {
   late final _id = nakiDomId(context, 'dialog');
+
+  @override
+  Duration get exitDuration => const Duration(milliseconds: 250);
 
   @override
   void setState(VoidCallback fn) {
@@ -707,7 +805,7 @@ class _DialogState extends State<Dialog> with _AccessibleOverlay<Dialog> {
   @override
   void initState() {
     super.initState();
-    _localIsOpen = component.controller.isOpen;
+    syncVisibility(component.controller.isOpen, rebuild: false);
     component.controller.addListener(_onControllerChanged);
   }
 
@@ -718,32 +816,18 @@ class _DialogState extends State<Dialog> with _AccessibleOverlay<Dialog> {
     if (oldComponent.controller != component.controller) {
       oldComponent.controller.removeListener(_onControllerChanged);
       component.controller.addListener(_onControllerChanged);
-    }
 
-    _localIsOpen = component.controller.isOpen;
+      syncVisibility(component.controller.isOpen, rebuild: false);
+    }
   }
 
   @override
   void dispose() {
-    component.controller.dispose();
+    component.controller.removeListener(_onControllerChanged);
     super.dispose();
   }
 
-  /// Handles controller changes
-  Future<void> _onControllerChanged() async {
-    _localIsOpen = component.controller.isOpen;
-
-    if (!_localIsOpen) {
-      final barrier = document.getElementById(_id) as HTMLElement?;
-
-      barrier?.dataset['exiting'] = 'true';
-      overlaySurfaceKey.currentNode?.dataset['exiting'] = 'true';
-
-      await Future.delayed(const Duration(milliseconds: 250 * 2));
-    }
-
-    setState(() {});
-  }
+  void _onControllerChanged() => syncVisibility(component.controller.isOpen);
 
   void _onClose() {
     component.onClose?.call();
@@ -752,9 +836,9 @@ class _DialogState extends State<Dialog> with _AccessibleOverlay<Dialog> {
 
   @override
   Component build(BuildContext context) {
-    syncOverlayAccessibility(_localIsOpen, _onClose);
+    syncOverlayAccessibility(isInteractive, _onClose);
 
-    if (!_localIsOpen) return const .empty();
+    if (!_visible) return const .empty();
 
     final effectiveStyles = {
       Tokens.current.dialogBarrierBg.name: ?component.barrierColor?.value,
@@ -813,9 +897,10 @@ class _DialogState extends State<Dialog> with _AccessibleOverlay<Dialog> {
         id: _id,
         key: component.key,
         classes: effectiveClasses,
+        attributes: exitAttributes,
         styles: Styles(raw: effectiveStyles),
         events: component.barrierDismissible
-            ? {'click': (_) => _onClose()}
+            ? {'click': (e) => _onBarrierClick(e, _onClose)}
             : null,
         children: [
           div(
@@ -827,8 +912,8 @@ class _DialogState extends State<Dialog> with _AccessibleOverlay<Dialog> {
               'aria-label':
                   component.semanticLabel ?? component.title ?? 'Dialog',
               'tabindex': '-1',
+              ...exitAttributes,
             },
-            events: {'click': (e) => e.stopPropagation()},
             styles: Styles(
               raw: {
                 ...?component.gradient?.props,
@@ -1002,20 +1087,24 @@ class Drawer extends StatefulComponent {
       NakiStyleRegistry.once('Drawer', Rules.nakiDrawerRules);
 }
 
-class _DrawerState extends State<Drawer> with _AccessibleOverlay<Drawer> {
-  bool _localIsOpen = false;
-
+class _DrawerState extends State<Drawer>
+    with _AccessibleOverlay<Drawer>, _OverlayVisibility<Drawer> {
   late final _id = nakiDomId(context, 'drawer');
+
+  @override
+  Duration get exitDuration => const Duration(milliseconds: 250);
 
   @override
   void setState(VoidCallback fn) {
     if (mounted && kIsWeb) super.setState(fn);
   }
 
+  bool get _isOpen => component.controller?.isOpen ?? !component.modal;
+
   @override
   void initState() {
     super.initState();
-    _localIsOpen = component.controller?.isOpen ?? !component.modal;
+    syncVisibility(_isOpen, rebuild: false);
     component.controller?.addListener(_onControllerChanged);
   }
 
@@ -1028,7 +1117,7 @@ class _DrawerState extends State<Drawer> with _AccessibleOverlay<Drawer> {
       component.controller?.addListener(_onControllerChanged);
     }
 
-    _localIsOpen = component.controller?.isOpen ?? !component.modal;
+    syncVisibility(_isOpen, rebuild: false);
   }
 
   @override
@@ -1037,23 +1126,8 @@ class _DrawerState extends State<Drawer> with _AccessibleOverlay<Drawer> {
     super.dispose();
   }
 
-  /// Handles changes to the controller's open/close state.
-  Future<void> _onControllerChanged() async {
-    _localIsOpen = component.controller?.isOpen ?? _localIsOpen;
+  void _onControllerChanged() => syncVisibility(_isOpen);
 
-    if (!_localIsOpen) {
-      final barrier = document.getElementById(_id) as HTMLElement?;
-
-      barrier?.dataset['exiting'] = 'true';
-      overlaySurfaceKey.currentNode?.dataset['exiting'] = 'true';
-
-      await Future.delayed(const Duration(milliseconds: 250 * 2));
-    }
-
-    setState(() {});
-  }
-
-  /// Closes the drawer.
   void _close() {
     component.onClose?.call();
     component.controller?.close();
@@ -1061,9 +1135,9 @@ class _DrawerState extends State<Drawer> with _AccessibleOverlay<Drawer> {
 
   @override
   Component build(BuildContext context) {
-    syncOverlayAccessibility(component.modal && _localIsOpen, _close);
+    syncOverlayAccessibility(component.modal && isInteractive, _close);
 
-    if (!_localIsOpen) return const .empty();
+    if (!_visible) return const .empty();
 
     final effectiveStyles = {
       Tokens.current.drawerBgColor.name: ?component.backgroundColor?.value,
@@ -1072,7 +1146,7 @@ class _DrawerState extends State<Drawer> with _AccessibleOverlay<Drawer> {
       ...?component.gradient?.props,
     };
 
-    final showBarrier = component.modal && component.barrierDismissible;
+    final showBarrier = component.modal;
 
     final baseClass = component.modal ? 'naki-drawer' : 'naki-sidebar';
     final effectiveClasses = joinClasses([?component.classes, baseClass]);
@@ -1086,13 +1160,16 @@ class _DrawerState extends State<Drawer> with _AccessibleOverlay<Drawer> {
       key: component.key,
       id: _id,
       classes: effectiveClasses,
+      attributes: exitAttributes,
       styles: Styles(raw: effectiveStyles),
       children: [
         // Barrier
         if (showBarrier)
           div(
             classes: 'naki-drawer-barrier',
-            events: {'click': (_) => _close()},
+            events: component.barrierDismissible
+                ? {'click': (_) => _close()}
+                : null,
             const [],
           ),
 
@@ -1105,16 +1182,14 @@ class _DrawerState extends State<Drawer> with _AccessibleOverlay<Drawer> {
             if (component.modal) 'aria-modal': 'true',
             'aria-label': component.semanticLabel,
             if (component.modal) 'tabindex': '-1',
+            ...exitAttributes,
           },
-          events: component.modal
-              ? {'click': (e) => e.stopPropagation()}
-              : null,
           [component.child],
         ),
       ],
     );
 
-    return component.modal ? OverlayScope(id: _id, child: drawer) : drawer;
+    return drawer;
   }
 }
 
@@ -1170,7 +1245,7 @@ class Sidebar extends Drawer {
 
   @css
   static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('Sidebar', Rules.nakiDrawerRules);
+      NakiStyleRegistry.once('Sidebar', Rules.nakiSidebarRules);
 }
 
 /// {@template BottomSheet}
@@ -1274,10 +1349,11 @@ class BottomSheet extends StatefulComponent {
 }
 
 class _BottomSheetState extends State<BottomSheet>
-    with _AccessibleOverlay<BottomSheet> {
-  bool _localIsOpen = false;
-
+    with _AccessibleOverlay<BottomSheet>, _OverlayVisibility<BottomSheet> {
   late final _id = nakiDomId(context, 'bottomsheet');
+
+  @override
+  Duration get exitDuration => const Duration(milliseconds: 300);
 
   @override
   void setState(VoidCallback fn) {
@@ -1287,7 +1363,7 @@ class _BottomSheetState extends State<BottomSheet>
   @override
   void initState() {
     super.initState();
-    _localIsOpen = component.controller.isOpen;
+    syncVisibility(component.controller.isOpen, rebuild: false);
     component.controller.addListener(_onControllerChanged);
   }
 
@@ -1298,9 +1374,9 @@ class _BottomSheetState extends State<BottomSheet>
     if (oldComponent.controller != component.controller) {
       oldComponent.controller.removeListener(_onControllerChanged);
       component.controller.addListener(_onControllerChanged);
-    }
 
-    _localIsOpen = component.controller.isOpen;
+      syncVisibility(component.controller.isOpen, rebuild: false);
+    }
   }
 
   @override
@@ -1309,23 +1385,8 @@ class _BottomSheetState extends State<BottomSheet>
     super.dispose();
   }
 
-  /// Handles controller open/close changes.
-  Future<void> _onControllerChanged() async {
-    _localIsOpen = component.controller.isOpen;
+  void _onControllerChanged() => syncVisibility(component.controller.isOpen);
 
-    if (!_localIsOpen) {
-      final barrier = document.getElementById(_id) as HTMLElement?;
-
-      barrier?.dataset['exiting'] = 'true';
-      overlaySurfaceKey.currentNode?.dataset['exiting'] = 'true';
-
-      await Future.delayed(const Duration(milliseconds: 300 * 2));
-    }
-
-    setState(() {});
-  }
-
-  /// Closes the bottom sheet.
   void _close() {
     component.onClose?.call();
     component.controller.close();
@@ -1333,9 +1394,9 @@ class _BottomSheetState extends State<BottomSheet>
 
   @override
   Component build(BuildContext context) {
-    syncOverlayAccessibility(_localIsOpen, _close);
+    syncOverlayAccessibility(isInteractive, _close);
 
-    if (!_localIsOpen) return const .empty();
+    if (!_visible) return const .empty();
 
     final effectiveStyles = {
       Tokens.current.bottomSheetBgColor.name: ?component.backgroundColor?.value,
@@ -1360,9 +1421,10 @@ class _BottomSheetState extends State<BottomSheet>
         id: _id,
         key: component.key,
         classes: effectiveClasses,
+        attributes: exitAttributes,
         styles: Styles(raw: effectiveStyles),
         events: component.barrierDismissible
-            ? {'click': (_) => _close()}
+            ? {'click': (e) => _onBarrierClick(e, _close)}
             : null,
         children: [
           div(
@@ -1373,8 +1435,8 @@ class _BottomSheetState extends State<BottomSheet>
               'aria-modal': 'true',
               'aria-label': component.semanticLabel,
               'tabindex': '-1',
+              ...exitAttributes,
             },
-            events: {'click': (e) => e.stopPropagation()},
             styles: Styles(
               raw: {
                 'max-width': ?component.maxWidth?.cssText,

@@ -1,7 +1,6 @@
 import 'package:jaspr/dom.dart';
 import '../models/styling.dart';
 import '../theme/tokens.dart';
-import '../utilities/extensions.dart';
 import 'text_style.dart';
 
 /// CSS styling utilities and default styles for Naki components.
@@ -12,11 +11,10 @@ import 'text_style.dart';
 class Css {
   /// Mixes a color with transparent space to apply a custom opacity level.
   ///
-  /// [opacity] is a percentage value from 0.0 to 100.0.
-  static Color applyOpacity(Color color, double opacity) {
-    return Color(
-      'color-mix(in srgb, ${color.value} ${opacity.toCleanString}%, transparent)',
-    );
+  /// [opacity] is a value from 0.0 to 1.0.
+  static Color applyOpacity(Token token, double opacity) {
+    opacity = opacity > 1 ? opacity / 100 : opacity;
+    return Color('var(${token.name}, ${token.value})').withOpacity(opacity);
   }
 
   /// Floating Action Button z-index -> `900`.
@@ -66,6 +64,7 @@ class Css {
   static final nakiTextTruncateStyle = {
     'text-overflow': 'ellipsis',
     'overflow': 'hidden',
+    'width': '100%',
     'white-space': 'nowrap',
   };
 
@@ -94,7 +93,7 @@ class Css {
   };
 
   /// Default text style for form field labels.
-  static final nakiLabelTextStyle = TextStyle(
+  static final nakiLabelStyle = TextStyle(
     fontWeight: .w500,
     fontSize: .variable(
       Tokens.current.fontSizeLabel.name,
@@ -103,6 +102,7 @@ class Css {
     color: .variable(
       '${Tokens.current.labelColor}, ${Tokens.current.labelColor.value}',
     ),
+    lineHeight: const Dim.normal(),
     width: const .fitContent(),
     margin: const EdgeInsets.only(bottom: Dim.px(12)),
   );
@@ -116,6 +116,7 @@ class Css {
     color: .variable(
       '${Tokens.current.mutedColor}, ${Tokens.current.mutedColor.value}',
     ),
+    lineHeight: const Dim.normal(),
     padding: const EdgeInsets.only(top: Dim.px(5)),
     margin: EdgeInsets.zero,
     extra: {'white-space': 'pre-wrap', 'word-break': 'break-word'},
@@ -130,6 +131,7 @@ class Css {
       Tokens.current.fontSizeError.name,
       defaultValue: Tokens.current.fontSizeError.value,
     ),
+    lineHeight: const Dim.normal(),
     color: .variable(
       '${Tokens.current.errorColor}, ${Tokens.current.errorColor.value}',
     ),
@@ -139,19 +141,18 @@ class Css {
   /// Default border styling rule applied to inputs with validation errors.
   static final nakiErrorBorderStyle = {
     'outline': 'none',
-    'border': Tokens.current.errorBorder.value,
+    'border': '${Tokens.current.errorBorder.value} !important',
   };
 
   /// Default border styling rule applied to inputs with focus.
   static final nakiFocusBorderStyle = {
     'outline': 'none',
-    'border': Tokens.current.focusBorder.value,
+    'border': '${Tokens.current.focusBorder.value} !important',
   };
 
   /// Default styling rule applied to input fields on hover.
   static final nakiFieldHoverStyle = {
-    'outline': 'none',
-    'border': Tokens.current.fieldHoverBorder.value,
+    'border': '${Tokens.current.fieldHoverBorder.value} !important',
   };
 
   /// Default placeholder text styling rule inside inputs.
@@ -193,6 +194,8 @@ class Css {
           'var(${Tokens.current.fontSizeInput}, ${Tokens.current.fontSizeInput.value})',
       'margin': '0',
       'border-radius': '12px',
+      'width': 'auto',
+      'line-height': 'normal',
       'height':
           'var(${Tokens.current.inputHeight}, ${Tokens.current.inputHeight.value})',
       'border': Tokens.current.border.value,
@@ -226,7 +229,7 @@ class Css {
       'padding': '10px 15px',
       'line-height': '1.5',
       'border-radius': '12px',
-      'width': 'fit-content',
+      'width': 'auto',
       'margin': '0',
       'overflow': 'clip',
     },
@@ -351,6 +354,7 @@ class Css {
       'gap': '15px',
       'width': 'fit-content',
       'align-items': 'center',
+      'line-height': 'normal',
     },
 
     'input': {
@@ -428,7 +432,7 @@ class Css {
       'pointer-events': 'none',
       'border-radius': '50%',
       'font-size': '12px',
-      'line-height': '1',
+      'line-height': 'normal',
     },
 
     'input': {
@@ -514,14 +518,15 @@ class Css {
       'gap': '12px',
       'justify-content': 'space-between',
       'padding': '0 20px',
-      'backdrop-filter': 'blur(12px)',
+      'backdrop-filter': 'blur(10px)',
+      '-webkit-backdrop-filter': 'blur(10px)',
       'height':
           'var(${Tokens.current.appbarHeight}, '
           '${Tokens.current.appbarHeight.value})',
       'background-color':
-          'var(${Tokens.current.appbarBgColor}, '
-          '${Tokens.current.appbarBgColor.value})',
-      'box-shadow': '0px 2px 4px rgba(0, 0, 0, 0.1)',
+          '${applyOpacity(Tokens.current.appbarBgColor, 70).value}',
+      'box-shadow': '0px 1px 2px rgba(0, 0, 0, 0.1)',
+      'line-height': 'normal',
     },
 
     'title': {
@@ -579,17 +584,18 @@ class Css {
       'max-width': '600px',
       'border-radius': '12px',
       'background-color':
-          'color-mix(in srgb, var(${Tokens.current.bottomNavbarBgColor}, ${Tokens.current.bottomNavbarBgColor.value}) 75%, transparent)',
-      'backdrop-filter': 'blur(20px) saturate(180%)',
-      '-webkit-backdrop-filter': 'blur(20px) saturate(180%)',
+          'color-mix(in srgb, var(${Tokens.current.bottomNavbarBgColor}, ${Tokens.current.bottomNavbarBgColor.value}) 25%, transparent)',
+      'backdrop-filter': 'blur(8px) saturate(180%)',
+      '-webkit-backdrop-filter': 'blur(8px) saturate(180%)',
       'border':
-          '1px solid var(${Tokens.current.borderColor}, rgba(255, 255, 255, 0.2))',
-      'box-shadow': '0px 8px 24px rgba(0, 0, 0, 0.12)',
+          '1px solid ${applyOpacity(Tokens.current.borderColor, 10).value}',
+      'box-shadow': '0px -1px 0 rgba(0, 0, 0, 0.1)',
     },
 
     'frosted-glass-tile': {
       'padding': '0 5px',
       'border-radius': '12px',
+      'line-height': 'normal',
       'transition':
           'transform 0.15s ease, color 0.15s ease, background 0.2s ease, box-shadow 0.2s ease',
     },
@@ -625,10 +631,10 @@ class Css {
       'justify-content': 'center',
       'display': 'flex',
       'align-items': 'center',
+      'line-height': 'normal',
     },
 
     'label': {
-      'line-height': '1',
       'text-overflow': 'ellipsis',
       'overflow': 'hidden',
       'white-space': 'nowrap',
@@ -639,6 +645,7 @@ class Css {
       'min-width': '64px',
       'max-width': '168px',
       'height': '100%',
+      'line-height': 'normal',
     },
   };
 
@@ -653,7 +660,7 @@ class Css {
         '${Tokens.current.buttonWidth.value})',
     'display': 'flex',
     'box-sizing': 'border-box',
-    'padding': '10px',
+    'padding': '13px 10px',
     'border': 'none',
     'cursor': 'pointer',
     'border-radius': '12px',
@@ -667,7 +674,7 @@ class Css {
         '${Tokens.current.buttonColor.value})',
     'text-wrap-mode': 'nowrap',
     'text-align': 'center',
-    'line-height': '1',
+    'line-height': 'normal',
   };
 
   /// Default CSS styles map for styling scaffold layout
@@ -689,7 +696,7 @@ class Css {
 
     'appbar': {
       'z-index': _appBarZindex,
-      'position': 'sticky',
+      'position': 'absolute',
       'top': '0',
       'width': '100%',
       'flex-shrink': '0',
@@ -705,14 +712,10 @@ class Css {
 
     'sidebar': {
       'flex-shrink': '1',
-      'align-self': 'start',
+      'align-self': 'stretch',
       'overflow': 'auto',
-      'height':
-          'calc(100dvh - var(${Tokens.current.appbarHeight}, '
-          '${Tokens.current.appbarHeight.value}))',
-      'top':
-          'var(${Tokens.current.appbarHeight}, '
-          '${Tokens.current.appbarHeight.value})',
+      'height': '100%',
+      'min-height': '0',
     },
 
     'body': {
@@ -722,6 +725,7 @@ class Css {
       'height': '100%',
       'overflow': 'hidden',
       'position': 'relative',
+      'box-sizing': 'border-box',
     },
 
     'bottom-navbar': {
@@ -823,11 +827,13 @@ class Css {
       'text-overflow': 'ellipsis',
       'overflow': 'hidden',
       'white-space': 'nowrap',
+      'line-height': '1',
     },
 
     'option': {
       'display': 'block',
       'scroll-snap-align': 'center',
+      'scroll-margin-top': '40px',
       'padding':
           'var(${Tokens.current.dropdownOptionPadding}, ${Tokens.current.dropdownOptionPadding.value})',
       'cursor': 'pointer',
@@ -903,6 +909,7 @@ class Css {
           'var(${Tokens.current.dropdownMenuBgColor}, ${Tokens.current.dropdownMenuBgColor.value})',
       'border': Tokens.current.border.value,
       'border-radius': '12px',
+      'line-height': 'normal',
       'max-height':
           'var(${Tokens.current.dropdownMenuHeight}, ${Tokens.current.dropdownMenuHeight.value})',
     },
@@ -952,6 +959,7 @@ class Css {
       'background-color':
           'color-mix(in srgb, var(${Tokens.current.spinnerSurfaceColor}, ${Tokens.current.spinnerSurfaceColor.value}) 85%, grey)',
       'backdrop-filter': 'blur(6px)',
+      '-webkit-backdrop-filter': 'blur(6px)',
       'padding': '6px',
     },
 
@@ -1013,6 +1021,7 @@ class Css {
     'box-sizing': 'border-box',
     'grid-template-columns': 'repeat(auto-fill, minmax(150px, 1fr))',
     'gap': 'var(${Tokens.current.gridGap})',
+    'justify-items': 'start',
     'scrollbar-width': 'none',
   };
 
@@ -1058,7 +1067,7 @@ class Css {
       'max-width': '300px',
       'text-align': 'center',
       'margin': '0 auto',
-      'padding': '60px, 0',
+      'padding': '60px 0',
       'text-wrap': 'balance',
     },
   };
@@ -1077,7 +1086,6 @@ class Css {
     'position': 'fixed',
     'z-index': _snackbarZindex,
     'display': 'flex',
-    'align-items': 'center',
     'justify-content': 'space-between',
     'max-width': '600px',
     'width': 'max-content',
@@ -1093,14 +1101,13 @@ class Css {
     'box-shadow':
         'var(${Tokens.current.largeShadow}, ${Tokens.current.largeShadow.value})',
     'box-sizing': 'border-box',
-    'line-height': '1',
+    'line-height': 'normal',
     'animation': 'nakiDialogFadeIn 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards',
   };
 
   /// Default CSS styles map for Banner.
   static final nakiBannerStyle = {
     'display': 'flex',
-    'align-items': 'center',
     'gap': '10px',
     'background-color':
         'var(${Tokens.current.bannerBgColor}, ${Tokens.current.bannerBgColor.value})',
@@ -1114,7 +1121,7 @@ class Css {
         '1px solid var(${Tokens.current.bannerBorderColor}, ${Tokens.current.bannerBorderColor.value})',
     'box-sizing': 'border-box',
     'width': '100%',
-    'line-height': '1',
+    'line-height': 'normal',
     'overflow': 'clip',
   };
 
@@ -1141,7 +1148,7 @@ class Css {
       'transition': 'opacity 0.15s ease, visibility 0.15s ease',
       'width': 'max-content',
       'max-width': '200px',
-      'line-height': '16px',
+      'line-height': 'normal',
       'height': 'fit-content',
       'overflow': 'visible',
       'text-wrap': 'balance',
@@ -1151,7 +1158,7 @@ class Css {
 
   /// Default CSS styles map for Popover.
   static final nakiPopoverStyle = {
-    'wrapper': {'position': 'relative', 'display': 'inline-block'},
+    'wrapper': {'position': 'relative', 'display': 'block'},
 
     'barrier': {
       'position': 'fixed',
@@ -1166,6 +1173,7 @@ class Css {
       'visibility': 'visible',
       'pointer-events': 'auto',
       'height': 'fit-content',
+      'line-height': 'normal',
       'background-color':
           'var(${Tokens.current.popoverBgColor}, ${Tokens.current.popoverBgColor.value})',
       'color':
@@ -1207,6 +1215,7 @@ class Css {
       'width': '100dvw',
       'height': '100dvh',
       'backdrop-filter': 'blur(5px)',
+      '-webkit-backdrop-filter': 'blur(5px)',
       'overscroll-behavior': 'none',
       'touch-action': 'none',
       'animation':
@@ -1229,27 +1238,22 @@ class Css {
       'height': 'fit-content',
       'box-shadow': Tokens.current.largeShadow.value,
       'box-sizing': 'border-box',
+      'line-height': 'normal',
       'animation':
-          'nakiDialogPopIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+          'nakiDialogPopIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
     },
   };
 
   /// Default CSS styles map for Sidebar.
   static final nakiSidebarStyle = {
-    'wrapper': {
-      'position': 'sticky',
-      'overflow': 'auto',
-      'overscroll-behavior': 'none',
-    },
-
     'content': {
-      'position': 'relative',
       'width':
           'var(${Tokens.current.drawerWidth}, ${Tokens.current.drawerWidth.value})',
       'background-color':
           'var(${Tokens.current.drawerBgColor}, ${Tokens.current.drawerBgColor.value})',
       'box-sizing': 'border-box',
       'overflow': 'auto',
+      'line-height': 'normal',
     },
   };
 
@@ -1275,6 +1279,7 @@ class Css {
           'var(${Tokens.current.drawerBarrierBg}, ${Tokens.current.drawerBarrierBg.value})',
       'box-sizing': 'border-box',
       'backdrop-filter': 'blur(5px)',
+      '-webkit-backdrop-filter': 'blur(5px)',
       'touch-action': 'none',
       'display': 'block',
     },
@@ -1291,7 +1296,8 @@ class Css {
           'var(${Tokens.current.drawerBgColor}, ${Tokens.current.drawerBgColor.value})',
       'box-shadow': Tokens.current.largeShadow.value,
       'box-sizing': 'border-box',
-      'transition': 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+      'transition': 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+      'line-height': 'normal',
     },
   };
 
@@ -1310,6 +1316,7 @@ class Css {
       'height': '100dvh',
       'box-sizing': 'border-box',
       'backdrop-filter': 'blur(5px)',
+      '-webkit-backdrop-filter': 'blur(5px)',
       'overscroll-behavior': 'none',
       'touch-action': 'none',
       'animation':
@@ -1332,6 +1339,7 @@ class Css {
       'overflow-y': 'hidden',
       'display': 'flex',
       'flex-direction': 'column',
+      'line-height': 'normal',
       'animation':
           'nakiBottomSheetSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
     },
@@ -1351,7 +1359,7 @@ class Css {
 
   /// Default calendar style
   static final nakiCalendarStyle = {
-    'wrapper': {'position': 'relative'},
+    'wrapper': {'position': 'relative', 'display': 'block'},
 
     'default-trigger': {
       'height':
@@ -1366,26 +1374,41 @@ class Css {
       'padding': '0 15px',
       'border': Tokens.current.border.value,
       'user-select': 'none',
-      'line-height': 'normal',
+      'line-height': '1',
       'text-align': 'left',
       'justify-content': 'left',
       ...nakiTextTruncateStyle,
     },
 
     'modal': {
-      'top': 'calc(100% + 3px)',
-      'left': '0',
+      'top':
+          'var(${Tokens.current.calendarTop}, ${Tokens.current.calendarTop.value})',
+      'bottom':
+          'var(${Tokens.current.calendarBottom}, '
+          '${Tokens.current.calendarBottom.value})',
+      'left': '50%',
+      'transform':
+          'translateX(calc(-50% + var(${Tokens.current.calendarShiftX}, '
+          '${Tokens.current.calendarShiftX.value}))) '
+          'translateY(var(${Tokens.current.calendarGap}, '
+          '${Tokens.current.calendarGap.value}))',
       'z-index': '10',
-      'max-width': 'min(320px, 100vw)',
+      'overflow': 'auto',
+      'box-sizing': 'border-box',
+      'width': 'max-content',
+      'max-width': 'min(380px, calc(100dvw - 16px))',
+      'max-height':
+          'var(${Tokens.current.calendarMaxHeight}, '
+          '${Tokens.current.calendarMaxHeight.value})',
+      'overscroll-behavior': 'none',
       'height': 'fit-content',
       'position': 'absolute',
       'background-color':
           'var(${Tokens.current.dropdownMenuBgColor}, ${Tokens.current.dropdownMenuBgColor.value})',
       'border': Tokens.current.border.value,
       'border-radius': '12px',
-      'transform-origin': 'top left',
       'padding': '8px 5px',
-      'transition': 'transform 0.2s ease',
+      'line-height': '1',
     },
 
     'input': {
@@ -1404,16 +1427,17 @@ class Css {
     'years-dropdown': {'z-index': '12'},
 
     'selected': {
-      'color': 'white',
+      Tokens.current.baseTextColor.name: 'white',
+      'border-color': 'transparent',
       'background-color':
           'var(${Tokens.current.primaryColor}, '
           '${Tokens.current.primaryColor.value})',
     },
 
     'disabled': {
-      'opacity': '0.6',
+      'opacity': '0.3',
       'pointer-events': 'none',
-      'background-color': 'none',
+      'background-color': 'transparent',
     },
   };
 
@@ -1430,14 +1454,12 @@ class Css {
     'height': 'auto',
     'width': 'auto',
     'box-sizing': 'border-box',
-    'overflow': 'clip',
   };
 
   /// Default CSS styles map for Card component.
   static final nakiCardStyle = {
     'root': {
       'display': 'block',
-      // 'position': 'relative',
       'box-sizing': 'border-box',
       'background-color':
           'var(${Tokens.current.backgroundColor}, ${Tokens.current.backgroundColor.value})',
@@ -1445,7 +1467,6 @@ class Css {
           'var(${Tokens.current.baseTextColor}, ${Tokens.current.baseTextColor.value})',
       'border-radius':
           'var(${Tokens.current.radiusMd}, ${Tokens.current.radiusMd.value})',
-      'overflow': 'clip',
       'transition':
           'box-shadow 200ms ease, transform 200ms ease, border-color 200ms ease',
     },
@@ -1478,6 +1499,7 @@ class Css {
       'background-color':
           'var(${Tokens.current.backgroundColor}, ${Tokens.current.backgroundColor.value})',
       'overflow': 'hidden',
+      'line-height': 'normal',
     },
 
     'panel': {
@@ -1504,6 +1526,7 @@ class Css {
       'font-size': 'inherit',
       'color': 'inherit',
       'transition': 'background 200ms ease',
+      'line-height': 'normal',
     },
 
     'chevron': {
@@ -1525,6 +1548,7 @@ class Css {
       'overflow': 'hidden',
       'box-sizing': 'border-box',
       'text-wrap-mode': 'wrap',
+      'line-height': 'normal',
     },
 
     'body-inner': {'padding': '5px 16px 16px 16px', 'box-sizing': 'border-box'},

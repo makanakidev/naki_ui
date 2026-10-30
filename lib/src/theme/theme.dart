@@ -339,7 +339,7 @@ class _NakiThemeProviderState extends State<NakiThemeProvider>
     if (!hasNakiApp && !hasCustomTokens) {
       // scroll bar styles
       if (scrollBarConfig != null) {
-        styles.addAll(Rules.buildScrollbarRules('root', scrollBarConfig));
+        styles.addAll(Rules.buildScrollbarRules(':root', scrollBarConfig));
       }
 
       // default styles
@@ -353,7 +353,7 @@ class _NakiThemeProviderState extends State<NakiThemeProvider>
     if (hasCustomTokens) {
       // scroll bar styles
       if (scrollBarConfig != null) {
-        styles.addAll(Rules.buildScrollbarRules('root', scrollBarConfig));
+        styles.addAll(Rules.buildScrollbarRules(':root', scrollBarConfig));
       }
 
       // light mode styles
@@ -1530,6 +1530,163 @@ class RadiusScheme {
   int get hashCode => Object.hash(radiusSm, radiusMd, radiusLg, shapeRadius);
 }
 
+/// Represents customizable sizes for the `Calendar` picker.
+///
+/// On small screens (≤ 420px) each size is capped by its `compact*`
+/// counterpart so the seven-day grid always fits the viewport; smaller themed
+/// values are kept.
+///
+/// ### Example
+/// ```dart
+/// LightThemeData(
+///   component: ComponentScheme(
+///     calendar: CalendarScheme(cellSize: Dim.px(36), dateFontSize: Dim.px(13)),
+///   ),
+/// )
+/// ```
+class CalendarScheme {
+  /// Day cell width and height (default: `42px`).
+  final Dim? cellSize;
+
+  /// Day number font size (default: `14px`).
+  final Dim? dateFontSize;
+
+  /// Weekday header font size (default: `13px`).
+  final Dim? weekdayFontSize;
+
+  /// Spacing around weekday headers (default: `5px`).
+  final Dim? weekdayGap;
+
+  /// Month / year title font size (default: `16px`).
+  final Dim? titleFontSize;
+
+  /// Time stepper width (default: `100px`).
+  final Dim? stepperWidth;
+
+  /// Time stepper input height (default: `50px`).
+  final Dim? stepperHeight;
+
+  /// Time stepper font size (default: `18px`).
+  final Dim? stepperFontSize;
+
+  /// Small-screen cap for [cellSize] (default: fits 7 columns, min `28px`).
+  final Dim? compactCellSize;
+
+  /// Small-screen cap for [dateFontSize] (default: `13px`).
+  final Dim? compactDateFontSize;
+
+  /// Small-screen cap for [weekdayFontSize] (default: `12px`).
+  final Dim? compactWeekdayFontSize;
+
+  /// Small-screen cap for [weekdayGap] (default: `2px`).
+  final Dim? compactWeekdayGap;
+
+  /// Small-screen cap for [titleFontSize] (default: `15px`).
+  final Dim? compactTitleFontSize;
+
+  /// Small-screen cap for [stepperHeight] (default: `40px`).
+  final Dim? compactStepperHeight;
+
+  /// Small-screen cap for [stepperFontSize] (default: `16px`).
+  final Dim? compactStepperFontSize;
+
+  const CalendarScheme({
+    this.cellSize,
+    this.dateFontSize,
+    this.weekdayFontSize,
+    this.weekdayGap,
+    this.titleFontSize,
+    this.stepperWidth,
+    this.stepperHeight,
+    this.stepperFontSize,
+    this.compactCellSize,
+    this.compactDateFontSize,
+    this.compactWeekdayFontSize,
+    this.compactWeekdayGap,
+    this.compactTitleFontSize,
+    this.compactStepperHeight,
+    this.compactStepperFontSize,
+  });
+
+  CalendarScheme copyWith({
+    Dim? cellSize,
+    Dim? dateFontSize,
+    Dim? weekdayFontSize,
+    Dim? weekdayGap,
+    Dim? titleFontSize,
+    Dim? stepperWidth,
+    Dim? stepperHeight,
+    Dim? stepperFontSize,
+    Dim? compactCellSize,
+    Dim? compactDateFontSize,
+    Dim? compactWeekdayFontSize,
+    Dim? compactWeekdayGap,
+    Dim? compactTitleFontSize,
+    Dim? compactStepperHeight,
+    Dim? compactStepperFontSize,
+  }) {
+    return CalendarScheme(
+      cellSize: cellSize ?? this.cellSize,
+      dateFontSize: dateFontSize ?? this.dateFontSize,
+      weekdayFontSize: weekdayFontSize ?? this.weekdayFontSize,
+      weekdayGap: weekdayGap ?? this.weekdayGap,
+      titleFontSize: titleFontSize ?? this.titleFontSize,
+      stepperWidth: stepperWidth ?? this.stepperWidth,
+      stepperHeight: stepperHeight ?? this.stepperHeight,
+      stepperFontSize: stepperFontSize ?? this.stepperFontSize,
+      compactCellSize: compactCellSize ?? this.compactCellSize,
+      compactDateFontSize: compactDateFontSize ?? this.compactDateFontSize,
+      compactWeekdayFontSize:
+          compactWeekdayFontSize ?? this.compactWeekdayFontSize,
+      compactWeekdayGap: compactWeekdayGap ?? this.compactWeekdayGap,
+      compactTitleFontSize: compactTitleFontSize ?? this.compactTitleFontSize,
+      compactStepperHeight: compactStepperHeight ?? this.compactStepperHeight,
+      compactStepperFontSize:
+          compactStepperFontSize ?? this.compactStepperFontSize,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is CalendarScheme &&
+        other.cellSize == cellSize &&
+        other.dateFontSize == dateFontSize &&
+        other.weekdayFontSize == weekdayFontSize &&
+        other.weekdayGap == weekdayGap &&
+        other.titleFontSize == titleFontSize &&
+        other.stepperWidth == stepperWidth &&
+        other.stepperHeight == stepperHeight &&
+        other.stepperFontSize == stepperFontSize &&
+        other.compactCellSize == compactCellSize &&
+        other.compactDateFontSize == compactDateFontSize &&
+        other.compactWeekdayFontSize == compactWeekdayFontSize &&
+        other.compactWeekdayGap == compactWeekdayGap &&
+        other.compactTitleFontSize == compactTitleFontSize &&
+        other.compactStepperHeight == compactStepperHeight &&
+        other.compactStepperFontSize == compactStepperFontSize;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    cellSize,
+    dateFontSize,
+    weekdayFontSize,
+    weekdayGap,
+    titleFontSize,
+    stepperWidth,
+    stepperHeight,
+    stepperFontSize,
+    compactCellSize,
+    compactDateFontSize,
+    compactWeekdayFontSize,
+    compactWeekdayGap,
+    compactTitleFontSize,
+    compactStepperHeight,
+    compactStepperFontSize,
+  );
+}
+
 /// Represents customizable variables for Naki components.
 class ComponentScheme {
   /// Text max lines.
@@ -1724,6 +1881,9 @@ class ComponentScheme {
   /// Bottom sheet barrier backdrop color.
   final Color? bottomSheetBarrierBackgroundColor;
 
+  /// Calendar picker sizes.
+  final CalendarScheme? calendar;
+
   const ComponentScheme({
     this.textMaxLines,
     this.inputHeight,
@@ -1789,6 +1949,7 @@ class ComponentScheme {
     this.bottomSheetMaxHeight,
     this.bottomSheetBarrierBackgroundColor,
     this.buttonHoverBgColor,
+    this.calendar,
   });
 
   ComponentScheme copyWith({
@@ -1856,6 +2017,7 @@ class ComponentScheme {
     Color? bottomSheetBackgroundColor,
     Dim? bottomSheetMaxHeight,
     Color? bottomSheetBarrierBackgroundColor,
+    CalendarScheme? calendar,
   }) => ComponentScheme(
     textMaxLines: textMaxLines ?? this.textMaxLines,
     inputHeight: inputHeight ?? this.inputHeight,
@@ -1935,6 +2097,7 @@ class ComponentScheme {
     bottomSheetBarrierBackgroundColor:
         bottomSheetBarrierBackgroundColor ??
         this.bottomSheetBarrierBackgroundColor,
+    calendar: calendar ?? this.calendar,
   );
 
   @override
@@ -2005,7 +2168,8 @@ class ComponentScheme {
         other.bottomSheetBackgroundColor == bottomSheetBackgroundColor &&
         other.bottomSheetMaxHeight == bottomSheetMaxHeight &&
         other.bottomSheetBarrierBackgroundColor ==
-            bottomSheetBarrierBackgroundColor;
+            bottomSheetBarrierBackgroundColor &&
+        other.calendar == calendar;
   }
 
   @override
@@ -2074,6 +2238,7 @@ class ComponentScheme {
     bottomSheetBackgroundColor,
     bottomSheetMaxHeight,
     bottomSheetBarrierBackgroundColor,
+    calendar,
   ]);
 }
 
@@ -2863,6 +3028,135 @@ class LightThemeData extends _LightModeTokens {
   String get bottomSheetBarrierBgValue =>
       component?.bottomSheetBarrierBackgroundColor?.value ??
       super.bottomSheetBarrierBgValue;
+
+  @override
+  Token get calendarCellSize => component?.calendar?.cellSize != null
+      ? Token(
+          value: component!.calendar!.cellSize!.cssText,
+          name: super.calendarCellSize.name,
+        )
+      : super.calendarCellSize;
+
+  @override
+  Token get calendarDateFontSize => component?.calendar?.dateFontSize != null
+      ? Token(
+          value: component!.calendar!.dateFontSize!.cssText,
+          name: super.calendarDateFontSize.name,
+        )
+      : super.calendarDateFontSize;
+
+  @override
+  Token get calendarWeekdayFontSize =>
+      component?.calendar?.weekdayFontSize != null
+      ? Token(
+          value: component!.calendar!.weekdayFontSize!.cssText,
+          name: super.calendarWeekdayFontSize.name,
+        )
+      : super.calendarWeekdayFontSize;
+
+  @override
+  Token get calendarWeekdayGap => component?.calendar?.weekdayGap != null
+      ? Token(
+          value: component!.calendar!.weekdayGap!.cssText,
+          name: super.calendarWeekdayGap.name,
+        )
+      : super.calendarWeekdayGap;
+
+  @override
+  Token get calendarTitleFontSize => component?.calendar?.titleFontSize != null
+      ? Token(
+          value: component!.calendar!.titleFontSize!.cssText,
+          name: super.calendarTitleFontSize.name,
+        )
+      : super.calendarTitleFontSize;
+
+  @override
+  Token get calendarStepperWidth => component?.calendar?.stepperWidth != null
+      ? Token(
+          value: component!.calendar!.stepperWidth!.cssText,
+          name: super.calendarStepperWidth.name,
+        )
+      : super.calendarStepperWidth;
+
+  @override
+  Token get calendarStepperHeight => component?.calendar?.stepperHeight != null
+      ? Token(
+          value: component!.calendar!.stepperHeight!.cssText,
+          name: super.calendarStepperHeight.name,
+        )
+      : super.calendarStepperHeight;
+
+  @override
+  Token get calendarStepperFontSize =>
+      component?.calendar?.stepperFontSize != null
+      ? Token(
+          value: component!.calendar!.stepperFontSize!.cssText,
+          name: super.calendarStepperFontSize.name,
+        )
+      : super.calendarStepperFontSize;
+
+  @override
+  Token get calendarCompactCellSize =>
+      component?.calendar?.compactCellSize != null
+      ? Token(
+          value: component!.calendar!.compactCellSize!.cssText,
+          name: super.calendarCompactCellSize.name,
+        )
+      : super.calendarCompactCellSize;
+
+  @override
+  Token get calendarCompactDateFontSize =>
+      component?.calendar?.compactDateFontSize != null
+      ? Token(
+          value: component!.calendar!.compactDateFontSize!.cssText,
+          name: super.calendarCompactDateFontSize.name,
+        )
+      : super.calendarCompactDateFontSize;
+
+  @override
+  Token get calendarCompactWeekdayFontSize =>
+      component?.calendar?.compactWeekdayFontSize != null
+      ? Token(
+          value: component!.calendar!.compactWeekdayFontSize!.cssText,
+          name: super.calendarCompactWeekdayFontSize.name,
+        )
+      : super.calendarCompactWeekdayFontSize;
+
+  @override
+  Token get calendarCompactWeekdayGap =>
+      component?.calendar?.compactWeekdayGap != null
+      ? Token(
+          value: component!.calendar!.compactWeekdayGap!.cssText,
+          name: super.calendarCompactWeekdayGap.name,
+        )
+      : super.calendarCompactWeekdayGap;
+
+  @override
+  Token get calendarCompactTitleFontSize =>
+      component?.calendar?.compactTitleFontSize != null
+      ? Token(
+          value: component!.calendar!.compactTitleFontSize!.cssText,
+          name: super.calendarCompactTitleFontSize.name,
+        )
+      : super.calendarCompactTitleFontSize;
+
+  @override
+  Token get calendarCompactStepperHeight =>
+      component?.calendar?.compactStepperHeight != null
+      ? Token(
+          value: component!.calendar!.compactStepperHeight!.cssText,
+          name: super.calendarCompactStepperHeight.name,
+        )
+      : super.calendarCompactStepperHeight;
+
+  @override
+  Token get calendarCompactStepperFontSize =>
+      component?.calendar?.compactStepperFontSize != null
+      ? Token(
+          value: component!.calendar!.compactStepperFontSize!.cssText,
+          name: super.calendarCompactStepperFontSize.name,
+        )
+      : super.calendarCompactStepperFontSize;
 
   @override
   bool operator ==(Object other) {
@@ -3679,6 +3973,135 @@ class DarkThemeData extends _DarkModeTokens {
       super.bottomSheetBarrierBgValue;
 
   @override
+  Token get calendarCellSize => component?.calendar?.cellSize != null
+      ? Token(
+          value: component!.calendar!.cellSize!.cssText,
+          name: super.calendarCellSize.name,
+        )
+      : super.calendarCellSize;
+
+  @override
+  Token get calendarDateFontSize => component?.calendar?.dateFontSize != null
+      ? Token(
+          value: component!.calendar!.dateFontSize!.cssText,
+          name: super.calendarDateFontSize.name,
+        )
+      : super.calendarDateFontSize;
+
+  @override
+  Token get calendarWeekdayFontSize =>
+      component?.calendar?.weekdayFontSize != null
+      ? Token(
+          value: component!.calendar!.weekdayFontSize!.cssText,
+          name: super.calendarWeekdayFontSize.name,
+        )
+      : super.calendarWeekdayFontSize;
+
+  @override
+  Token get calendarWeekdayGap => component?.calendar?.weekdayGap != null
+      ? Token(
+          value: component!.calendar!.weekdayGap!.cssText,
+          name: super.calendarWeekdayGap.name,
+        )
+      : super.calendarWeekdayGap;
+
+  @override
+  Token get calendarTitleFontSize => component?.calendar?.titleFontSize != null
+      ? Token(
+          value: component!.calendar!.titleFontSize!.cssText,
+          name: super.calendarTitleFontSize.name,
+        )
+      : super.calendarTitleFontSize;
+
+  @override
+  Token get calendarStepperWidth => component?.calendar?.stepperWidth != null
+      ? Token(
+          value: component!.calendar!.stepperWidth!.cssText,
+          name: super.calendarStepperWidth.name,
+        )
+      : super.calendarStepperWidth;
+
+  @override
+  Token get calendarStepperHeight => component?.calendar?.stepperHeight != null
+      ? Token(
+          value: component!.calendar!.stepperHeight!.cssText,
+          name: super.calendarStepperHeight.name,
+        )
+      : super.calendarStepperHeight;
+
+  @override
+  Token get calendarStepperFontSize =>
+      component?.calendar?.stepperFontSize != null
+      ? Token(
+          value: component!.calendar!.stepperFontSize!.cssText,
+          name: super.calendarStepperFontSize.name,
+        )
+      : super.calendarStepperFontSize;
+
+  @override
+  Token get calendarCompactCellSize =>
+      component?.calendar?.compactCellSize != null
+      ? Token(
+          value: component!.calendar!.compactCellSize!.cssText,
+          name: super.calendarCompactCellSize.name,
+        )
+      : super.calendarCompactCellSize;
+
+  @override
+  Token get calendarCompactDateFontSize =>
+      component?.calendar?.compactDateFontSize != null
+      ? Token(
+          value: component!.calendar!.compactDateFontSize!.cssText,
+          name: super.calendarCompactDateFontSize.name,
+        )
+      : super.calendarCompactDateFontSize;
+
+  @override
+  Token get calendarCompactWeekdayFontSize =>
+      component?.calendar?.compactWeekdayFontSize != null
+      ? Token(
+          value: component!.calendar!.compactWeekdayFontSize!.cssText,
+          name: super.calendarCompactWeekdayFontSize.name,
+        )
+      : super.calendarCompactWeekdayFontSize;
+
+  @override
+  Token get calendarCompactWeekdayGap =>
+      component?.calendar?.compactWeekdayGap != null
+      ? Token(
+          value: component!.calendar!.compactWeekdayGap!.cssText,
+          name: super.calendarCompactWeekdayGap.name,
+        )
+      : super.calendarCompactWeekdayGap;
+
+  @override
+  Token get calendarCompactTitleFontSize =>
+      component?.calendar?.compactTitleFontSize != null
+      ? Token(
+          value: component!.calendar!.compactTitleFontSize!.cssText,
+          name: super.calendarCompactTitleFontSize.name,
+        )
+      : super.calendarCompactTitleFontSize;
+
+  @override
+  Token get calendarCompactStepperHeight =>
+      component?.calendar?.compactStepperHeight != null
+      ? Token(
+          value: component!.calendar!.compactStepperHeight!.cssText,
+          name: super.calendarCompactStepperHeight.name,
+        )
+      : super.calendarCompactStepperHeight;
+
+  @override
+  Token get calendarCompactStepperFontSize =>
+      component?.calendar?.compactStepperFontSize != null
+      ? Token(
+          value: component!.calendar!.compactStepperFontSize!.cssText,
+          name: super.calendarCompactStepperFontSize.name,
+        )
+      : super.calendarCompactStepperFontSize;
+
+  @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     return other is DarkThemeData &&
@@ -3770,7 +4193,12 @@ final class ThemeConfig {
 
   /// The default styles for theme modes
   static final defaultStyles = [
-    css('').styles(raw: {'-----default-styles-----': '""'}),
+    css(':root').styles(
+      raw: {
+        Tokens.current.defaultStylesMarker.name:
+            Tokens.current.defaultStylesMarker.value,
+      },
+    ),
 
     css(
       ':is(.naki-light-mode, html[data-naki-theme="light"])',

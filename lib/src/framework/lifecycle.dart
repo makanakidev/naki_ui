@@ -196,35 +196,37 @@ class BrowserLifecycleListeners {
 
   /// {@macro BrowserLifecycle}
   /// - Observes size changes of a component.
+  ///
+  /// The observed node is [element] when given, otherwise the node with [id]
+  /// or the node of [key].
   void observeComponentSize(
     LifecycleResizeCallback onResize, {
     GlobalNodeKey<HTMLElement>? key,
     String? id,
+    HTMLElement? element,
   }) {
-    if (id.isNullOrEmpty && key == null) {
-      debugPrint('Component key or id must be provided');
+    if (element == null && id.isNullOrEmpty && key == null) {
+      debugPrint('Component key, id or element must be provided');
       return;
     }
 
     onComponentRendered(() {
-      final element = id.isNotNullAndEmpty
-          ? document.getElementById(id!)
-          : key?.currentNode;
+      final target =
+          element ??
+          (id.isNotNullAndEmpty
+              ? document.getElementById(id!)
+              : key?.currentNode);
 
-      if (element == null) {
-        debugPrint(
-          'The component to observe for size change is not found. '
-          'Ensure a global node key or unique id assigned to the component '
-          'is provided.',
-        );
+      if (target == null) {
+        debugPrint('The component to observe for size change is not found.');
         return;
       }
 
-      _elementResizeCallbacks[element] = onResize;
+      _elementResizeCallbacks[target] = onResize;
 
       if (_isRegistered) {
         _ensureResizeObserver();
-        _resizeObserver?.observe(element);
+        _resizeObserver?.observe(target);
       }
     });
   }
@@ -234,20 +236,23 @@ class BrowserLifecycleListeners {
   void unobserveComponentSize({
     GlobalNodeKey<HTMLElement>? key,
     String? id,
+    HTMLElement? element,
   }) {
-    if (id.isNullOrEmpty && key == null) {
-      debugPrint('Component key or id must be provided');
+    if (element == null && id.isNullOrEmpty && key == null) {
+      debugPrint('Component key, id or element must be provided');
       return;
     }
 
-    final element = id.isNotNullAndEmpty
-        ? document.getElementById(id!)
-        : key?.currentNode;
+    final target =
+        element ??
+        (id.isNotNullAndEmpty
+            ? document.getElementById(id!)
+            : key?.currentNode);
 
-    if (element != null) {
-      _elementResizeCallbacks.remove(element);
-      _lastElementSizes.remove(element);
-      _resizeObserver?.unobserve(element);
+    if (target != null) {
+      _elementResizeCallbacks.remove(target);
+      _lastElementSizes.remove(target);
+      _resizeObserver?.unobserve(target);
 
       if (_elementResizeCallbacks.isEmpty) {
         _unlistenResizeObserver();
@@ -261,31 +266,30 @@ class BrowserLifecycleListeners {
     LifecycleValueCallback<bool> onVisible, {
     GlobalNodeKey<T>? key,
     String? id,
+    HTMLElement? element,
   }) {
-    if (id.isNullOrEmpty && key == null) {
-      debugPrint('Component key or id must be provided');
+    if (id.isNullOrEmpty && key == null && element == null) {
+      debugPrint('Component key, id or element must be provided');
       return;
     }
 
     onComponentRendered(() {
-      final element = id.isNotNullAndEmpty
-          ? document.getElementById(id!)
-          : key?.currentNode;
+      final target =
+          element ??
+          (id.isNotNullAndEmpty
+              ? document.getElementById(id!)
+              : key?.currentNode);
 
-      if (element == null) {
-        debugPrint(
-          'The component to observe for viewport visibility is not found. '
-          'Ensure a global node key or unique id assigned to the component '
-          'is provided.',
-        );
+      if (target == null) {
+        debugPrint('The component to observe for visibility is not found.');
         return;
       }
 
-      _elementVisibilityCallbacks[element] = onVisible;
+      _elementVisibilityCallbacks[target] = onVisible;
 
       if (_isRegistered) {
         _ensureIntersectionObserver();
-        _intersectionObserver?.observe(element);
+        _intersectionObserver?.observe(target);
       }
     });
   }
@@ -295,20 +299,23 @@ class BrowserLifecycleListeners {
   void unobserveComponentVisibility<T extends HTMLElement>({
     GlobalNodeKey<T>? key,
     String? id,
+    HTMLElement? element,
   }) {
-    if (id.isNullOrEmpty && key == null) {
-      debugPrint('Component key or id must be provided');
+    if (id.isNullOrEmpty && key == null && element == null) {
+      debugPrint('Component key, id or element must be provided');
       return;
     }
 
-    final element = id.isNotNullAndEmpty
-        ? document.getElementById(id!)
-        : key?.currentNode;
+    final target =
+        element ??
+        (id.isNotNullAndEmpty
+            ? document.getElementById(id!)
+            : key?.currentNode);
 
-    if (element != null) {
-      _elementVisibilityCallbacks.remove(element);
-      _lastElementVisibility.remove(element);
-      _intersectionObserver?.unobserve(element);
+    if (target != null) {
+      _elementVisibilityCallbacks.remove(target);
+      _lastElementVisibility.remove(target);
+      _intersectionObserver?.unobserve(target);
 
       if (_elementVisibilityCallbacks.isEmpty) {
         _unlistenIntersectionObserver();
@@ -851,6 +858,11 @@ class BrowserLifecycleListeners {
     if (kIsServer || !_isRegistered) return;
 
     _isRegistered = false;
+
+    NakiDebounce.cancel('window_resize_debounce_$hashCode');
+    for (final element in _lastElementSizes.keys) {
+      NakiDebounce.cancel('element_resize_${element.hashCode}');
+    }
 
     for (final subscription in List.of(_subscriptions)) subscription.cancel();
     for (final cleanup in List.of(_cleanups)) cleanup();

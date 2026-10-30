@@ -15,6 +15,7 @@ import '../utilities/debounce.dart';
 import '../utilities/enums.dart';
 import '../utilities/extensions.dart';
 import '../utilities/helpers.dart';
+
 import 'input.dart';
 
 // /////////////////////////////////////////////////////////////////////////////
@@ -250,7 +251,7 @@ class Switch extends StatelessComponent {
           styles: Styles(
             raw: {Tokens.current.switchThumbColor.name: ?thumbColor?.value},
           ),
-          attributes: !disabled ? {'fcs': ''} : null,
+          attributes: {'role': 'switch', 'fcs': ?(!disabled ? '' : null)},
           checked: isActive,
           disabled: disabled,
           onChange: disabled ? null : onChange,
@@ -308,7 +309,7 @@ class Switch extends StatelessComponent {
 /// {@endtemplate}
 class Slider extends StatelessComponent {
   /// Width of the slider track.
-  final Dim width;
+  final Dim? width;
 
   /// Unique identifier of the slider.
   final String id;
@@ -354,23 +355,27 @@ class Slider extends StatelessComponent {
   /// Additional CSS classes applied to the slider component.
   final String? classes;
 
+  /// Accessible name announced by screen readers (e.g. `'Volume'`).
+  final String? semanticLabel;
+
   /// {@macro Slider}
   const Slider({
     super.key,
     required this.id,
-    this.width = const Dim.px(300),
-    this.height = const Dim.px(24),
     this.value = 0,
     this.minValue = 0.0,
     this.maxValue = 100.0,
     this.allowInteraction = true,
     this.showValueIndicator = false,
+    this.height = const Dim.px(24),
+    this.width,
     this.name,
     this.onChange,
     this.divisions,
     this.classes,
     this.thumbColor,
     this.color,
+    this.semanticLabel,
   }) : assert(id != '', 'id cannot be empty'),
        assert(minValue < maxValue, 'maxValue must be greater than minValue'),
        assert(
@@ -397,7 +402,7 @@ class Slider extends StatelessComponent {
       Tokens.current.sliderThumbSize.name: height.cssText,
       Tokens.current.sliderThumbColor.name: ?thumbColor?.value,
       Tokens.current.sliderTrackColor.name: ?color?.value,
-      'width': width.cssText,
+      'width': ?width?.cssText,
     };
 
     return .element(
@@ -416,9 +421,10 @@ class Slider extends StatelessComponent {
           attributes: {
             'min': minValue.toCleanString,
             'max': maxValue.toCleanString,
-            'step': ?(divisions == null
-                ? null
-                : ((maxValue - minValue) / divisions!).toCleanString),
+            'step': divisions == null
+                ? 'any'
+                : ((maxValue - minValue) / divisions!).toCleanString,
+            'aria-label': ?semanticLabel,
           },
           onInput: allowInteraction
               ? (value) {
@@ -741,6 +747,7 @@ class _DropdownState<T> extends State<Dropdown<T>> with NakiStatefulMixin {
 
   bool _isOpen = false;
   bool _isSearching = false;
+  bool _hasSearchFocus = false;
   bool _showUpward = false;
 
   @override
@@ -791,6 +798,7 @@ class _DropdownState<T> extends State<Dropdown<T>> with NakiStatefulMixin {
         oldComponent.id != component.id) {
       _isOpen = false;
       _isSearching = false;
+      _hasSearchFocus = false;
       _showUpward = false;
       _activeOption = null;
 
@@ -806,6 +814,7 @@ class _DropdownState<T> extends State<Dropdown<T>> with NakiStatefulMixin {
 
   @override
   void dispose() {
+    NakiDebounce.cancel('search_$_id');
     _filteredOptions.dispose();
     super.dispose();
   }
@@ -816,6 +825,7 @@ class _DropdownState<T> extends State<Dropdown<T>> with NakiStatefulMixin {
       // reset filtered options and search state
       _filteredOptions.value = [];
       _isSearching = false;
+      _hasSearchFocus = false;
 
       // get search box element
       final searchBox = _searchKey.currentNode as HTMLInputElement?;
@@ -937,18 +947,27 @@ class _DropdownState<T> extends State<Dropdown<T>> with NakiStatefulMixin {
         ? (delta > 0 ? 0 : selectable.length - 1)
         : (current + delta) % selectable.length;
 
-    // update active option
-    _activeOption = selectable[next];
-    _selectedOption = _activeOption!;
-    setState(() {});
+    // update active (highlighted) option only; selection is committed on
+    // Enter / Space or click, like a native listbox.
+    setState(() => _activeOption = selectable[next]);
 
-    final selectedId = _selectedItemId;
-    if (selectedId != null) {
-      scrollToView(
-        id: selectedId,
-        offset: component.enableSearch ? _searchFieldHeight : 0,
-      );
+    if (!mounted || _activeOption == null) return;
+
+    // remove focus from search box and return focus to trigger box
+    if (_isSearching && _hasSearchFocus) {
+      _hasSearchFocus = false;
+      (document.getElementById('${_id}_search') as HTMLInputElement).blur();
+
+      final parent = document.getElementById('${_id}__dropdown') as HTMLElement;
+      (parent.querySelector('.naki-dropdown-trigger') as HTMLElement).focus();
     }
+
+    final activeId = '${_id}_item_${_options.indexOf(_activeOption!)}';
+    scrollToView(
+      id: activeId,
+      offset: component.enableSearch ? _searchFieldHeight : 0,
+      useAncestor: false,
+    );
   }
 
   /// Handles keyboard events
@@ -978,6 +997,8 @@ class _DropdownState<T> extends State<Dropdown<T>> with NakiStatefulMixin {
       case 'Escape':
         if (_isOpen) {
           event.preventDefault();
+          event.stopPropagation();
+
           setState(() {
             _isOpen = false;
             _activeOption = null;
@@ -998,7 +1019,7 @@ class _DropdownState<T> extends State<Dropdown<T>> with NakiStatefulMixin {
       return;
     }
 
-    // invoke user-provided callback
+    // invoke callback
     component.onSelected(option);
 
     // reset last selection state
@@ -1110,6 +1131,9 @@ class _DropdownState<T> extends State<Dropdown<T>> with NakiStatefulMixin {
         inputStyle: const TextStyle(fontSize: Dim.px(13)),
         border: BorderData.only(
           bottom: BorderSideData(color: context.borderColor),
+          left: BorderSideData.none,
+          right: BorderSideData.none,
+          top: BorderSideData.none,
           radius: BorderRadiusData.zero,
         ),
         padding: const EdgeInsets.symmetric(horizontal: Dim.px(12)),
@@ -1120,6 +1144,7 @@ class _DropdownState<T> extends State<Dropdown<T>> with NakiStatefulMixin {
           if (query.isEmpty) {
             setState(() {
               _isSearching = false;
+              _hasSearchFocus = false;
               _activeOption = _firstSelectable(_options);
               _filteredOptions.value = [_options.first];
             });
@@ -1138,11 +1163,15 @@ class _DropdownState<T> extends State<Dropdown<T>> with NakiStatefulMixin {
 
           setState(() {
             _isSearching = true;
+            _hasSearchFocus = true;
             _activeOption = _firstSelectable(filtered);
             _filteredOptions.value = filtered;
           });
         });
       },
+      events: InputEvents(
+        onKeyDown: _handleDropdownKeyDown,
+      ),
     );
 
     // Options menu
@@ -1199,6 +1228,7 @@ class _DropdownState<T> extends State<Dropdown<T>> with NakiStatefulMixin {
                       'role': item.section ? 'presentation' : 'option',
                       'data-value': ?item.value?.toString(),
                       'aria-disabled': ?(item.disabled ? 'true' : null),
+                      'data-active': ?(item == _activeOption ? '' : null),
                       'aria-selected':
                           ?(!item.disabled && _currentLabel == item.label
                           ? 'true'

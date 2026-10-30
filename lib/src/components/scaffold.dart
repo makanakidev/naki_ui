@@ -15,6 +15,7 @@ import '../models/styling.dart';
 import '../styles/rules.dart';
 import '../styles/text_style.dart';
 import '../theme/tokens.dart';
+import '../utilities/constants.dart';
 import '../utilities/enums.dart';
 import '../utilities/extensions.dart';
 import '../utilities/helpers.dart';
@@ -515,7 +516,7 @@ class _BottomNavigationBarState extends State<BottomNavigationBar> {
       color: component.selectedIconColor,
     ).combineWith(component.selectedLabelStyle);
 
-    const baseClass = 'naki-bottom-navbar';
+    const baseClass = 'naki-bottombar';
     final effectiveClasses = joinClasses([
       effectiveLayout.className,
       effectiveType.className,
@@ -525,7 +526,7 @@ class _BottomNavigationBarState extends State<BottomNavigationBar> {
 
     return .element(
       key: component.key,
-      tag: 'naki-bottom-navbar',
+      tag: 'naki-bottombar',
       classes: effectiveClasses,
       attributes: const {
         'role': 'navigation',
@@ -632,6 +633,16 @@ class Scaffold extends StatefulComponent {
   /// Additional CSS classes applied to the scaffold component.
   final String? classes;
 
+  /// Whether the [body] extends behind the [bottomNavigationBar].
+  ///
+  /// When `false` (the default) the body ends above the bar, so no content
+  /// is ever hidden behind it.
+  ///
+  /// When `true` the body is laid out to the bottom of the scaffold and
+  /// content scrolls behind the bar (useful with a floating or frosted-glass
+  /// bar).
+  final bool extendBody;
+
   /// {@macro Scaffold}
   const Scaffold({
     super.key,
@@ -644,6 +655,7 @@ class Scaffold extends StatefulComponent {
     this.classes,
     this.seo,
     this.head = const [],
+    this.extendBody = false,
   });
 
   /// Finds the [ScaffoldState] from the closest [Scaffold] ancestor,
@@ -663,9 +675,7 @@ class Scaffold extends StatefulComponent {
 /// State for a [Scaffold].
 class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
   late final _drawerController = OverlayController();
-
-  final appbarKey = GlobalNodeKey<HTMLElement>();
-  final bottomNavbarKey = GlobalNodeKey<HTMLElement>();
+  String? _bottomNavbarInset;
 
   /// Controller managing the scaffold's modal drawer open/close state.
   OverlayController? get drawerController => switch (component.drawer) {
@@ -701,142 +711,112 @@ class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
   void toggleDrawer() => drawerController?.toggle();
 
   @override
+  void didUpdateComponent(covariant Scaffold oldComponent) {
+    super.didUpdateComponent(oldComponent);
+
+    if (oldComponent.extendBody != component.extendBody ||
+        oldComponent.appBar != component.appBar ||
+        oldComponent.bottomNavigationBar != component.bottomNavigationBar) {
+      refreshAfterRender();
+    }
+  }
+
+  @override
   FutureOr<VoidCallback?> afterRender(BuildContext context) {
+    if (component.appBar == null && component.bottomNavigationBar == null) {
+      return null;
+    }
+
     final observer = BrowserLifecycleListeners();
-
-    observer.observeComponentSize(
-      (height, width, orientation) {
-        document.body?.style.setProperty(
-          Tokens.current.appbarHeight.name,
-          height.cssText,
-        );
-      },
-      key: appbarKey,
-    );
-
-    observer.observeComponentSize(
-      (height, width, orientation) {
-        document.body?.style.setProperty(
-          Tokens.current.bottomNavbarHeight.name,
-          height.cssText,
-        );
-      },
-      key: bottomNavbarKey,
-    );
-
+    observer.whenResized = (height, width, orientation) => _syncInsets();
     observer.register();
 
     return observer.dispose;
   }
 
-  /// Returns SEO meta tags for the scaffold
-  List<Component> get seoTags {
-    final seo = component.seo;
-    if (seo == null) return const <Component>[];
+  HTMLElement? _scaffoldBody(HTMLElement wrapper) =>
+      wrapper.parentElement?.querySelector(
+            ':scope > .naki-scaffold-body, '
+            ':scope > .naki-scaffold-layout > .naki-scaffold-body',
+          )
+          as HTMLElement?;
 
-    final base = seo.url ?? context.binding.basePath;
-    final pageUrl = normaliseLink(base);
-    final logoUrl = normaliseLink(seo.logo ?? '', base);
-    final pageTitle = seo.title ?? '';
+  void _syncInsets() {
+    final appBar = getVisibleElement('.naki-appbar-wrapper naki-appbar');
+    final wrapper = getVisibleElement('.naki-navbar-wrapper');
+    final bottombar = getVisibleElement(
+      '.naki-navbar-wrapper naki-bottombar',
+    );
 
-    final smTitle = seo.socialMediaTitle ?? pageTitle;
-    final smDesc = seo.socialMediaDescription ?? seo.description ?? '';
-    final smImg = normaliseLink(seo.socialMediaBanner ?? logoUrl, base);
+    if (appBar != null) {
+      final height = appBar.getBoundingClientRect().height.roundDown.toPx;
+      // top offset applied in snackbar and body
+      document.body?.style.setProperty(
+        Tokens.current.appbarOffset.name,
+        height,
+      );
+    }
 
-    final isValidLogo = logoUrl.isNotEmpty && logoUrl.startsWith('http');
-    final isValidSmImg = smImg.isNotEmpty && smImg.startsWith('http');
-    final isValidPageUrl = pageUrl.isNotEmpty && pageUrl.startsWith('http');
+    if (bottombar != null) {
+      final bodyBottom = _scaffoldBody(
+        wrapper!,
+      )?.getBoundingClientRect().bottom;
+      final rect = bottombar.getBoundingClientRect();
 
-    return [
-      if (isValidPageUrl) link(href: pageUrl, rel: 'canonical'),
+      var offset = 0.0;
+      var inset = 0.0;
 
-      if (seo.description.isNotNullAndEmpty)
-        meta(name: 'description', content: seo.description),
+      if (rect.top > 0) {
+        offset = max(offset, window.innerHeight - rect.top);
+        if (bodyBottom != null) inset = max(inset, bodyBottom - rect.top);
 
-      if (seo.keywords != null && seo.keywords!.isNotEmpty)
-        meta(name: 'keywords', content: seo.keywords!.join(', ')),
+        // bottom offset applied in snackbar
+        document.body?.style.setProperty(
+          Tokens.current.bottomNavbarOffset.name,
+          offset.roundDown.toPx,
+        );
+      }
 
-      if (seo.robots != null && seo.robots!.isNotEmpty)
-        meta(name: 'robots', content: seo.robots!.join(', ')),
+      // don't apply bottom inset if navbar is
+      // not floating or body is not extending
+      if ((rect.x == 0 && rect.left == 0) || !component.extendBody) {
+        _bottomNavbarInset = null;
+        wrapper.style.removeProperty(Tokens.current.bottomNavbarInset.name);
+        return;
+      }
 
-      // Open Graph Tags
-      ...[
-        if (pageTitle.isNotEmpty) ...[
-          meta(
-            attributes: const {'property': 'og:title'},
-            content: pageTitle,
-            id: 'ogtitle',
-          ),
-          meta(
-            attributes: const {'property': 'og:site_name'},
-            content: pageTitle,
-            id: 'ogsitename',
-          ),
-        ],
-
-        if (seo.description.isNotNullAndEmpty)
-          meta(
-            attributes: const {'property': 'og:description'},
-            content: seo.description,
-            id: 'ogdesc',
-          ),
-
-        const meta(
-          attributes: {'property': 'og:type'},
-          content: 'website',
-          id: 'ogtype',
-        ),
-
-        if (isValidPageUrl)
-          meta(
-            attributes: const {'property': 'og:url'},
-            content: pageUrl,
-            id: 'ogurl',
-          ),
-
-        if (isValidLogo) ...[
-          meta(
-            attributes: const {'property': 'og:image'},
-            content: logoUrl,
-            id: 'ogimg',
-          ),
-
-          if (pageTitle.isNotEmpty)
-            meta(
-              attributes: const {'property': 'og:image:alt'},
-              content: pageTitle,
-              id: 'ogimgalt',
-            ),
-        ],
-      ],
-
-      // Social Media Graph Tags
-      if (smTitle.isNotEmpty) ...[
-        if (smTitle.isNotEmpty) meta(name: 'twitter:title', content: smTitle),
-        if (smDesc.isNotEmpty)
-          meta(name: 'twitter:description', content: smDesc),
-
-        if (isValidSmImg) ...[
-          meta(name: 'twitter:image', content: smImg),
-          if (smTitle.isNotEmpty)
-            meta(name: 'twitter:image:alt', content: smTitle),
-          const meta(name: 'twitter:card', content: 'summary_large_image'),
-        ],
-      ],
-    ];
+      // apply bottom inset to body
+      final bottomInset = inset.roundDown.toPx;
+      if (bottomInset != _bottomNavbarInset) {
+        _bottomNavbarInset = bottomInset;
+        wrapper.style.setProperty(
+          Tokens.current.bottomNavbarInset.name,
+          bottomInset,
+        );
+      }
+    }
   }
+
+  /// Returns SEO meta tags for the scaffold
+  List<Component> get seoTags => seoTagBuilder(
+    component.seo,
+    context: context,
+  );
 
   @override
   Component build(BuildContext context) {
     const baseClass = 'naki-scaffold';
-    final effectiveClasses = joinClasses([?component.classes, baseClass]);
+    final effectiveClasses = joinClasses([
+      ?component.classes,
+      baseClass,
+    ]);
 
     final drawer = component.drawer;
     final sideBar = component.sideBar;
 
     final hasAppScope = AppScope.of(context) != null;
     final hasParentScaffold = ScaffoldScope.of(context) != null;
-    final isStandaloneRoot = !hasAppScope && !hasParentScaffold;
+    final isStandalone = !hasAppScope && !hasParentScaffold;
 
     // ensures non-modal mode if Drawer is passed as sideBar
     final effectiveSideBar = hasSideBar
@@ -845,74 +825,121 @@ class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
               : sideBar)
         : null;
 
-    final Component bodyContent = hasSideBar
-        ? main_(classes: 'naki-scaffold-layout', [
-            .wrapElement(
-              classes: 'naki-scaffold-sidebar',
-              child: effectiveSideBar!,
-            ),
+    final pageTitle = component.seo?.title ?? '';
+    final Component? headComponent;
 
-            if (component.body != null)
-              div(classes: 'naki-scaffold-body', [component.body!]),
-          ])
-        : (component.body != null
-              ? main_(classes: 'naki-scaffold-body', [component.body!])
-              : const .empty());
+    if (kIsServer) {
+      final headChildren = [...component.head, ...seoTags];
+
+      headComponent = headChildren.isNotEmpty || pageTitle.isNotEmpty
+          ? Document.head(
+              title: pageTitle.isEmpty ? null : pageTitle,
+              children: headChildren,
+            )
+          : null;
+    } else {
+      final seo = component.seo ?? const SEO(),
+          desc = seo.description ?? '',
+          keywords = seo.keywords ?? [],
+          robots = seo.robots ?? [];
+
+      final clientMeta = <String, String>{
+        if (desc.isNotEmpty) 'description': desc,
+        if (keywords.isNotEmpty) 'keywords': keywords.join(', '),
+        if (robots.isNotEmpty) 'robots': robots.join(', '),
+      };
+
+      headComponent =
+          pageTitle.isNotEmpty ||
+              clientMeta.isNotEmpty ||
+              component.head.isNotEmpty
+          ? Document.head(
+              title: pageTitle.isEmpty ? null : pageTitle,
+              meta: clientMeta,
+              children: component.head,
+            )
+          : null;
+    }
+
+    final Component scaffoldComponent = MediaQueryProvider(
+      builder: (_) {
+        final bodyClass = joinClasses([
+          if (component.extendBody) 'extended-body',
+          'naki-scaffold-body',
+        ]);
+
+        final bodyStyles = Styles(
+          raw: {
+            Tokens.current.bottomNavbarInset.name: ?_bottomNavbarInset,
+          },
+        );
+
+        final Component mainContent = hasSideBar
+            ? main_(classes: 'naki-scaffold-layout', [
+                div(classes: 'naki-scaffold-sidebar', [effectiveSideBar!]),
+
+                if (component.body != null)
+                  div(
+                    classes: bodyClass,
+                    styles: bodyStyles,
+                    [component.body!],
+                  ),
+              ])
+            : (component.body != null
+                  ? main_(
+                      classes: bodyClass,
+                      styles: bodyStyles,
+                      [component.body!],
+                    )
+                  : const .empty());
+
+        return .element(
+          key: component.key,
+          tag: 'naki-scaffold',
+          classes: effectiveClasses,
+          children: [
+            // Head component
+            ?headComponent,
+
+            // App bar
+            if (component.appBar != null)
+              span(classes: 'naki-appbar-wrapper', [
+                component.appBar!,
+              ]),
+
+            // Main content
+            mainContent,
+
+            // Floating action button
+            if (component.floatingActionButton != null)
+              span(classes: 'naki-scaffold-fab', [
+                component.floatingActionButton!,
+              ]),
+
+            // Bottom navigation bar
+            if (component.bottomNavigationBar != null)
+              span(
+                classes: 'naki-navbar-wrapper',
+                [
+                  component.bottomNavigationBar!,
+                ],
+              ),
+
+            // Drawer
+            if (drawer != null)
+              drawer is Drawer
+                  ? drawer.copyWith(controller: drawerController)
+                  : drawer,
+          ],
+        );
+      },
+    );
 
     return ScaffoldScope(
       state: this,
-      child: .fragment([
-        // main scaffold
-        MediaQueryProvider(
-          builder: (context) {
-            return .element(
-              key: component.key,
-              tag: 'naki-scaffold',
-              classes: effectiveClasses,
-              children: [
-                // Head components with SEO meta tags
-                Document.head(children: [...component.head, ...seoTags]),
-
-                // App bar
-                if (component.appBar != null)
-                  .wrapElement(
-                    key: appbarKey,
-                    classes: 'naki-scaffold-appbar',
-                    child: component.appBar!,
-                  ),
-
-                // Body content
-                bodyContent,
-
-                // Floating action button
-                if (component.floatingActionButton != null)
-                  .wrapElement(
-                    classes: 'naki-scaffold-fab',
-                    child: component.floatingActionButton!,
-                  ),
-
-                // Bottom navigation bar
-                if (component.bottomNavigationBar != null)
-                  .wrapElement(
-                    key: bottomNavbarKey,
-                    classes: 'naki-scaffold-bottom-navbar',
-                    child: component.bottomNavigationBar!,
-                  ),
-
-                // Modal Drawer
-                if (drawer != null)
-                  drawer is Drawer
-                      ? drawer.copyWith(controller: drawerController)
-                      : drawer,
-              ],
-            );
-          },
-        ),
-
-        // overlay region if NakiApp or NakiScaffold
-        // is not present in the DOM
-        if (isStandaloneRoot) const OverlayRegion(),
-      ]),
+      child: isStandalone
+          ? .fragment([scaffoldComponent, const OverlayRegion()])
+          : scaffoldComponent,
     );
   }
 }

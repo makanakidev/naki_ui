@@ -156,11 +156,8 @@ class _AlignState extends State<Align> with NakiStatefulMixin {
   @override
   Component build(BuildContext context) {
     final alignment = NakiAlignProps.mapAlignment(component.alignment);
-    final width = _width != null ? _width!.toPx : null;
-    final height = _height != null ? _height!.toPx : null;
-
-    final hasFactor =
-        component.heightFactor != null || component.widthFactor != null;
+    final width = _width?.toPx;
+    final height = _height?.toPx;
 
     const baseClass = 'naki-align';
     final effectiveClasses = joinClasses([?component.classes, baseClass]);
@@ -172,7 +169,6 @@ class _AlignState extends State<Align> with NakiStatefulMixin {
       classes: effectiveClasses,
       styles: Styles(
         raw: {
-          'display': hasFactor ? 'inline-flex' : 'flex',
           'overflow': ?(_isOverflowing ? 'hidden' : null),
           'width': ?width,
           'height': ?height,
@@ -1125,6 +1121,7 @@ class Card extends StatelessComponent {
   final FutureOr<void> Function()? onTap;
 
   final CardVariant _variant;
+  final BorderData? _border;
 
   /// {@macro Card}
   const Card({
@@ -1142,14 +1139,17 @@ class Card extends StatelessComponent {
     this.constraints,
     this.onTap,
     this.classes,
-  }) : _variant = CardVariant.elevated;
+  }) : _variant = CardVariant.elevated,
+       _border = null;
 
   /// Creates an outlined card.
   ///
   /// Outlined cards have a default border and zero elevation shadow.
   const Card.outlined({
     super.key,
+    BorderData? border,
     required this.child,
+    this.clip = false,
     this.color,
     this.gradient,
     this.borderRadius,
@@ -1158,10 +1158,10 @@ class Card extends StatelessComponent {
     this.width,
     this.height,
     this.constraints,
-    this.clip = false,
     this.classes,
     this.onTap,
   }) : elevation = 0,
+       _border = border,
        _variant = CardVariant.outlined;
 
   /// Creates a filled card.
@@ -1170,8 +1170,9 @@ class Card extends StatelessComponent {
   /// and zero elevation shadow.
   const Card.filled({
     super.key,
-    required this.child,
     this.color,
+    required this.child,
+    this.clip = false,
     this.gradient,
     this.borderRadius,
     this.decoration,
@@ -1179,10 +1180,10 @@ class Card extends StatelessComponent {
     this.width,
     this.height,
     this.constraints,
-    this.clip = false,
     this.classes,
     this.onTap,
   }) : elevation = 0,
+       _border = null,
        _variant = CardVariant.filled;
 
   static String? _elevationToBoxShadow(double? elevation, Color? shadowColor) {
@@ -1215,6 +1216,7 @@ class Card extends StatelessComponent {
 
     final effectiveStyles = {
       ...?decoration?.props,
+      ...?_border?.props,
       'overflow': ?(clip ? 'hidden' : null),
       'background-color': ?color?.value,
       'height': ?height?.cssText,
@@ -1903,4 +1905,60 @@ class _ExpansionTileState extends State<ExpansionTile> {
       ],
     );
   }
+}
+
+/// {@template FragmentScope}
+/// A Naki component that renders its children as if they were direct
+/// children of the parent component.
+///
+/// This component simply renders its children like [Component.fragment]
+/// but without the SSR complexities and hydration issues.
+///
+/// ### Example
+/// ```dart
+/// FragmentScope(
+///   inherit: false,
+///   [
+///     NakiText('Hello'),
+///     Container(
+///       child: Column(
+///         children: [
+///           NakiText('About Us'),
+///         ],
+///       ),
+///     ),
+///   ],
+/// )
+/// ```
+/// {@endtemplate}
+class FragmentScope extends StatelessComponent {
+  /// Components to render.
+  final List<Component> children;
+
+  /// Whether to inherit display property from the parent component.
+  ///
+  /// When `true`, fragment scope will inherit display property
+  /// from the parent component, which can be useful for forcing
+  /// consistency with parent layout.
+  final bool inherit;
+
+  /// {@macro FragmentScope}
+  const FragmentScope(
+    this.children, {
+    super.key,
+    this.inherit = false,
+  });
+
+  @override
+  Component build(BuildContext context) {
+    return .element(
+      tag: 'naki-fragment',
+      children: children,
+      styles: Styles(display: inherit ? Display.inherit : null),
+    );
+  }
+
+  @css
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('FragmentScope', [Rules.nakiFragmentScopeRules]);
 }

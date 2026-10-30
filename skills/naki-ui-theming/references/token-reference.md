@@ -62,6 +62,15 @@ Mirror the semantic intent in `DarkThemeData`; do not mechanically reuse light s
 - Navigation and scrolling: app bar, bottom navigation, carousel, grid gap, and scrollbar values.
 - Data display: table header surface, hover surface, and borders.
 - Overlays and notices: snackbar, banner, tooltip, popover, dialog, drawer, and bottom-sheet colors, radii, and dimensions.
+- Calendar picker: the nested `calendar: CalendarScheme(...)` sets day cell size, date / weekday / title font sizes, weekday spacing, and time-stepper size. On screens ≤ 420px each size is capped by its `compact*` counterpart (e.g. `compactCellSize`), which can also be themed; smaller themed values are kept.
+
+```dart
+LightThemeData(
+  component: ComponentScheme(
+    calendar: CalendarScheme(cellSize: Dim.px(36), dateFontSize: Dim.px(13)),
+  ),
+)
+```
 
 Use component seeds for systematic defaults. Use component constructor properties for a meaningful one-off exception.
 

@@ -40,7 +40,7 @@ class _EaseInCurve {
   static double build(double t) {
     if (t <= 0.0) return 0.0;
     if (t >= 1.0) return 1.0;
-    return 2 * t * t;
+    return t * t;
   }
 }
 
@@ -56,7 +56,7 @@ class _EaseOutCurve {
   static double build(double t) {
     if (t <= 0.0) return 0.0;
     if (t >= 1.0) return 1.0;
-    return -1 + (4 - 2 * t) * t;
+    return t * (2 - t);
   }
 }
 
@@ -72,7 +72,15 @@ class _EaseInOutBackCurve {
   static double build(double t) {
     if (t <= 0.0) return 0.0;
     if (t >= 1.0) return 1.0;
-    return -1 + (4 - 2 * t) * t;
+
+    const c1 = 1.70158;
+    const c2 = c1 * 1.525;
+    final x = 2 * t;
+
+    if (t < 0.5) return (x * x * ((c2 + 1) * x - c2)) / 2;
+
+    final y = x - 2;
+    return (y * y * ((c2 + 1) * y + c2) + 2) / 2;
   }
 }
 
@@ -88,7 +96,12 @@ class _EaseOutBackCurve {
   static double build(double t) {
     if (t <= 0.0) return 0.0;
     if (t >= 1.0) return 1.0;
-    return -1 + (4 - 2 * t) * t;
+
+    const c1 = 1.70158;
+    const c3 = c1 + 1;
+
+    final x = t - 1;
+    return 1 + c3 * x * x * x + c1 * x * x;
   }
 }
 
@@ -104,7 +117,7 @@ class _BounceInCurve {
   static double build(double t) {
     if (t <= 0.0) return 0.0;
     if (t >= 1.0) return 1.0;
-    return -1 + (4 - 2 * t) * t;
+    return 1 - _BounceOutCurve.build(1 - t);
   }
 }
 
@@ -120,7 +133,24 @@ class _BounceOutCurve {
   static double build(double t) {
     if (t <= 0.0) return 0.0;
     if (t >= 1.0) return 1.0;
-    return -1 + (4 - 2 * t) * t;
+
+    const n1 = 7.5625;
+    const d1 = 2.75;
+
+    if (t < 1 / d1) return n1 * t * t;
+
+    if (t < 2 / d1) {
+      final x = t - 1.5 / d1;
+      return n1 * x * x + 0.75;
+    }
+
+    if (t < 2.5 / d1) {
+      final x = t - 2.25 / d1;
+      return n1 * x * x + 0.9375;
+    }
+
+    final x = t - 2.625 / d1;
+    return n1 * x * x + 0.984375;
   }
 }
 

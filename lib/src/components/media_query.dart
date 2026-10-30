@@ -183,11 +183,10 @@ class _MediaQueryState extends State<MediaQueryProvider>
   ) {
     if (!_isObservingComponent) {
       _lifecycle.whenResized = (height, width, layout) {
-        setState(() {
-          _height = height;
-          _width = width;
-          _orientation = layout;
-        });
+        _height = height;
+        _width = width;
+        _orientation = layout;
+        setState(() {});
       };
     } else {
       _lifecycle.observeComponentSize((
@@ -195,16 +194,14 @@ class _MediaQueryState extends State<MediaQueryProvider>
         width,
         layout,
       ) {
-        setState(() {
-          _height = height;
-          _width = width;
-          _orientation = layout;
-        });
+        _height = height;
+        _width = width;
+        _orientation = layout;
+        setState(() {});
       }, id: component.id);
     }
 
     _lifecycle.register();
-
     return _lifecycle.dispose;
   }
 

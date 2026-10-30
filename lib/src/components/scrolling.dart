@@ -234,7 +234,10 @@ class _SingleChildScrollViewState extends State<SingleChildScrollView>
     };
 
     const baseClass = 'naki-singlechild-scrollview';
-    final effectiveClasses = joinClasses([?component.classes, baseClass]);
+    final effectiveClasses = joinClasses([
+      ?component.classes,
+      baseClass,
+    ]);
 
     final Component child = .element(
       tag: 'naki-scrollview',
@@ -554,16 +557,19 @@ class _ListViewState extends State<ListView> with NakiStatefulMixin {
         (isHoriz ? 'width' : 'height'): '100%',
       ...?component.padding?.pProps,
       ...?component.physics?.props(component.direction),
-      '--naki-listview-item-extent-h': ?(!isHoriz && extent != null
+      Tokens.current.listViewItemExtentHeight.name: !isHoriz && extent != null
           ? extent.cssText
-          : null),
-      '--naki-listview-item-extent-w': ?(isHoriz && extent != null
+          : Tokens.current.listViewItemExtentHeight.value,
+      Tokens.current.listViewItemExtentWidth.name: isHoriz && extent != null
           ? extent.cssText
-          : null),
+          : Tokens.current.listViewItemExtentWidth.value,
     };
 
     const baseClass = 'naki-listview';
-    final effectiveClasses = joinClasses([?component.classes, baseClass]);
+    final effectiveClasses = joinClasses([
+      ?component.classes,
+      baseClass,
+    ]);
 
     final Component child = .element(
       tag: 'naki-listview',
@@ -810,7 +816,10 @@ class _ListViewBuilderState extends State<_ListViewBuilder>
     }
 
     const baseClass = 'naki-listview';
-    final effectiveClasses = joinClasses([?component.classes, baseClass]);
+    final effectiveClasses = joinClasses([
+      ?component.classes,
+      baseClass,
+    ]);
 
     final Component child = .element(
       tag: 'naki-listview',
@@ -1060,7 +1069,10 @@ class _ListViewSeparatedState extends State<_ListViewSeparated>
     };
 
     const baseClass = 'naki-listview';
-    final effectiveClasses = joinClasses([?component.classes, baseClass]);
+    final effectiveClasses = joinClasses([
+      ?component.classes,
+      baseClass,
+    ]);
 
     for (int i = 0; i < _renderedItemCount; i++) {
       items.add(component.itemBuilder(context, i));
@@ -1223,7 +1235,7 @@ class GridView extends StatefulComponent {
     Key? key,
     Dim mainAxisSpacing = const Dim.px(16),
     Dim crossAxisSpacing = const Dim.px(16),
-    AspectRatioType childAspectRatio = AspectRatioType.ratio1_1,
+    AspectRatioType? childAspectRatio,
     Dim? mainAxisExtent,
     List<Component> children = const [],
     ScrollDirection direction = ScrollDirection.vertical,
@@ -1258,7 +1270,7 @@ class GridView extends StatefulComponent {
     );
   }
 
-  /// Creates a grid layout with maximum width extent.
+  /// Creates a grid layout with maximum cross-axis extent.
   ///
   /// Supports scroll physics via [physics] and scrollbar configuration via [scrollBarConfig].
   ///
@@ -1301,7 +1313,7 @@ class GridView extends StatefulComponent {
     Key? key,
     Dim mainAxisSpacing = const Dim.px(16),
     Dim crossAxisSpacing = const Dim.px(16),
-    AspectRatioType childAspectRatio = AspectRatioType.ratio1_1,
+    AspectRatioType? childAspectRatio,
     Dim? mainAxisExtent,
     List<Component> children = const [],
     ScrollDirection direction = ScrollDirection.vertical,
@@ -1465,7 +1477,7 @@ class _GridViewState extends State<GridView> with NakiStatefulMixin {
     Dim? mainAxisExtent;
     int? crossAxisCount;
 
-    AspectRatioType childAspect = AspectRatioType.ratio1_1;
+    AspectRatioType? childAspect;
     final delegate = component.gridDelegate;
 
     if (delegate is SliverGridDelegateWithFixedCrossAxisCount) {
@@ -1476,6 +1488,7 @@ class _GridViewState extends State<GridView> with NakiStatefulMixin {
 
       childAspect = delegate.childAspectRatio;
       mainAxisExtent = delegate.mainAxisExtent;
+      if (childAspect == null) mainAxisExtent ??= const Dim.auto();
     } else if (delegate is SliverGridDelegateWithMaxCrossAxisExtent) {
       crossAxisTemplate =
           'repeat(auto-fill, minmax(${delegate.maxCrossAxisExtent.cssText}, 1fr))';
@@ -1484,6 +1497,7 @@ class _GridViewState extends State<GridView> with NakiStatefulMixin {
 
       childAspect = delegate.childAspectRatio;
       mainAxisExtent = delegate.mainAxisExtent;
+      if (childAspect == null) mainAxisExtent ??= const Dim.auto();
     }
 
     final effectiveStyles = <String, String>{
@@ -1539,7 +1553,7 @@ class _GridViewState extends State<GridView> with NakiStatefulMixin {
             }
           : null;
 
-      final effectiveChild = mainAxisExtent == null
+      final effectiveChild = mainAxisExtent == null && childAspect != null
           ? AspectRatio(child: child, aspectRatio: childAspect)
           : child;
 
@@ -1554,7 +1568,10 @@ class _GridViewState extends State<GridView> with NakiStatefulMixin {
     if (component.reverse) children = children.reversed.toList();
 
     const baseClass = 'naki-gridview';
-    final effectiveClasses = joinClasses([?component.classes, baseClass]);
+    final effectiveClasses = joinClasses([
+      ?component.classes,
+      baseClass,
+    ]);
 
     final Component child = .element(
       tag: 'naki-gridview',
@@ -1787,7 +1804,7 @@ class _GridViewBuilderState extends State<_GridViewBuilder>
     Dim? mainAxisExtent;
     int? crossAxisCount;
 
-    AspectRatioType childAspect = AspectRatioType.ratio1_1;
+    AspectRatioType? childAspect;
     final delegate = component.gridDelegate;
 
     if (delegate is SliverGridDelegateWithFixedCrossAxisCount) {
@@ -1798,6 +1815,7 @@ class _GridViewBuilderState extends State<_GridViewBuilder>
 
       childAspect = delegate.childAspectRatio;
       mainAxisExtent = delegate.mainAxisExtent;
+      if (childAspect == null) mainAxisExtent ??= const Dim.auto();
     } else if (delegate is SliverGridDelegateWithMaxCrossAxisExtent) {
       crossAxisTemplate =
           'repeat(auto-fill, minmax(${delegate.maxCrossAxisExtent.cssText}, 1fr))';
@@ -1806,6 +1824,7 @@ class _GridViewBuilderState extends State<_GridViewBuilder>
 
       childAspect = delegate.childAspectRatio;
       mainAxisExtent = delegate.mainAxisExtent;
+      if (childAspect == null) mainAxisExtent ??= const Dim.auto();
     }
 
     final effectiveStyles = <String, String>{
@@ -1859,7 +1878,7 @@ class _GridViewBuilderState extends State<_GridViewBuilder>
             }
           : null;
 
-      final effectiveChild = mainAxisExtent == null
+      final effectiveChild = mainAxisExtent == null && childAspect != null
           ? AspectRatio(child: child, aspectRatio: childAspect)
           : child;
 
@@ -1874,7 +1893,10 @@ class _GridViewBuilderState extends State<_GridViewBuilder>
     if (component.reverse) items = items.reversed.toList();
 
     const baseClass = 'naki-gridview';
-    final effectiveClasses = joinClasses([?component.classes, baseClass]);
+    final effectiveClasses = joinClasses([
+      ?component.classes,
+      baseClass,
+    ]);
 
     final Component child = .element(
       tag: 'naki-gridview',
@@ -3125,7 +3147,10 @@ class _StaggeredViewState extends State<StaggeredView> with NakiStatefulMixin {
     }
 
     const baseClass = 'naki-staggeredview';
-    final effectiveClasses = joinClasses([?component.classes, baseClass]);
+    final effectiveClasses = joinClasses([
+      ?component.classes,
+      baseClass,
+    ]);
 
     final Component child = .element(
       tag: 'naki-staggered-view',

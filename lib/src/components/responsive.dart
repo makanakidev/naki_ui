@@ -1,9 +1,9 @@
 import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
 
-import '../../theme.dart';
 import '../styles/rules.dart';
 import '../utilities/enums.dart';
+import '../utilities/extensions.dart';
 
 /// {@template ResponsiveBuilder}
 /// A component that builds its descendant based on a [breakpoint]
@@ -87,37 +87,47 @@ class ResponsiveBuilder extends StatelessComponent {
 
     if (breakpoint != null && child != null) {
       responsiveComponents.add(
-        span(classes: breakpoint!.className, [child!]),
+        span(classes: 'naki-breakpoint ${breakpoint!.className}', [child!]),
       );
     }
 
     if (mobile != null) {
       responsiveComponents.add(
-        span(classes: BreakPoint.mobile.className, [mobile!]),
+        span(classes: 'naki-breakpoint ${BreakPoint.mobile.className}', [
+          mobile!,
+        ]),
       );
     }
 
     if (largerMobile != null) {
       responsiveComponents.add(
-        span(classes: BreakPoint.largerPhone.className, [largerMobile!]),
+        span(classes: 'naki-breakpoint ${BreakPoint.largerPhone.className}', [
+          largerMobile!,
+        ]),
       );
     }
 
     if (tablet != null) {
       responsiveComponents.add(
-        span(classes: BreakPoint.tablet.className, [tablet!]),
+        span(classes: 'naki-breakpoint ${BreakPoint.tablet.className}', [
+          tablet!,
+        ]),
       );
     }
 
     if (laptop != null) {
       responsiveComponents.add(
-        span(classes: BreakPoint.laptop.className, [laptop!]),
+        span(classes: 'naki-breakpoint ${BreakPoint.laptop.className}', [
+          laptop!,
+        ]),
       );
     }
 
     if (desktop != null) {
       responsiveComponents.add(
-        span(classes: BreakPoint.desktop.className, [desktop!]),
+        span(classes: 'naki-breakpoint ${BreakPoint.desktop.className}', [
+          desktop!,
+        ]),
       );
     }
 
@@ -187,15 +197,18 @@ class BreakPointWrapper extends StatelessComponent {
     }
 
     final styles = [
-      css('.br-$id').styles(raw: {'display': 'none !important'}),
+      css('.br-$id').styles(raw: {'display': 'none'}),
       css.media(query, [
-        css('.br-$id').styles(raw: {'display': 'revert !important'}),
+        css('.br-$id').styles(raw: {'display': 'contents'}),
       ]),
     ];
 
+    // the wrapper comes first: a fragment that starts with a head portal
+    // (which renders elsewhere) breaks Jaspr's placement when nested in
+    // another fragment, e.g. several BreakPointWrappers in `.fragment([])`
     return .fragment([
+      span(classes: 'naki-breakpoint br-$id', [child]),
       Document.head(children: [StyleRules(styles, id: id)]),
-      span(classes: 'br-$id', [child]),
     ]);
   }
 }

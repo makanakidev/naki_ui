@@ -234,9 +234,9 @@ class TextStyle implements NakiStylable {
     );
   }
 
-  bool get _shouldTruncate => maxLines == 1 || (truncate && maxLines == null);
+  bool get _shouldTruncate => truncate && maxLines == null;
 
-  bool get _shouldClamp => maxLines != null && maxLines! > 1;
+  bool get _shouldClamp => maxLines != null;
 
   @override
   String get cssText => props.cssText;
@@ -263,13 +263,14 @@ class TextStyle implements NakiStylable {
     'text-decoration-thickness': ?decorationThickness?.cssText,
     'text-align': ?textAlign?.value,
     'user-select': selectable ? 'text' : 'none',
-    'text-wrap-mode': ?(softWrap && !_shouldTruncate ? 'wrap' : null),
+    'text-wrap': ?(softWrap && !_shouldTruncate ? 'wrap' : null),
     'text-overflow': ?overflow?.value,
     ...?gradient?.props,
     ...?padding?.pProps,
     ...?margin?.mProps,
     ...?extra,
     if (_shouldTruncate) ...Css.nakiTextTruncateStyle,
+    if (_shouldTruncate && width != null) 'width': width!.cssText,
     if (_shouldClamp) ...{
       Tokens.current.textMaxLines.name: maxLines!.toCleanString,
       ...Css.nakiTextClampStyle,

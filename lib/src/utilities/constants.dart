@@ -57,15 +57,6 @@ const String kThemeSwitchingScript = '''
 })({{CACHE}});
 ''';
 
-/// Stop pinch gesture in browsers
-const String kPinchStopScript = '''
-!(function () {
-  ["gesturestart", "gesturechange", "gestureend"].forEach((g) => {
-    document.addEventListener(g, (e) => e.preventDefault());
-  });
-})();
-''';
-
 /// Breakpoint width `480px` for mobile phones.
 const double kBreakpointXSmall = 480.0;
 
@@ -80,3 +71,7 @@ const double kBreakpointLarge = 1024.0;
 
 /// Breakpoint width `1280px` for desktops.
 const double kBreakpointXLarge = 1280.0;
+
+/// Class marking vertical scroll views that pad their content by the
+/// `Scaffold` bottom navigation bar inset (`--naki-bottom-navbar-inset`).
+const kBottomInsetClass = 'naki-bottom-inset';

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
 
@@ -55,11 +57,21 @@ class StyleRules extends StatelessComponent {
   }
 }
 
-/// Central registry to ensure style rules are registered
-/// exactly once per document tree or component type.
+/// Central registry to ensure style rules are emitted exactly once per
+/// stylesheet.
+///
+/// Jaspr evaluates every `@css` getter synchronously each time it builds a
+/// stylesheet; in the default inline-styles mode that happens on *every*
+/// server request. Deduplication is therefore scoped to a single synchronous
+/// pass and reset in a microtask, so later requests receive the full set of
+/// rules again instead of an empty list.
 final class NakiStyleRegistry {
   final Set<String> _registeredKeys = {};
   final Set<String> _generatedCss = {};
+  bool _resetScheduled = false;
+
+  /// Cache of rendered css per rule instance (rules are static finals).
+  static final Expando<String> _cssCache = Expando('naki-css');
 
   /// Global static registry used for compile-time `@css` getters.
   static final NakiStyleRegistry global = NakiStyleRegistry();
@@ -71,8 +83,9 @@ final class NakiStyleRegistry {
   /// Static helper to dedupe rules.
   static List<StyleRule> dedupe(List<StyleRule> rules) => global._dedupe(rules);
 
-  /// Registers [rules] once per [key] within this registry instance.
+  /// Registers [rules] once per [key] within the current stylesheet pass.
   List<StyleRule> register(String key, List<StyleRule> rules) {
+    _scheduleReset();
     if (_registeredKeys.contains(key)) return const [];
     _registeredKeys.add(key);
     return _dedupe(rules);
@@ -80,10 +93,11 @@ final class NakiStyleRegistry {
 
   /// Deduplicate css rules and return unique rules
   List<StyleRule> _dedupe(List<StyleRule> rules) {
+    _scheduleReset();
     final uniqueRules = <StyleRule>[];
 
     for (final rule in rules) {
-      final css = rule.toCss();
+      final css = _cssCache[rule] ??= rule.toCss();
       if (_generatedCss.contains(css)) continue;
       _generatedCss.add(css);
       uniqueRules.add(rule);
@@ -92,10 +106,18 @@ final class NakiStyleRegistry {
     return uniqueRules;
   }
 
+  /// Resets the registry once the current synchronous pass completes.
+  void _scheduleReset() {
+    if (_resetScheduled) return;
+    _resetScheduled = true;
+    scheduleMicrotask(clear);
+  }
+
   /// Clears the registry.
   void clear() {
     _registeredKeys.clear();
     _generatedCss.clear();
+    _resetScheduled = false;
   }
 }
 
@@ -109,15 +131,88 @@ final class NakiStyleRegistry {
 /// [Rules.nakiSwitchRules]);
 /// ```
 class Rules {
-  /// Adjust appbar position if present
-  static final _appbarAdjustment = [
-    css('.naki-appbar').styles(raw: {'position': 'fixed'}),
-
-    // push scaffold content down if present
-    css(
-      '.naki-scaffold-body',
-    ).styles(raw: {'margin-top': 'var(${Tokens.current.appbarHeight})'}),
+  /// Styles for the direct children of a container.
+  static List<StyleRule> _childRules(
+    Map<String, String> raw, [
+    String child = '> *',
+  ]) => [
+    css('& $child').styles(raw: raw),
   ];
+
+  /// Vertical scroll views without explicit padding ([kBottomInsetClass])
+  /// pad their content by the bottom navigation bar inset, like Flutter's
+  /// `MediaQuery` padding, and consume it for their descendants.
+  static StyleRule get _bottomInsetRule {
+    final inset = _var(Tokens.current.bottomNavbarInset);
+
+    return css('&.$kBottomInsetClass', [
+      css('&::after').styles(
+        raw: {
+          'min-height': inset,
+          'scroll-padding-bottom': inset,
+          'content': '""',
+          'display': 'block',
+        },
+      ),
+      css('& > *').styles(raw: {Tokens.current.bottomNavbarInset.name: '0px'}),
+    ]);
+  }
+
+  /// Themed calendar size tokens paired with their small-screen cap tokens.
+  static final List<(Token, Token)> _writeVariableTokens = [
+    (Tokens.current.calendarCellSize, Tokens.current.calendarCompactCellSize),
+    (
+      Tokens.current.calendarDateFontSize,
+      Tokens.current.calendarCompactDateFontSize,
+    ),
+    (
+      Tokens.current.calendarWeekdayFontSize,
+      Tokens.current.calendarCompactWeekdayFontSize,
+    ),
+    (
+      Tokens.current.calendarWeekdayGap,
+      Tokens.current.calendarCompactWeekdayGap,
+    ),
+    (
+      Tokens.current.calendarTitleFontSize,
+      Tokens.current.calendarCompactTitleFontSize,
+    ),
+    (
+      Tokens.current.calendarStepperHeight,
+      Tokens.current.calendarCompactStepperHeight,
+    ),
+    (
+      Tokens.current.calendarStepperFontSize,
+      Tokens.current.calendarCompactStepperFontSize,
+    ),
+  ];
+
+  /// Writes a variable token with its default value.
+  static String _var(Token token) => 'var($token, ${token.value})';
+
+  /// A small-screen calendar size: the themed [token] capped at its compact
+  /// token (smaller themed values are kept).
+  static String _compactCalendarSize(Token token) {
+    final (_, compact) = _writeVariableTokens.firstWhere(
+      (pair) => pair.$1.name == token.name,
+    );
+    return 'min(${_var(token)}, ${_var(compact)})';
+  }
+
+  /// Small-screen (≤ 420px) rule for [selector] capping each property's
+  /// calendar size. Nested next to the base rule so it has the same
+  /// specificity and, coming later, wins on small screens.
+  static StyleRule _compactCalendarRule(
+    String selector,
+    Map<String, Token> properties,
+  ) => css.media(const MediaQuery.screen(maxWidth: Unit.pixels(420)), [
+    css(selector).styles(
+      raw: {
+        for (final MapEntry(key: property, value: token) in properties.entries)
+          property: _compactCalendarSize(token),
+      },
+    ),
+  ]);
 
   static const _fastTransition = '150ms cubic-bezier(0.25, 0.46, 0.45, 0.94)';
   static const _mediumTransition = '320ms cubic-bezier(0.25, 0.46, 0.45, 0.94)';
@@ -197,7 +292,9 @@ class Rules {
     css.supports('(view-transition-name: root)', [
       css('html').styles(raw: {'view-transition-name': 'root'}),
 
-      css('::view-transition-old(root), ::view-transition-new(root)').styles(
+      css(
+        '::view-transition-old(root), ::view-transition-new(root)',
+      ).styles(
         raw: {
           'animation-duration': '500ms',
           'animation-timing-function': 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
@@ -206,29 +303,44 @@ class Rules {
       ),
     ]),
 
-    // apply margin and padding on body element
+    // override default margin and padding on body element
     css('body').styles(raw: {'margin': '0', 'padding': '0'}),
+
+    // ensure section elements are not hidden by the appbar when
+    // scrolling to them via anchor links
+    css('section').styles(
+      raw: {'scroll-margin-top': _var(Tokens.current.appbarHeight)},
+    ),
+
+    // override browser's focus outline on buttons, links, and inputs
+    css(':is(html) :focus-visible:not([fcs])').styles(raw: {'outline': 'none'}),
+
+    // iOS Safari zooms into inputs below 16px on focus; keep inputs at 16px
+    // there instead of disabling pinch-zoom for everyone (WCAG 1.4.4)
+    css.supports('(-webkit-touch-callout: none)', [
+      css('input, textarea, select').styles(
+        raw: {
+          'font-size':
+              'max(16px, ${_var(Tokens.current.fontSizeInput)}) !important',
+        },
+      ),
+    ]),
 
     // global element styles
     css('*').styles(
       raw: {
-        'z-index': '1',
         'scrollbar-width': 'none',
         'box-sizing': 'border-box',
-        'font-family':
-            'var(${Tokens.current.fontFamily}, ${Tokens.current.fontFamily.value})',
+        'font-family': _var(Tokens.current.fontFamily),
       },
     ),
 
     // root typography
     css('html, body').styles(
       raw: {
-        'background-color':
-            'var(${Tokens.current.backgroundColor}, ${Tokens.current.backgroundColor.value})',
-        'color':
-            'var(${Tokens.current.baseTextColor}, ${Tokens.current.baseTextColor.value})',
-        'font-size':
-            'var(${Tokens.current.fontSizeMd}, ${Tokens.current.fontSizeMd.value})',
+        'background-color': _var(Tokens.current.backgroundColor),
+        'color': _var(Tokens.current.baseTextColor),
+        'font-size': _var(Tokens.current.fontSizeMd),
         'touch-action': 'manipulation',
       },
     ),
@@ -239,13 +351,13 @@ class Rules {
     // Hide all by default
     css(
       '.br-xs, .br-sm, .br-md, .br-lg, .br-xl',
-    ).styles(raw: {'display': 'none !important'}),
+    ).styles(raw: {'display': 'none'}),
 
     // xs: <= 480px
     css.media(
       const MediaQuery.screen(maxWidth: Unit.pixels(kBreakpointXSmall)),
       [
-        css('.br-xs').styles(raw: {'display': 'revert !important'}),
+        css('.br-xs').styles(raw: {'display': 'contents'}),
       ],
     ),
 
@@ -256,7 +368,7 @@ class Rules {
         maxWidth: Unit.pixels(kBreakpointSmall),
       ),
       [
-        css('.br-sm').styles(raw: {'display': 'revert !important'}),
+        css('.br-sm').styles(raw: {'display': 'contents'}),
       ],
     ),
 
@@ -267,7 +379,7 @@ class Rules {
         maxWidth: Unit.pixels(kBreakpointMedium),
       ),
       [
-        css('.br-md').styles(raw: {'display': 'revert !important'}),
+        css('.br-md').styles(raw: {'display': 'contents'}),
       ],
     ),
 
@@ -278,7 +390,7 @@ class Rules {
         maxWidth: Unit.pixels(kBreakpointLarge),
       ),
       [
-        css('.br-lg').styles(raw: {'display': 'revert !important'}),
+        css('.br-lg').styles(raw: {'display': 'contents'}),
       ],
     ),
 
@@ -286,7 +398,7 @@ class Rules {
     css.media(
       const MediaQuery.screen(minWidth: Unit.pixels(kBreakpointLarge + 0.02)),
       [
-        css('.br-xl').styles(raw: {'display': 'revert !important'}),
+        css('.br-xl').styles(raw: {'display': 'contents'}),
       ],
     ),
   ];
@@ -300,8 +412,7 @@ class Rules {
     css('&[hvr]:hover').styles(raw: Css.nakiFieldHoverStyle),
 
     // focus state
-    css('&[fcs]:focus').styles(raw: Css.nakiFocusBorderStyle),
-    css('&[data-focused]').styles(raw: Css.nakiFocusBorderStyle),
+    css('&[fcs]:focus, &[data-focused]').styles(raw: Css.nakiFocusBorderStyle),
 
     // placeholder
     css('&::-webkit-input-placeholder').styles(raw: Css.nakiPlaceholderStyle),
@@ -311,19 +422,13 @@ class Rules {
       '&::-webkit-inner-spin-button',
     ).styles(raw: {'margin': '0', 'appearance': 'none'}),
 
-    // focus visible
-    css('&:-focus-visible').styles(raw: {'outline': 'none'}),
-
     // disabled state
     css('&:disabled').styles(raw: {'cursor': 'not-allowed'}),
 
     // leading / trailing icon
-    css('.naki-icon').styles(
-      raw: {
-        'height':
-            'var(${Tokens.current.inputHeight}, ${Tokens.current.inputHeight.value})',
-      },
-    ),
+    css(
+      '.naki-icon',
+    ).styles(raw: {'height': _var(Tokens.current.inputHeight)}),
 
     // input
     css('input, input.naki-input').styles(raw: Css.nakiInputStyle['input']),
@@ -344,9 +449,6 @@ class Rules {
     // focus state
     css('input[fcs]:focus').styles(raw: Css.nakiFocusBorderStyle),
 
-    // focus visible
-    css('input:focus-visible').styles(raw: {'outline': 'none'}),
-
     // disabled state
     css('input:disabled').styles(raw: {'cursor': 'not-allowed'}),
   ]);
@@ -360,24 +462,17 @@ class Rules {
     css('&[hvr]:hover').styles(raw: Css.nakiFieldHoverStyle),
 
     // focus state
-    css('&[fcs]:focus').styles(raw: Css.nakiFocusBorderStyle),
-    css('&[data-focused]').styles(raw: Css.nakiFocusBorderStyle),
+    css('&[fcs]:focus, &[data-focused]').styles(raw: Css.nakiFocusBorderStyle),
 
     // placeholder
     css('&::-webkit-input-placeholder').styles(raw: Css.nakiPlaceholderStyle),
-
-    // focus visible
-    css('&:focus-visible').styles(raw: {'outline': 'none'}),
 
     // disabled state
     css('&:disabled').styles(raw: {'cursor': 'not-allowed'}),
 
     // leading / trailing icon
     css('.naki-icon').styles(
-      raw: {
-        'height':
-            'var(${Tokens.current.inputHeight}, ${Tokens.current.inputHeight.value})',
-      },
+      raw: {'height': _var(Tokens.current.inputHeight)},
     ),
 
     // textarea
@@ -396,17 +491,21 @@ class Rules {
     // focus state
     css('textarea[fcs]:focus').styles(raw: Css.nakiFocusBorderStyle),
 
-    // focus visible
-    css('textarea:focus-visible').styles(raw: {'outline': 'none'}),
-
     // disabled state
     css('textarea:disabled').styles(raw: {'cursor': 'not-allowed'}),
   ]);
 
   /// Form field rules
-  static final nakiFormFieldRules = css(
-    '.naki-form-field',
-  ).styles(raw: {'display': 'flex', 'flex-direction': 'column'});
+  static final nakiFormFieldRules =
+      css(
+        '.naki-form-field',
+      ).styles(
+        raw: {
+          'display': 'flex',
+          'flex-direction': 'column',
+          'scroll-margin-top': '75px',
+        },
+      );
 
   /// Hitbox rules
   static final nakiHitboxRules = css('.naki-control-hitbox').styles(
@@ -435,11 +534,7 @@ class Rules {
       css('.naki-calendar-trigger', [
         // no-value state
         css('&[novalue]').styles(
-          raw: {
-            'color':
-                'var(${Tokens.current.placeholderColor}, '
-                '${Tokens.current.placeholderColor.value})',
-          },
+          raw: {'color': _var(Tokens.current.placeholderColor)},
         ),
 
         // disabled state
@@ -470,41 +565,63 @@ class Rules {
       css('.naki-calendar-modal', [
         css('&').styles(raw: Css.nakiCalendarStyle['modal']),
 
-        // action btn
-        css('.naki-calendar-action__button').styles(
+        css('&:has(.naki-dropdown-trigger[aria-expanded="true"])').styles(
+          raw: {'overflow': 'visible'},
+        ),
+
+        // footer buttons area
+        css('.naki-calendar-footer').styles(
+          raw: {
+            'padding-top': '5px',
+            'border-top':
+                '1px solid color-mix(in srgb, '
+                '${_var(Tokens.current.borderColor)} 25%, transparent)',
+          },
+        ),
+
+        // action buttons
+        css('.naki-calendar-action').styles(
           raw: {
             'font-weight': '500',
             'font-size': '14px',
             'border-radius': '24px',
             'padding': '8px 12px',
             'height': 'auto',
+            'white-space': 'nowrap',
           },
         ),
 
         // date picker
         css('.naki-date-picker', [
-          css('&').styles(raw: {'width': '100%'}),
+          css('&').styles(
+            raw: {
+              'width': '100%',
+              'padding': '6px 4px',
+            },
+          ),
 
           // header button
           css(
-            '.naki-calendar-header__button',
+            '.naki-calendar-header-action',
           ).styles(raw: {'border-radius': '50%', 'padding': '0'}),
 
           // header title
-          css('.naki-calendar-header__title', [
+          css('.naki-calendar-header-title', [
             css('&').styles(
               raw: {
-                'font-size': '16px',
+                'font-size': _var(Tokens.current.calendarTitleFontSize),
                 'font-weight': '500',
                 'cursor': 'pointer',
                 'user-select': 'none',
                 'padding': '0',
                 'transition': 'transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1)',
-                'color':
-                    'var(${Tokens.current.inputTextColor}, '
-                    '${Tokens.current.inputTextColor.value})',
+                'color': _var(Tokens.current.inputTextColor),
               },
             ),
+
+            _compactCalendarRule('&', {
+              'font-size': Tokens.current.calendarTitleFontSize,
+            }),
 
             // place header above year-month popover barrier when open
             css(
@@ -524,7 +641,7 @@ class Rules {
               '.naki-calendar-ymp__years',
             ).styles(raw: Css.nakiCalendarStyle['years-dropdown']),
 
-            // months grid
+            // months grid item
             css('.naki-calendar-ymp__month', [
               css(
                 '&',
@@ -543,31 +660,39 @@ class Rules {
           ]),
 
           // calendar body
-          css('.naki-calendar-body', [
+          css('.naki-calendar-table', [
             // table head
             css('th').styles(
               raw: {
-                'padding': 'min(0.3vw, 4px)',
+                'padding': 'min(0.3dvw, 4px)',
                 'text-align': 'center',
                 'font-weight': '400',
-                'font-size': '13px',
-                'border': '5px solid transparent',
+                'font-size': _var(Tokens.current.calendarWeekdayFontSize),
+                'border':
+                    '${_var(Tokens.current.calendarWeekdayGap)} '
+                    'solid transparent',
+                'background-color': 'transparent',
               },
             ),
 
+            _compactCalendarRule('th', {
+              'font-size': Tokens.current.calendarWeekdayFontSize,
+              'border-width': Tokens.current.calendarWeekdayGap,
+            }),
+
             // table cells
             css('td').styles(
-              raw: {'padding': 'min(0.3vw, 4px)', 'text-align': 'center'},
+              raw: {'padding': 'min(0.3dvw, 4px)', 'text-align': 'center'},
             ),
 
             // date cell
             css('.naki-calendar-date', [
               css('&').styles(
                 raw: {
-                  'font-size': '14px',
+                  'font-size': _var(Tokens.current.calendarDateFontSize),
                   'text-align': 'center',
-                  'width': '42px',
-                  'height': '42px',
+                  'width': _var(Tokens.current.calendarCellSize),
+                  'height': _var(Tokens.current.calendarCellSize),
                   'border-radius': '50%',
                   'padding': '0',
                   'margin': '0 auto',
@@ -578,9 +703,7 @@ class Rules {
               // today
               css('&[today]').styles(
                 raw: {
-                  'border-color':
-                      'var(${Tokens.current.secondaryColor}, '
-                      '${Tokens.current.secondaryColor.value})',
+                  'border-color': _var(Tokens.current.secondaryColor),
                 },
               ),
 
@@ -589,28 +712,83 @@ class Rules {
 
               // disabled state
               css('&[disabled]').styles(raw: Css.nakiCalendarStyle['disabled']),
+
+              _compactCalendarRule('&', {
+                'font-size': Tokens.current.calendarDateFontSize,
+                'width': Tokens.current.calendarCellSize,
+                'height': Tokens.current.calendarCellSize,
+              }),
             ]),
           ]),
         ]),
 
         // time picker
         css('.naki-time-picker', [
-          css('&').styles(raw: {'width': '100%'}),
+          css('&').styles(
+            raw: {
+              'width': '100%',
+              'padding': '12px 12px 2px',
+              'box-sizing': 'border-box',
+            },
+          ),
+
+          // header title
+          css('.naki-time-picker-title').styles(
+            raw: {
+              'font-size': '12px',
+              'font-weight': '600',
+              'letter-spacing': '0.04em',
+              'text-transform': 'uppercase',
+              'color': _var(Tokens.current.mutedColor),
+            },
+          ),
+
+          // time preview
+          css('.naki-time-picker-preview').styles(
+            raw: {
+              'font-size': '14px',
+              'font-weight': '600',
+              'font-variant-numeric': 'tabular-nums',
+              'color': _var(Tokens.current.primaryColor),
+            },
+          ),
 
           // steppers separator
-          css('.naki-time-separator', [
-            css('&').styles(raw: {'font-size': '16px', 'font-weight': '600'}),
-          ]),
+          css('.naki-time-separator').styles(
+            raw: {
+              'font-size': _var(Tokens.current.calendarStepperFontSize),
+              'font-weight': '600',
+              'padding-bottom': '2px',
+              'color': _var(Tokens.current.mutedColor),
+            },
+          ),
+
+          css('.naki-time-picker-steppers').styles(raw: {'padding': '10px 0'}),
 
           // time stepper
           css('.naki-time-stepper', [
             css('&').styles(
               raw: {
-                'width': '65px',
-                'border':
-                    '1px solid var(${Tokens.current.borderColor}, '
-                    '${Tokens.current.borderColor.value})',
-                'border-radius': '4px',
+                'width': _var(Tokens.current.calendarStepperWidth),
+                'padding': '4px',
+                'gap': '2px',
+                'border-radius': '14px',
+                'border': '1px solid transparent',
+                'background-color':
+                    'color-mix(in srgb, ${_var(Tokens.current.borderColor)} 10%, transparent)',
+                'transition':
+                    'border-color $_fastTransition, '
+                    'box-shadow $_fastTransition',
+              },
+            ),
+
+            // focus ring around the whole stepper
+            css('&:focus-within').styles(
+              raw: {
+                'border-color': _var(Tokens.current.primaryColor),
+                'box-shadow':
+                    '0 0 3px 1px color-mix(in srgb, '
+                    '${_var(Tokens.current.primaryColor)} 20%, transparent)',
               },
             ),
 
@@ -618,54 +796,70 @@ class Rules {
             css('& > input').styles(
               raw: {
                 'width': '100%',
-                'height': '50px',
+                'height': _var(Tokens.current.calendarStepperHeight),
                 'font-weight': '600',
-                'font-size': '18px',
+                'font-size': _var(Tokens.current.calendarStepperFontSize),
+                'font-variant-numeric': 'tabular-nums',
                 'text-align': 'center',
                 'padding': '0',
                 'margin': '0',
-                'background-color': 'transparent',
-                'border-left': 'unset',
-                'border-right': 'unset',
-                'border-top':
-                    '1px solid var(${Tokens.current.borderColor}, '
-                    '${Tokens.current.borderColor.value})',
-                'border-bottom':
-                    '1px solid var(${Tokens.current.borderColor}, '
-                    '${Tokens.current.borderColor.value})',
+                'border': 'none',
+                'border-radius': '10px',
+                'color': _var(Tokens.current.inputTextColor),
+                'background-color': _var(Tokens.current.dropdownMenuBgColor),
+                'box-shadow': '0 1px 2px rgb(0 0 0 / 0.06)',
+                '-moz-appearance': 'textfield',
               },
             ),
 
-            // button
-            css('.naki-time-stepper__button').styles(
-              raw: {
-                'height': '30px',
-                'width': '100%',
-                'border': 'none',
-                'padding': '0',
-                'background-color': 'transparent',
-                'cursor': 'pointer',
-                'color':
-                    'var(${Tokens.current.borderColor}, '
-                    '${Tokens.current.borderColor.value})',
-              },
-            ),
+            _compactCalendarRule('& > input', {
+              'height': Tokens.current.calendarStepperHeight,
+              'font-size': Tokens.current.calendarStepperFontSize,
+            }),
+
+            // stepper button
+            css('.naki-time-stepper-button', [
+              css('&').styles(
+                raw: {
+                  'height': '28px',
+                  'width': '100%',
+                  'border': 'none',
+                  'border-radius': '8px',
+                  'padding': '0',
+                  'background-color': 'transparent',
+                  'cursor': 'pointer',
+                  'color': _var(Tokens.current.mutedColor),
+                  'transition':
+                      'background-color $_fastTransition, '
+                      'color $_fastTransition',
+                },
+              ),
+
+              css('&:hover').styles(
+                raw: {
+                  'color': _var(Tokens.current.primaryColor),
+                  'background-color':
+                      'color-mix(in srgb, '
+                      '${_var(Tokens.current.primaryColor)} 10%, transparent)',
+                },
+              ),
+            ]),
           ]),
         ]),
       ]),
-    ]),
 
-    // prevent background body scrolling when calendar is open
-    // css(':root:has(.naki-calendar-modal)', [
-    //   css('&').styles(raw: Css.nakiBackgroundLockStyle),
-    //   //..._appbarAdjustment,
-    // ]),
+      // small screens: cap the themed sizes so 7 columns always fit
+      // (smaller values from the theme are kept)
+      css.media(const MediaQuery.screen(maxWidth: Unit.pixels(420)), [
+        css('.naki-calendar-modal').styles(raw: {'padding': '6px 3px'}),
+      ]),
+    ]),
   ];
 
   /// Label rules
   static final nakiLabelRules = css(
     '.naki-label',
-  ).styles(raw: Css.nakiLabelTextStyle.props);
+  ).styles(raw: Css.nakiLabelStyle.props);
 
   /// Segmented input field rules
   static final nakiSegmentedInputRules = [
@@ -705,7 +899,6 @@ class Rules {
 
         // focus state
         css('&[fcs]:focus').styles(raw: Css.nakiFocusBorderStyle),
-        css('&:focus-visible').styles(raw: {'outline': 'none'}),
 
         // disabled state
         css(
@@ -825,7 +1018,7 @@ class Rules {
   ]);
 
   /// BottomNavBar rules
-  static final nakiBottomNavBarRules = css('.naki-bottom-navbar', [
+  static final nakiBottomNavBarRules = css('.naki-bottombar', [
     // wrapper
     css('&').styles(raw: Css.nakiBottomNavBarStyle['wrapper']),
 
@@ -851,9 +1044,6 @@ class Rules {
         '& > .naki-navbar-tile',
       ).styles(raw: Css.nakiBottomNavBarStyle['frosted-glass-tile']),
 
-      // css(
-      //   '& > .naki-navbar-tile:not([aria-current="page"]):hover',
-      // ).styles(raw: Css.nakiBottomNavBarStyle['frosted-glass-hover-tile']),
       css(
         '& > .naki-navbar-tile[aria-current="page"]',
       ).styles(raw: Css.nakiBottomNavBarStyle['frosted-glass-selected-tile']),
@@ -891,27 +1081,27 @@ class Rules {
     // disabled state
     css('&:disabled').styles(
       raw: Css.nakiDisabledStyle.combine({
-        'background-color': 'var(${Tokens.current.disabledBgColor})',
+        'background-color': _var(Tokens.current.disabledBgColor),
       }),
     ),
 
     // hover state
-    css(
-      '&[hvr]:hover',
-    ).styles(
-      raw: {'background-color': 'var(${Tokens.current.buttonHoverBgColor})'},
+    css('&[hvr]:hover').styles(
+      raw: {
+        'background-color': _var(Tokens.current.buttonHoverBgColor),
+      },
     ),
 
-    // tap / pressed state
-    css('&:not(:disabled):active').styles(raw: {'transform': 'scale(0.97)'}),
+    // scale down when tapped
+    css('&[scl]:active').styles(raw: {'transform': 'scale(0.97)'}),
   ]);
 
   /// Icon rules
   static final nakiIconRules = css('.naki-icon').styles(raw: Css.nakiIconStyle);
 
-  /// Fragment rules
-  static final nakiFragmentRules = css(
-    '.naki-fragment',
+  /// FragmentScope rules
+  static final nakiFragmentScopeRules = css(
+    'naki-fragment',
   ).styles(raw: {'display': 'contents'});
 
   /// Scaffold rules
@@ -920,7 +1110,9 @@ class Rules {
     css('&').styles(raw: Css.nakiScaffoldStyle['wrapper']),
 
     // app bar
-    css('.naki-scaffold-appbar').styles(raw: Css.nakiScaffoldStyle['appbar']),
+    css(
+      '.naki-appbar-wrapper .naki-appbar',
+    ).styles(raw: Css.nakiScaffoldStyle['appbar']),
 
     // layout
     css('.naki-scaffold-layout').styles(raw: Css.nakiScaffoldStyle['layout']),
@@ -928,34 +1120,50 @@ class Rules {
     // sidebar
     css('.naki-scaffold-sidebar').styles(raw: Css.nakiScaffoldStyle['sidebar']),
 
-    // body
-    css('.naki-scaffold-body').styles(raw: Css.nakiScaffoldStyle['body']),
+    // top padding for body when appbar is present
+    css('&:has(.naki-appbar-wrapper) .naki-scaffold-body > *::before').styles(
+      raw: {
+        'min-height': 'var(${Tokens.current.appbarOffset}, 56px)',
+        'content': '""',
+        'display': 'block',
+      },
+    ),
+
+    css('.naki-scaffold-body', [
+      css('&').styles(raw: Css.nakiScaffoldStyle['body']),
+
+      css('& > *not(.naki-bottom-inset)::after').styles(
+        raw: {
+          'min-height': _var(Tokens.current.bottomNavbarInset),
+          'content': '""',
+          'display': 'block',
+        },
+      ),
+    ]),
+
+    // extendBody: fixed navbar overlays the body as well
+    css('.extended-body ~ .naki-navbar-wrapper').styles(
+      raw: {
+        'position': 'absolute',
+        'left': 'env(safe-area-inset-left, 0px)',
+        'right': 'env(safe-area-inset-right, 0px)',
+        'bottom': 'env(safe-area-inset-bottom, 0px)',
+        'width': 'auto',
+      },
+    ),
 
     // bottom navbar
-    css('.naki-scaffold-bottom-navbar', [
+    css('.naki-navbar-wrapper', [
       css('&').styles(raw: Css.nakiScaffoldStyle['bottom-navbar']),
 
-      // types
-      css(
-        '&:is(.navbar__fixed, .navbar__floating, .navbar__frosted-glass)',
-      ).styles(raw: {'position': 'fixed'}),
+      ..._childRules({'position': 'static'}, '.navbar__fixed'),
 
-      // fixed type
-      css('.navbar__fixed').styles(raw: {'bottom': '0', 'left': '0'}),
-
-      // floating type
-      css(
-        '.navbar__floating',
-      ).styles(
-        raw: {'bottom': '16px', 'left': '50%', 'transform': 'translateX(-50%)'},
-      ),
-
-      // frosted glass type
-      css(
-        '.navbar__frosted-glass',
-      ).styles(
-        raw: {'bottom': '16px', 'left': '50%', 'transform': 'translateX(-50%)'},
-      ),
+      ..._childRules({
+        'position': 'fixed',
+        'bottom': 'calc(16px + env(safe-area-inset-bottom, 0px))',
+        'left': '50%',
+        'transform': 'translateX(-50%)',
+      }, ':is(.navbar__floating, .navbar__frosted-glass)'),
     ]),
 
     // floating action button
@@ -965,15 +1173,15 @@ class Rules {
   /// Stack rules
   static final nakiStackRules = css('.naki-stack', [
     css('&').styles(raw: Css.nakiStackStyle),
-
-    css('& > *').styles(raw: {'grid-area': 'stack'}),
+    ..._childRules({'grid-area': 'stack'}),
   ]);
 
   /// Align rules
   static final nakiAlignRules = css('.naki-align').styles(
     raw: {
       'width': '100%',
-      'height': '100%',
+      'height': 'auto',
+      'min-height': '100%',
       'display': 'flex',
       'box-sizing': 'border-box',
       'flex-shrink': '0',
@@ -1027,10 +1235,8 @@ class Rules {
       css('&[hvr]:hover').styles(
         raw: {
           'box-shadow':
-              '0 4px 6px -1px var(${Tokens.current.mediumShadowColor}, '
-              '${Tokens.current.mediumShadowColor.value}), 0 2px 4px -2px '
-              'var(${Tokens.current.mediumShadowColor}, '
-              '${Tokens.current.mediumShadowColor.value})',
+              '0 4px 6px -1px ${_var(Tokens.current.mediumShadowColor)}, '
+              '0 2px 4px -2px ${_var(Tokens.current.mediumShadowColor)}',
         },
       ),
     ]),
@@ -1053,7 +1259,7 @@ class Rules {
 
       css(
         '&:not(:disabled):hover',
-      ).styles(raw: {'color': 'var(${Tokens.current.hoverColor})'}),
+      ).styles(raw: {'color': _var(Tokens.current.hoverColor)}),
 
       css('&:disabled').styles(raw: {'background-color': 'transparent'}),
     ]),
@@ -1160,9 +1366,7 @@ class Rules {
         // color when no selection is made
         css('&:not([data-selected])').styles(
           raw: {
-            'color':
-                'var(${Tokens.current.placeholderColor}, '
-                '${Tokens.current.placeholderColor.value})',
+            'color': _var(Tokens.current.placeholderColor),
           },
         ),
 
@@ -1205,6 +1409,18 @@ class Rules {
         // default state
         css('&').styles(raw: Css.nakiDropdownStyle['option']),
 
+        // keyboard-active / hovered state
+        css(
+          '&:is([data-active], :hover):not([aria-selected="true"])',
+        ).styles(
+          raw: {
+            'background-color': Css.applyOpacity(
+              Tokens.current.hoverColor,
+              25,
+            ).value,
+          },
+        ),
+
         // selected state
         css(
           '&[aria-selected="true"]',
@@ -1221,12 +1437,6 @@ class Rules {
         ).styles(raw: Css.nakiDropdownStyle['section.option']),
       ]),
     ]),
-
-    // prevent background body scrolling when dropdown is open
-    // css(':root:has(naki-dropdown[open])', [
-    //   css('&').styles(raw: Css.nakiBackgroundLockStyle),
-    //   //..._appbarAdjustment,
-    // ]),
   ];
 
   /// Spinner rules
@@ -1284,12 +1494,6 @@ class Rules {
         css('& > *').styles(raw: Css.nakiDropdownStyle['option']),
       ]),
     ]),
-
-    // prevent background body scrolling when menu is open
-    // css(':root:has(.naki-autocomplete-menu)', [
-    //   css('&').styles(raw: Css.nakiBackgroundLockStyle),
-    //   // ..._appbarAdjustment,
-    // ]),
   ];
 
   /// Form rules
@@ -1302,16 +1506,16 @@ class Rules {
     // selection (standard)
     css('&::selection').styles(
       raw: {
-        'background-color': 'var(${Tokens.current.selectedTextBgColor})',
-        'color': 'var(${Tokens.current.selectedTextColor})',
+        'background-color': _var(Tokens.current.selectedTextBgColor),
+        'color': _var(Tokens.current.selectedTextColor),
       },
     ),
 
     // selection (firefox)
     css('&::-moz-selection').styles(
       raw: {
-        'background-color': 'var(${Tokens.current.selectedTextBgColor})',
-        'color': 'var(${Tokens.current.selectedTextColor})',
+        'background-color': _var(Tokens.current.selectedTextBgColor),
+        'color': _var(Tokens.current.selectedTextColor),
       },
     ),
   ]);
@@ -1321,8 +1525,10 @@ class Rules {
     '.naki-singlechild-scrollview',
     [
       css('&').styles(raw: Css.nakiSingleChildScrollViewStyle),
+      ..._childRules({'flex-shrink': '0'}),
 
-      css('& > *').styles(raw: {'flex-shrink': '0'}),
+      // bottom inset, when applied
+      _bottomInsetRule,
     ],
   );
 
@@ -1330,20 +1536,24 @@ class Rules {
   static final nakiListViewRules = css('.naki-listview', [
     css('&').styles(raw: Css.nakiListViewStyle),
 
-    css('& > *').styles(
-      raw: {
-        'height': 'var(--naki-listview-item-extent-h, auto)',
-        'width': 'var(--naki-listview-item-extent-w, auto)',
-        'flex-shrink': '0',
-      },
-    ),
+    // bottom inset, when applied
+    _bottomInsetRule,
+
+    ..._childRules({
+      'height': _var(Tokens.current.listViewItemExtentHeight),
+      'width': _var(Tokens.current.listViewItemExtentWidth),
+      'flex-shrink': '0',
+    }),
   ]);
 
   /// GridView rules
   static final nakiGridViewRules = css('.naki-gridview', [
     css('&').styles(raw: Css.nakiGridViewStyle),
 
-    css('& > *').styles(raw: {'height': '100%', 'width': '100%'}),
+    // bottom inset, when applied
+    _bottomInsetRule,
+
+    ..._childRules({'height': '100%', 'width': '100%'}),
   ]);
 
   /// PageView rules
@@ -1352,14 +1562,12 @@ class Rules {
     css('&').styles(raw: Css.nakiPageViewStyle),
 
     // page item snap alignment and extent
-    css('& > *').styles(
-      raw: {
-        'scroll-snap-align': 'start',
-        'flex-shrink': '0',
-        'width': '100%',
-        'height': '100%',
-      },
-    ),
+    ..._childRules({
+      'scroll-snap-align': 'start',
+      'flex-shrink': '0',
+      'width': '100%',
+      'height': '100%',
+    }),
   ]);
 
   /// CarouselView rules
@@ -1403,11 +1611,11 @@ class Rules {
     // header
     css('th').styles(
       raw: {
-        'background-color': 'var(${Tokens.current.tableHeaderBg})',
+        'background-color': _var(Tokens.current.tableHeaderBg),
         'padding': '12px 16px',
         'font-weight': '600',
         'border-bottom':
-            '1px solid var(${Tokens.current.tableHeaderBorderColor})',
+            '1px solid ${_var(Tokens.current.tableHeaderBorderColor)}',
       },
     ),
 
@@ -1418,7 +1626,7 @@ class Rules {
     css(
       'tbody tr:hover',
     ).styles(
-      raw: {'background-color': 'var(${Tokens.current.tableRowHoverBg})'},
+      raw: {'background-color': _var(Tokens.current.tableRowHoverBg)},
     ),
   ]);
 
@@ -1438,18 +1646,23 @@ class Rules {
       },
     ),
 
-    css('.naki-flexible > *').styles(raw: {'flex-shrink': '1'}),
+    css('.naki-flexible', _childRules({'flex-shrink': '1'})),
 
-    css('.naki-expanded > *').styles(raw: {'width': '100%'}),
+    css('.naki-expanded', _childRules({'width': '100%'})),
   ];
 
   /// Hide rules
-  static final nakiHide = css('.naki-hide').styles(raw: {'display': 'none'});
+  static final nakiHide = css(
+    '.naki-hide',
+  ).styles(raw: {'display': 'none !important'});
 
   /// StaggeredView rules
   static final nakiStaggeredRules = css('.naki-staggeredview', [
     // wrapper
     css('&').styles(raw: Css.nakiStaggeredStyle),
+
+    // bottom inset, when applied
+    _bottomInsetRule,
 
     // item
     css('.naki-staggered-item').styles(
@@ -1467,7 +1680,9 @@ class Rules {
     css('&').styles(raw: Css.nakiSnackbarStyle),
 
     // exit
-    css('&[data-exiting=true]').styles(
+    css(
+      '&[data-exiting=true]',
+    ).styles(
       raw: {
         'animation':
             'nakiDialogFadeOut 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards',
@@ -1477,7 +1692,7 @@ class Rules {
     // top position
     css('&.sb-top').styles(
       raw: {
-        'top': 'var(${Tokens.current.snackbarOffset}, 10px)',
+        'top': _var(Tokens.current.snackbarOffset),
         'left': '50%',
         'transform': 'translateX(-50%)',
       },
@@ -1486,7 +1701,7 @@ class Rules {
     // bottom position
     css('&.sb-bottom').styles(
       raw: {
-        'bottom': 'var(${Tokens.current.snackbarOffset}, 10px)',
+        'bottom': _var(Tokens.current.snackbarOffset),
         'left': '50%',
         'transform': 'translateX(-50%)',
       },
@@ -1497,7 +1712,7 @@ class Rules {
       '&.sb-top-left',
     ).styles(
       raw: {
-        'top': 'var(${Tokens.current.snackbarOffset}, 10px)',
+        'top': _var(Tokens.current.snackbarOffset),
         'left': '20px',
       },
     ),
@@ -1507,7 +1722,7 @@ class Rules {
       '&.sb-top-right',
     ).styles(
       raw: {
-        'top': 'var(${Tokens.current.snackbarOffset}, 10px)',
+        'top': _var(Tokens.current.snackbarOffset),
         'right': '20px',
       },
     ),
@@ -1517,7 +1732,7 @@ class Rules {
       '&.sb-bottom-left',
     ).styles(
       raw: {
-        'bottom': 'var(${Tokens.current.snackbarOffset}, 10px)',
+        'bottom': _var(Tokens.current.snackbarOffset),
         'left': '20px',
       },
     ),
@@ -1527,7 +1742,7 @@ class Rules {
       '&.sb-bottom-right',
     ).styles(
       raw: {
-        'bottom': 'var(${Tokens.current.snackbarOffset}, 10px)',
+        'bottom': _var(Tokens.current.snackbarOffset),
         'right': '20px',
       },
     ),
@@ -1546,7 +1761,7 @@ class Rules {
         'flex-direction': 'column',
         'height': 'auto',
         'gap': '4px',
-        'text-wrap': 'balance',
+        'text-wrap': 'wrap',
       },
     ),
 
@@ -1556,48 +1771,32 @@ class Rules {
     // info banner
     css('&.banner-info').styles(
       raw: {
-        'background-color':
-            'var(${Tokens.current.infoWeakColor}, '
-            '${Tokens.current.infoWeakColor.value})',
-        'border-color':
-            'var(${Tokens.current.infoColor}, '
-            '${Tokens.current.infoColor.value})',
+        'background-color': _var(Tokens.current.infoWeakColor),
+        'border-color': _var(Tokens.current.infoColor),
       },
     ),
 
     // success banner
     css('&.banner-success').styles(
       raw: {
-        'background-color':
-            'var(${Tokens.current.successWeakColor}, '
-            '${Tokens.current.successWeakColor.value})',
-        'border-color':
-            'var(${Tokens.current.successColor}, '
-            '${Tokens.current.successColor.value})',
+        'background-color': _var(Tokens.current.successWeakColor),
+        'border-color': _var(Tokens.current.successColor),
       },
     ),
 
     // warning banner
     css('&.banner-warning').styles(
       raw: {
-        'background-color':
-            'var(${Tokens.current.warningWeakColor}, '
-            '${Tokens.current.warningWeakColor.value})',
-        'border-color':
-            'var(${Tokens.current.warningColor}, '
-            '${Tokens.current.warningColor.value})',
+        'background-color': _var(Tokens.current.warningWeakColor),
+        'border-color': _var(Tokens.current.warningColor),
       },
     ),
 
     // error banner
     css('&.banner-error').styles(
       raw: {
-        'background-color':
-            'var(${Tokens.current.errorWeakColor}, '
-            '${Tokens.current.errorWeakColor.value})',
-        'border-color':
-            'var(${Tokens.current.errorColor}, '
-            '${Tokens.current.errorColor.value})',
+        'background-color': _var(Tokens.current.errorWeakColor),
+        'border-color': _var(Tokens.current.errorColor),
       },
     ),
   ]);
@@ -1646,8 +1845,7 @@ class Rules {
         'transform': 'translateX(-50%)',
         'border-width': '6px 6px 0 6px',
         'border-color':
-            'var(${Tokens.current.tooltipBgColor}, '
-            '${Tokens.current.tooltipBgColor.value})'
+            '${_var(Tokens.current.tooltipBgColor)} '
             'transparent transparent transparent',
       },
     ),
@@ -1671,8 +1869,8 @@ class Rules {
         'transform': 'translateX(-50%)',
         'border-width': '0 6px 6px 6px',
         'border-color':
-            'transparent transparent var(${Tokens.current.tooltipBgColor}, '
-            '${Tokens.current.tooltipBgColor.value}) transparent',
+            'transparent transparent '
+            '${_var(Tokens.current.tooltipBgColor)} transparent',
       },
     ),
 
@@ -1694,8 +1892,7 @@ class Rules {
         'border-width': '6px 0 6px 6px',
         'border-color':
             'transparent transparent transparent '
-            'var(${Tokens.current.tooltipBgColor}, '
-            '${Tokens.current.tooltipBgColor.value})',
+            '${_var(Tokens.current.tooltipBgColor)}',
       },
     ),
 
@@ -1718,8 +1915,7 @@ class Rules {
         'transform': 'translateY(-50%)',
         'border-width': '6px 6px 6px 0',
         'border-color':
-            'transparent var(${Tokens.current.tooltipBgColor}, '
-            '${Tokens.current.tooltipBgColor.value}) '
+            'transparent ${_var(Tokens.current.tooltipBgColor)} '
             'transparent transparent',
       },
     ),
@@ -1899,17 +2095,6 @@ class Rules {
         '.popover-bottom-right:focus-within',
       ).styles(raw: {'transform': 'translateY(8px) scale(1)'}),
     ]),
-
-    // prevent background body scrolling when popover is open
-    // css(
-    //   ':is(:root:has(.naki-popover[aria-expanded="true"]), '
-    //   ':root:has(.naki-popover > '
-    //   '.naki-popover-trigger[canfocus]:focus-within))',
-    //   [
-    //     // ._appbarAdjustment
-    //     css('&').styles(raw: Css.nakiBackgroundLockStyle),
-    //   ],
-    // ),
   ];
 
   /// Dialog rules
@@ -1950,7 +2135,9 @@ class Rules {
       css('&').styles(raw: Css.nakiDialogStyle['backdrop']),
 
       // exit backdrop
-      css('&[data-exiting="true"]').styles(
+      css(
+        '&[data-exiting="true"]',
+      ).styles(
         raw: {'animation': 'nakiDialogFadeOut 0.2s 0.05s linear forwards'},
       ),
 
@@ -1958,7 +2145,9 @@ class Rules {
       css('.naki-dialog-content').styles(raw: Css.nakiDialogStyle['container']),
 
       // exit content
-      css('.naki-dialog-content[data-exiting="true"]').styles(
+      css(
+        '.naki-dialog-content[data-exiting="true"]',
+      ).styles(
         raw: {
           'animation':
               'nakiDialogPopOut 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards',
@@ -1985,7 +2174,6 @@ class Rules {
     // prevent background body scrolling when dialog is open
     css(':root:has(.naki-dialog)', [
       css('&').styles(raw: Css.nakiBackgroundLockStyle),
-      //..._appbarAdjustment,
     ]),
   ];
 
@@ -2033,7 +2221,9 @@ class Rules {
       css('&').styles(raw: Css.nakiDrawerStyle['wrapper']),
 
       // wrapper exit
-      css('&[data-exiting="true"]').styles(
+      css(
+        '&[data-exiting="true"]',
+      ).styles(
         raw: {'animation': 'nakiDrawerFadeOut 0.2s 0.05s linear forwards'},
       ),
 
@@ -2091,12 +2281,7 @@ class Rules {
 
   /// Sidebar rules
   static final nakiSidebarRules = [
-    // main
     css('.naki-sidebar', [
-      // wrapper
-      css('&').styles(raw: Css.nakiSidebarStyle['wrapper']),
-
-      // content
       css('.naki-sidebar-content').styles(raw: Css.nakiSidebarStyle['content']),
     ]),
   ];
@@ -2133,9 +2318,7 @@ class Rules {
       ).styles(raw: Css.nakiBottomSheetStyle['container']),
 
       // content exit
-      css(
-        '.naki-bottomsheet-content[data-exiting="true"]',
-      ).styles(
+      css('.naki-bottomsheet-content[data-exiting="true"]').styles(
         raw: {
           'animation':
               'nakiBottomSheetSlideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
@@ -2149,9 +2332,8 @@ class Rules {
     ]),
 
     // prevent background body scrolling when bottom sheet is open
-    css(':root:has(.naki-bottom-sheet)', [
+    css(':root:has(.naki-bottomsheet)', [
       css('&').styles(raw: Css.nakiBackgroundLockStyle),
-      // ..._appbarAdjustment,
     ]),
   ];
 }

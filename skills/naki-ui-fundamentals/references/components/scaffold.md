@@ -97,6 +97,8 @@ Scaffold(
 
 Use `Drawer` for modal navigation and `Sidebar` for persistent navigation. Descendants can obtain `ScaffoldState` with `Scaffold.maybeOf(context)` and call `openDrawer`, `closeDrawer`, or `toggleDrawer`. Supply page-specific `SEO` when metadata differs from the application root.
 
+The body ends above the bottom navigation bar by default. Set `extendBody: true` to scroll content behind a floating or frosted-glass bar.
+
 ## `BottomNavigationBarType` Enum Variants
 
 | Enum Variant                           | Description                                                                                                                                          |

@@ -20,7 +20,7 @@ class TodoApp extends StatelessComponent {
       themeMode: ThemeMode.system,
       cacheThemeMode: true,
       basePath: base,
-      favicon: 'https://makanakidev.github.io/naki_ui/assets/favicon.png',
+      favicon: 'assets/favicon.png',
       lightTheme: const LightThemeData(
         colorSeed: ColorSeed(
           primary: Color('#2563eb'),
@@ -50,6 +50,7 @@ class TodoApp extends StatelessComponent {
       ),
       pageBuilder: (context, child) {
         return Scaffold(
+          //extendBody: true,
           appBar: AppBar(
             titleText: 'Naki UI',
             actions: [
@@ -70,8 +71,33 @@ class TodoApp extends StatelessComponent {
             ],
           ),
           body: const Content(),
+          // bottomNavigationBar: FragmentScope(
+          //   [
+          //     BreakPointWrapper(
+          //       maxWidth: 600,
+          //       child: BottomNavigationBar(
+          //         type: BottomNavigationBarType.floating,
+          //         items: _navItems,
+          //       ),
+          //     ),
+          //     BreakPointWrapper(
+          //       minWidth: 600,
+          //       child: BottomNavigationBar(
+          //         items: navItems,
+          //       ),
+          //     ),
+          //   ],
+          // ),
         );
       },
     );
   }
 }
+
+const navItems = [
+  BottomNavigationBarItem(icon: MaterialIcons.icon_round_home, label: 'Home'),
+  BottomNavigationBarItem(
+    icon: MaterialIcons.icon_round_settings,
+    label: 'Settings',
+  ),
+];

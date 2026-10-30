@@ -87,7 +87,14 @@ mixin NakiStatefulMixin<T extends StatefulComponent> on State<T> {
       _cleanup = null;
 
       final result = await afterRender(context);
-      if (result is VoidCallback) _cleanup = result;
+      if (result is! VoidCallback) return;
+
+      if (!mounted) {
+        result();
+        return;
+      }
+
+      _cleanup = result;
     });
   }
 
@@ -103,6 +110,7 @@ mixin NakiStatefulMixin<T extends StatefulComponent> on State<T> {
 /// created by `NakiStatelessMixin`.
 mixin _NakiScheduler on BuildableElement {
   VoidCallback? _cleanup;
+  bool _unmounted = false;
 
   @override
   void didMount() {
@@ -118,6 +126,7 @@ mixin _NakiScheduler on BuildableElement {
 
   @override
   void unmount() {
+    _unmounted = true;
     _cleanup?.call();
     _cleanup = null;
     super.unmount();
@@ -128,13 +137,21 @@ mixin _NakiScheduler on BuildableElement {
 
     if (target is NakiStatelessMixin) {
       onComponentRendered(() async {
+        if (_unmounted) return;
+
         _cleanup?.call();
         _cleanup = null;
 
         final nState = target;
         final result = await nState.afterRender(this);
+        if (result is! VoidCallback) return;
 
-        if (result is VoidCallback) _cleanup = result;
+        if (_unmounted) {
+          result();
+          return;
+        }
+
+        _cleanup = result;
       });
     }
   }

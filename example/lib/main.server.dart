@@ -13,8 +13,7 @@ void main() {
 
   runApp(
     // Wrap your application root component with Document and pass the base path for
-    // SEO and sub-path support. If your application base path is '/', wrapping with
-    // Document is not required.
+    // SEO and sub-path support.
     const Document(
       base: basePath,
       lang: null,

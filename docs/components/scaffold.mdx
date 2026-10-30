@@ -159,6 +159,21 @@ BottomNavigationBar(
 )
 ```
 
+### Content behind the bar (`extendBody`)
+
+By default the `Scaffold` body ends above the bottom navigation bar, so nothing is hidden behind a floating or frosted-glass bar. Set `extendBody: true` to let content scroll behind the bar instead, like Flutter's `Scaffold.extendBody`:
+
+```dart
+Scaffold(
+  extendBody: true,
+  body: ListView(children: items), // last item still scrolls clear of the bar
+  bottomNavigationBar: BottomNavigationBar(
+    type: BottomNavigationBarType.frostedGlass,
+    items: navItems,
+  ),
+)
+```
+
 ## `BottomNavigationBarType` Enum Variants
 
 | Enum Variant                           | Description                                                                                                                                          |

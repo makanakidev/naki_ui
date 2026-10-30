@@ -2,7 +2,7 @@ name: naki_ui
 
 description: A library of Material-inspired UI components and design utilities for building responsive web applications with Jaspr.
 
-version: 1.0.4
+version: 1.0.5
 
 license: MIT
 
@@ -33,7 +33,7 @@ dependencies:
 
 executables:
   naki_ui:
-  skills: naki_ui
+  skills: skills
 
 dev_dependencies:
   jaspr_test: ^0.23.5

@@ -1,10 +1,13 @@
 import 'dart:convert';
 import 'dart:math';
+import 'package:jaspr/dom.dart' show link, meta;
 import 'package:jaspr/jaspr.dart' hide Element;
+import 'package:jaspr_router/jaspr_router.dart';
 import 'package:universal_web/js_interop.dart';
 import 'package:universal_web/web.dart';
 
 import '../framework/inherited.dart';
+import '../models/naki.dart' show SEO;
 import '../stub/index.dart';
 
 import 'constants.dart';
@@ -184,7 +187,7 @@ bool showValidationError(
   fieldWrapper.insertAdjacentElement('beforeend', validationElem);
 
   // scroll the field into viewport
-  scrollToView(id: fieldId, highlight: true);
+  scrollToView(id: fieldId, useAncestor: false);
 
   return true;
 }
@@ -236,23 +239,25 @@ String themeSwitchingScript(String currentMode, bool cache) {
 
 /// Updates the root element data attribute with theme mode class.
 void updateRootTheme(String mode) {
-  if (kIsWeb) {
-    void applyTheme() {
-      final root = document.documentElement as HTMLElement;
-      root.setAttribute('data-naki-theme', mode);
-    }
+  if (kIsServer) return;
 
-    try {
-      document.startViewTransition(applyTheme.toJS);
-    } catch (_) {
-      final root = document.documentElement as HTMLElement;
-      root.classList.add('switching-theme');
-      applyTheme();
-      Future.delayed(const Duration(milliseconds: 500), () {
-        root.classList.remove('switching-theme');
-        if (root.classList.length < 1) root.removeAttribute('class');
-      });
-    }
+  void applyTheme() {
+    final root = document.documentElement as HTMLElement;
+    root.setAttribute('data-naki-theme', mode);
+  }
+
+  try {
+    document.startViewTransition(applyTheme.toJS);
+  } catch (_) {
+    final root = document.documentElement as HTMLElement;
+    root.classList.add('switching-theme');
+
+    applyTheme();
+
+    Future.delayed(const Duration(milliseconds: 500), () {
+      root.classList.remove('switching-theme');
+      if (root.classList.length < 1) root.removeAttribute('class');
+    });
   }
 }
 
@@ -260,8 +265,11 @@ void updateRootTheme(String mode) {
 ///
 /// * [id] - The ID of the element to scroll to.
 /// * [offset] - The offset to scroll by (in pixels).
+///   - This could be the height of the target element.
 /// * [animate] - Whether to animate the scroll.
-/// * [highlight] - Whether to vertically center the element in viewport.
+/// * [useAncestor] - Whether to use the nearest scrollable ancestor
+///   to scroll the target element into view.
+/// * [center] - Whether to vertically center the element in viewport.
 ///   - This makes the browser to scroll to the element and
 ///     center it in the viewport.
 /// * [direction] - The direction of scroll.
@@ -269,9 +277,12 @@ void scrollToView({
   required String id,
   double offset = 0,
   bool animate = false,
-  bool highlight = false,
+  bool center = false,
+  bool useAncestor = true,
   ScrollDirection direction = ScrollDirection.vertical,
 }) {
+  if (kIsServer) return;
+
   // SCROLL OPTIONS:
   // behavior:
   //   smooth: Animates the scroll.
@@ -287,35 +298,35 @@ void scrollToView({
   //   end: Aligns the end of the element with the end of the viewport.
   //   nearest: Aligns the element to the nearest edge of the viewport.
 
-  if (kIsWeb) {
-    final elem = document.getElementById(id) as HTMLElement?;
+  final elem = document.getElementById(id) as HTMLElement?;
 
-    if (elem != null) {
-      final scrollableElement = _findScrollableAncestor(elem);
+  if (elem != null) {
+    final scrollableElement = useAncestor
+        ? _findScrollableAncestor(elem)
+        : null;
 
-      if (scrollableElement != null) {
-        // scroll within the scrollable element
-        scrollableElement.scrollTo(
-          ScrollToOptions(
-            top: direction == ScrollDirection.vertical
-                ? (elem.offsetTop - offset).clamp(0, double.infinity)
-                : 0,
-            left: direction == ScrollDirection.horizontal
-                ? (elem.offsetLeft - offset).clamp(0, double.infinity)
-                : 0,
-            behavior: animate ? 'smooth' : 'auto',
-          ),
-        );
-      } else {
-        // fallback to default scroll
-        elem.scrollIntoView(
-          ScrollIntoViewOptions(
-            behavior: animate ? 'smooth' : 'auto',
-            block: highlight ? 'center' : 'nearest',
-            inline: highlight ? 'center' : 'nearest',
-          ),
-        );
-      }
+    if (scrollableElement != null) {
+      // scroll within the scrollable element
+      scrollableElement.scrollTo(
+        ScrollToOptions(
+          top: direction == ScrollDirection.vertical
+              ? (elem.offsetTop - offset).clamp(0, double.infinity)
+              : 0,
+          left: direction == ScrollDirection.horizontal
+              ? (elem.offsetLeft - offset).clamp(0, double.infinity)
+              : 0,
+          behavior: animate ? 'smooth' : 'auto',
+        ),
+      );
+    } else {
+      // fallback to default scroll
+      elem.scrollIntoView(
+        ScrollIntoViewOptions(
+          behavior: animate ? 'smooth' : 'auto',
+          block: center ? 'center' : 'nearest',
+          inline: center ? 'center' : 'nearest',
+        ),
+      );
     }
   }
 }
@@ -389,14 +400,14 @@ void hapticFeedback({
 
 /// File saver in vm and browser environment
 /// - `fileName` must include extension e.g. "file.txt"
-/// - `mimeType` must match the file extension
-void saveAsFile(String content, String fileName, {FileType mimeType = .txt}) {
+/// - `fileType` must match the file extension
+void saveAsFile(String content, String fileName, [FileType fileType = .txt]) {
   if (kIsServer) return;
 
   // convert content to a data URL
   final url = Uri.dataFromString(
     content,
-    mimeType: mimeType.value,
+    mimeType: fileType.value,
     encoding: utf8,
   ).toString();
 
@@ -504,9 +515,168 @@ String normaliseLink(String link, [String? siteUrl]) {
   return cleanedLink;
 }
 
-/// Joins non-empty CSS classes with a single space.
+/// Joins non-empty CSS classes in reverse order.
 String joinClasses(List<String> classes) {
   classes = List.from(classes.reversed);
   classes.removeWhere((c) => c.trim().isEmpty);
   return classes.join(' ');
+}
+
+/// Builds a list of SEO meta and link components for `<head>`.
+///
+/// Constructs canonical URL, description, keywords, robots,
+/// Open Graph preview tags, and X (Twitter) card tags based on [seo].
+List<Component> seoTagBuilder(
+  SEO? seo, {
+  BuildContext? context,
+  String? defaultTitle,
+}) {
+  if (seo == null) return const <Component>[];
+
+  final base = seo.url ?? PlatformData().baseUrl;
+  String? route;
+
+  if (context != null) {
+    final loc = RouteState.maybeOf(context)?.location;
+    if (loc != null && loc.trim().isNotEmpty) {
+      route = loc.trim();
+    } else {
+      final currentUrl = context.binding.currentUrl.trim();
+      if (currentUrl.isNotEmpty) route = currentUrl;
+    }
+  }
+
+  route ??= PlatformData().currentPath.trim();
+  if (route.isEmpty) route = '/';
+
+  // Strip query parameters and hash fragments for the canonical URL
+  final cleanRoute = route.split('?').first.split('#').first;
+  final routeToUse = cleanRoute.isEmpty ? '/' : cleanRoute;
+
+  final pageUrl = normaliseLink(routeToUse, base);
+  final logoUrl = normaliseLink(seo.logo ?? '', base);
+  final pageTitle = seo.title ?? defaultTitle ?? '';
+
+  final smTitle = seo.socialMediaTitle ?? pageTitle;
+  final smDesc = seo.socialMediaDescription ?? seo.description ?? '';
+  final smImg = normaliseLink(seo.socialMediaBanner ?? logoUrl, base);
+
+  final isValidLogo = logoUrl.isNotEmpty && logoUrl.startsWith('http');
+  final isValidSmImg = smImg.isNotEmpty && smImg.startsWith('http');
+  final isValidPageUrl = pageUrl.isNotEmpty && pageUrl.startsWith('http');
+
+  final ogImage = isValidSmImg ? smImg : (isValidLogo ? logoUrl : null);
+
+  return [
+    if (isValidPageUrl) link(href: pageUrl, rel: 'canonical', id: 'cnl'),
+
+    if (seo.description.isNotNullAndEmpty)
+      meta(name: 'description', content: seo.description),
+
+    if (seo.keywords != null && seo.keywords!.isNotEmpty)
+      meta(name: 'keywords', content: seo.keywords!.join(', ')),
+
+    if (seo.robots != null && seo.robots!.isNotEmpty)
+      meta(name: 'robots', content: seo.robots!.join(', ')),
+
+    // Link Preview Tags (Open Graph)
+    if (pageTitle.isNotEmpty) ...[
+      meta(
+        attributes: const {'property': 'og:title'},
+        content: pageTitle,
+        id: 'ogti',
+      ),
+
+      meta(
+        attributes: const {'property': 'og:site_name'},
+        content: pageTitle,
+        id: 'ogn',
+      ),
+    ],
+
+    if (seo.description.isNotNullAndEmpty)
+      meta(
+        attributes: const {'property': 'og:description'},
+        content: seo.description,
+        id: 'ogd',
+      ),
+
+    const meta(
+      attributes: {'property': 'og:type'},
+      content: 'website',
+      id: 'ogty',
+    ),
+
+    if (isValidPageUrl)
+      meta(
+        attributes: const {'property': 'og:url'},
+        content: pageUrl,
+        id: 'ogu',
+      ),
+
+    if (ogImage != null) ...[
+      meta(
+        attributes: const {'property': 'og:image'},
+        content: ogImage,
+        id: 'ogi',
+      ),
+
+      if (pageTitle.isNotEmpty)
+        meta(
+          attributes: const {'property': 'og:image:alt'},
+          content: pageTitle,
+          id: 'ogia',
+        ),
+    ],
+
+    // X(Twitter) Card Preview Tags
+    if (smTitle.isNotEmpty) ...[
+      meta(name: 'twitter:title', content: smTitle),
+
+      if (smDesc.isNotEmpty) meta(name: 'twitter:description', content: smDesc),
+
+      if (isValidSmImg) ...[
+        meta(name: 'twitter:image', content: smImg),
+
+        if (smTitle.isNotEmpty)
+          meta(name: 'twitter:image:alt', content: smTitle),
+
+        const meta(name: 'twitter:card', content: 'summary_large_image'),
+      ],
+    ],
+  ];
+}
+
+/// Returns a visible HTML element that matches the selector.
+///
+/// If `deepSearch` is true, it will return the last visible element.
+/// If `deepSearch` is false, it will return the first visible element.
+HTMLElement? getVisibleElement(String selector, {bool deepSearch = false}) {
+  if (kIsServer) return null;
+
+  final nodes = document.querySelectorAll(selector);
+  if (nodes.length == 0) return null;
+
+  HTMLElement? target;
+
+  for (int i = 0; i < nodes.length; i++) {
+    final e = nodes.item(i) as HTMLElement;
+    final styles = window.getComputedStyle(e);
+
+    // skip if hidden by CSS
+    if (styles.display == 'none' ||
+        styles.visibility == 'hidden' ||
+        styles.opacity == '0') {
+      continue;
+    }
+
+    // skip if not rendered
+    if (e.getClientRects().length == 0) continue;
+
+    target = e;
+
+    if (!deepSearch) break;
+  }
+
+  return target;
 }

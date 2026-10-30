@@ -77,18 +77,16 @@ class TodoHeader extends StatelessComponent {
             decoration: BoxDecoration(
               backgroundColor: context.secondaryColor.withOpacity(0.2),
               borderRadius: BorderRadiusData.all(const Dim.px(3)),
-            ),
-            child: Align(
               alignment: Alignment.centerLeft,
-              child: Container(
-                height: const Dim.percent(100),
-                width: Dim.percent(percentInt),
-                decoration: BoxDecoration(
-                  backgroundColor: context.primaryColor,
-                  borderRadius: BorderRadiusData.all(const Dim.px(3)),
-                ),
-                child: const .empty(),
+            ),
+            child: Container(
+              height: const Dim.percent(100),
+              width: Dim.percent(percentInt),
+              decoration: BoxDecoration(
+                backgroundColor: context.primaryColor,
+                borderRadius: BorderRadiusData.all(const Dim.px(3)),
               ),
+              child: const .empty(),
             ),
           ),
         ],

@@ -37,6 +37,7 @@ class TodoFilterBar extends StatelessComponent {
               color: context.subtitleColor,
               fontSize: const Dim.rem(0.875),
               fontWeight: FontWeight.w500,
+              lineHeight: const Dim.normal(),
             ),
           ),
         ),
@@ -50,9 +51,11 @@ class TodoFilterBar extends StatelessComponent {
               'Toggle scroll physics',
               gradient: Gradient.oceanBreeze,
               margin: const EdgeInsets.only(right: Dim.px(5)),
+              padding: const EdgeInsets.all(Dim.px(10)),
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: Dim.rem(0.9),
+                lineHeight: Dim.normal(),
               ),
               onTap: toggle,
             ),
@@ -63,12 +66,14 @@ class TodoFilterBar extends StatelessComponent {
                   context.primaryColor,
                   key: ValueKey('filter-${filter.name}'),
                   hoverColor: context.primaryColor.withOpacity(0.8),
+                  padding: const EdgeInsets.all(Dim.px(10)),
                   onTap: () => onFilterChanged(filter),
                   child: NakiText(
                     filter.label,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: Dim.rem(0.9),
+                      lineHeight: Dim.normal(),
                     ),
                   ),
                 );
@@ -76,9 +81,11 @@ class TodoFilterBar extends StatelessComponent {
                 return Button.text(
                   filter.label,
                   key: ValueKey('filter-${filter.name}'),
+                  padding: const EdgeInsets.all(Dim.px(10)),
                   style: TextStyle(
                     color: context.subtitleColor,
                     fontSize: const Dim.rem(0.9),
+                    lineHeight: const Dim.normal(),
                   ),
                   onTap: () => onFilterChanged(filter),
                 );

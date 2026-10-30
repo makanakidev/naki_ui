@@ -200,6 +200,7 @@ class GestureRecognizer {
   /// Returns only the active event handlers for non-null callbacks.
   Map<String, void Function(Event)> get toMap {
     final map = <String, void Function(Event)>{};
+
     bool longPressConsumed = false;
     Timer? longPressTimer;
 
@@ -226,7 +227,9 @@ class GestureRecognizer {
         final event = e as PointerEvent;
         onPointerDown?.call(event);
 
+        final target = e.currentTarget as Node?;
         longPressTimer = Timer(longPressDuration, () {
+          if (target != null && !target.isConnected) return;
           longPressConsumed = true;
           onLongPress!.call(event);
         });

@@ -102,7 +102,11 @@ class Visibility extends StatelessComponent {
     final effectiveClasses = joinClasses([?classes, baseClass]);
 
     final Component effectiveChild = !visible && maintainState
-        ? .wrapElement(classes: 'naki-hide', child: child)
+        ? .wrapElement(
+            classes: 'naki-hide',
+            attributes: const {'hidden': ''},
+            child: child,
+          )
         : child;
 
     return .element(
@@ -461,7 +465,9 @@ class RotatedBox extends StatelessComponent {
       tag: 'naki-rotatedbox',
       key: key,
       classes: effectiveClasses,
-      styles: Styles(raw: {'transform': 'rotate(${degrees}deg)'}),
+      styles: Styles(
+        raw: {'display': 'inline-block', 'transform': 'rotate(${degrees}deg)'},
+      ),
       children: [child],
     );
   }

@@ -247,6 +247,33 @@ ExpansionPanelList.radio(
 
 ---
 
+## `FragmentScope`
+
+Group multiple components without introducing an intermediate layout box, avoiding the SSR and hydration complexities of raw fragments:
+
+```dart
+FragmentScope(
+  inherit: false,
+  const [
+    NakiText('Hello'),
+    Container(
+      child: Column(
+        children: [
+          NakiText('About Us'),
+        ],
+      ),
+    ),
+  ],
+)
+```
+
+### `FragmentScope` Properties
+
+- **`children`** (`List<Component>`): Positional list of child components to render inside `<naki-fragment>`.
+- **`inherit`** (`bool`): When `false` _(default)_, uses `display: contents` so children act as direct layout children of the parent container. Set to `true` (`display: inherit`) to inherit the parent container's `display` context instead.
+
+---
+
 ## Sizing & Layout Helpers
 
 - **`SizedBox`**: Fixed dimensions (`width: Dim.px(100)`, `height: Dim.px(40)`).
@@ -255,3 +282,4 @@ ExpansionPanelList.radio(
 - **`Expanded` & `Flexible`**: Flex grow/shrink weighting in `Row` and `Column`.
 - **`Wrap`**: Flowing row/column that wraps across lines when space is constrained.
 - **`SafeArea`**: Inset padding avoiding device notches and status bars.
+- **`FragmentScope`**: Boxless component grouping (`display: contents`) with optional `inherit` display behavior.

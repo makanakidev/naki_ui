@@ -751,6 +751,12 @@ class EdgeInsets {
         top == bottom &&
         right == left) ...{
       'padding': '${top!.cssText} ${right!.cssText}',
+    } else if (top != null &&
+        right != null &&
+        bottom != null &&
+        left != null) ...{
+      'padding':
+          '${top!.cssText} ${right!.cssText} ${bottom!.cssText} ${left!.cssText}',
     } else ...{
       'padding-top': ?top?.cssText,
       'padding-right': ?right?.cssText,
@@ -772,6 +778,12 @@ class EdgeInsets {
         top == bottom &&
         right == left) ...{
       'margin': '${top!.cssText} ${right!.cssText}',
+    } else if (top != null &&
+        right != null &&
+        bottom != null &&
+        left != null) ...{
+      'margin':
+          '${top!.cssText} ${right!.cssText} ${bottom!.cssText} ${left!.cssText}',
     } else ...{
       'margin-top': ?top?.cssText,
       'margin-right': ?right?.cssText,
@@ -864,6 +876,13 @@ class BoxDecoration implements NakiStylable {
   /// The border of the box.
   final BorderData? border;
 
+  /// Whether to clip content that overflows the box.
+  ///
+  /// `null` keeps the component default (content may overflow, as with
+  /// Flutter's `Clip.none`), `true` clips and `false` forces overflow to be
+  /// visible. Use `true` to clip children to a rounded border.
+  final bool? clip;
+
   /// The border radius of the box.
   final BorderRadiusData? borderRadius;
 
@@ -895,6 +914,7 @@ class BoxDecoration implements NakiStylable {
     this.display,
     this.color,
     this.border,
+    this.clip,
     this.borderRadius,
     this.padding,
     this.margin,
@@ -932,6 +952,11 @@ class BoxDecoration implements NakiStylable {
     'background-position': ?imagePosition?.css,
     'color': ?color?.value,
     'opacity': ?opacity?.toCleanString,
+    'overflow': ?switch (clip) {
+      true => 'hidden',
+      false => 'visible',
+      null => null,
+    },
     ...?borderRadius?.props,
     ...?border?.props,
     ...?padding?.pProps,
@@ -941,7 +966,7 @@ class BoxDecoration implements NakiStylable {
     ...?gradient?.props,
     if (alignment != null) ...{
       ...NakiAlignProps.mapAlignment(alignment!),
-      'display': 'inline-flex',
+      'display': 'flex',
     },
   };
 
@@ -961,6 +986,7 @@ class BoxDecoration implements NakiStylable {
           color == other.color &&
           display == other.display &&
           border == other.border &&
+          clip == other.clip &&
           borderRadius == other.borderRadius &&
           padding == other.padding &&
           margin == other.margin &&
@@ -979,6 +1005,7 @@ class BoxDecoration implements NakiStylable {
     color,
     display,
     border,
+    clip,
     borderRadius,
     padding,
     margin,

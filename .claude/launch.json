@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "example",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": ["-c", "cd example && jaspr serve"],
+      "port": 3000
+    }
+  ]
+}

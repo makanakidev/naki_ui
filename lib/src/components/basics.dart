@@ -499,8 +499,8 @@ class Button extends StatefulComponent {
   /// Color applied on the button when hovered.
   final Color? hoverColor;
 
-  /// Color applied on the button when disabled.
-  final Color? disabledColor;
+  /// Color applied on the button background when disabled.
+  final Color? disabledBackgroundColor;
 
   /// Border properties of the button.
   final BorderData? border;
@@ -516,6 +516,12 @@ class Button extends StatefulComponent {
 
   /// Width of the button.
   final Dim? width;
+
+  /// Whether to apply a scaling animation when the button is tapped.
+  ///
+  /// By default, no animation is applied. If `true`, the button will
+  /// scale down to 97% of its size when tapped.
+  final bool animateOnTap;
 
   /// Additional CSS classes applied to the button.
   final String? classes;
@@ -552,6 +558,7 @@ class Button extends StatefulComponent {
     this.resetForm = false,
     this.type = ButtonType.button,
     this.ios = false,
+    this.animateOnTap = false,
     this.backgroundColor,
     this.gradient,
     this.foregroundColor,
@@ -562,7 +569,7 @@ class Button extends StatefulComponent {
     this.height,
     this.width,
     this.hoverColor,
-    this.disabledColor,
+    this.disabledBackgroundColor,
     this.attributes,
     this.id,
   }) : assert(
@@ -591,6 +598,7 @@ class Button extends StatefulComponent {
     this.resetForm = false,
     this.type = ButtonType.button,
     this.ios = false,
+    this.animateOnTap = false,
     this.onTap,
     this.gradient,
     this.foregroundColor,
@@ -601,7 +609,7 @@ class Button extends StatefulComponent {
     this.margin,
     this.height,
     this.width,
-    this.disabledColor,
+    this.disabledBackgroundColor,
     this.attributes,
     this.id,
   }) : backgroundColor = color,
@@ -635,6 +643,7 @@ class Button extends StatefulComponent {
     this.resetForm = false,
     this.type = ButtonType.button,
     this.ios = false,
+    this.animateOnTap = false,
     this.onTap,
     this.gradient,
     this.foregroundColor,
@@ -645,7 +654,7 @@ class Button extends StatefulComponent {
     this.margin,
     this.height,
     this.width,
-    this.disabledColor,
+    this.disabledBackgroundColor,
     this.attributes,
     this.id,
   }) : border = outline,
@@ -675,6 +684,7 @@ class Button extends StatefulComponent {
     this.resetForm = false,
     this.type = ButtonType.button,
     this.ios = false,
+    this.animateOnTap = false,
     this.onTap,
     this.backgroundColor,
     this.gradient,
@@ -686,10 +696,19 @@ class Button extends StatefulComponent {
     this.margin,
     this.height,
     this.width,
-    this.disabledColor,
-    this.attributes,
+    this.disabledBackgroundColor,
+    Map<String, String>? attributes,
+    String? semanticLabel,
     this.id,
-  }) : child = Icon(icon, color: Tokens.current.buttonColor.color, size: size),
+  }) : child = Icon(
+         icon,
+         color: foregroundColor ?? Tokens.current.buttonColor.color,
+         size: size,
+       ),
+       // icon-only buttons need an accessible name
+       attributes = semanticLabel == null
+           ? attributes
+           : {'aria-label': semanticLabel, ...?attributes},
        assert(
          !(validateForm && resetForm),
          'validateForm and resetForm cannot both be true',
@@ -726,6 +745,7 @@ class Button extends StatefulComponent {
     this.resetForm = false,
     this.type = ButtonType.button,
     this.ios = false,
+    this.animateOnTap = false,
     this.onTap,
     this.backgroundColor,
     this.gradient,
@@ -737,7 +757,7 @@ class Button extends StatefulComponent {
     this.margin,
     this.height,
     this.width,
-    this.disabledColor,
+    this.disabledBackgroundColor,
     this.attributes,
     this.id,
   }) : child = Row(
@@ -749,13 +769,13 @@ class Button extends StatefulComponent {
              ? [
                  Icon(
                    icon,
-                   color: Tokens.current.buttonColor.color,
+                   color: foregroundColor ?? Tokens.current.buttonColor.color,
                    size: iconSize,
                  ),
                  NakiText(
                    text,
                    style: TextStyle(
-                     color: Tokens.current.buttonColor.color,
+                     color: foregroundColor ?? Tokens.current.buttonColor.color,
                    ).combineWith(textStyle),
                  ),
                ]
@@ -763,12 +783,12 @@ class Button extends StatefulComponent {
                  NakiText(
                    text,
                    style: TextStyle(
-                     color: Tokens.current.buttonColor.color,
+                     color: foregroundColor ?? Tokens.current.buttonColor.color,
                    ).combineWith(textStyle),
                  ),
                  Icon(
                    icon,
-                   color: Tokens.current.buttonColor.color,
+                   color: foregroundColor ?? Tokens.current.buttonColor.color,
                    size: iconSize,
                  ),
                ],
@@ -798,6 +818,7 @@ class Button extends StatefulComponent {
     this.resetForm = false,
     this.type = ButtonType.button,
     this.ios = false,
+    this.animateOnTap = false,
     this.backgroundColor,
     this.gradient,
     this.foregroundColor,
@@ -808,13 +829,13 @@ class Button extends StatefulComponent {
     this.margin,
     this.height,
     this.width,
-    this.disabledColor,
+    this.disabledBackgroundColor,
     this.attributes,
     this.id,
   }) : child = NakiText(
          text,
          style: TextStyle(
-           color: Tokens.current.buttonColor.color,
+           color: foregroundColor ?? Tokens.current.buttonColor.color,
          ).combineWith(style),
        ),
        assert(
@@ -875,7 +896,8 @@ class _ButtonState extends State<Button> {
       Tokens.current.buttonBackgroundColor.name:
           ?component.backgroundColor?.value,
       Tokens.current.buttonColor.name: ?component.foregroundColor?.value,
-      Tokens.current.disabledBgColor.name: ?component.disabledColor?.value,
+      Tokens.current.disabledBgColor.name:
+          ?component.disabledBackgroundColor?.value,
       Tokens.current.buttonHoverBgColor.name: ?component.hoverColor?.value,
       Tokens.current.buttonHeight.name: ?component.height?.cssText,
       Tokens.current.buttonWidth.name: ?component.width?.cssText,
@@ -900,6 +922,7 @@ class _ButtonState extends State<Button> {
         : component.type;
 
     final canHover = component.hoverColor != null && !component.disabled;
+    final canScale = component.animateOnTap && !component.disabled;
 
     return button(
       key: component.key,
@@ -908,7 +931,11 @@ class _ButtonState extends State<Button> {
       type: effectiveType,
       styles: Styles(raw: effectiveStyles),
       disabled: component.disabled,
-      attributes: {'hvr': ?(canHover ? '' : null), ...?component.attributes},
+      attributes: {
+        'hvr': ?(canHover ? '' : null),
+        'scl': ?(canScale ? '' : null),
+        ...?component.attributes,
+      },
       onClick: shouldHandleClick ? _onClick : null,
       [
         _isLoading
@@ -994,6 +1021,9 @@ class Icon extends StatelessComponent {
   Component build(BuildContext context) {
     const String baseClass = 'naki-icon';
     final effectiveClasses = joinClasses([?classes, baseClass]);
+    final hitBoxMargin = ((42 - size) / -2).toPx;
+
+    final hasLabel = semanticLabel.isNotNullAndEmpty;
 
     final child = SvgIcon(
       icon,
@@ -1001,15 +1031,30 @@ class Icon extends StatelessComponent {
       size: size,
       color: color,
       classes: effectiveClasses,
-      attributes: semanticLabel.isNotNullAndEmpty
-          ? {'aria-label': semanticLabel!}
-          : null,
-      onClick: onTap,
+      attributes: onTap == null && hasLabel
+          ? {'role': 'img', 'aria-label': semanticLabel!}
+          : const {'aria-hidden': 'true'},
     );
 
-    return onTap != null
-        ? span(classes: 'naki-control-hitbox', [child])
-        : child;
+    if (onTap == null) return child;
+
+    return button(
+      type: ButtonType.button,
+      classes: 'naki-control-hitbox',
+      attributes: {'aria-label': ?semanticLabel},
+      styles: Styles(
+        raw: {
+          'margin': '0 $hitBoxMargin',
+          'padding': '0',
+          'border': 'none',
+          'background': 'none',
+          'color': 'inherit',
+          'font': 'inherit',
+        },
+      ),
+      onClick: onTap,
+      [child],
+    );
   }
 
   @css

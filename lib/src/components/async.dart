@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'package:jaspr/jaspr.dart';
 
-import '../utilities/helpers.dart' show onComponentRendered;
-
 /// Signature for [NakiFutureBuilder] and [NakiStreamBuilder] builder functions.
 ///
 /// They are provided with the current [context], the latest [data] from the
@@ -16,6 +14,10 @@ typedef SnapshotBuilder<T> =
       bool hasError,
       bool loading,
     );
+
+/// Signature for the optional error callbacks of [NakiFutureBuilder] and
+/// [NakiStreamBuilder].
+typedef SnapshotErrorCallback = void Function(Object error, StackTrace stack);
 
 /// {@template NakiFutureBuilder}
 /// A Naki component that builds a component tree based on the
@@ -44,12 +46,17 @@ class NakiFutureBuilder<T> extends StatefulComponent {
   /// based on snapshot state.
   final SnapshotBuilder<T> builder;
 
+  /// Called with the error and stack trace when [future]
+  /// completes with an error.
+  final SnapshotErrorCallback? onError;
+
   /// {@macro NakiFutureBuilder}
   const NakiFutureBuilder({
     super.key,
     required this.future,
     required this.builder,
     this.initialData,
+    this.onError,
   });
 
   @override
@@ -80,8 +87,7 @@ class _NakiFutureBuilderState<T> extends State<NakiFutureBuilder<T>> {
     hasData = _snapshotData != null;
     loading = true;
 
-    final generation = ++_generation;
-    onComponentRendered(() => _fetch(generation, _future!));
+    _fetch(++_generation, _future!);
   }
 
   @override
@@ -98,11 +104,14 @@ class _NakiFutureBuilderState<T> extends State<NakiFutureBuilder<T>> {
       hasData = _snapshotData != null;
       loading = true;
 
-      final generation = ++_generation;
-      onComponentRendered(
-        () => _fetch(generation, _future!),
-      );
+      _fetch(++_generation, _future!);
     }
+  }
+
+  @override
+  void dispose() {
+    _generation++;
+    super.dispose();
   }
 
   Future<void> _fetch(
@@ -116,12 +125,14 @@ class _NakiFutureBuilderState<T> extends State<NakiFutureBuilder<T>> {
       _snapshotData = data;
       hasData = _snapshotData != null;
       hasError = false;
-    } catch (_) {
+    } catch (error, stack) {
       if (generation != _generation) return;
 
       _snapshotData = null;
       hasError = true;
       hasData = false;
+
+      component.onError?.call(error, stack);
     } finally {
       if (generation == _generation) setState(() => loading = false);
     }
@@ -165,12 +176,16 @@ class NakiStreamBuilder<T> extends StatefulComponent {
   /// based on snapshot state.
   final SnapshotBuilder<T> builder;
 
+  /// Called with the error and stack trace when [stream] emits an error.
+  final SnapshotErrorCallback? onError;
+
   /// {@macro NakiStreamBuilder}
   const NakiStreamBuilder({
     super.key,
     required this.stream,
     required this.builder,
     this.initialData,
+    this.onError,
   });
 
   @override
@@ -201,7 +216,7 @@ class _NakiStreamBuilderState<T> extends State<NakiStreamBuilder<T>> {
     hasData = _snapshotData != null;
     loading = true;
 
-    onComponentRendered(_startStream);
+    _startStream();
   }
 
   @override
@@ -220,11 +235,19 @@ class _NakiStreamBuilderState<T> extends State<NakiStreamBuilder<T>> {
       hasData = _snapshotData != null;
       loading = true;
 
-      onComponentRendered(_startStream);
+      _startStream();
     }
   }
 
+  /// Subscribes synchronously (client only) so no events are missed and no
+  /// subscription can outlive [dispose] or be created twice.
   void _startStream() {
+    _subscription?.cancel();
+    _subscription = null;
+
+    // streams are not consumed during server rendering
+    if (!kIsWeb) return;
+
     _subscription = _stream?.listen(
       (data) {
         setState(() {
@@ -234,13 +257,14 @@ class _NakiStreamBuilderState<T> extends State<NakiStreamBuilder<T>> {
           loading = false;
         });
       },
-      onError: (_) {
+      onError: (Object error, StackTrace stack) {
         setState(() {
           _snapshotData = null;
           hasError = true;
           hasData = false;
           loading = false;
         });
+        component.onError?.call(error, stack);
       },
       onDone: () {
         setState(() => loading = false);

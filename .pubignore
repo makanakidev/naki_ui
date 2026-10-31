@@ -1,7 +1,5 @@
 # Repository-internal tooling and automation
-/.agents/
-/.codex/
-/.github/
+/.*
 /playground/
 /test/
 

@@ -33,14 +33,12 @@ pubspec_overrides.yaml
 !.env.example
 
 # Internal development tooling
-.agents/
-.codex/
+.*
+/.*
+**/.*
 playground/
-.*.json
 
 # Editors and operating systems
-.idea/
-.vscode/
 *.iml
 .DS_Store
 **/.DS_Store

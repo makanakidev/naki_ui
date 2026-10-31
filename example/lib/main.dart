@@ -77,7 +77,7 @@ class TodoApp extends StatelessComponent {
           //       maxWidth: 600,
           //       child: BottomNavigationBar(
           //         type: BottomNavigationBarType.floating,
-          //         items: _navItems,
+          //         items: navItems,
           //       ),
           //     ),
           //     BreakPointWrapper(

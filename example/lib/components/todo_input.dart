@@ -19,7 +19,7 @@ class _TodoInputState extends State<TodoInput> {
     final trimmed = _currentText.trim();
     if (trimmed.isNotEmpty) {
       component.onAdd(trimmed);
-      _currentText = '';
+      setState(() => _currentText = '');
     }
   }
 
@@ -30,10 +30,14 @@ class _TodoInputState extends State<TodoInput> {
       type: InputType.text,
       expand: true,
       decoration: InputDecoration(
-        border: BorderData(color: context.borderColor.withOpacity(0.3)),
+        border: BorderData(
+          color: context.borderColor.withOpacity(0.3),
+          width: const Dim.px(2),
+        ),
         placeholderText: 'What needs to be done?',
         focusBorderColor: context.primaryColor,
       ),
+      initialValue: _currentText,
       onTyping: (value) => _currentText = value,
       onSubmit: (_) => _submit(),
       trailingIcon: Button.filled(

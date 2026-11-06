@@ -27,145 +27,151 @@ bool _mapEquals<K, V>(Map<K, V>? a, Map<K, V>? b) {
 
 /// Represents CSS dimensions with optional `!important` suffix.
 class Dim {
-  /// The numeric value of the unit.
+  /// Numeric value of the dimension.
   final double? value;
 
-  /// The unit type.
+  /// CSS unit of the dimension.
   final String unit;
 
-  /// Whether the unit has the `!important` declaration.
-  final bool important;
+  /// Whether the dimension has the `!important` declaration.
+  final bool isImportant;
 
   /// Creates a new dimension with optional [unit] and [important] flag.
-  const Dim(this.value, {this.unit = '', this.important = false});
+  ///
+  /// Prefer the [important] getter unless a constant is required.
+  const Dim(this.value, {this.unit = '', bool important = false})
+    : isImportant = important;
 
   /// Default font size (14px).
   static const Dim defaultFontSize = Dim(14, unit: 'px');
 
   /// Max content.
-  const Dim.maxContent([this.important = false])
-    : value = null,
-      unit = 'max-content';
+  static const maxContent = Dim(null, unit: 'max-content');
 
   /// Min content.
-  const Dim.minContent([this.important = false])
-    : value = null,
-      unit = 'min-content';
+  static const minContent = Dim(null, unit: 'min-content');
 
   /// Fit content.
-  const Dim.fitContent([this.important = false])
-    : value = null,
-      unit = 'fit-content';
+  static const fitContent = Dim(null, unit: 'fit-content');
 
   /// Zero.
-  const Dim.zero([this.important = false]) : value = 0, unit = '';
+  static const zero = Dim(0);
 
   /// Inherit.
-  const Dim.inherit([this.important = false]) : value = null, unit = 'inherit';
+  static const inherit = Dim(null, unit: 'inherit');
 
   /// Auto.
-  const Dim.auto([this.important = false]) : value = null, unit = 'auto';
+  static const auto = Dim(null, unit: 'auto');
 
   /// Normal size.
-  const Dim.normal([this.important = false]) : value = null, unit = 'normal';
+  static const normal = Dim(null, unit: 'normal');
 
   /// Variable (e.g. variable name: `--naki-primary-color`).
-  const Dim.variable(
-    String variableName, {
-    this.important = false,
-    String? defaultValue,
-  }) : value = null,
-       unit = defaultValue != null && defaultValue != ''
-           ? 'var($variableName, $defaultValue)'
-           : 'var($variableName)';
+  const Dim.variable(String variableName, {String? defaultValue})
+    : this(
+        null,
+        unit: defaultValue != null && defaultValue != ''
+            ? 'var($variableName, $defaultValue)'
+            : 'var($variableName)',
+      );
 
-  /// Raw expression (e.g. `calc(100% - 48px)`).
-  const Dim.raw(String expression, [this.important = false])
-    : value = null,
-      unit = expression;
+  /// Raw CSS dimension (e.g. `calc(100% - 48px)`).
+  const Dim.raw(String raw) : this(null, unit: raw);
 
-  /// Pixels unit.
-  const Dim.px(this.value, [this.important = false]) : unit = 'px';
+  /// Dimension in Pixels.
+  const Dim.px(double value) : this(value, unit: 'px');
 
-  /// Percentage unit.
-  const Dim.percent(this.value, [this.important = false]) : unit = '%';
+  /// Dimension in Points.
+  const Dim.pt(double value) : this(value, unit: 'pt');
 
-  /// Element-relative size unit.
-  const Dim.em(this.value, [this.important = false]) : unit = 'em';
+  /// Dimension in Percentage.
+  const Dim.percent(double value) : this(value, unit: '%');
 
-  /// Root element-relative size unit.
-  const Dim.rem(this.value, [this.important = false]) : unit = 'rem';
+  /// Dimension relative to the font size of the parent element.
+  const Dim.em(double value) : this(value, unit: 'em');
 
-  /// Viewport width unit.
-  const Dim.vw(this.value, [this.important = false]) : unit = 'vw';
+  /// Dimension relative to the font size of the root element.
+  const Dim.rem(double value) : this(value, unit: 'rem');
 
-  /// Viewport height unit.
-  const Dim.vh(this.value, [this.important = false]) : unit = 'vh';
+  /// Dimension relative to the width of the viewport.
+  const Dim.vw(double value) : this(value, unit: 'vw');
 
-  /// Smallest viewport unit.
-  const Dim.vmin(this.value, [this.important = false]) : unit = 'vmin';
+  /// Dimension relative to the height of the viewport.
+  const Dim.vh(double value) : this(value, unit: 'vh');
 
-  /// Dynamic viewport height unit.
-  const Dim.dvh(this.value, [this.important = false]) : unit = 'dvh';
+  /// Dimension relative to the smallest viewport dimension.
+  const Dim.vmin(double value) : this(value, unit: 'vmin');
 
-  /// Dynamic viewport width unit.
-  const Dim.dvw(this.value, [this.important = false]) : unit = 'dvw';
+  /// Dimension relative to the dynamic viewport height.
+  const Dim.dvh(double value) : this(value, unit: 'dvh');
 
-  /// Small viewport height unit.
-  const Dim.svh(this.value, [this.important = false]) : unit = 'svh';
+  /// Dimension relative to the dynamic viewport width.
+  const Dim.dvw(double value) : this(value, unit: 'dvw');
 
-  /// Small viewport width unit.
-  const Dim.svw(this.value, [this.important = false]) : unit = 'svw';
+  /// Dimension relative to the small viewport height.
+  const Dim.svh(double value) : this(value, unit: 'svh');
 
-  /// Large viewport height unit.
-  const Dim.lvh(this.value, [this.important = false]) : unit = 'lvh';
+  /// Dimension relative to the small viewport width.
+  const Dim.svw(double value) : this(value, unit: 'svw');
 
-  /// Large viewport width unit.
-  const Dim.lvw(this.value, [this.important = false]) : unit = 'lvw';
+  /// Dimension relative to the large viewport height.
+  const Dim.lvh(double value) : this(value, unit: 'lvh');
 
-  /// Maximum viewport unit.
-  const Dim.vmax(this.value, [this.important = false]) : unit = 'vmax';
+  /// Dimension relative to the large viewport width.
+  const Dim.lvw(double value) : this(value, unit: 'lvw');
 
-  /// Degree unit
-  const Dim.deg(this.value, [this.important = false]) : unit = 'deg';
+  /// Dimension relative to the maximum viewport width or height.
+  const Dim.vmax(double value) : this(value, unit: 'vmax');
 
-  /// Radian unit
-  const Dim.rad(this.value, [this.important = false]) : unit = 'rad';
+  /// Dimension in Degrees.
+  const Dim.deg(double value) : this(value, unit: 'deg');
 
-  /// Gradian unit
-  const Dim.grad(this.value, [this.important = false]) : unit = 'grad';
+  /// Dimension in Radians.
+  const Dim.rad(double value) : this(value, unit: 'rad');
+
+  /// Dimension in Gradians.
+  const Dim.grad(double value) : this(value, unit: 'grad');
 
   /// Creates a copy of this dimension with optional changes.
   Dim copyWith({double? value, String? unit, bool? important}) {
     return Dim(
       value ?? this.value,
       unit: unit ?? this.unit,
-      important: important ?? this.important,
+      important: important ?? isImportant,
     );
   }
+
+  /// This dimension with the `!important` declaration.
+  ///
+  /// Example usage:
+  /// ```
+  /// final dim = Dim.px(12).important;
+  /// print(dim.cssText); // Output: '12px !important'
+  /// ```
+  Dim get important => isImportant ? this : copyWith(important: true);
 
   /// Adds another dimension with same unit to this dimension.
   Dim operator +(Dim other) {
     if (value == null || other.value == null || other.unit != unit) return this;
-    return Dim(value! + other.value!, unit: unit, important: important);
+    return Dim(value! + other.value!, unit: unit, important: isImportant);
   }
 
   /// Subtracts another dimension with same unit from this dimension.
   Dim operator -(Dim other) {
     if (value == null || other.value == null || other.unit != unit) return this;
-    return Dim(value! - other.value!, unit: unit, important: important);
+    return Dim(value! - other.value!, unit: unit, important: isImportant);
   }
 
   /// Multiplies this dimension by a factor.
   Dim operator *(num factor) {
     if (value == null) return this;
-    return Dim(value! * factor, unit: unit, important: important);
+    return Dim(value! * factor, unit: unit, important: isImportant);
   }
 
   /// Divides this dimension by a factor.
   Dim operator /(num factor) {
     if (value == null) return this;
-    return Dim(value! / factor, unit: unit, important: important);
+    return Dim(value! / factor, unit: unit, important: isImportant);
   }
 
   /// Returns a CSS-formatted dimension string.
@@ -176,12 +182,12 @@ class Dim {
   ///
   /// Example usage:
   /// ```
-  /// final dim = Dim.px(12.0, true);
+  /// final dim = Dim.px(12.0).important;
   /// print(dim.cssText); // Output: '12px !important'
   /// ```
   String get cssText {
     final formattedValue = value == null ? '' : value!.toCleanString;
-    final suffix = important ? ' !important' : '';
+    final suffix = isImportant ? ' !important' : '';
     return '$formattedValue${unit.trim()}$suffix';
   }
 
@@ -189,7 +195,7 @@ class Dim {
   ///
   /// Example usage:
   /// ```
-  /// final dim = Dim.px(12.0, true);
+  /// final dim = Dim.px(12.0).important;
   /// print('$dim'); // Output: '12px !important'
   /// ```
   @override
@@ -202,10 +208,10 @@ class Dim {
           runtimeType == other.runtimeType &&
           value == other.value &&
           unit == other.unit &&
-          important == other.important;
+          isImportant == other.isImportant;
 
   @override
-  int get hashCode => Object.hashAll([value, unit, important]);
+  int get hashCode => Object.hashAll([value, unit, isImportant]);
 }
 
 /// Border radius attributes of a component.
@@ -240,10 +246,10 @@ class BorderRadiusData implements NakiStylable {
 
   /// Circular border radius.
   static const circular = BorderRadiusData(
-    topLeft: Dim.percent(50),
-    topRight: Dim.percent(50),
-    bottomLeft: Dim.percent(50),
-    bottomRight: Dim.percent(50),
+    topLeft: Dim.px(999),
+    topRight: Dim.px(999),
+    bottomLeft: Dim.px(999),
+    bottomRight: Dim.px(999),
   );
 
   /// iOS-style squircle border radius.
@@ -252,10 +258,10 @@ class BorderRadiusData implements NakiStylable {
 
   /// A radius with all corners set to zero.
   static const zero = BorderRadiusData(
-    topLeft: Dim.zero(),
-    topRight: Dim.zero(),
-    bottomLeft: Dim.zero(),
-    bottomRight: Dim.zero(),
+    topLeft: Dim.zero,
+    topRight: Dim.zero,
+    bottomLeft: Dim.zero,
+    bottomRight: Dim.zero,
   );
 
   /// Alias for [zero].
@@ -428,7 +434,7 @@ class BorderData implements NakiStylable {
          radius: radius,
          color: Color.unset,
          style: BorderStyle.none,
-         width: const Dim.zero(),
+         width: Dim.zero,
          isOnly: true,
        );
 
@@ -436,7 +442,7 @@ class BorderData implements NakiStylable {
   static BorderData get none => const BorderData._(
     color: Color.unset,
     style: BorderStyle.none,
-    width: Dim.zero(),
+    width: Dim.zero,
     radius: BorderRadiusData.none,
     isNone: true,
   );
@@ -736,7 +742,7 @@ class EdgeInsets {
   const EdgeInsets.only({this.top, this.right, this.bottom, this.left});
 
   /// The default zero spacing.
-  static const zero = EdgeInsets.all(Dim.zero());
+  static const zero = EdgeInsets.all(Dim.zero);
 
   /// Converts padding attributes to a CSS style map.
   Map<String, String> get pProps => {
@@ -852,10 +858,10 @@ class EdgeInsets {
 
 /// Box decoration attributes of a component.
 class BoxDecoration implements NakiStylable {
-  /// The background color of the box.
+  /// Color applied to the box background.
   final Color? backgroundColor;
 
-  /// The background image of the box.
+  /// Image applied to the box background.
   final String? backgroundImage;
 
   /// How the background image should be sized to fit the box.
@@ -864,16 +870,16 @@ class BoxDecoration implements NakiStylable {
   /// How the background image should be positioned within the box.
   final ObjectPosition? imagePosition;
 
-  /// The background gradient of the box.
+  /// Gradient painted on the box.
   final Gradient? gradient;
 
-  /// The color of the box content.
-  final Color? color;
+  /// Color applied to the box child.
+  final Color? foregroundColor;
 
-  /// The display mode of the box.
+  /// The CSS display value of the box.
   final Display? display;
 
-  /// The border of the box.
+  /// Border of the box.
   final BorderData? border;
 
   /// Whether to clip content that overflows the box.
@@ -883,25 +889,25 @@ class BoxDecoration implements NakiStylable {
   /// visible. Use `true` to clip children to a rounded border.
   final bool? clip;
 
-  /// The border radius of the box.
+  /// Border radius of the box.
   final BorderRadiusData? borderRadius;
 
-  /// The padding of the box child.
+  /// Padding of the box child.
   final EdgeInsets? padding;
 
-  /// The margin of the box exterior.
+  /// Margin of the box.
   final EdgeInsets? margin;
 
-  /// The alignment of the box child.
+  /// Alignment of the box child.
   final Alignment? alignment;
 
-  /// The position of the box.
+  /// Position of the box.
   final PositionData? position;
 
-  /// The shadow of the box.
+  /// Shadow applied to the box.
   final Shadow? shadow;
 
-  /// The opacity of the box.
+  /// Opacity of the box.
   final double? opacity;
 
   /// Create a new box decoration.
@@ -912,7 +918,7 @@ class BoxDecoration implements NakiStylable {
     this.imagePosition,
     this.gradient,
     this.display,
-    this.color,
+    this.foregroundColor,
     this.border,
     this.clip,
     this.borderRadius,
@@ -950,7 +956,7 @@ class BoxDecoration implements NakiStylable {
     'background-image': ?_normalizedBackgroundImage,
     'background-size': ?_backgroundImageSize,
     'background-position': ?imagePosition?.css,
-    'color': ?color?.value,
+    'color': ?foregroundColor?.value,
     'opacity': ?opacity?.toCleanString,
     'overflow': ?switch (clip) {
       true => 'hidden',
@@ -983,7 +989,7 @@ class BoxDecoration implements NakiStylable {
           imageFit == other.imageFit &&
           imagePosition == other.imagePosition &&
           gradient == other.gradient &&
-          color == other.color &&
+          foregroundColor == other.foregroundColor &&
           display == other.display &&
           border == other.border &&
           clip == other.clip &&
@@ -1002,7 +1008,7 @@ class BoxDecoration implements NakiStylable {
     imageFit,
     imagePosition,
     gradient,
-    color,
+    foregroundColor,
     display,
     border,
     clip,
@@ -1189,35 +1195,35 @@ class PositionData implements NakiStylable {
 
   /// Top center position.
   static const topCenter = PositionData(
-    top: Dim.zero(),
+    top: Dim.zero,
     left: Dim.percent(50),
     extra: {'transform': 'translate(-50%, 0%)'},
   );
 
   /// Top left position.
-  static const topLeft = PositionData(top: Dim.zero(), left: Dim.zero());
+  static const topLeft = PositionData(top: Dim.zero, left: Dim.zero);
 
   /// Top right position.
   static const topRight = PositionData(
-    top: Dim.zero(),
-    right: Dim.zero(),
+    top: Dim.zero,
+    right: Dim.zero,
     extra: {'transform': 'translate(0%, 0%)'},
   );
 
   /// Bottom center position.
   static const bottomCenter = PositionData(
-    bottom: Dim.zero(),
+    bottom: Dim.zero,
     left: Dim.percent(50),
     extra: {'transform': 'translate(-50%, 0%)'},
   );
 
   /// Bottom left position.
-  static const bottomLeft = PositionData(bottom: Dim.zero(), left: Dim.zero());
+  static const bottomLeft = PositionData(bottom: Dim.zero, left: Dim.zero);
 
   /// Bottom right position.
   static const bottomRight = PositionData(
-    bottom: Dim.zero(),
-    right: Dim.zero(),
+    bottom: Dim.zero,
+    right: Dim.zero,
     extra: {'transform': 'translate(0%, 0%)'},
   );
 
@@ -1391,7 +1397,7 @@ class BorderSideData {
 
   /// A border side with no width/border.
   static const BorderSideData none = BorderSideData(
-    width: Dim.zero(),
+    width: Dim.zero,
     style: BorderStyle.none,
   );
 

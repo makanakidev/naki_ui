@@ -72,6 +72,3 @@ const double kBreakpointLarge = 1024.0;
 /// Breakpoint width `1280px` for desktops.
 const double kBreakpointXLarge = 1280.0;
 
-/// Class marking vertical scroll views that pad their content by the
-/// `Scaffold` bottom navigation bar inset (`--naki-bottom-navbar-inset`).
-const kBottomInsetClass = 'naki-bottom-inset';

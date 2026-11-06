@@ -12,6 +12,7 @@ import '../models/naki.dart' show ScrollBarConfiguration;
 import '../models/styling.dart' show Dim;
 import '../styles/rules.dart';
 import '../utilities/enums.dart' show Brightness, ThemeMode;
+import '../utilities/extensions.dart';
 import '../utilities/helpers.dart' show updateRootTheme;
 import '../utilities/storage.dart';
 
@@ -706,13 +707,13 @@ class _DarkModeTokens extends Tokens {
   @override
   String get baseTextColorValue => '#f8fafc';
 
-  /// Button background color (dark: `#1e293b`).
+  /// Button background color (dark: `white`).
   @override
-  String get buttonBackgroundColorValue => '#1e293b';
+  String get buttonBackgroundColorValue => 'white';
 
-  /// Button foreground color (dark: `#f8fafc`).
+  /// Button foreground color (dark: `black`).
   @override
-  String get buttonColorValue => '#f8fafc';
+  String get buttonForegroundColorValue => 'black';
 
   /// Form field background color (dark: `#1e293b`).
   @override
@@ -745,6 +746,18 @@ class _DarkModeTokens extends Tokens {
   @override
   String get bottomNavbarBgColorValue => '#1e293b';
 
+  /// Frosted glass bottom navbar tint (dark: `30%`).
+  @override
+  String get bottomNavbarGlassTintValue => '30%';
+
+  /// Frosted glass bottom navbar rim strength (dark: `40%`).
+  @override
+  String get bottomNavbarGlassRimValue => '40%';
+
+  /// Frosted glass bottom navbar droplet backplate (dark: `50%`).
+  @override
+  String get bottomNavbarGlassDropletValue => '50%';
+
   // Scrolling Component Overrides
 
   /// Table header background color (dark: `transparent`).
@@ -768,6 +781,14 @@ class _DarkModeTokens extends Tokens {
   /// Spinner glass surface color (dark: `#1e293b`).
   @override
   String get spinnerSurfaceColorValue => '#1e293b';
+
+  /// Card and dialog glass rim strength (dark: `40%`).
+  @override
+  String get glassRimValue => '40%';
+
+  /// Spinner glass rim strength (dark: `40%`).
+  @override
+  String get spinnerGlassRimValue => '40%';
 
   // Overlay Component Overrides
 
@@ -1761,6 +1782,9 @@ class ComponentScheme {
   /// Spinner surface color (for glassmorphism spinner style).
   final Color? spinnerSurfaceColor;
 
+  /// Strength of the light rim on a glass spinner `in percent`.
+  final double? spinnerGlassRim;
+
   /// Slider thumb color.
   final Color? sliderThumbColor;
 
@@ -1790,6 +1814,36 @@ class ComponentScheme {
 
   /// Bottom navbar height.
   final Dim? bottomNavbarHeight;
+
+  /// How much of the bottom navbar background color
+  /// a frosted glass bar keeps `in percent`.
+  final double? bottomNavbarGlassTint;
+
+  /// Strength of the light rim on a frosted glass bar
+  /// and its droplet `in percent`.
+  final double? bottomNavbarGlassRim;
+
+  /// How strongly the droplet of a frosted glass bar darkens
+  /// and tints the content behind it `in percent`.
+  final double? bottomNavbarGlassDroplet;
+
+  /// Displacement of a liquid glass bottom navbar `in percent`,
+  /// where `0` leaves the bar frosted.
+  final double? bottomNavbarGlassRefraction;
+
+  /// How much of its background color a glass card or dialog
+  /// keeps `in percent`.
+  final double? glassTint;
+
+  /// Strength of the light rim on a glass card or dialog `in percent`.
+  final double? glassRim;
+
+  /// Backdrop blur of a glass card or dialog.
+  final Dim? glassBlur;
+
+  /// Backdrop blur of a frosted glass bottom navbar,
+  /// for example `Dim.px(20)`.
+  final Dim? bottomNavbarGlassBlur;
 
   /// Carousel item extent.
   final Dim? carouselItemExtent;
@@ -1908,6 +1962,7 @@ class ComponentScheme {
     this.spinnerColor,
     this.spinnerBladeColor,
     this.spinnerSurfaceColor,
+    this.spinnerGlassRim,
     this.sliderThumbColor,
     this.sliderTrackColor,
     this.sliderThumbSize,
@@ -1918,6 +1973,14 @@ class ComponentScheme {
     this.appbarHeight,
     this.bottomNavbarBackgroundColor,
     this.bottomNavbarHeight,
+    this.bottomNavbarGlassTint,
+    this.bottomNavbarGlassRim,
+    this.bottomNavbarGlassDroplet,
+    this.bottomNavbarGlassBlur,
+    this.bottomNavbarGlassRefraction,
+    this.glassTint,
+    this.glassRim,
+    this.glassBlur,
     this.carouselItemExtent,
     this.carouselGap,
     this.tableHeaderBackgroundColor,
@@ -1977,6 +2040,7 @@ class ComponentScheme {
     Color? spinnerColor,
     Color? spinnerBladeColor,
     Color? spinnerSurfaceColor,
+    double? spinnerGlassRim,
     Color? sliderThumbColor,
     Color? sliderTrackColor,
     Dim? sliderThumbSize,
@@ -1987,6 +2051,14 @@ class ComponentScheme {
     Dim? appbarHeight,
     Color? bottomNavbarBackgroundColor,
     Dim? bottomNavbarHeight,
+    double? bottomNavbarGlassTint,
+    double? bottomNavbarGlassRim,
+    double? bottomNavbarGlassDroplet,
+    Dim? bottomNavbarGlassBlur,
+    double? bottomNavbarGlassRefraction,
+    double? glassTint,
+    double? glassRim,
+    Dim? glassBlur,
     Dim? carouselItemExtent,
     Dim? carouselGap,
     Color? tableHeaderBackgroundColor,
@@ -2045,6 +2117,7 @@ class ComponentScheme {
     spinnerColor: spinnerColor ?? this.spinnerColor,
     spinnerBladeColor: spinnerBladeColor ?? this.spinnerBladeColor,
     spinnerSurfaceColor: spinnerSurfaceColor ?? this.spinnerSurfaceColor,
+    spinnerGlassRim: spinnerGlassRim ?? this.spinnerGlassRim,
     sliderThumbColor: sliderThumbColor ?? this.sliderThumbColor,
     sliderTrackColor: sliderTrackColor ?? this.sliderTrackColor,
     sliderThumbSize: sliderThumbSize ?? this.sliderThumbSize,
@@ -2056,6 +2129,16 @@ class ComponentScheme {
     bottomNavbarBackgroundColor:
         bottomNavbarBackgroundColor ?? this.bottomNavbarBackgroundColor,
     bottomNavbarHeight: bottomNavbarHeight ?? this.bottomNavbarHeight,
+    bottomNavbarGlassTint: bottomNavbarGlassTint ?? this.bottomNavbarGlassTint,
+    bottomNavbarGlassRim: bottomNavbarGlassRim ?? this.bottomNavbarGlassRim,
+    bottomNavbarGlassDroplet:
+        bottomNavbarGlassDroplet ?? this.bottomNavbarGlassDroplet,
+    bottomNavbarGlassBlur: bottomNavbarGlassBlur ?? this.bottomNavbarGlassBlur,
+    bottomNavbarGlassRefraction:
+        bottomNavbarGlassRefraction ?? this.bottomNavbarGlassRefraction,
+    glassTint: glassTint ?? this.glassTint,
+    glassRim: glassRim ?? this.glassRim,
+    glassBlur: glassBlur ?? this.glassBlur,
     carouselItemExtent: carouselItemExtent ?? this.carouselItemExtent,
     carouselGap: carouselGap ?? this.carouselGap,
     tableHeaderBackgroundColor:
@@ -2128,6 +2211,7 @@ class ComponentScheme {
         other.spinnerColor == spinnerColor &&
         other.spinnerBladeColor == spinnerBladeColor &&
         other.spinnerSurfaceColor == spinnerSurfaceColor &&
+        other.spinnerGlassRim == spinnerGlassRim &&
         other.sliderThumbColor == sliderThumbColor &&
         other.sliderTrackColor == sliderTrackColor &&
         other.sliderThumbSize == sliderThumbSize &&
@@ -2138,6 +2222,14 @@ class ComponentScheme {
         other.appbarHeight == appbarHeight &&
         other.bottomNavbarBackgroundColor == bottomNavbarBackgroundColor &&
         other.bottomNavbarHeight == bottomNavbarHeight &&
+        other.bottomNavbarGlassTint == bottomNavbarGlassTint &&
+        other.bottomNavbarGlassRim == bottomNavbarGlassRim &&
+        other.bottomNavbarGlassDroplet == bottomNavbarGlassDroplet &&
+        other.bottomNavbarGlassBlur == bottomNavbarGlassBlur &&
+        other.bottomNavbarGlassRefraction == bottomNavbarGlassRefraction &&
+        other.glassTint == glassTint &&
+        other.glassRim == glassRim &&
+        other.glassBlur == glassBlur &&
         other.carouselItemExtent == carouselItemExtent &&
         other.carouselGap == carouselGap &&
         other.tableHeaderBackgroundColor == tableHeaderBackgroundColor &&
@@ -2198,6 +2290,7 @@ class ComponentScheme {
     spinnerColor,
     spinnerBladeColor,
     spinnerSurfaceColor,
+    spinnerGlassRim,
     sliderThumbColor,
     sliderTrackColor,
     sliderThumbSize,
@@ -2208,6 +2301,14 @@ class ComponentScheme {
     appbarHeight,
     bottomNavbarBackgroundColor,
     bottomNavbarHeight,
+    bottomNavbarGlassTint,
+    bottomNavbarGlassRim,
+    bottomNavbarGlassDroplet,
+    bottomNavbarGlassBlur,
+    bottomNavbarGlassRefraction,
+    glassTint,
+    glassRim,
+    glassBlur,
     carouselItemExtent,
     carouselGap,
     tableHeaderBackgroundColor,
@@ -2717,8 +2818,8 @@ class LightThemeData extends _LightModeTokens {
       super.buttonBackgroundColorValue;
 
   @override
-  String get buttonColorValue =>
-      component?.buttonColor?.value ?? super.buttonColorValue;
+  String get buttonForegroundColorValue =>
+      component?.buttonColor?.value ?? super.buttonForegroundColorValue;
 
   @override
   String get buttonHoverBgColorValue =>
@@ -2810,6 +2911,10 @@ class LightThemeData extends _LightModeTokens {
       component?.spinnerSurfaceColor?.value ?? super.spinnerSurfaceColorValue;
 
   @override
+  String get spinnerGlassRimValue =>
+      component?.spinnerGlassRim?.toPct ?? super.spinnerGlassRimValue;
+
+  @override
   String get sliderThumbColorValue =>
       component?.sliderThumbColor?.value ?? super.sliderThumbColorValue;
 
@@ -2865,6 +2970,48 @@ class LightThemeData extends _LightModeTokens {
           name: super.bottomNavbarHeight.name,
         )
       : super.bottomNavbarHeight;
+
+  @override
+  String get bottomNavbarGlassTintValue =>
+      component?.bottomNavbarGlassTint?.toPct ??
+      super.bottomNavbarGlassTintValue;
+
+  @override
+  String get bottomNavbarGlassRimValue =>
+      component?.bottomNavbarGlassRim?.toPct ?? super.bottomNavbarGlassRimValue;
+
+  @override
+  String get bottomNavbarGlassDropletValue =>
+      component?.bottomNavbarGlassDroplet?.toPct ??
+      super.bottomNavbarGlassDropletValue;
+
+  @override
+  Token get bottomNavbarGlassBlur => component?.bottomNavbarGlassBlur != null
+      ? Token(
+          value: component!.bottomNavbarGlassBlur!.cssText,
+          name: super.bottomNavbarGlassBlur.name,
+        )
+      : super.bottomNavbarGlassBlur;
+
+  @override
+  double get bottomNavbarGlassRefractionValue =>
+      component?.bottomNavbarGlassRefraction ??
+      super.bottomNavbarGlassRefractionValue;
+
+  @override
+  String get glassTintValue =>
+      component?.glassTint?.toPct ?? super.glassTintValue;
+
+  @override
+  String get glassRimValue => component?.glassRim?.toPct ?? super.glassRimValue;
+
+  @override
+  Token get glassBlur => component?.glassBlur != null
+      ? Token(
+          value: component!.glassBlur!.cssText,
+          name: super.glassBlur.name,
+        )
+      : super.glassBlur;
 
   @override
   Token get carouselItemExtent => component?.carouselItemExtent != null
@@ -3660,8 +3807,8 @@ class DarkThemeData extends _DarkModeTokens {
       super.buttonBackgroundColorValue;
 
   @override
-  String get buttonColorValue =>
-      component?.buttonColor?.value ?? super.buttonColorValue;
+  String get buttonForegroundColorValue =>
+      component?.buttonColor?.value ?? super.buttonForegroundColorValue;
 
   @override
   String get buttonHoverBgColorValue =>
@@ -3753,6 +3900,10 @@ class DarkThemeData extends _DarkModeTokens {
       component?.spinnerSurfaceColor?.value ?? super.spinnerSurfaceColorValue;
 
   @override
+  String get spinnerGlassRimValue =>
+      component?.spinnerGlassRim?.toPct ?? super.spinnerGlassRimValue;
+
+  @override
   String get sliderThumbColorValue =>
       component?.sliderThumbColor?.value ?? super.sliderThumbColorValue;
 
@@ -3808,6 +3959,48 @@ class DarkThemeData extends _DarkModeTokens {
           name: super.bottomNavbarHeight.name,
         )
       : super.bottomNavbarHeight;
+
+  @override
+  String get bottomNavbarGlassTintValue =>
+      component?.bottomNavbarGlassTint?.toPct ??
+      super.bottomNavbarGlassTintValue;
+
+  @override
+  String get bottomNavbarGlassRimValue =>
+      component?.bottomNavbarGlassRim?.toPct ?? super.bottomNavbarGlassRimValue;
+
+  @override
+  String get bottomNavbarGlassDropletValue =>
+      component?.bottomNavbarGlassDroplet?.toPct ??
+      super.bottomNavbarGlassDropletValue;
+
+  @override
+  Token get bottomNavbarGlassBlur => component?.bottomNavbarGlassBlur != null
+      ? Token(
+          value: component!.bottomNavbarGlassBlur!.cssText,
+          name: super.bottomNavbarGlassBlur.name,
+        )
+      : super.bottomNavbarGlassBlur;
+
+  @override
+  double get bottomNavbarGlassRefractionValue =>
+      component?.bottomNavbarGlassRefraction ??
+      super.bottomNavbarGlassRefractionValue;
+
+  @override
+  String get glassTintValue =>
+      component?.glassTint?.toPct ?? super.glassTintValue;
+
+  @override
+  String get glassRimValue => component?.glassRim?.toPct ?? super.glassRimValue;
+
+  @override
+  Token get glassBlur => component?.glassBlur != null
+      ? Token(
+          value: component!.glassBlur!.cssText,
+          name: super.glassBlur.name,
+        )
+      : super.glassBlur;
 
   @override
   Token get carouselItemExtent => component?.carouselItemExtent != null

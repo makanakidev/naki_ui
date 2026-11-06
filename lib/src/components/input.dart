@@ -37,6 +37,15 @@ import 'selection.dart';
 /// Signature for callbacks that validate form field.
 typedef FieldValidator<T> = String? Function(T value);
 
+bool _listEquals<T>(List<T> a, List<T> b) {
+  if (identical(a, b)) return true;
+  if (a.length != b.length) return false;
+  for (int i = 0; i < a.length; i++) {
+    if (a[i] != b[i]) return false;
+  }
+  return true;
+}
+
 // /////////////////////////////////////////////////////////////////////////////
 // INPUT COMPONENTS
 // /////////////////////////////////////////////////////////////////////////////
@@ -149,8 +158,6 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
 
   /// Function that returns an error message if the text field value is
   /// invalid, or `null` otherwise.
-  ///
-  /// This function is only called when [autoValidate] is `true`.
   final FieldValidator<String>? validator;
 
   /// When `true`, the text field is not editable.
@@ -483,7 +490,6 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
                 ? SpellCheck.isTrue
                 : SpellCheck.isFalse,
             attributes: {
-              ...?attributes,
               'pattern': ?pattern?.value,
               'autocomplete': ?autofill?.value,
               'maxlength': ?maxLength?.toString(),
@@ -491,6 +497,8 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
               'hvr': ?(allowHover && !hasIcon ? '' : null),
               'fcs': ?(allowFocus && !hasIcon ? '' : null),
               'autofocus': ?(autoFocus ? '' : null),
+              'aria-label': ?(labelText.isNotEmpty ? labelText : null),
+              ...?attributes,
             },
             onInput: _handleInput,
             events: effectiveEvents.toMap,
@@ -505,7 +513,6 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
             type: type,
             disabled: disable,
             attributes: {
-              ...?attributes,
               'required': ?(required ? '' : null),
               'placeholder': ?placeholderText,
               'pattern': ?pattern?.value,
@@ -522,6 +529,8 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
               'inputmode': ?(type == InputType.number || type == InputType.tel
                   ? 'numeric'
                   : null),
+              'aria-label': ?(labelText.isNotEmpty ? labelText : null),
+              ...?attributes,
             },
             value: initialValue,
             onInput: _handleInput,
@@ -530,7 +539,8 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
 
     if (expand) {
       inputArea = Expanded(child: inputArea);
-      if (!hasIcon) inputArea = Row(children: [inputArea]);
+      if (!hasIcon)
+        inputArea = Row(mainAxisSize: MainAxisSize.min, children: [inputArea]);
     }
 
     if (hasIcon) {
@@ -916,7 +926,7 @@ class _AutoCompleteFieldState extends State<AutoCompleteField>
             .toList();
 
         setState(() {
-          _activeOptionIndex = filtered.isEmpty ? null : 0;
+          if (filtered.isEmpty) _activeOptionIndex = null;
           _filteredOptions.value = filtered;
         });
       },
@@ -1032,6 +1042,7 @@ class _AutoCompleteFieldState extends State<AutoCompleteField>
                 .map(
                   (entry) => div(
                     id: '${_id}_option_${entry.$1}',
+                    classes: 'naki-autocomplete-option',
                     attributes: {
                       'role': 'option',
                       'aria-selected': (_activeOptionIndex == entry.$1)
@@ -1612,7 +1623,7 @@ class _SegmentedInputState extends State<SegmentedInput>
 }
 
 /// {@template Calendar}
-/// A component that enables selection of date, time, or both
+/// A component that enables selection of date, time, both, or a date range
 /// with built-in validation, customization and styling options.
 ///
 /// ### Example
@@ -1653,6 +1664,19 @@ class Calendar extends StatefulComponent {
   /// initialize both the date and time pickers.
   final DateTime? initialValue;
 
+  /// Initial date range values of the calendar.
+  /// When [type] is [CalendarType.range], [initialRange] will be used to
+  /// initialize the date picker.
+  ///
+  /// Dates can be in any order and their time is ignored. The earliest and
+  /// latest dates set the range, so a `[start, end]` list and the list emitted
+  /// by [onSelectedRange] are both accepted. A single date is a one-day range.
+  final List<DateTime> initialRange;
+
+  /// Text displayed in the header of the date or time picker.
+  /// Overridden by `labelText` if provided in [decoration].
+  final String? title;
+
   /// Minimum allowed date or time values for the calendar.
   final DateTime? minimum;
 
@@ -1660,11 +1684,26 @@ class Calendar extends StatefulComponent {
   final DateTime? maximum;
 
   /// Callback invoked when a date or time is selected.
-  final ValueChanged<DateTime> onSelected;
+  /// This is not called when [type] is [CalendarType.range].
+  final ValueChanged<DateTime>? onSelected;
+
+  /// Callback invoked when a range of date is selected, with every day from
+  /// the start date through the end date in ascending order.
+  final ValueChanged<List<DateTime>>? onSelectedRange;
 
   /// Callback that returns an error message if the selected
   /// date or time is invalid, or `null` otherwise.
+  ///
+  /// **NOTE:** Use [rangeValidator] to validate the whole range when [type]
+  /// is [CalendarType.range].
   final FieldValidator<DateTime?>? validator;
+
+  /// Callback that returns an error message if the selected date range is
+  /// invalid, or `null` otherwise.
+  ///
+  /// This receives every day in the range, or `null` if nothing is selected.
+  /// It runs only when [type] is [CalendarType.range].
+  final FieldValidator<List<DateTime>?>? rangeValidator;
 
   /// Whether the calendar component is read-only (default: `false`).
   ///
@@ -1700,22 +1739,21 @@ class Calendar extends StatefulComponent {
   /// error message, the validation message will be displayed
   /// when a selection occurs or when the form is submitted.
   ///
-  /// Note: [validator] must be provided when [autoValidate] is true.
+  /// Note: [validator] or [rangeValidator] must be provided when
+  /// [autoValidate] is true.
   final bool autoValidate;
 
   /// Calendar background color.
   final Color? backgroundColor;
 
-  /// Width of the calendar [child].
-  /// This will be ignored if [child] is provided.
+  /// Width of the calendar [child]. Ignored when [child] is provided.
   final Dim? width;
 
-  /// Height of the calendar [child].
-  /// This will be ignored if [child] is provided.
+  /// Height of the calendar [child]. Ignored when [child] is provided.
   final Dim? height;
 
   /// Decoration configuration for placeholder, label, helper text,
-  /// error text, and the default calendar [child].
+  /// error text, and the default calendar trigger.
   final InputDecoration? decoration;
 
   /// Additional CSS classes applied to the calendar component.
@@ -1726,15 +1764,19 @@ class Calendar extends StatefulComponent {
     super.key,
     required this.id,
     required this.type,
-    required this.onSelected,
     this.readOnly = false,
     this.disable = false,
     this.autoFocus = false,
     this.required = false,
     this.autoValidate = false,
+    this.initialRange = const [],
+    this.onSelected,
+    this.onSelectedRange,
     this.child,
     this.initialValue,
+    this.title,
     this.validator,
+    this.rangeValidator,
     this.decoration,
     this.classes,
     this.backgroundColor,
@@ -1760,8 +1802,18 @@ class Calendar extends StatefulComponent {
          'initialValue must not be after maximum',
        ),
        assert(
-         !autoValidate || validator != null,
-         'validator is required when autoValidate is true',
+         minimum == null ||
+             !initialRange.any((date) => date.isBeforeDay(minimum)),
+         'initialRange must not be before minimum',
+       ),
+       assert(
+         maximum == null ||
+             !initialRange.any((date) => maximum.isBeforeDay(date)),
+         'initialRange must not be after maximum',
+       ),
+       assert(
+         !autoValidate || validator != null || rangeValidator != null,
+         'validator or rangeValidator is required when autoValidate is true',
        );
 
   @override
@@ -1777,31 +1829,31 @@ class Calendar extends StatefulComponent {
 }
 
 class _CalendarState extends State<Calendar> with NakiStatefulMixin {
-  late DateTime _visibleMonth;
-  late final String _calendarId = nakiDomId(context, 'ncp', id: component.id);
+  late DateTime _visibleDate, _minDate, _maxDate;
 
   final _dialogKey = GlobalNodeKey<HTMLElement>();
+  late final String _calendarId = nakiDomId(context, 'ncp', id: component.id);
 
   bool _pickTime = false;
   bool _pickDate = false;
   bool _showYear = false;
-  bool _requestedOpen = false;
 
-  DateTime? _selectedDate;
+  List<DateTime> _selectedDates = [];
+  List<DateTime> _committedDates = [];
+
   Duration? _selectedTime;
-
-  DateTime? _committedDate;
   Duration? _committedTime;
 
   List<int> _years = [];
+  bool _requestedOpen = false;
+  bool _skipFocusRestore = false;
 
   HTMLElement? _previousFocus;
   StreamSubscription<KeyboardEvent>? _keyboardSubscription;
   StreamSubscription<Event>? _resizeSubscription;
+  String? _triggerText;
 
   static _CalendarState? _openCalendar;
-
-  bool _skipFocusRestore = false;
 
   @override
   void setState(VoidCallback fn) {
@@ -1818,11 +1870,10 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
   void didUpdateComponent(Calendar oldComponent) {
     super.didUpdateComponent(oldComponent);
 
-    if (oldComponent.initialValue != component.initialValue) {
-      _initCalendar();
-    }
-
-    if (oldComponent.minimum != component.minimum ||
+    if (oldComponent.type != component.type ||
+        oldComponent.initialValue != component.initialValue ||
+        !_listEquals(oldComponent.initialRange, component.initialRange) ||
+        oldComponent.minimum != component.minimum ||
         oldComponent.maximum != component.maximum) {
       _initCalendar();
     }
@@ -1868,6 +1919,11 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
             return;
           }
 
+          if (_isRange) {
+            _dismissPicker();
+            return;
+          }
+
           setState(() {
             _pickTime = false;
             _pickDate = false;
@@ -1881,61 +1937,116 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
   void _initCalendar() {
     final now = DateTime.now();
     final type = component.type;
+    final initialDates = _initialDates;
 
     _pickTime = false;
     _pickDate = false;
     _showYear = false;
 
-    _selectedDate = component.initialValue;
-    _visibleMonth = _selectedDate ?? now;
+    _visibleDate = initialDates.firstOrNull ?? now;
+    _selectedDates = initialDates;
 
-    if (type != CalendarType.date) {
+    if (type == CalendarType.time) {
+      _selectedDates = [now];
       _selectedTime = Duration(
-        hours: _selectedDate?.hour ?? now.hour,
-        minutes: _selectedDate?.minute ?? now.minute,
+        hours: _visibleDate.hour,
+        minutes: _visibleDate.minute,
       );
-
-      if (type == CalendarType.time) _selectedDate ??= now;
     }
 
-    final minYear = component.minimum?.year ?? _visibleMonth.year - 100;
-    final maxYear =
-        (component.maximum ?? now.copyWith(year: now.year + 10)).year;
+    if (type == CalendarType.both) {
+      _selectedTime = Duration(
+        hours: _visibleDate.hour,
+        minutes: _visibleDate.minute,
+      );
+    }
 
-    final count = maxYear >= minYear ? (maxYear - minYear + 1) : 0;
+    _minDate =
+        component.minimum ??
+        _visibleDate.subtract(const Duration(days: 100 * 365));
+    _maxDate =
+        component.maximum ??
+        (initialDates.lastOrNull ?? _visibleDate).add(
+          const Duration(days: 10 * 365),
+        );
+
+    final minYear = _minDate.year;
+    final maxYear = _maxDate.year;
+    final count = maxYear >= minYear ? (maxYear - minYear) + 1 : 0;
+
     _years = List.generate(count, (i) => minYear + i);
-
-    _committedDate = _selectedDate;
+    _committedDates = [..._selectedDates];
     _committedTime = _selectedTime;
+
+    _updateTriggerText();
   }
+
+  bool get _isRange => component.type == CalendarType.range;
+
+  /// Whether a range has a start date but no end date yet.
+  ///
+  /// [_selectedDates] holds `[start]` until a range is complete, then
+  /// `[start, end]`, which are the same date for a one-day range.
+  bool get _isRangePending => _isRange && _selectedDates.length == 1;
+
+  /// Whether a complete range spans more than one day.
+  bool get _isMultiDayRange =>
+      _isRange &&
+      _selectedDates.length == 2 &&
+      _selectedDates.first != _selectedDates.last;
+
+  /// Dates the calendar starts with and resets to.
+  List<DateTime> get _initialDates {
+    if (!_isRange) return [?component.initialValue];
+
+    final dates = [for (final date in component.initialRange) _dateOnly(date)]
+      ..sort();
+
+    return dates.isEmpty ? [] : [dates.first, dates.last];
+  }
+
+  /// Every day in the selected range, in ascending order
+  List<DateTime> get _rangeDays =>
+      _selectedDates.first.daysThrough(_selectedDates.last);
 
   /// Whether to validate the input (when autoValidate or required is true)
   bool get _shouldValidate => component.autoValidate || component.required;
 
+  void _updateTriggerText() {
+    if (currentValue != null && component.child == null) {
+      _triggerText = _displayedValue(currentValue!);
+    }
+  }
+
   /// Builds the calendar month component
-  CalendarMonth _buildCalendarMonth(DateTime month) {
-    final first = DateTime(month.year, month.month, 1);
-    final days = DateTime(month.year, month.month + 1, 0).day;
+  CalendarMonth _buildCalendarMonth(DateTime date) {
+    final first = DateTime(date.year, date.month, 1);
+    final days = DateTime(date.year, date.month + 1, 0).day;
 
     final daysInMonth = [
-      // leading nulls to align with first day of week
-      // Monday being the 1st day
+      // leading nulls to align with the first day of the week, Monday
       for (var i = 1; i < first.weekday; i++) null,
 
-      // days of month
+      // days of the month
       for (var day = 1; day <= days; day++)
         CalendarDay(
-          date: DateTime(month.year, month.month, day),
-          isSelected:
-              _selectedDate?.year == month.year &&
-              _selectedDate?.month == month.month &&
-              _selectedDate?.day == day,
-          isToday: DateTime(month.year, month.month, day).isToday,
-          isDisabled: _isOutsideBounds(DateTime(month.year, month.month, day)),
+          date: DateTime(date.year, date.month, day),
+          isSelected: _isSelected(DateTime(date.year, date.month, day)),
+          isToday: DateTime(date.year, date.month, day).isToday,
+          isDisabled: _isOutsideBounds(DateTime(date.year, date.month, day)),
         ),
     ];
 
-    return CalendarMonth(date: month, days: daysInMonth);
+    return CalendarMonth(date: date, days: daysInMonth);
+  }
+
+  bool _isSelected(DateTime date) {
+    if (!_isRange || _selectedDates.length < 2) {
+      return _selectedDates.contains(date);
+    }
+
+    return !date.isBefore(_selectedDates.first) &&
+        !date.isAfter(_selectedDates.last);
   }
 
   DateTime _dateOnly(DateTime value) =>
@@ -1943,11 +2054,8 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
 
   bool _isOutsideBounds(DateTime value) {
     final date = _dateOnly(value);
-    final minimum = component.minimum;
-    final maximum = component.maximum;
-
-    return (minimum != null && date.isBefore(_dateOnly(minimum))) ||
-        (maximum != null && date.isAfter(_dateOnly(maximum)));
+    return date.isBefore(_dateOnly(_minDate)) ||
+        date.isAfter(_dateOnly(_maxDate));
   }
 
   void _togglePicker() {
@@ -1961,10 +2069,11 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
       }
 
       _openCalendar = this;
-
-      // snapshot the committed value so Cancel can restore it
-      _committedDate = _selectedDate;
+      _committedDates = [..._selectedDates];
       _committedTime = _selectedTime;
+    } else if (_isRange) {
+      _dismissPicker();
+      return;
     }
 
     setState(() {
@@ -1980,7 +2089,6 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
 
   void _syncDialogAccessibility(bool open) {
     if (_requestedOpen == open) return;
-
     _requestedOpen = open;
 
     onComponentRendered(() {
@@ -2002,7 +2110,7 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
     _skipFocusRestore = !restoreFocus;
 
     setState(() {
-      _selectedDate = _committedDate;
+      _selectedDates = [..._committedDates];
       _selectedTime = _committedTime;
       _pickDate = false;
       _pickTime = false;
@@ -2062,6 +2170,7 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
     // horizontal placement
     final rect = modal.getBoundingClientRect();
     var shift = 0.0;
+
     if (rect.width > viewportWidth - 2 * margin) {
       shift = margin - rect.left;
     } else if (rect.left < margin) {
@@ -2196,25 +2305,20 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
     _requestedOpen = false;
   }
 
-  @override
-  void dispose() {
-    _deactivateDialog(restoreFocus: false);
-    super.dispose();
-  }
-
   /// Converts [CalendarType] to [InputType]
   InputType get inputType => switch (component.type) {
     CalendarType.date => InputType.date,
     CalendarType.time => InputType.time,
+    CalendarType.range => InputType.date,
     CalendarType.both => InputType.dateTimeLocal,
   };
 
   /// Current value of the calendar picker
   DateTime? get currentValue {
-    if (_selectedDate == null) return null;
-    if (_selectedTime == null) return _selectedDate;
+    if (_selectedDates.isEmpty) return null;
+    if (_selectedTime == null) return _selectedDates.first;
 
-    return _selectedDate!.copyWith(
+    return _selectedDates.first.copyWith(
       hour: _selectedTime!.inHours,
       minute: _selectedTime!.inMinutes % 60,
       second: 0,
@@ -2225,7 +2329,8 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
   String _displayedValue(DateTime value) => switch (component.type) {
     CalendarType.date => value.toDdMmmYyyy,
     CalendarType.time => value.toFullTimeAmPm,
-    CalendarType.both => value.toDateTimeLong,
+    CalendarType.range => value.asRange(_selectedDates.last),
+    CalendarType.both => value.toDateAndTimeWithSlashes,
   };
 
   /// Native HTML value format for the configured calendar type
@@ -2242,6 +2347,7 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
 
     return switch (component.type) {
       CalendarType.date => date,
+      CalendarType.range => date,
       CalendarType.time => time,
       CalendarType.both => '${date}T$time',
     };
@@ -2257,29 +2363,40 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
     final inputElem = document.getElementById(_calendarId) as HTMLInputElement?;
     inputElem?.value = _inputValue(date);
 
-    if (close) _submitAndClose(date);
-  }
+    if (close) {
+      _committedDates = [..._selectedDates];
+      _committedTime = _selectedTime;
 
-  /// Performs validation and invokes onSelected callback
-  void _submitAndClose(DateTime date) {
-    _committedDate = _selectedDate;
-    _committedTime = _selectedTime;
+      _showError();
 
-    _showError(date);
-    component.onSelected.call(date);
+      if (_isRange) {
+        component.onSelectedRange?.call(_rangeDays);
+      } else {
+        component.onSelected?.call(date);
+      }
 
-    _pickDate = false;
-    _pickTime = false;
-    setState(() {});
+      setState(() {
+        _updateTriggerText();
+        _pickDate = false;
+        _pickTime = false;
+      });
+    }
   }
 
   /// Shows custom validation message
-  void _showError([DateTime? date]) {
-    if (kIsWeb && (component.validator != null || component.required)) {
-      final value = date ?? currentValue;
-      final error = component.required && value == null
+  void _showError() {
+    final rangeValidator = _isRange ? component.rangeValidator : null;
+    final baseValidator = !_isRange ? component.validator : null;
+
+    if (kIsWeb &&
+        (baseValidator != null ||
+            rangeValidator != null ||
+            component.required)) {
+      final error = component.required && currentValue == null
           ? 'This field is required'
-          : component.validator?.call(value) ?? '';
+          : rangeValidator?.call(currentValue == null ? null : _rangeDays) ??
+                baseValidator?.call(currentValue) ??
+                '';
 
       // show custom validation message if enabled
       if (_shouldValidate) {
@@ -2288,8 +2405,14 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
 
       // set browser-default validity
       final inputElem =
-          document.getElementById(_calendarId) as HTMLInputElement?;
+          document.querySelector('input[name="${component.id}"]')
+              as HTMLInputElement?;
+      final rangeInputElem =
+          document.querySelector('input[name="${component.id}_end"]')
+              as HTMLInputElement?;
+
       inputElem?.setCustomValidity(error);
+      rangeInputElem?.setCustomValidity(error);
     }
   }
 
@@ -2305,29 +2428,54 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
   void _toggleMonth([bool next = false]) {
     if (_years.isEmpty) return;
 
-    final currentMonth = _visibleMonth.month;
-    final currentYear = _visibleMonth.year;
+    final currentMonth = _visibleDate.month;
+    final currentYear = _visibleDate.year;
 
     if (next) {
-      // Move to next month, respecting max year boundary
-      if (currentYear == _years.last && currentMonth == 12) return;
+      // Move to next month, respecting max date boundary
+      if (currentYear == _maxDate.year && currentMonth == _maxDate.month) {
+        return;
+      }
       setState(() {
-        _visibleMonth = DateTime(currentYear, currentMonth + 1, 1);
+        _visibleDate = DateTime(currentYear, currentMonth + 1);
       });
     } else {
-      // Move to previous month, respecting min year boundary
-      if (currentYear == _years.first && currentMonth == 1) return;
+      // Move to previous month, respecting min date boundary
+      if (currentYear == _minDate.year && currentMonth == _minDate.month) {
+        return;
+      }
       setState(() {
-        _visibleMonth = DateTime(currentYear, currentMonth - 1, 1);
+        _visibleDate = DateTime(currentYear, currentMonth - 1);
       });
     }
   }
 
   /// Resets to current month view, based on selected value
   void _jumpToMonth(DateTime date) => setState(() {
-    _visibleMonth = date.copyWith(day: 1);
+    _visibleDate = DateTime(date.year, date.month, 1);
     _showYear = false;
   });
+
+  /// Adds or removes date from the selected dates
+  void _updateSelection(DateTime date) {
+    if (component.readOnly || component.disable) return;
+
+    final extendsRange =
+        _isRangePending && !date.isBefore(_selectedDates.first);
+
+    setState(() {
+      _selectedDates = extendsRange ? [_selectedDates.first, date] : [date];
+    });
+  }
+
+  /// Resets selected dates to initial value
+  void _resetSelection() => _selectedDates = _initialDates;
+
+  @override
+  void dispose() {
+    _deactivateDialog(restoreFocus: false);
+    super.dispose();
+  }
 
   @override
   Component build(BuildContext context) {
@@ -2337,10 +2485,10 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
     final labelText = decoration?.labelText ?? '';
     final placeholderText = decoration?.placeholderText ?? '';
     final helperText = decoration?.helperText ?? '';
+    final titleText = decoration?.labelText ?? component.title ?? '';
 
     final hoverColor = decoration?.hoverBorderColor;
     final focusColor = decoration?.focusBorderColor;
-    final placeholderColor = decoration?.placeholderColor;
 
     final errorStyle = decoration?.errorStyle;
     final helperStyle = decoration?.helperStyle;
@@ -2353,18 +2501,24 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
 
     final effectiveClasses = joinClasses([?component.classes, 'naki-calendar']);
 
-    final content = currentValue != null
-        ? _displayedValue(currentValue!)
-        : placeholderText.isNotNullAndEmpty
-        ? placeholderText
-        : 'Select date or time';
+    final currentMonth = _visibleDate.month;
+    final currentYear = _visibleDate.year;
 
-    final currentMonth = _visibleMonth.month;
-    final currentYear = _visibleMonth.year;
-
-    final showDatePickerOnly = component.type == CalendarType.date;
-    final showBoth = component.type == CalendarType.both;
+    final showDatePickerOnly = inputType == InputType.date;
+    final showBoth = inputType == InputType.dateTimeLocal;
     final pickerOpen = _pickDate || _pickTime;
+
+    final triggerContent = _triggerText != null
+        ? _triggerText!
+        : placeholderText.isNotEmpty
+        ? placeholderText
+        : _isRange
+        ? 'Select date range'
+        : showBoth
+        ? 'Select date and time'
+        : showDatePickerOnly
+        ? 'Select date'
+        : 'Select time';
 
     _syncDialogAccessibility(pickerOpen);
 
@@ -2375,14 +2529,16 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
       });
     }
 
-    final daysInMonth = _buildCalendarMonth(_visibleMonth).days;
+    final daysInMonth = _buildCalendarMonth(_visibleDate).days;
+
     final triggerIcon = showDatePickerOnly || showBoth
         ? LucideIcons.icon_calendar
         : LucideIcons.icon_clock;
 
+    final defaultPickerName = _isRange ? 'date range' : 'date and time';
     final triggerLabel = labelText.isNotEmpty
         ? '${pickerOpen ? 'Close' : 'Open'} $labelText picker'
-        : '${pickerOpen ? 'Close' : 'Open'} date and time picker';
+        : '${pickerOpen ? 'Close' : 'Open'} $defaultPickerName picker';
 
     final triggerAttributes = {
       'aria-haspopup': 'dialog',
@@ -2395,7 +2551,7 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
         ? Button.iconText(
             id: '${_calendarId}_default_trigger',
             classes: 'default_trigger',
-            text: content,
+            text: triggerContent,
             icon: triggerIcon,
             iconSize: 16,
             spacing: 20,
@@ -2407,16 +2563,16 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
             padding: decoration?.padding,
             textStyle: decoration?.inputStyle,
             backgroundColor: context.fieldBackgroundColor,
-            hoverColor: context.fieldBackgroundColor,
+            foregroundColor: context.inputTextColor,
             disabled: component.disable,
             attributes: triggerAttributes,
             onTap: _togglePicker,
           )
-        : GestureDetector(
-            semanticLabel: triggerLabel,
+        : div(
             attributes: triggerAttributes,
-            gestures: Gestures(onClick: (_) => _togglePicker()),
-            child: component.child!,
+            styles: const Styles(raw: {'cursor': 'pointer'}),
+            events: events(onClick: _togglePicker),
+            [component.child!],
           );
 
     return .element(
@@ -2430,7 +2586,6 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
           Tokens.current.fontSizeError.name: ?errorStyle?.fontSize?.cssText,
           Tokens.current.fontSizeHint.name: ?helperStyle?.fontSize?.cssText,
           Tokens.current.mutedColor.name: ?helperStyle?.color?.value,
-          Tokens.current.placeholderColor.name: ?placeholderColor?.value,
           Tokens.current.fieldHoverColor.name: ?hoverColor?.value,
           Tokens.current.focusBorderColor.name: ?focusColor?.value,
           Tokens.current.dropdownMenuBgColor.name: ?backgroundColor?.value,
@@ -2442,355 +2597,427 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
         if (labelText.isNotEmpty)
           Label(labelText, fieldId: _calendarId, style: labelStyle),
 
-        // Wrapper
-        span(classes: effectiveClasses, [
-          // Input for form validation (hidden)
-          input(
-            id: _calendarId,
-            name: component.id,
-            type: inputType,
-            value: currentValue != null ? _inputValue(currentValue!) : null,
-            attributes: {
-              'required': ?(component.required ? '' : null),
-              'tabindex': '-1',
-              'aria-hidden': 'true',
-            },
-            events: InputEvents(onInvalid: _invalid).toMap,
-          ),
-
-          // Trigger (opens/closes modal)
-          .wrapElement(
-            child: effectiveChild,
-            classes: 'naki-calendar-trigger',
-            attributes: {
-              'novalue': ?(currentValue == null ? '' : null),
-              'selected': ?(currentValue != null ? '' : null),
-              'disabled': ?(component.disable ? '' : null),
-              'hvr': ?(allowHover ? '' : null),
-              'fcs': ?(allowFocus ? '' : null),
-            },
-          ),
-
-          // Modal
-          if (pickerOpen)
-            span(
-              key: _dialogKey,
-              id: '${_calendarId}_dialog',
-              classes: 'naki-calendar-modal',
+        // Main
+        span(
+          classes: effectiveClasses,
+          attributes: {'data-type': component.type.name},
+          [
+            // Input for form validation (hidden)
+            input(
+              name: component.id,
+              type: inputType,
+              value: currentValue != null ? _inputValue(currentValue!) : null,
               attributes: {
-                'role': 'dialog',
-                'aria-modal': 'true',
-                'aria-label': labelText.isNotEmpty
-                    ? '$labelText picker'
-                    : 'Date and time picker',
+                'required': ?(component.required ? '' : null),
                 'tabindex': '-1',
+                'aria-hidden': 'true',
               },
-              [
-                // Date picker
-                if (_pickDate)
-                  Column(
-                    classes: 'naki-date-picker',
-                    spacing: 10,
-                    children: [
-                      // header
-                      Row(
-                        classes: 'naki-calendar-header',
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        mainAxisSize: MainAxisSize.max,
-                        spacing: 5,
+              events: InputEvents(onInvalid: _invalid).toMap,
+            ),
+
+            // Range end date for form submission (hidden)
+            if (_isRange)
+              input(
+                name: '${component.id}_end',
+                type: inputType,
+                value: currentValue != null
+                    ? _inputValue(_selectedDates.last)
+                    : null,
+                attributes: {
+                  'tabindex': '-1',
+                  'aria-hidden': 'true',
+                  'required': ?(component.required ? '' : null),
+                },
+                events: InputEvents(onInvalid: _invalid).toMap,
+              ),
+
+            // Trigger (opens/closes modal)
+            .wrapElement(
+              classes: 'naki-calendar-trigger',
+              attributes: {
+                'novalue': ?(currentValue == null ? '' : null),
+                'selected': ?(currentValue != null ? '' : null),
+                'disabled': ?(component.disable ? '' : null),
+                'hvr': ?(allowHover ? '' : null),
+                'fcs': ?(allowFocus ? '' : null),
+              },
+              child: effectiveChild,
+            ),
+
+            // Modal
+            if (pickerOpen)
+              ScrollBarWrapper(
+                selector: '#${_calendarId}_dialog',
+                configuration: ScrollBarConfiguration(
+                  thumbColor: context.primaryColor.withOpacity(0.4),
+                  trackColor: Colors.transparent,
+                  radius: 4,
+                  width: 2,
+                ),
+                child: span(
+                  key: _dialogKey,
+                  id: '${_calendarId}_dialog',
+                  classes: 'naki-calendar-modal',
+                  attributes: {
+                    'role': 'dialog',
+                    'aria-modal': 'true',
+                    'aria-label': labelText.isNotEmpty
+                        ? '$labelText picker'
+                        : _isRange
+                        ? 'Date range picker'
+                        : 'Date and time picker',
+                    'tabindex': '-1',
+                  },
+                  [
+                    // Date picker
+                    if (_pickDate)
+                      Column(
+                        classes: 'naki-date-picker',
+                        spacing: 12,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          // goto previous month
-                          Button.icon(
-                            MaterialSymbols.round_chevron_left,
-                            semanticLabel: 'Previous month',
-                            classes: 'naki-calendar-header-action',
-                            disabled:
-                                currentYear == _years.first &&
-                                currentMonth == 1,
-                            height: const Dim.px(40),
-                            width: const Dim.px(40),
-                            backgroundColor: Colors.transparent,
-                            foregroundColor: context.textColor,
-                            onTap: () => _toggleMonth(),
-                          ),
-
-                          // visible month and year
-                          Popover(
-                            visible: _showYear,
-                            child: Button.iconText(
-                              icon: MaterialIcons.icon_round_arrow_drop_down,
-                              text: _visibleMonth.toMonthYear,
-                              classes: 'naki-calendar-header-title',
-                              height: const Dim.px(44),
-                              iconSize: 28,
-                              foregroundColor: context.placeholderColor,
-                              backgroundColor: Colors.transparent,
-                              hoverColor: Colors.transparent,
-                              attributes: {
-                                'showyear': ?(_showYear ? '' : null),
-                              },
-                              onTap: () =>
-                                  setState(() => _showYear = !_showYear),
-                            ),
-                            content: _showYear
-                                ? _yearMonthPopover()
-                                : const .empty(),
-                            onClose: () {
-                              final dropdownMenu =
-                                  calendarNode?.querySelector(
-                                        'naki-dropdown[open]',
-                                      )
-                                      as HTMLElement? ??
-                                  document.querySelector('naki-dropdown[open]')
-                                      as HTMLElement?;
-                              if (dropdownMenu != null) return;
-                              setState(() => _showYear = false);
-                            },
-                            position: PopoverPosition.bottom,
-                          ),
-
-                          // goto next month
-                          Button.icon(
-                            MaterialSymbols.round_chevron_right,
-                            semanticLabel: 'Next month',
-                            classes: 'naki-calendar-header-action',
-                            disabled:
-                                currentYear == _years.last &&
-                                currentMonth == 12,
-                            height: const Dim.px(40),
-                            width: const Dim.px(40),
-                            backgroundColor: Colors.transparent,
-                            foregroundColor: context.textColor,
-                            onTap: () => _toggleMonth(true),
-                          ),
-                        ],
-                      ),
-
-                      // days
-                      Table(
-                        classes: 'naki-calendar-table',
-                        headers: [
-                          for (final day in kDays)
-                            NakiText(
-                              day,
-                              classes: 'naki-calendar-table-header',
-                              style: TextStyle(color: context.placeholderColor),
-                            ),
-                        ],
-                        rows: _buildCalendarRows(
-                          daysInMonth: daysInMonth,
-                          showBoth: showBoth,
-                        ),
-                      ),
-
-                      // footer buttons
-                      Row(
-                        classes: 'naki-calendar-footer',
-                        spacing: 10,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          showBoth
-                              ? Button.text(
-                                  _timePreview(),
-                                  classes: 'naki-calendar-action',
-                                  foregroundColor: context.textColor,
-                                  backgroundColor: Colors.transparent,
-                                  border: BorderData(
-                                    color: context.primaryColor,
-                                    radius: BorderRadiusData.all(
-                                      const Dim.px(8),
-                                    ),
-                                  ),
-                                  onTap: () {
-                                    setState(() {
-                                      _pickTime = true;
-                                      _pickDate = false;
-                                      _selectedDate ??= _visibleMonth;
-                                    });
-                                  },
-                                )
-                              : Button.text(
-                                  'Reset',
-                                  classes: 'naki-calendar-action',
-                                  backgroundColor: Colors.transparent,
-                                  foregroundColor: context.subtitleColor,
-                                  onTap: () {
-                                    if (component.disable ||
-                                        component.readOnly) {
-                                      return;
-                                    }
-
-                                    _selectedDate = component.initialValue;
-                                    _visibleMonth =
-                                        _selectedDate ?? DateTime.now();
-
-                                    if (_selectedDate != null && showBoth) {
-                                      _selectedTime = Duration(
-                                        hours: _selectedDate!.hour,
-                                        minutes: _selectedDate!.minute,
-                                      );
-                                    }
-
-                                    setState(() {});
-                                    _updateValue();
-                                  },
-                                ),
-
+                          // title
                           Row(
+                            spacing: 10,
                             children: [
-                              // cancel date picker
-                              Button.text(
-                                'Cancel',
-                                classes: 'naki-calendar-action',
-                                backgroundColor: Colors.transparent,
-                                foregroundColor: context.textColor,
-                                onTap: () {
-                                  _selectedDate = _committedDate;
-                                  _selectedTime = _committedTime;
-
-                                  _visibleMonth =
-                                      _selectedDate ?? DateTime.now();
-
-                                  _pickDate = false;
-                                  _pickTime = false;
-
-                                  setState(() {});
-                                },
+                              Expanded(
+                                child: NakiText(
+                                  titleText.isNotEmpty
+                                      ? titleText
+                                      : _isRange
+                                      ? 'Select date range'
+                                      : 'Select date',
+                                  classes: 'naki-calendar-title',
+                                  style: const TextStyle(truncate: true),
+                                ),
                               ),
 
-                              // submit date
-                              Button.text(
-                                'Ok',
-                                classes: 'naki-calendar-action',
-                                disabled: _selectedDate == null,
-                                backgroundColor: Colors.transparent,
-                                disabledBackgroundColor: Colors.transparent,
-                                foregroundColor: context.primaryColor,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
+                              if (currentValue != null)
+                                NakiText(
+                                  _displayedValue(currentValue!),
+                                  classes: 'naki-calendar-picker-preview',
+                                  style: _isRange
+                                      ? null
+                                      : const TextStyle(fontSize: Dim.px(14)),
                                 ),
-                                onTap: () => _updateValue(close: true),
+                            ],
+                          ),
+
+                          // header
+                          Row(
+                            classes: 'naki-calendar-header',
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            spacing: 5,
+                            children: [
+                              // goto previous month
+                              Button.icon(
+                                MaterialSymbols.round_chevron_left,
+                                semanticLabel: 'Previous month',
+                                classes: 'naki-calendar-header-action',
+                                disabled:
+                                    currentYear == _minDate.year &&
+                                    currentMonth == _minDate.month,
+                                height: const Dim.px(40),
+                                width: const Dim.px(40),
+                                backgroundColor: Colors.transparent,
+                                foregroundColor: context.textColor,
+                                disabledBackgroundColor: Colors.transparent,
+                                onTap: () => _toggleMonth(),
+                              ),
+
+                              // visible month and year
+                              Popover(
+                                visible: _showYear,
+                                child: Button.iconText(
+                                  icon:
+                                      MaterialIcons.icon_round_arrow_drop_down,
+                                  text: _visibleDate.toMonthYear,
+                                  classes: 'naki-calendar-header-title',
+                                  height: const Dim.px(40),
+                                  iconSize: 28,
+                                  foregroundColor: context.placeholderColor,
+                                  backgroundColor: Colors.transparent,
+                                  hoverColor: Colors.transparent,
+                                  attributes: {
+                                    'showyear': ?(_showYear ? '' : null),
+                                  },
+                                  onTap: () =>
+                                      setState(() => _showYear = !_showYear),
+                                ),
+                                content: _showYear
+                                    ? _yearMonthPopover()
+                                    : const .empty(),
+                                onClose: () {
+                                  final dropdownMenu =
+                                      calendarNode?.querySelector(
+                                            'naki-dropdown[open]',
+                                          )
+                                          as HTMLElement? ??
+                                      document.querySelector(
+                                            'naki-dropdown[open]',
+                                          )
+                                          as HTMLElement?;
+                                  if (dropdownMenu != null) return;
+                                  setState(() => _showYear = false);
+                                },
+                                position: PopoverPosition.bottom,
+                              ),
+
+                              // goto next month
+                              Button.icon(
+                                MaterialSymbols.round_chevron_right,
+                                semanticLabel: 'Next month',
+                                classes: 'naki-calendar-header-action',
+                                disabled:
+                                    currentYear == _maxDate.year &&
+                                    currentMonth == _maxDate.month,
+                                height: const Dim.px(40),
+                                width: const Dim.px(40),
+                                backgroundColor: Colors.transparent,
+                                foregroundColor: context.textColor,
+                                disabledBackgroundColor: Colors.transparent,
+                                onTap: () => _toggleMonth(true),
+                              ),
+                            ],
+                          ),
+
+                          // days in the month
+                          Table(
+                            classes: 'naki-calendar-table',
+                            headers: [
+                              for (final day in kDays)
+                                NakiText(
+                                  day,
+                                  classes: 'naki-calendar-table-header',
+                                  style: TextStyle(
+                                    color: context.placeholderColor,
+                                  ),
+                                ),
+                            ],
+                            rows: _buildCalendarRows(
+                              daysInMonth: daysInMonth,
+                              showBoth: showBoth,
+                            ),
+                          ),
+
+                          // footer buttons
+                          Row(
+                            classes: 'naki-calendar-footer',
+                            spacing: 10,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              showBoth
+                                  ? Button.text(
+                                      _timePreview(),
+                                      classes: 'naki-calendar-action',
+                                      foregroundColor: context.textColor,
+                                      backgroundColor: Colors.transparent,
+                                      border: BorderData(
+                                        color: context.primaryColor,
+                                        radius: BorderRadiusData.all(
+                                          const Dim.px(8),
+                                        ),
+                                      ),
+                                      onTap: () {
+                                        setState(() {
+                                          _pickTime = true;
+                                          _pickDate = false;
+                                          if (_selectedDates.isEmpty)
+                                            _selectedDates = [_visibleDate];
+                                        });
+                                      },
+                                    )
+                                  : Button.text(
+                                      'Reset',
+                                      classes: 'naki-calendar-action',
+                                      backgroundColor: Colors.transparent,
+                                      foregroundColor: context.subtitleColor,
+                                      onTap: () {
+                                        if (component.disable ||
+                                            component.readOnly) {
+                                          return;
+                                        }
+
+                                        _resetSelection();
+
+                                        _visibleDate =
+                                            currentValue ?? DateTime.now();
+
+                                        if (currentValue != null && showBoth) {
+                                          _selectedTime = Duration(
+                                            hours: currentValue!.hour,
+                                            minutes: currentValue!.minute,
+                                          );
+                                        }
+
+                                        setState(() {});
+                                        _updateValue();
+                                      },
+                                    ),
+
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  // cancel date picker
+                                  Button.text(
+                                    'Cancel',
+                                    classes: 'naki-calendar-action',
+                                    backgroundColor: Colors.transparent,
+                                    foregroundColor: context.textColor,
+                                    onTap: () {
+                                      setState(() {
+                                        _selectedDates = [..._committedDates];
+                                        _selectedTime = _committedTime;
+                                        _visibleDate =
+                                            currentValue ?? DateTime.now();
+                                        _pickDate = false;
+                                        _pickTime = false;
+                                      });
+                                    },
+                                  ),
+
+                                  // submit date
+                                  Button.text(
+                                    'Ok',
+                                    classes: 'naki-calendar-action',
+                                    disabled:
+                                        _selectedDates.isEmpty ||
+                                        _isRangePending,
+                                    backgroundColor: Colors.transparent,
+                                    disabledBackgroundColor: Colors.transparent,
+                                    foregroundColor: context.primaryColor,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    onTap: () => _updateValue(close: true),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
                         ],
                       ),
-                    ],
-                  ),
 
-                // Time picker
-                if (_pickTime)
-                  Column(
-                    classes: 'naki-time-picker',
-                    spacing: 10,
-                    children: [
-                      // header
-                      Row(
-                        classes: 'naki-time-picker-header',
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        mainAxisSize: MainAxisSize.max,
+                    // Time picker
+                    if (_pickTime)
+                      Column(
+                        classes: 'naki-time-picker',
                         spacing: 12,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          NakiText(
-                            labelText.isNotEmpty ? labelText : 'Select time',
-                            classes: 'naki-time-picker-title',
-                          ),
-
-                          if (!showBoth)
-                            span(
-                              classes: 'naki-time-picker-preview',
-                              attributes: const {'aria-live': 'polite'},
-                              [.text(_timePreview())],
-                            ),
-                        ],
-                      ),
-
-                      // steppers
-                      Row(
-                        spacing: 6,
-                        classes: 'naki-time-picker-steppers',
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _buildTimeStepper(id: _calendarId, hour: true),
-                          const NakiText(':', classes: 'naki-time-separator'),
-                          _buildTimeStepper(id: _calendarId, hour: false),
-                        ],
-                      ),
-
-                      // footer actions
-                      Row(
-                        classes: 'naki-calendar-footer',
-                        spacing: 10,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          // reset to initial time
-                          Button.text(
-                            'Reset',
-                            classes: 'naki-calendar-action',
-                            backgroundColor: Colors.transparent,
-                            foregroundColor: context.subtitleColor,
-                            onTap: () {
-                              if (component.disable || component.readOnly) {
-                                return;
-                              }
-
-                              final now = DateTime.now();
-                              _selectedTime = Duration(
-                                hours: _selectedDate?.hour ?? now.hour,
-                                minutes: _selectedDate?.minute ?? now.minute,
-                              );
-
-                              setState(() {});
-                              _updateValue();
-                            },
-                          ),
-
+                          // header
                           Row(
+                            classes: 'naki-calendar-header',
+                            spacing: 10,
                             children: [
-                              // cancel time picker
+                              Expanded(
+                                child: NakiText(
+                                  titleText.isNotEmpty
+                                      ? titleText
+                                      : 'Select time',
+                                  classes: 'naki-calendar-title',
+                                  style: const TextStyle(truncate: true),
+                                ),
+                              ),
+
+                              NakiText(
+                                _timePreview(),
+                                classes: 'naki-calendar-picker-preview',
+                                style: const TextStyle(fontSize: Dim.px(14)),
+                              ),
+                            ],
+                          ),
+
+                          // steppers
+                          Row(
+                            spacing: 6,
+                            classes: 'naki-time-picker-steppers',
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              _buildTimeStepper(id: _calendarId, hour: true),
+                              const NakiText(
+                                ':',
+                                classes: 'naki-time-separator',
+                              ),
+                              _buildTimeStepper(id: _calendarId, hour: false),
+                            ],
+                          ),
+
+                          // footer actions
+                          Row(
+                            classes: 'naki-calendar-footer',
+                            spacing: 10,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              // reset to initial time
                               Button.text(
-                                'Cancel',
+                                'Reset',
                                 classes: 'naki-calendar-action',
                                 backgroundColor: Colors.transparent,
-                                foregroundColor: context.textColor,
+                                foregroundColor: context.subtitleColor,
                                 onTap: () {
-                                  _selectedTime = _committedTime;
-
-                                  if (showBoth) {
-                                    _pickDate = true;
-                                  } else {
-                                    _selectedDate = _committedDate;
+                                  if (component.disable || component.readOnly) {
+                                    return;
                                   }
 
-                                  _pickTime = false;
+                                  final date = currentValue ?? DateTime.now();
+                                  _selectedTime = Duration(
+                                    hours: date.hour,
+                                    minutes: date.minute,
+                                  );
+
                                   setState(() {});
+                                  _updateValue();
                                 },
                               ),
 
-                              // submit time
-                              Button.text(
-                                'Ok',
-                                classes: 'naki-calendar-action',
-                                disabled: _selectedTime == null,
-                                backgroundColor: Colors.transparent,
-                                disabledBackgroundColor: Colors.transparent,
-                                foregroundColor: context.primaryColor,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                ),
-                                onTap: () => _updateValue(close: true),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  // cancel time picker
+                                  Button.text(
+                                    'Cancel',
+                                    classes: 'naki-calendar-action',
+                                    backgroundColor: Colors.transparent,
+                                    foregroundColor: context.textColor,
+                                    onTap: () {
+                                      setState(() {
+                                        _selectedTime = _committedTime;
+                                        _pickTime = false;
+                                        if (showBoth) {
+                                          _pickDate = true;
+                                        } else {
+                                          _selectedDates = [..._committedDates];
+                                        }
+                                      });
+                                    },
+                                  ),
+
+                                  // submit time
+                                  Button.text(
+                                    'Ok',
+                                    classes: 'naki-calendar-action',
+                                    disabled: _selectedTime == null,
+                                    backgroundColor: Colors.transparent,
+                                    disabledBackgroundColor: Colors.transparent,
+                                    foregroundColor: context.primaryColor,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    onTap: () => _updateValue(close: true),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
                         ],
                       ),
-                    ],
-                  ),
-              ],
-            ),
-        ]),
+                  ],
+                ),
+              ),
+          ],
+        ),
 
         // Helper
         if (helperText.isNotEmpty)
@@ -2801,6 +3028,29 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
     );
   }
 
+  /// 12-hour preview of the selected time, e.g. `1:27 PM`
+  String _timePreview() {
+    final now = DateTime.now();
+    final time =
+        _selectedTime ?? Duration(hours: now.hour, minutes: now.minute);
+
+    final hr = time.inHours % 24;
+    final mins = (time.inMinutes % 60).toString().padLeft(2, '0');
+    final displayHr = hr % 12 == 0 ? 12 : hr % 12;
+
+    return '$displayHr:$mins ${hr < 12 ? 'AM' : 'PM'}';
+  }
+
+  /// Accessible label of a date cell, e.g. `Fri June 12, 2026, range start`
+  String _dayLabel(CalendarDay day) {
+    final label = day.date.toDayMonthYear;
+    if (!_isMultiDayRange) return label;
+
+    if (day.date == _selectedDates.first) return '$label, range start';
+    if (day.date == _selectedDates.last) return '$label, range end';
+    return label;
+  }
+
   List<TableRow> _buildCalendarRows({
     required List<CalendarDay?> daysInMonth,
     bool showBoth = false,
@@ -2809,6 +3059,7 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
     final selectableDays = daysInMonth.whereType<CalendarDay>().where(
       (day) => !day.isDisabled,
     );
+
     final focusDay =
         selectableDays.where((day) => day.isSelected).firstOrNull ??
         selectableDays.where((day) => day.isToday).firstOrNull ??
@@ -2834,18 +3085,24 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
                     foregroundColor: context.textColor,
                     disabled: day.isDisabled,
                     attributes: {
-                      'aria-label': '$day',
-                      'aria-selected': '${day.isSelected}',
+                      'aria-label': _dayLabel(day),
+                      'aria-pressed': '${day.isSelected}',
                       'aria-current': ?(day.isToday ? 'date' : null),
                       'tabindex': identical(day, focusDay) ? '0' : '-1',
-                      'selected': ?(day.isSelected ? '' : null),
-                      'today': ?(day.isToday ? '' : null),
+                      'data-today': ?(day.isToday ? '' : null),
+                      'data-in-range': ?(_isMultiDayRange && day.isSelected
+                          ? ''
+                          : null),
+                      'data-range-start':
+                          ?(_isMultiDayRange && day.date == _selectedDates.first
+                          ? ''
+                          : null),
+                      'data-range-end':
+                          ?(_isMultiDayRange && day.date == _selectedDates.last
+                          ? ''
+                          : null),
                     },
-                    onTap: component.readOnly || day.isDisabled
-                        ? null
-                        : () => setState(() {
-                            _selectedDate = day.date;
-                          }),
+                    onTap: () => _updateSelection(day.date),
                   ),
           )
           .toList();
@@ -2854,19 +3111,6 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
     }
 
     return rows;
-  }
-
-  /// 12-hour preview of the selected time, e.g. `1:27 PM`
-  String _timePreview() {
-    final now = DateTime.now();
-    final time =
-        _selectedTime ?? Duration(hours: now.hour, minutes: now.minute);
-
-    final hr = time.inHours % 24;
-    final mins = (time.inMinutes % 60).toString().padLeft(2, '0');
-    final displayHr = hr % 12 == 0 ? 12 : hr % 12;
-
-    return '$displayHr:$mins ${hr < 12 ? 'AM' : 'PM'}';
   }
 
   Component _buildTimeStepper({required String id, required bool hour}) {
@@ -2966,12 +3210,14 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
 
     return Column(
       classes: 'naki-time-stepper',
+      mainAxisSize: MainAxisSize.min,
       children: [
         // up button
         Button.icon(
           LucideIcons.icon_chevron_up,
           size: 18,
           semanticLabel: hour ? 'Increase hour' : 'Increase minutes',
+          disabled: component.disable || component.readOnly,
           onTap: _increase,
           classes: 'naki-time-stepper-button',
         ),
@@ -2980,6 +3226,7 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
         input<num>(
           id: hour ? 'naki-stepper-$id-hr' : 'naki-stepper-$id-mins',
           type: InputType.number,
+          disabled: component.disable || component.readOnly,
           attributes: {
             'min': '0',
             'max': hour ? '24' : '60',
@@ -2996,6 +3243,7 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
           LucideIcons.icon_chevron_down,
           size: 18,
           semanticLabel: hour ? 'Decrease hour' : 'Decrease minutes',
+          disabled: component.disable || component.readOnly,
           onTap: _decrease,
           classes: 'naki-time-stepper-button',
         ),
@@ -3004,41 +3252,44 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
   }
 
   Component _yearMonthPopover() {
-    final selectedMonthIndex = _visibleMonth.month - 1;
-    int selectedYear = _visibleMonth.year;
+    int selectedYear = _visibleDate.year;
 
     return StatefulBuilder(
       builder: (context, setState) {
+        bool isOutsideMonthBounds(int month) {
+          return selectedYear == _minDate.year && month < _minDate.month ||
+              selectedYear == _maxDate.year && month > _maxDate.month;
+        }
+
         return Column(
           classes: 'naki-calendar-ymp',
           spacing: 15,
+          mainAxisSize: MainAxisSize.min,
           children: [
             // years dropdown
-            Dropdown<String>(
+            Dropdown<int>(
               id: 'ymp-years',
               classes: 'naki-calendar-ymp__years',
               options: _years
                   .map(
                     (year) => DropdownItem(
                       label: '$year',
-                      value: '$year',
+                      value: year,
                       selected: year == selectedYear,
                     ),
                   )
                   .toList(),
               onSelected: (item) {
-                setState(() => selectedYear = int.parse(item.value!));
-                _visibleMonth = _visibleMonth.copyWith(
-                  year: selectedYear,
-                  month: 1,
-                );
+                selectedYear = item.value!;
+                _visibleDate = _visibleDate.copyWith(year: selectedYear);
+                setState(() {});
               },
-              placeholder: 'Select year',
+              placeholder: 'Year',
               enableSearch: _years.length > 10,
               menuHeight: const Dim.px(200),
               size: const SizeConstraints(
                 width: Dim.percent(100),
-                height: Dim.px(35),
+                height: Dim.px(40),
               ),
             ),
 
@@ -3050,30 +3301,32 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
               classes: 'naki-calendar-ymp__months',
               shrinkWrap: true,
               mainAxisExtent: const Dim.px(35),
-              children: kMonths
-                  .map(
-                    (month) => Button.text(
-                      month,
-                      id: 'ymp_month_${kMonths.indexOf(month)}',
-                      classes: 'naki-calendar-ymp__month',
-                      backgroundColor: Colors.transparent,
-                      foregroundColor: context.textColor,
-                      border: BorderData(
-                        color: context.popoverBorderColor,
-                        radius: BorderRadiusData.all(const Dim.px(6)),
-                      ),
-                      attributes: {
-                        'aria-label': '$month $selectedYear',
-                        'selected': ?(month == kMonths[selectedMonthIndex]
-                            ? ''
-                            : null),
-                      },
-                      onTap: () => _jumpToMonth(
-                        DateTime(selectedYear, kMonths.indexOf(month) + 1),
-                      ),
-                    ),
-                  )
-                  .toList(),
+              children: kMonths.map((month) {
+                final visibleMonthIdx = _visibleDate.month - 1;
+                final monthIdx = kMonths.indexOf(month);
+                final isDisabled = isOutsideMonthBounds(monthIdx + 1);
+                final isSelected =
+                    month == kMonths[visibleMonthIdx] && !isDisabled;
+
+                return Button.text(
+                  month,
+                  id: 'ymp_month_$monthIdx',
+                  classes: 'naki-calendar-ymp__month',
+                  backgroundColor: Colors.transparent,
+                  foregroundColor: context.textColor,
+                  disabled: isDisabled,
+                  border: BorderData(
+                    color: context.popoverBorderColor,
+                    radius: BorderRadiusData.all(const Dim.px(6)),
+                  ),
+                  attributes: {
+                    'aria-label': '$month $selectedYear',
+                    'aria-pressed': '$isSelected',
+                  },
+                  onTap: () =>
+                      _jumpToMonth(DateTime(selectedYear, monthIdx + 1)),
+                );
+              }).toList(),
             ),
           ],
         );

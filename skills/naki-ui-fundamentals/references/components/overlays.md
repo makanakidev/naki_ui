@@ -85,6 +85,8 @@ Column(
 
 Use `content` to replace the title/subtitle presentation and provide `semanticLabel` when custom content has no suitable textual name. Test focus entry, trapping, Escape, close callbacks, and focus restoration.
 
+Set `glass: true` for a translucent dialog. `backgroundColor` sets the tint, and the barrier stops blurring so the glass can see the page. See `Card.glass` for the `glassTint`, `glassRim` and `glassBlur` theme values and the accessibility fallbacks.
+
 ## Drawer
 
 Use the default constructor for a modal drawer and provide a controller when it is not managed through `Scaffold`.

@@ -167,9 +167,6 @@ final surface = context.surfaceColor;
 final text = context.textColor;
 final muted = context.mutedColor;
 final border = context.borderColor;
-
-// Apply opacity to a color
-final semiTransparent = context.withOpacity(primary, 0.5);
 ```
 
 ---
@@ -264,6 +261,11 @@ final countdown = deadline.timeRemainingUntil(); // '04:39:01:58'
 
 // Reactive client-side time ago notifier (updates automatically every second for recent dates)
 final timeAgoNotifier = messageDate.timeAgoNotifier; // ValueNotifier('2m ago')
+
+// Date ranges
+final rangeLabel = start.asRange(end); // '24/02/2026 - 26/02/2026'
+final days = start.daysThrough(end); // Every day from start through end
+final isEarlier = now.isBeforeDay(otherDate); // Compares days, ignoring time
 ```
 
 ---

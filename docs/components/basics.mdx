@@ -152,13 +152,20 @@ const Spinner.ios(
   size: Dim.px(24),
 )
 
-// Glass-styled spinner with background surface
+// Glass disc with a spinning arc, using the theme's surface color
+const Spinner.glass()
+
+// Custom surface color
 Spinner.glass(
-  surfaceColor: const Color('rgba(255, 255, 255, 0.2)'),
+  surfaceColor: const Color('#ffffff'),
   size: const Dim.px(36),
   color: const Color('#0f766e'),
 )
 ```
+
+`Spinner.glass` has a `size` parameter that's the arc's diameter. The disc shows 20% of its surface color, so the glass effect works well over any content.
+
+Under `prefers-reduced-motion`, spinners pulse slowly instead of rotating, so they still show activity.
 
 ---
 

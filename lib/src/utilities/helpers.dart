@@ -96,35 +96,6 @@ Future<void> cacheImage(String src, [String? baseUrl]) async {
   }
 }
 
-/// Updates the position of a slider tooltip relative to its thumb.
-///
-/// [id] - The ID of the slider element.
-/// [hide] - Whether to hide the tooltip.
-String updateSliderTooltip(String id, {bool hide = true}) {
-  if (kIsServer) return '-100%';
-
-  final slider = document.getElementById(id) as HTMLInputElement?;
-  if (slider == null) return '-100%';
-
-  final tooltip = document.getElementById('$id-tooltip') as HTMLOutputElement?;
-  if (tooltip == null) return '-100%';
-
-  // get slider values
-  final val = double.parse(slider.value);
-  final min = double.parse(slider.min);
-  final max = double.parse(slider.max);
-
-  // calculate position percentage
-  final percent = ((val - min) * 100) / (max - min);
-  final position = 'calc($percent% + (${8 - percent * 0.15}px))';
-  // tooltip.style.left = position;
-
-  // hide the tooltip
-  if (hide) tooltip.style.opacity = '0';
-
-  return hide ? '-100%' : position;
-}
-
 /// Print `content` to console in debug mode (or when `force` is set to true)
 void debugPrint(dynamic content, [bool force = false]) {
   if (kDebugMode || force) print(content);

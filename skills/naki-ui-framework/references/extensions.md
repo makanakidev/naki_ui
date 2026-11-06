@@ -43,7 +43,6 @@ Component build(BuildContext context) {
 - `context.themeTokens`: Access all raw `Tokens` configured in `NakiThemeProvider`.
 - `context.toggleTheme()`: Toggles between dark and light modes.
 - `context.setTheme(ThemeMode mode)`: Sets a specific theme mode.
-- `context.withOpacity(Color color, double opacity)`: Applies opacity to a given color.
 
 ### Direct semantic color getters
 
@@ -145,6 +144,11 @@ final countdown = deadline.timeRemainingUntil(); // '04:39:01:58'
 
 // Reactive client-side time ago notifier (updates automatically every second for recent dates)
 final timeAgoNotifier = messageDate.timeAgoNotifier; // ValueNotifier('2m ago')
+
+// Date ranges
+final rangeLabel = start.asRange(end); // '24/02/2026 - 26/02/2026'
+final days = start.daysThrough(end); // Every day from start through end
+final isEarlier = now.isBeforeDay(otherDate); // Compares days, ignoring time
 ```
 
 ---

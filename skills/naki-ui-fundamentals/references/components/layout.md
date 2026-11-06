@@ -251,7 +251,26 @@ Card.outlined(
 )
 ```
 
-Use `Card()` for elevation, `Card.outlined` for a flat bordered surface, and `Card.filled` for a tonal surface. If `onTap` makes the whole card interactive, ensure the content and surrounding context expose its role and accessible name; prefer a naki Button when appropriate.
+Use `Card()` for elevation, `Card.outlined` for a flat bordered surface, `Card.filled` for a tonal surface, and `Card.glass` for a translucent surface over an image or gradient. If `onTap` makes the whole card interactive, ensure the content and surrounding context expose its role and accessible name; prefer a naki Button when appropriate.
+
+`Card.glass` tints and blurs what is behind it, so place it over an image or a gradient. `color` sets the tint:
+
+```dart
+Card.glass(
+  padding: const EdgeInsets.all(Dim.px(16)),
+  child: const NakiText('Featured'),
+)
+```
+
+A glass surface nested inside the card only sees the card, not the page. `Dialog(glass: true)` uses the same surface, and both read these `ComponentScheme` fields:
+
+| `ComponentScheme` field | CSS variable        | Default                |
+| ----------------------- | ------------------- | ---------------------- |
+| `glassTint`             | `--naki-glass-tint` | `60%`                  |
+| `glassRim`              | `--naki-glass-rim`  | `100%` (`40%` in dark) |
+| `glassBlur`             | `--naki-glass-blur` | `16px`                 |
+
+Both turn opaque for `prefers-reduced-transparency` and `prefers-contrast: more`, and fall back to an outline for `forced-colors`.
 
 ## ExpansionPanel
 

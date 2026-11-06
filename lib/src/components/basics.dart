@@ -11,6 +11,7 @@ import '../models/gesture.dart';
 import '../models/naki.dart';
 import '../models/styling.dart';
 import '../stub/index.dart';
+import '../styles/css.dart';
 import '../styles/rules.dart';
 import '../styles/text_style.dart';
 import '../theme/tokens.dart';
@@ -95,7 +96,7 @@ class Column extends StatelessComponent {
     this.scrollable = false,
     this.mainAxisAlignment = MainAxisAlignment.start,
     this.crossAxisAlignment = CrossAxisAlignment.center,
-    this.mainAxisSize = MainAxisSize.min,
+    this.mainAxisSize = MainAxisSize.max,
     this.spacing,
     this.classes,
     this.scrollBarConfiguration,
@@ -109,7 +110,16 @@ class Column extends StatelessComponent {
     final align = NakiAlignProps.mapCrossAxisAlignment(crossAxisAlignment);
 
     const baseClass = 'naki-column';
-    final effectiveClasses = joinClasses([?classes, baseClass]);
+    final effectiveClasses = joinClasses([
+      ?classes,
+      ...[
+        if (scrollable) ...[
+          kInsetOwnerClass,
+          if (mainAxisSize == MainAxisSize.max) kFillScrollClass,
+        ],
+      ],
+      baseClass,
+    ]);
 
     final effectiveStyles = {
       'display': 'flex',
@@ -119,6 +129,7 @@ class Column extends StatelessComponent {
       'height': ?(mainAxisSize == MainAxisSize.max ? '100%' : null),
       'row-gap': ?spacing?.toPx,
       'overflow-y': ?(scrollable ? 'auto' : null),
+      if (scrollable) ...Css.scrollPadding(null, vertical: true),
     };
 
     Component child = .element(
@@ -140,6 +151,10 @@ class Column extends StatelessComponent {
 
     return FlexScope(scrollable: scrollable, child: child);
   }
+
+  @css
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('Column', [Rules.nakiColumnRules]);
 }
 
 /// {@template Row}
@@ -210,7 +225,7 @@ class Row extends StatelessComponent {
     this.scrollable = false,
     this.mainAxisAlignment = MainAxisAlignment.start,
     this.crossAxisAlignment = CrossAxisAlignment.center,
-    this.mainAxisSize = MainAxisSize.min,
+    this.mainAxisSize = MainAxisSize.max,
     this.spacing,
     this.classes,
     this.scrollBarConfiguration,
@@ -255,6 +270,10 @@ class Row extends StatelessComponent {
 
     return FlexScope(scrollable: scrollable, child: child);
   }
+
+  @css
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('Row', [Rules.nakiRowRules]);
 }
 
 /// {@template Image}
@@ -368,7 +387,7 @@ class Image extends StatelessComponent with NakiStatelessMixin {
 
     final image = img(
       key: shouldWrap ? null : key,
-      src: (cache ? cachedSource : null) ?? src,
+      src: cachedSource ?? src,
       alt: alt,
       classes: effectiveClasses,
       loading: lazyLoad ? MediaLoading.lazy : MediaLoading.eager,
@@ -417,16 +436,23 @@ class NakiText extends StatelessComponent with NakiTextScope {
   /// Text to display.
   final String text;
 
-  /// Style applied to the text.
   @override
   final TextStyle? style;
 
-  /// Additional CSS classes applied to the text.
   @override
   final String? classes;
 
+  @override
+  final Map<String, String>? attributes;
+
   /// {@macro NakiText}
-  const NakiText(this.text, {super.key, this.style, this.classes});
+  const NakiText(
+    this.text, {
+    super.key,
+    this.style,
+    this.classes,
+    this.attributes,
+  });
 
   @override
   Component build(BuildContext context) {
@@ -441,6 +467,7 @@ class NakiText extends StatelessComponent with NakiTextScope {
       tag: 'naki-text',
       classes: effectiveClasses,
       styles: Styles(raw: effectiveStyles.props),
+      attributes: attributes,
       children: [.text(text)],
     );
   }
@@ -702,7 +729,7 @@ class Button extends StatefulComponent {
     this.id,
   }) : child = Icon(
          icon,
-         color: foregroundColor ?? Tokens.current.buttonColor.color,
+         color: foregroundColor ?? Tokens.current.buttonForegroundColor.color,
          size: size,
        ),
        // icon-only buttons need an accessible name
@@ -769,13 +796,17 @@ class Button extends StatefulComponent {
              ? [
                  Icon(
                    icon,
-                   color: foregroundColor ?? Tokens.current.buttonColor.color,
+                   color:
+                       foregroundColor ??
+                       Tokens.current.buttonForegroundColor.color,
                    size: iconSize,
                  ),
                  NakiText(
                    text,
                    style: TextStyle(
-                     color: foregroundColor ?? Tokens.current.buttonColor.color,
+                     color:
+                         foregroundColor ??
+                         Tokens.current.buttonForegroundColor.color,
                    ).combineWith(textStyle),
                  ),
                ]
@@ -783,12 +814,16 @@ class Button extends StatefulComponent {
                  NakiText(
                    text,
                    style: TextStyle(
-                     color: foregroundColor ?? Tokens.current.buttonColor.color,
+                     color:
+                         foregroundColor ??
+                         Tokens.current.buttonForegroundColor.color,
                    ).combineWith(textStyle),
                  ),
                  Icon(
                    icon,
-                   color: foregroundColor ?? Tokens.current.buttonColor.color,
+                   color:
+                       foregroundColor ??
+                       Tokens.current.buttonForegroundColor.color,
                    size: iconSize,
                  ),
                ],
@@ -835,7 +870,7 @@ class Button extends StatefulComponent {
   }) : child = NakiText(
          text,
          style: TextStyle(
-           color: foregroundColor ?? Tokens.current.buttonColor.color,
+           color: foregroundColor ?? Tokens.current.buttonForegroundColor.color,
          ).combineWith(style),
        ),
        assert(
@@ -895,7 +930,8 @@ class _ButtonState extends State<Button> {
     final Map<String, String> effectiveStyles = {
       Tokens.current.buttonBackgroundColor.name:
           ?component.backgroundColor?.value,
-      Tokens.current.buttonColor.name: ?component.foregroundColor?.value,
+      Tokens.current.buttonForegroundColor.name:
+          ?component.foregroundColor?.value,
       Tokens.current.disabledBgColor.name:
           ?component.disabledBackgroundColor?.value,
       Tokens.current.buttonHoverBgColor.name: ?component.hoverColor?.value,
@@ -1096,10 +1132,14 @@ class Spinner extends StatelessComponent {
 
   /// Color of the spinner's glass surface. When provided,
   /// a glassmorphism effect is applied behind the spinner
-  /// using this color.
+  /// using this color. [Spinner.glass] falls back to the
+  /// theme's spinner surface color.
   ///
   /// NOTE: [ios] must be `false` to use this property.
   final Color? surfaceColor;
+
+  /// Whether [Spinner.glass] created this spinner.
+  final bool _glass;
 
   /// Additional CSS classes applied to the spinner.
   final String? classes;
@@ -1123,7 +1163,7 @@ class Spinner extends StatelessComponent {
     this.surfaceColor,
     this.classes,
     this.semanticLabel = 'Loading',
-  });
+  }) : _glass = false;
 
   /// Creates an iOS-style spinner.
   const Spinner.ios({
@@ -1135,31 +1175,35 @@ class Spinner extends StatelessComponent {
     this.semanticLabel = 'Loading',
   }) : ios = true,
        trackColor = null,
-       surfaceColor = null;
+       surfaceColor = null,
+       _glass = false;
 
   /// Creates a glassmorphism-style spinner.
+  ///
+  /// [size] is the diameter of the arc. The glass disc adds 8px on each side.
   const Spinner.glass({
     super.key,
-    required this.surfaceColor,
+    this.surfaceColor,
     this.size = const Dim.px(24),
     this.thickness = 4.0,
     this.color,
     this.trackColor,
     this.classes,
     this.semanticLabel = 'Loading',
-  }) : ios = false;
+  }) : ios = false,
+       _glass = true;
 
   @override
   Component build(BuildContext context) {
-    final iosClass = ios && surfaceColor == null ? 'ios' : '';
-    final morphismClass = surfaceColor != null && !ios ? 'morphism' : '';
+    final iosSpinner = ios && surfaceColor == null ? 'ios' : null;
+    final glassSpinner = (_glass || surfaceColor != null) && !ios
+        ? 'glass'
+        : null;
 
     const baseClass = 'naki-spinner';
     final effectiveClasses = joinClasses([
       ?classes,
       baseClass,
-      iosClass,
-      morphismClass,
     ]);
 
     final effectiveStyles = {
@@ -1168,12 +1212,16 @@ class Spinner extends StatelessComponent {
       Tokens.current.spinnerColor.name: ?color?.value,
       Tokens.current.spinnerBladeColor.name: ?color?.value,
       Tokens.current.spinnerTrackColor.name: ?trackColor?.value,
-      Tokens.current.spinnerSurfaceColor.name: ?surfaceColor?.value,
+      Tokens.current.spinnerSurfaceColor.name: ?surfaceColor
+          ?.withOpacity(0.4)
+          .value,
     };
 
-    final spinnerBlades = List.generate(12, (index) {
-      return const span(classes: 'spinner-blade', []);
-    });
+    final spinnerBlades = iosSpinner != null
+        ? List<Component>.generate(12, (index) {
+            return const span(classes: 'spinner-blade', []);
+          })
+        : null;
 
     return .element(
       key: key,
@@ -1183,9 +1231,10 @@ class Spinner extends StatelessComponent {
         'role': 'status',
         'aria-live': 'polite',
         'aria-label': semanticLabel,
+        'data-type': iosSpinner ?? glassSpinner ?? 'rounded',
       },
       styles: Styles(raw: effectiveStyles),
-      children: [...?(iosClass.isNotEmpty ? spinnerBlades : null)],
+      children: [...?spinnerBlades],
     );
   }
 
@@ -1231,6 +1280,9 @@ class RichText extends StatelessComponent with NakiTextScope {
   @override
   final String? classes;
 
+  @override
+  final Map<String, String>? attributes;
+
   /// {@macro RichText}
   const RichText({
     super.key,
@@ -1238,6 +1290,7 @@ class RichText extends StatelessComponent with NakiTextScope {
     this.textAlign,
     this.style,
     this.classes,
+    this.attributes,
   });
 
   @override
@@ -1248,18 +1301,15 @@ class RichText extends StatelessComponent with NakiTextScope {
     const baseClass = 'naki-richtext';
     final effectiveClasses = joinClasses([?classes, baseClass]);
 
-    final child = text is Component
-        ? text as Component
-        : const Component.empty();
-
     return .element(
       key: key,
       tag: 'naki-richtext',
       classes: effectiveClasses,
+      attributes: attributes,
       styles: Styles(
         raw: {...effectiveStyles, 'text-align': ?textAlign?.value},
       ),
-      children: [child],
+      children: [text as Component],
     );
   }
 
@@ -1367,7 +1417,7 @@ class TextSpan extends StatelessComponent implements InlineSpan {
       ...defaultStyle.combineWith(style).props,
     };
 
-    // Override display if the computed styles display property is block
+    // Override display if the computed display property is block
     if (effectiveStyles['display'] == 'block') {
       effectiveStyles['display'] = 'inline';
     }
@@ -1377,9 +1427,8 @@ class TextSpan extends StatelessComponent implements InlineSpan {
       if (text.isNotNullAndEmpty) .text(text!),
 
       // Inline components
-      if (children != null && children!.isNotEmpty)
-        for (final child in children!)
-          if (child is Component) child as Component,
+      if (children != null)
+        for (final child in children!) child as Component,
     ];
 
     return .element(
@@ -1468,7 +1517,7 @@ class ComponentSpan extends StatelessComponent implements InlineSpan {
       'vertical-align': baseline.value,
     };
 
-    // Override display if the computed styles display property is block
+    // Override display if the computed display property is block
     if (effectiveStyles['display'] == 'block') {
       effectiveStyles['display'] = 'inline-block';
     }
@@ -1537,7 +1586,7 @@ class GestureDetector extends StatelessComponent {
     final effectiveClasses = joinClasses([?classes, baseClass]);
 
     final isClickable = gestures.onClick != null;
-    final handlers = gestures.toMap;
+    final handlers = {...gestures.toMap};
     final existingKeyDown = handlers['keydown'];
 
     // enable keyboard clicks for web accessibility
@@ -1545,7 +1594,6 @@ class GestureDetector extends StatelessComponent {
       handlers['keydown'] = (event) {
         existingKeyDown?.call(event);
         final key = (event as KeyboardEvent).key;
-
         if (key == 'Enter' || key == ' ') {
           event.preventDefault();
           gestures.onClick!.call(event);
@@ -1562,6 +1610,7 @@ class GestureDetector extends StatelessComponent {
         ...?attributes,
       },
       events: handlers,
+      styles: isClickable ? const Styles(raw: {'cursor': 'pointer'}) : null,
       children: [child],
     );
   }
@@ -1685,7 +1734,11 @@ class Banner extends StatelessComponent {
 
         // action buttons
         if (actions != null && actions!.isNotEmpty)
-          Row(children: actions!, classes: 'banner-actions'),
+          Row(
+            children: actions!,
+            mainAxisSize: MainAxisSize.min,
+            classes: 'banner-actions',
+          ),
       ]),
 
       // trailing close icon

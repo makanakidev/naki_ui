@@ -46,8 +46,7 @@ Inside `build`, the `BuildContext` extension provides:
 
 - `themeMode` and `themeTokens`;
 - `toggleTheme()` and `setTheme(mode)`;
-- semantic color shortcuts for brand, text, surfaces, borders, statuses, controls, overlays, navigation, tables, and scrollbars;
-- `withOpacity(color, opacity)`.
+- semantic color shortcuts for brand, text, surfaces, borders, statuses, controls, overlays, navigation, tables, and scrollbars.
 
 Context lookup records the inherited dependency and rebuilds the consumer when the nearest theme changes.
 

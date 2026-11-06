@@ -5,7 +5,7 @@ import 'package:naki_ui/framework.dart';
 import 'package:naki_ui/naki_ui.dart';
 import 'package:naki_ui/theme.dart';
 
-import 'components/content.dart';
+import 'components/app_shell.dart';
 
 @client
 class TodoApp extends StatelessComponent {
@@ -48,56 +48,7 @@ class TodoApp extends StatelessComponent {
         url: PlatformData().baseUrl,
         logo: 'https://makanakidev.github.io/naki_ui/assets/icon-dark.jpg',
       ),
-      pageBuilder: (context, child) {
-        return Scaffold(
-          //extendBody: true,
-          appBar: AppBar(
-            titleText: 'Naki UI',
-            actions: [
-              Button.icon(
-                context.themeMode == ThemeMode.dark
-                    ? MaterialIcons.icon_round_light_mode
-                    : context.themeMode == ThemeMode.light
-                    ? MaterialIcons.icon_round_dark_mode
-                    : MaterialIcons.icon_round_brightness_auto,
-                size: 28,
-                padding: EdgeInsets.zero,
-                border: const BorderData.only(
-                  radius: BorderRadiusData.circular,
-                ),
-                attributes: const {'aria-label': 'Toggle theme mode'},
-                onTap: context.toggleTheme,
-              ),
-            ],
-          ),
-          body: const Content(),
-          // bottomNavigationBar: FragmentScope(
-          //   [
-          //     BreakPointWrapper(
-          //       maxWidth: 600,
-          //       child: BottomNavigationBar(
-          //         type: BottomNavigationBarType.floating,
-          //         items: navItems,
-          //       ),
-          //     ),
-          //     BreakPointWrapper(
-          //       minWidth: 600,
-          //       child: BottomNavigationBar(
-          //         items: navItems,
-          //       ),
-          //     ),
-          //   ],
-          // ),
-        );
-      },
+      pageBuilder: (context, child) => const AppShell(),
     );
   }
 }
-
-const navItems = [
-  BottomNavigationBarItem(icon: MaterialIcons.icon_round_home, label: 'Home'),
-  BottomNavigationBarItem(
-    icon: MaterialIcons.icon_round_settings,
-    label: 'Settings',
-  ),
-];

@@ -27,6 +27,7 @@ class TodoFilterBar extends StatelessComponent {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.center,
+      scrollable: true,
       children: [
         // item counter
         BreakPointWrapper(
@@ -37,7 +38,7 @@ class TodoFilterBar extends StatelessComponent {
               color: context.subtitleColor,
               fontSize: const Dim.rem(0.875),
               fontWeight: FontWeight.w500,
-              lineHeight: const Dim.normal(),
+              lineHeight: Dim.normal,
             ),
           ),
         ),
@@ -45,6 +46,7 @@ class TodoFilterBar extends StatelessComponent {
         // filters buttons
         Row(
           spacing: 6,
+          mainAxisSize: MainAxisSize.min,
           children: [
             // toggle scroll physics button
             Button.text(
@@ -55,7 +57,7 @@ class TodoFilterBar extends StatelessComponent {
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: Dim.rem(0.9),
-                lineHeight: Dim.normal(),
+                lineHeight: Dim.normal,
               ),
               onTap: toggle,
             ),
@@ -73,7 +75,7 @@ class TodoFilterBar extends StatelessComponent {
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: Dim.rem(0.9),
-                      lineHeight: Dim.normal(),
+                      lineHeight: Dim.normal,
                     ),
                   ),
                 );
@@ -82,10 +84,9 @@ class TodoFilterBar extends StatelessComponent {
                   filter.label,
                   key: ValueKey('filter-${filter.name}'),
                   padding: const EdgeInsets.all(Dim.px(10)),
-                  style: TextStyle(
-                    color: context.subtitleColor,
+                  style: const TextStyle(
                     fontSize: const Dim.rem(0.9),
-                    lineHeight: const Dim.normal(),
+                    lineHeight: Dim.normal,
                   ),
                   onTap: () => onFilterChanged(filter),
                 );

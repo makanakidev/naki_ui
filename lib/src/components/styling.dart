@@ -24,13 +24,14 @@ class Bold extends StatelessComponent with NakiTextScope {
   /// Text content to display.
   final String text;
 
-  /// Additional text style.
   @override
   final TextStyle? style;
 
-  /// Additional CSS classes applied to the bold text.
   @override
   final String? classes;
+
+  @override
+  final Map<String, String>? attributes;
 
   /// {@macro Bold}
   const Bold(
@@ -38,6 +39,7 @@ class Bold extends StatelessComponent with NakiTextScope {
     super.key,
     this.style,
     this.classes,
+    this.attributes,
   });
 
   @override
@@ -52,6 +54,7 @@ class Bold extends StatelessComponent with NakiTextScope {
       key: key,
       classes: effectiveClasses,
       styles: Styles(raw: effectiveStyles),
+      attributes: attributes,
       [.text(text)],
     );
   }
@@ -73,13 +76,14 @@ class Italic extends StatelessComponent with NakiTextScope {
   /// Text content to display.
   final String text;
 
-  /// Additional text style.
   @override
   final TextStyle? style;
 
-  /// Additional CSS classes applied to the italic text.
   @override
   final String? classes;
+
+  @override
+  final Map<String, String>? attributes;
 
   /// {@macro Italic}
   const Italic(
@@ -87,6 +91,7 @@ class Italic extends StatelessComponent with NakiTextScope {
     super.key,
     this.style,
     this.classes,
+    this.attributes,
   });
 
   @override
@@ -101,6 +106,7 @@ class Italic extends StatelessComponent with NakiTextScope {
       key: key,
       classes: effectiveClasses,
       styles: Styles(raw: effectiveStyles),
+      attributes: attributes,
       [.text(text)],
     );
   }
@@ -122,13 +128,14 @@ class Underline extends StatelessComponent with NakiTextScope {
   /// Text content to display.
   final String text;
 
-  /// Additional text style.
   @override
   final TextStyle? style;
 
-  /// Additional CSS classes applied to the underline text.
   @override
   final String? classes;
+
+  @override
+  final Map<String, String>? attributes;
 
   /// {@macro Underline}
   const Underline(
@@ -136,6 +143,7 @@ class Underline extends StatelessComponent with NakiTextScope {
     super.key,
     this.style,
     this.classes,
+    this.attributes,
   });
 
   @override
@@ -150,6 +158,7 @@ class Underline extends StatelessComponent with NakiTextScope {
       key: key,
       classes: effectiveClasses,
       styles: Styles(raw: effectiveStyles),
+      attributes: attributes,
       [.text(text)],
     );
   }
@@ -171,13 +180,14 @@ class Strikethrough extends StatelessComponent with NakiTextScope {
   /// Text content to display.
   final String text;
 
-  /// Additional text style.
   @override
   final TextStyle? style;
 
-  /// Additional CSS classes applied to the strikethrough text.
   @override
   final String? classes;
+
+  @override
+  final Map<String, String>? attributes;
 
   /// {@macro Strikethrough}
   const Strikethrough(
@@ -185,6 +195,7 @@ class Strikethrough extends StatelessComponent with NakiTextScope {
     super.key,
     this.style,
     this.classes,
+    this.attributes,
   });
 
   @override
@@ -199,6 +210,7 @@ class Strikethrough extends StatelessComponent with NakiTextScope {
       key: key,
       classes: effectiveClasses,
       styles: Styles(raw: effectiveStyles),
+      attributes: attributes,
       [.text(text)],
     );
   }
@@ -227,13 +239,14 @@ class Heading extends StatelessComponent with NakiTextScope {
   /// Heading level between 1 and 6 (default: 1).
   final int level;
 
-  /// Additional text styles.
   @override
   final TextStyle? style;
 
-  /// Additional CSS classes applied to the heading text.
   @override
   final String? classes;
+
+  @override
+  final Map<String, String>? attributes;
 
   /// {@macro Heading}
   const Heading(
@@ -242,6 +255,7 @@ class Heading extends StatelessComponent with NakiTextScope {
     this.level = 1,
     this.style,
     this.classes,
+    this.attributes,
   }) : assert(
          level >= 1 && level <= 6,
          'level must be between 1 and 6',
@@ -264,6 +278,7 @@ class Heading extends StatelessComponent with NakiTextScope {
           key: key,
           classes: effectiveClasses,
           styles: Styles(raw: effectiveStyles),
+          attributes: attributes,
           [.text(text)],
         );
       case 2:
@@ -271,6 +286,7 @@ class Heading extends StatelessComponent with NakiTextScope {
           key: key,
           classes: effectiveClasses,
           styles: Styles(raw: effectiveStyles),
+          attributes: attributes,
           [.text(text)],
         );
       case 3:
@@ -278,6 +294,7 @@ class Heading extends StatelessComponent with NakiTextScope {
           key: key,
           classes: effectiveClasses,
           styles: Styles(raw: effectiveStyles),
+          attributes: attributes,
           [.text(text)],
         );
       case 4:
@@ -285,6 +302,7 @@ class Heading extends StatelessComponent with NakiTextScope {
           key: key,
           classes: effectiveClasses,
           styles: Styles(raw: effectiveStyles),
+          attributes: attributes,
           [.text(text)],
         );
       case 5:
@@ -292,6 +310,7 @@ class Heading extends StatelessComponent with NakiTextScope {
           key: key,
           classes: effectiveClasses,
           styles: Styles(raw: effectiveStyles),
+          attributes: attributes,
           [.text(text)],
         );
       case 6:
@@ -300,6 +319,7 @@ class Heading extends StatelessComponent with NakiTextScope {
           key: key,
           classes: effectiveClasses,
           styles: Styles(raw: effectiveStyles),
+          attributes: attributes,
           [.text(text)],
         );
     }
@@ -322,13 +342,14 @@ class SubHeading extends StatelessComponent with NakiTextScope {
   /// Text content to display.
   final String text;
 
-  /// Additional text style.
   @override
   final TextStyle? style;
 
-  /// Additional CSS classes applied to the subheading.
   @override
   final String? classes;
+
+  @override
+  final Map<String, String>? attributes;
 
   /// {@macro SubHeading}
   const SubHeading(
@@ -336,6 +357,7 @@ class SubHeading extends StatelessComponent with NakiTextScope {
     super.key,
     this.style,
     this.classes,
+    this.attributes,
   });
 
   @override
@@ -357,6 +379,7 @@ class SubHeading extends StatelessComponent with NakiTextScope {
       key: key,
       classes: effectiveClasses,
       styles: Styles(raw: effectiveStyles),
+      attributes: attributes,
       [.text(text)],
     );
   }

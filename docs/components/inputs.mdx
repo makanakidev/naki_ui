@@ -123,7 +123,7 @@ SegmentedInput(
 
 ## `Calendar`
 
-Date and time selection component:
+Date, time, and date range selection component:
 
 ```dart
 Calendar(
@@ -137,3 +137,33 @@ Calendar(
   },
 )
 ```
+
+### Date ranges
+
+Use `CalendarType.range` to select a start and end date. Range calendars use `initialRange`, `onSelectedRange`, and `rangeValidator`; `onSelected` is not called.
+
+```dart
+Calendar(
+  id: 'trip-dates',
+  type: CalendarType.range,
+  initialRange: [DateTime(2026, 10, 25), DateTime(2026, 10, 30)],
+  minimum: DateTime(2026),
+  autoValidate: true,
+  rangeValidator: (days) {
+    if (days == null) return 'Select your travel dates';
+    if (days.length > 14) return 'Maximum 14 days allowed';
+    return null;
+  },
+  onSelectedRange: (days) {
+    print('${days.first} to ${days.last} (${days.length} days)');
+  },
+  decoration: const InputDecoration(labelText: 'Travel dates'),
+)
+```
+
+- **`initialRange`**: dates can be in any order and their time is ignored. The earliest and latest dates set the range, and a single date is a one-day range. All dates must be within `minimum` and `maximum`.
+- **`onSelectedRange`**: receives every day from the start date through the end date in ascending order, so a list it emits can be passed back as `initialRange`.
+- **`rangeValidator`**: receives the same list, or `null` when nothing is selected. It runs before `validator`, which receives only the start date.
+- **Selecting**: the first click sets the start date and the next click sets the end date. Clicking an earlier date starts a new range, and clicking the start date again selects one day.
+- **Confirming**: `Ok` stays disabled until the range has an end date. Pressing `Escape`, pressing `Cancel`, clicking outside the picker, or clicking the trigger discards an unconfirmed selection.
+- **Forms**: the start date is submitted under the calendar's `id` and the end date under `{id}_end`, both as `yyyy-MM-dd`.

@@ -100,6 +100,8 @@ Container(
 
 Prefer `Dim`, `EdgeInsets`, `SizeConstraints`, `BorderData`, `BorderRadiusData`, `BoxDecoration`, `Filter`, `Gradient`, and `TextStyle` to raw style strings. Resolve active colors from `BuildContext` so theme changes rebuild correctly.
 
+Add `!important` with `Dim.px(500).important`; `Dim` named constructors do not take an `important` argument. The getter is not constant, so read the flag with `dim.isImportant`.
+
 ## Own controllers and listeners
 
 ```dart

@@ -226,11 +226,14 @@ abstract class InlineSpan {
 
 /// Mixin on Naki text components.
 mixin NakiTextScope on Component {
-  /// Default text style
+  /// Style applied to the text.
   TextStyle? get style;
 
-  /// Additional CSS classes applied to the text
+  /// Additional CSS classes applied to the text.
   String? get classes;
+
+  /// Additional HTML attributes applied to the text.
+  Map<String, String>? get attributes;
 }
 
 /// A helper class to represent SEO tags for a page.
@@ -310,7 +313,7 @@ class CalendarDay {
   }
 
   @override
-  String toString() => date.toDayMonthYear;
+  String toString() => date.toDateWithSlashes;
 }
 
 /// A calendar month.
@@ -366,17 +369,17 @@ class ScrollBarConfiguration {
   final double? radius;
 
   /// Width of the scroll bar thumb in pixels (for vertical scrollbar).
-  final double? width;
+  final double width;
 
   /// Height of the scroll bar thumb in pixels (for horizontal scrollbar).
-  final double? height;
+  final double height;
 
   const ScrollBarConfiguration({
     required this.thumbColor,
     required this.trackColor,
+    this.width = 4,
+    this.height = 4,
     this.hoverColor,
     this.radius,
-    this.width,
-    this.height,
   });
 }

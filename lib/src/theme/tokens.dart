@@ -470,10 +470,10 @@ abstract class Tokens {
   );
 
   /// Input focus border styling
-  /// (default: `1px solid var(--naki-focus-border-color)`,
+  /// (default: `2px solid var(--naki-focus-border-color)`,
   /// CSS variable: `--naki-focus-border`).
   Token get focusBorder => Token(
-    value: '1px solid var(${focusBorderColor.name}, ${focusBorderColor.value})',
+    value: '2px solid var(${focusBorderColor.name}, ${focusBorderColor.value})',
     name: '--naki-focus-border',
   );
 
@@ -643,6 +643,25 @@ abstract class Tokens {
     name: '--naki-spinner-border',
   );
 
+  /// Default value for [glassTint].
+  String get glassTintValue => '60%';
+
+  /// How much of its background color a glass card or dialog keeps
+  /// (default: `60%`, CSS variable: `--naki-glass-tint`).
+  Token get glassTint =>
+      Token(value: glassTintValue, name: '--naki-glass-tint');
+
+  /// Default value for [glassRim].
+  String get glassRimValue => '100%';
+
+  /// Strength of the light rim on a glass card or dialog
+  /// (default: `100%`, CSS variable: `--naki-glass-rim`).
+  Token get glassRim => Token(value: glassRimValue, name: '--naki-glass-rim');
+
+  /// Backdrop blur of a glass card or dialog
+  /// (default: `16px`, CSS variable: `--naki-glass-blur`).
+  Token get glassBlur => const Token(value: '16px', name: '--naki-glass-blur');
+
   /// Default value for [spinnerSurfaceColor].
   String get spinnerSurfaceColorValue => surfaceVariantColorValue;
 
@@ -653,6 +672,16 @@ abstract class Tokens {
     value: spinnerSurfaceColorValue,
     name: '--naki-spinner-surface-color',
     color: const Color('var(--naki-spinner-surface-color)'),
+  );
+
+  /// Default value for [spinnerGlassRim].
+  String get spinnerGlassRimValue => '100%';
+
+  /// Strength of the light rim on a glass spinner
+  /// (default: `100%`, CSS variable: `--naki-spinner-glass-rim`).
+  Token get spinnerGlassRim => Token(
+    value: spinnerGlassRimValue,
+    name: '--naki-spinner-glass-rim',
   );
 
   // ===========================================================================
@@ -817,25 +846,25 @@ abstract class Tokens {
   );
 
   /// Default value for [buttonBackgroundColor].
-  String get buttonBackgroundColorValue => '#e5e7f0';
+  String get buttonBackgroundColorValue => 'black';
 
   /// Button background color
-  /// (default: `#e5e7f0`, CSS variable: `--naki-button-bg-color`).
+  /// (default: `black`, CSS variable: `--naki-button-bg-color`).
   Token get buttonBackgroundColor => Token(
     value: buttonBackgroundColorValue,
     name: '--naki-button-bg-color',
     color: const Color('var(--naki-button-bg-color)'),
   );
 
-  /// Default value for [buttonColor].
-  String get buttonColorValue => 'currentColor';
+  /// Default value for [buttonForegroundColor].
+  String get buttonForegroundColorValue => 'white';
 
   /// Button foreground color
-  /// (default: `currentColor`, CSS variable: `--naki-button-color`).
-  Token get buttonColor => Token(
-    value: buttonColorValue,
-    name: '--naki-button-color',
-    color: const Color('var(--naki-button-color)'),
+  /// (default: `white`, CSS variable: `--naki-button-foreground-color`).
+  Token get buttonForegroundColor => Token(
+    value: buttonForegroundColorValue,
+    name: '--naki-button-foreground-color',
+    color: const Color('var(--naki-button-foreground-color)'),
   );
 
   // ///////////////////////////////////////////////////////////////////////////
@@ -950,6 +979,48 @@ abstract class Tokens {
   /// (default: `64px`, CSS variable: `--naki-bottom-navbar-height`).
   Token get bottomNavbarHeight =>
       const Token(value: '64px', name: '--naki-bottom-navbar-height');
+
+  /// Default value for [bottomNavbarGlassTint]
+  String get bottomNavbarGlassTintValue => '15%';
+
+  /// How much of the bottom navbar background color a frosted glass bar keeps
+  /// (default: `15%`, CSS variable: `--naki-bottom-navbar-glass-tint`).
+  Token get bottomNavbarGlassTint => Token(
+    value: bottomNavbarGlassTintValue,
+    name: '--naki-bottom-navbar-glass-tint',
+  );
+
+  /// Default value for [bottomNavbarGlassRim]
+  String get bottomNavbarGlassRimValue => '100%';
+
+  /// Strength of the light rim on a frosted glass bar and its droplet
+  /// (default: `100%`, CSS variable: `--naki-bottom-navbar-glass-rim`).
+  Token get bottomNavbarGlassRim => Token(
+    value: bottomNavbarGlassRimValue,
+    name: '--naki-bottom-navbar-glass-rim',
+  );
+
+  /// Default value for [bottomNavbarGlassDroplet]
+  String get bottomNavbarGlassDropletValue => '0%';
+
+  /// How strongly a frosted/liquid glass droplet darkens and tints the content
+  /// behind it, which keeps the selected label readable
+  /// (default: `0%`, CSS variable: `--naki-bottom-navbar-glass-droplet`).
+  Token get bottomNavbarGlassDroplet => Token(
+    value: bottomNavbarGlassDropletValue,
+    name: '--naki-bottom-navbar-glass-droplet',
+  );
+
+  /// Default value for [bottomNavbarGlassRefraction], in percent.
+  ///
+  /// This has no CSS variable because an SVG filter cannot read one: `100` is
+  /// the default displacement, and `0` leaves the bar frosted.
+  double get bottomNavbarGlassRefractionValue => 100;
+
+  /// Backdrop blur of a frosted/liquid glass bottom navbar
+  /// (default: `5px`, CSS variable: `--naki-bottom-navbar-glass-blur`).
+  Token get bottomNavbarGlassBlur =>
+      const Token(value: '5px', name: '--naki-bottom-navbar-glass-blur');
 
   /// Height of the viewport area covered by the bottom navigation bar,
   /// including a floating bar's bottom gap
@@ -1521,6 +1592,7 @@ abstract class Tokens {
     spinnerTrackColor.name: spinnerTrackColor.value,
     spinnerColor.name: spinnerColor.value,
     spinnerSurfaceColor.name: spinnerSurfaceColor.value,
+    spinnerGlassRim.name: spinnerGlassRim.value,
     spinnerBladeColor.name: spinnerBladeColor.value,
 
     // Spacing tokens
@@ -1561,7 +1633,7 @@ abstract class Tokens {
 
     // Button tokens
     buttonBackgroundColor.name: buttonBackgroundColor.value,
-    buttonColor.name: buttonColor.value,
+    buttonForegroundColor.name: buttonForegroundColor.value,
     buttonHeight.name: buttonHeight.value,
     buttonWidth.name: buttonWidth.value,
 
@@ -1585,6 +1657,13 @@ abstract class Tokens {
     // Bottom navbar tokens
     bottomNavbarBgColor.name: bottomNavbarBgColor.value,
     bottomNavbarHeight.name: bottomNavbarHeight.value,
+    bottomNavbarGlassTint.name: bottomNavbarGlassTint.value,
+    bottomNavbarGlassRim.name: bottomNavbarGlassRim.value,
+    bottomNavbarGlassDroplet.name: bottomNavbarGlassDroplet.value,
+    bottomNavbarGlassBlur.name: bottomNavbarGlassBlur.value,
+    glassTint.name: glassTint.value,
+    glassRim.name: glassRim.value,
+    glassBlur.name: glassBlur.value,
 
     // Carousel tokens
     carouselItemExtent.name: carouselItemExtent.value,

@@ -5,16 +5,15 @@ import 'package:jaspr/jaspr.dart';
 import 'package:jaspr_icons_pack/jaspr_icons_pack.dart' show LucideIcons;
 import 'package:universal_web/web.dart';
 
+import '../../theme.dart';
 import '../framework/framework.dart';
 import '../framework/inherited.dart';
 import '../models/gesture.dart' show Events;
 import '../models/naki.dart';
-import '../models/styling.dart';
 import '../styles/css.dart';
 import '../styles/rules.dart';
 import '../theme/tokens.dart' show Tokens;
 import '../utilities/enums.dart';
-import '../utilities/extensions.dart';
 import '../utilities/helpers.dart';
 import 'basics.dart' show Button, Column, Icon, Row;
 
@@ -477,7 +476,10 @@ class SizedBox extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
-    if (width == null && height == null && child == null) {
+    if (width == null &&
+        height == null &&
+        child == null &&
+        classes.isNullOrEmpty) {
       return const .empty();
     }
 
@@ -646,10 +648,10 @@ class Positioned extends StatelessComponent {
     this.height,
     this.transform,
     this.classes,
-  }) : left = const Dim.zero(),
-       top = const Dim.zero(),
-       right = const Dim.zero(),
-       bottom = const Dim.zero();
+  }) : left = Dim.zero,
+       top = Dim.zero,
+       right = Dim.zero,
+       bottom = Dim.zero;
 
   /// Creates a [Positioned] component centered both
   /// horizontally and vertically within the stack.
@@ -701,8 +703,8 @@ class Positioned extends StatelessComponent {
     this.width,
     this.height,
     this.classes,
-  }) : right = const Dim.zero(),
-       top = const Dim.zero(),
+  }) : right = Dim.zero,
+       top = Dim.zero,
        transform = 'translate(50%, -50%)';
 
   /// Creates a [Positioned] component anchored to the top-left corner.
@@ -713,8 +715,8 @@ class Positioned extends StatelessComponent {
     this.height,
     this.transform,
     this.classes,
-  }) : top = const Dim.zero(),
-       left = const Dim.zero(),
+  }) : top = Dim.zero,
+       left = Dim.zero,
        right = null,
        bottom = null;
 
@@ -726,8 +728,8 @@ class Positioned extends StatelessComponent {
     this.height,
     this.transform,
     this.classes,
-  }) : top = const Dim.zero(),
-       right = const Dim.zero(),
+  }) : top = Dim.zero,
+       right = Dim.zero,
        left = null,
        bottom = null;
 
@@ -739,8 +741,8 @@ class Positioned extends StatelessComponent {
     this.height,
     this.transform,
     this.classes,
-  }) : bottom = const Dim.zero(),
-       left = const Dim.zero(),
+  }) : bottom = Dim.zero,
+       left = Dim.zero,
        top = null,
        right = null;
 
@@ -752,8 +754,8 @@ class Positioned extends StatelessComponent {
     this.height,
     this.transform,
     this.classes,
-  }) : bottom = const Dim.zero(),
-       right = const Dim.zero(),
+  }) : bottom = Dim.zero,
+       right = Dim.zero,
        top = null,
        left = null;
 
@@ -764,9 +766,9 @@ class Positioned extends StatelessComponent {
     this.height,
     this.transform,
     this.classes,
-  }) : top = const Dim.zero(),
-       left = const Dim.zero(),
-       right = const Dim.zero(),
+  }) : top = Dim.zero,
+       left = Dim.zero,
+       right = Dim.zero,
        bottom = null,
        width = null;
 
@@ -777,9 +779,9 @@ class Positioned extends StatelessComponent {
     this.height,
     this.transform,
     this.classes,
-  }) : bottom = const Dim.zero(),
-       left = const Dim.zero(),
-       right = const Dim.zero(),
+  }) : bottom = Dim.zero,
+       left = Dim.zero,
+       right = Dim.zero,
        top = null,
        width = null;
 
@@ -987,7 +989,7 @@ class SafeArea extends StatelessComponent {
 /// {@endtemplate}
 class Container extends StatelessComponent {
   /// Child component of the container.
-  final Component child;
+  final Component? child;
 
   /// Height of the container.
   final Dim? height;
@@ -1007,7 +1009,7 @@ class Container extends StatelessComponent {
   /// {@macro Container}
   const Container({
     super.key,
-    required this.child,
+    this.child,
     this.height,
     this.width,
     this.constraints,
@@ -1032,7 +1034,7 @@ class Container extends StatelessComponent {
       tag: 'naki-container',
       classes: effectiveClasses,
       styles: Styles(raw: effectiveStyles),
-      children: [child],
+      children: [?child],
     );
   }
 
@@ -1186,6 +1188,33 @@ class Card extends StatelessComponent {
        _border = null,
        _variant = CardVariant.filled;
 
+  /// Creates a glass card.
+  ///
+  /// Glass cards tint and blur the content behind them, so they need something
+  /// to sit on such as an image or a gradient. [color] sets the tint.
+  /// `--naki-glass-tint`, `--naki-glass-rim` and `--naki-glass-blur` tune the
+  /// surface, and the card turns opaque for users who ask for less
+  /// transparency or more contrast.
+  ///
+  /// A glass surface inside this card only sees the card, not the page.
+  const Card.glass({
+    super.key,
+    this.color,
+    required this.child,
+    this.clip = false,
+    this.gradient,
+    this.borderRadius,
+    this.decoration,
+    this.padding,
+    this.width,
+    this.height,
+    this.constraints,
+    this.classes,
+    this.onTap,
+  }) : elevation = 0,
+       _border = null,
+       _variant = CardVariant.glass;
+
   static String? _elevationToBoxShadow(double? elevation, Color? shadowColor) {
     if (elevation == null) return null;
     if (elevation <= 0) return 'none';
@@ -1218,7 +1247,10 @@ class Card extends StatelessComponent {
       ...?decoration?.props,
       ...?_border?.props,
       'overflow': ?(clip ? 'hidden' : null),
-      'background-color': ?color?.value,
+      if (_variant == CardVariant.glass)
+        kCardGlassColorVar: ?color?.value
+      else
+        'background-color': ?color?.value,
       'height': ?height?.cssText,
       'width': ?width?.cssText,
       ...?constraints?.props,
@@ -1616,11 +1648,21 @@ class _ExpansionPanelListState extends State<ExpansionPanelList> {
                 classes: 'naki-expansion-panel__header',
                 child: Row(
                   classes: 'naki-expansion-panel__header-content',
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   spacing: 12,
                   children: [
-                    Row(spacing: 10, children: [?panel.leading, header]),
+                    Expanded(
+                      child: Row(
+                        spacing: 10,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          ?panel.leading,
+                          DefaultTextStyle(
+                            child: header,
+                            style: const TextStyle(truncate: true),
+                          ),
+                        ],
+                      ),
+                    ),
 
                     trailing,
                   ],
@@ -1711,13 +1753,16 @@ class ExpansionTile extends StatefulComponent {
   /// Whether the tile should be initially expanded.
   final bool initiallyExpanded;
 
-  /// Background color of the tile when expanded.
+  /// Background color of the tile.
   final Color? backgroundColor;
+
+  /// Color applied to [children] background.
+  final Color? contentBackgroundColor;
 
   /// Background color of the tile when collapsed.
   final Color? collapsedBackgroundColor;
 
-  /// Background gradient of the tile when expanded.
+  /// Background gradient of the tile.
   ///
   /// ### Example
   /// ```dart
@@ -1735,20 +1780,20 @@ class ExpansionTile extends StatefulComponent {
   /// Color of the title and leading icon when hovered.
   final Color? hoverColor;
 
-  /// Border shape of the tile when expanded.
+  /// Shape of the tile.
   final BorderData? shape;
 
-  /// Border shape of the tile when collapsed.
+  /// Shape of the tile when collapsed.
   final BorderData? collapsedShape;
 
-  /// Border radius of the tile.
-  final BorderRadiusData? borderRadius;
+  /// Radius of the tile.
+  final BorderRadiusData? radius;
 
-  /// Content padding inside the tile header.
+  /// Padding applied to tile header.
   final EdgeInsets? tilePadding;
 
-  /// Padding for the collapsible children.
-  final EdgeInsets? childrenPadding;
+  /// Padding applied to [children].
+  final EdgeInsets? contentPadding;
 
   /// Additional CSS classes applied to the expansion tile.
   final String? classes;
@@ -1764,15 +1809,16 @@ class ExpansionTile extends StatefulComponent {
     this.initiallyExpanded = false,
     this.backgroundColor,
     this.collapsedBackgroundColor,
+    this.contentBackgroundColor,
     this.gradient,
     this.collapsedGradient,
     this.onExpansionChanged,
     this.hoverColor,
     this.shape,
     this.collapsedShape,
-    this.borderRadius,
+    this.radius,
     this.tilePadding,
-    this.childrenPadding,
+    this.contentPadding,
     this.classes,
   });
 
@@ -1815,17 +1861,19 @@ class _ExpansionTileState extends State<ExpansionTile> {
 
   @override
   Component build(BuildContext context) {
-    final activeBg = _isExpanded
-        ? component.backgroundColor
-        : component.collapsedBackgroundColor;
+    final activeBg =
+        (!_isExpanded
+            ? component.collapsedBackgroundColor
+            : component.backgroundColor) ??
+        component.backgroundColor;
 
-    final activeGradient = _isExpanded
-        ? component.gradient
-        : component.collapsedGradient;
+    final activeGradient =
+        (!_isExpanded ? component.collapsedGradient : component.gradient) ??
+        component.gradient;
 
-    final activeShape = _isExpanded
-        ? component.shape
-        : component.collapsedShape;
+    final activeShape =
+        (!_isExpanded ? component.collapsedShape : component.shape) ??
+        component.shape;
 
     final effectiveClasses = joinClasses([
       ?component.classes,
@@ -1834,9 +1882,8 @@ class _ExpansionTileState extends State<ExpansionTile> {
     ]);
 
     final effectiveStyles = {
-      Tokens.current.hoverColor.name: component.hoverColor?.value ?? 'initial',
       'background-color': ?activeBg?.value,
-      ...?component.borderRadius?.props,
+      ...?component.radius?.props,
       ...?activeShape?.props,
       ...?activeGradient?.props,
     };
@@ -1852,37 +1899,43 @@ class _ExpansionTileState extends State<ExpansionTile> {
       styles: Styles(raw: effectiveStyles),
       children: [
         // Header
-        .wrapElement(
-          child: Button(
-            classes: 'naki-expansion-panel__header',
-            attributes: {'aria-expanded': _isExpanded ? 'true' : 'false'},
-            hoverColor: activeBg ?? Colors.transparent,
-            child: Row(
-              classes: 'naki-expansion-panel__header-content',
-              spacing: 12,
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+        Button(
+          classes: 'naki-expansion-panel__header',
+          attributes: {'aria-expanded': _isExpanded ? 'true' : 'false'},
+          hoverColor: component.hoverColor,
+          padding: component.tilePadding,
+          child: Row(
+            classes: 'naki-expansion-panel__header-content',
+            spacing: 12,
+            crossAxisAlignment: component.subtitle != null
+                ? CrossAxisAlignment.start
+                : CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   spacing: 10,
                   children: [
                     ?component.leading,
 
-                    Column(
-                      spacing: 2,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [component.title, ?component.subtitle],
+                    DefaultTextStyle(
+                      style: const TextStyle(truncate: true),
+                      child: Column(
+                        spacing: 2,
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [component.title, ?component.subtitle],
+                      ),
                     ),
                   ],
                 ),
+              ),
 
-                trailing,
-              ],
-            ),
-            onTap: _toggle,
+              trailing,
+            ],
           ),
-          styles: Styles(raw: component.tilePadding?.pProps),
+          onTap: _toggle,
         ),
 
         // Collapsible body
@@ -1896,7 +1949,13 @@ class _ExpansionTileState extends State<ExpansionTile> {
             div(classes: 'naki-expansion-panel__body-content', [
               div(
                 classes: 'naki-expansion-panel__body-inner',
-                styles: Styles(raw: component.childrenPadding?.pProps),
+                styles: Styles(
+                  raw: {
+                    ...?component.contentPadding?.pProps,
+                    'background-color':
+                        ?component.contentBackgroundColor?.value,
+                  },
+                ),
                 component.children,
               ),
             ]),
@@ -1943,14 +2002,12 @@ class FragmentScope extends StatelessComponent {
   final bool inherit;
 
   /// {@macro FragmentScope}
-  const FragmentScope(
-    this.children, {
-    super.key,
-    this.inherit = false,
-  });
+  const FragmentScope(this.children, {super.key, this.inherit = false});
 
   @override
   Component build(BuildContext context) {
+    if (children.isEmpty) return const Component.empty();
+
     return .element(
       tag: 'naki-fragment',
       children: children,

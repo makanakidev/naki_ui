@@ -747,6 +747,7 @@ class PageNotFound extends StatelessComponent {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         spacing: 15,
+        mainAxisSize: MainAxisSize.min,
         children: [
           const SizedBox.height(Dim.px(30)),
 

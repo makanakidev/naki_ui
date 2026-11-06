@@ -27,6 +27,7 @@ class TodoHeader extends StatelessComponent {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: 14,
+        mainAxisSize: MainAxisSize.min,
         children: [
           // title content row
           Row(
@@ -36,6 +37,7 @@ class TodoHeader extends StatelessComponent {
               const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: 4,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Heading('Tasks'),
                   SubHeading(
@@ -60,6 +62,7 @@ class TodoHeader extends StatelessComponent {
                     '$completedCount of $totalCount done',
                     style: TextStyle(
                       color: context.primaryColor,
+                      softWrap: false,
                       fontWeight: FontWeight.w500,
                       lineHeight: const Dim(1),
                       fontSize: const Dim.rem(0.85),
@@ -86,7 +89,6 @@ class TodoHeader extends StatelessComponent {
                 backgroundColor: context.primaryColor,
                 borderRadius: BorderRadiusData.all(const Dim.px(3)),
               ),
-              child: const .empty(),
             ),
           ),
         ],

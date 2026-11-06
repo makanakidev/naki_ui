@@ -1,3 +1,15 @@
+## Unreleased
+
+- Added `Card.glass` and `Dialog(glass: true)`, translucent surfaces with fallbacks for reduced transparency, higher contrast and forced colors. Added the `glassTint`, `glassRim` and `glassBlur` theme properties.
+- Added the `bottomNavbarGlassRefraction` theme property to scale or turn off `BottomNavigationBarType.liquidGlass` refraction.
+- Fixed `PageController.animateToPage` stepping a page at a time when page snapping is on, and overlapping animations fighting each other.
+- Improved `Spinner.glass`: the glass disc now stays still while only the arc spins, with a clearer surface, a light rim and fallbacks for reduced transparency, higher contrast and forced colors. `surfaceColor` is now optional. Added the `spinnerGlassRim` theme value.
+- Added `BottomNavigationBarType.liquidGlass`, a frosted glass bottom navigation bar that bends the content behind its edges and selection droplet in Chromium browsers. Use `bottomNavbarGlassBlur` theme property to control the blur strength of the liquid glass effect.
+- Improved `BottomNavigationBarType.frostedGlass` rendering: the frosted glass bottom navigation bar is now a clearer glass pill with equal-width tiles, a sliding glass droplet, stronger unselected tile colors, inner rim highlights, more depth, and fallbacks for reduced transparency, higher contrast and forced colors. Added the `bottomNavbarGlassTint`, `bottomNavbarGlassRim`, `bottomNavbarGlassDroplet` and `bottomNavbarGlassBlur` theme properties.
+- Replaced the `important` argument of `Dim` constructors with `Dim.px(500).important`.
+- Added `CalendarType.range` to `Calendar`, with `initialRange`, `onSelectedRange` and `rangeValidator`.
+- Added `fixed` and `blurBackground` properties to `AppBar`. These properties are now used to determine the behavior of the app bar in the `Scaffold` component.
+
 ## 1.0.5
 
 - Fixed component CSS missing from server-rendered pages after the first request in Jaspr's default (inline) styles mode.

@@ -23,7 +23,7 @@ Use this index to load the smallest relevant reference file. Every component exp
 | `FormBuilder`                                                       | Native form composition and validation scope                | [inputs.md](components/inputs.md)           |
 | `AutoCompleteField`                                                 | Filtered text suggestions                                   | [inputs.md](components/inputs.md)           |
 | `SegmentedInput`                                                    | OTP and PIN entry                                           | [inputs.md](components/inputs.md)           |
-| `Calendar`                                                          | Date, time, or combined selection                           | [inputs.md](components/inputs.md)           |
+| `Calendar`                                                          | Date, time, combined, or date range selection               | [inputs.md](components/inputs.md)           |
 | `Checkbox`, `Switch`, `Slider`, `RadioButton`, `Dropdown`           | Selection controls                                          | [selection.md](components/selection.md)     |
 | `Align`, `AspectRatio`                                              | Alignment and ratio constraints                             | [layout.md](components/layout.md)           |
 | `Flexible`, `Expanded`                                              | Flex sizing                                                 | [layout.md](components/layout.md)           |

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math' as math;
+import 'dart:math';
 import 'package:jaspr/dom.dart' hide AspectRatio;
 import 'package:jaspr/jaspr.dart';
 import 'package:universal_web/web.dart' hide Document;
@@ -8,6 +9,7 @@ import '../framework/framework.dart';
 import '../models/naki.dart' show ScrollBarConfiguration;
 import '../models/scrolling.dart';
 import '../models/styling.dart';
+import '../styles/css.dart';
 import '../styles/rules.dart';
 import '../theme/tokens.dart';
 import '../utilities/enums.dart';
@@ -44,6 +46,7 @@ const _defaultLoadMoreThreshold = 200.0;
 ///     radius: 4,
 ///   ),
 ///   child: ListView(
+///     classes: 'my-list',
 ///     physics: const BouncingScrollPhysics(),
 ///     children: [
 ///       NakiText('Item 1'),
@@ -82,7 +85,7 @@ class ScrollBarWrapper extends StatelessComponent {
               children: [
                 StyleRules(
                   Rules.buildScrollbarRules(selector, configuration!),
-                  id: selector.withoutSymbols,
+                  id: '${selector.hashCode}',
                 ),
               ],
             ),
@@ -229,13 +232,14 @@ class _SingleChildScrollViewState extends State<SingleChildScrollView>
       'height': '100%',
       'min-height': '0',
       'min-width': '0',
-      ...?component.padding?.pProps,
+      ...Css.scrollPadding(component.padding, vertical: !isHoriz),
       ...?component.physics?.props(component.direction),
     };
 
     const baseClass = 'naki-singlechild-scrollview';
     final effectiveClasses = joinClasses([
       ?component.classes,
+      if (!isHoriz) ...[kInsetOwnerClass, kFillScrollClass],
       baseClass,
     ]);
 
@@ -555,7 +559,7 @@ class _ListViewState extends State<ListView> with NakiStatefulMixin {
         (isHoriz ? 'width' : 'height'): 'fit-content'
       else
         (isHoriz ? 'width' : 'height'): '100%',
-      ...?component.padding?.pProps,
+      ...Css.scrollPadding(component.padding, vertical: !isHoriz),
       ...?component.physics?.props(component.direction),
       Tokens.current.listViewItemExtentHeight.name: !isHoriz && extent != null
           ? extent.cssText
@@ -568,6 +572,10 @@ class _ListViewState extends State<ListView> with NakiStatefulMixin {
     const baseClass = 'naki-listview';
     final effectiveClasses = joinClasses([
       ?component.classes,
+      if (!isHoriz) ...[
+        kInsetOwnerClass,
+        if (!component.shrinkWrap) kFillScrollClass,
+      ],
       baseClass,
     ]);
 
@@ -806,7 +814,7 @@ class _ListViewBuilderState extends State<_ListViewBuilder>
         (isHoriz ? 'width' : 'height'): 'fit-content'
       else
         (isHoriz ? 'width' : 'height'): '100%',
-      ...?component.padding?.pProps,
+      ...Css.scrollPadding(component.padding, vertical: !isHoriz),
       ...?component.physics?.props(component.direction),
     };
 
@@ -818,6 +826,10 @@ class _ListViewBuilderState extends State<_ListViewBuilder>
     const baseClass = 'naki-listview';
     final effectiveClasses = joinClasses([
       ?component.classes,
+      if (!isHoriz) ...[
+        kInsetOwnerClass,
+        if (!component.shrinkWrap) kFillScrollClass,
+      ],
       baseClass,
     ]);
 
@@ -1064,13 +1076,17 @@ class _ListViewSeparatedState extends State<_ListViewSeparated>
         (isHoriz ? 'width' : 'height'): 'fit-content'
       else
         (isHoriz ? 'width' : 'height'): '100%',
-      ...?component.padding?.pProps,
+      ...Css.scrollPadding(component.padding, vertical: !isHoriz),
       ...?component.physics?.props(component.direction),
     };
 
     const baseClass = 'naki-listview';
     final effectiveClasses = joinClasses([
       ?component.classes,
+      if (!isHoriz) ...[
+        kInsetOwnerClass,
+        if (!component.shrinkWrap) kFillScrollClass,
+      ],
       baseClass,
     ]);
 
@@ -1488,7 +1504,7 @@ class _GridViewState extends State<GridView> with NakiStatefulMixin {
 
       childAspect = delegate.childAspectRatio;
       mainAxisExtent = delegate.mainAxisExtent;
-      if (childAspect == null) mainAxisExtent ??= const Dim.auto();
+      if (childAspect == null) mainAxisExtent ??= Dim.auto;
     } else if (delegate is SliverGridDelegateWithMaxCrossAxisExtent) {
       crossAxisTemplate =
           'repeat(auto-fill, minmax(${delegate.maxCrossAxisExtent.cssText}, 1fr))';
@@ -1497,7 +1513,7 @@ class _GridViewState extends State<GridView> with NakiStatefulMixin {
 
       childAspect = delegate.childAspectRatio;
       mainAxisExtent = delegate.mainAxisExtent;
-      if (childAspect == null) mainAxisExtent ??= const Dim.auto();
+      if (childAspect == null) mainAxisExtent ??= Dim.auto;
     }
 
     final effectiveStyles = <String, String>{
@@ -1516,7 +1532,7 @@ class _GridViewState extends State<GridView> with NakiStatefulMixin {
         (isHoriz ? 'width' : 'height'): 'fit-content'
       else
         (isHoriz ? 'width' : 'height'): '100%',
-      ...?component.padding?.pProps,
+      ...Css.scrollPadding(component.padding, vertical: !isHoriz),
       ...?component.physics?.props(component.direction),
     };
 
@@ -1570,6 +1586,10 @@ class _GridViewState extends State<GridView> with NakiStatefulMixin {
     const baseClass = 'naki-gridview';
     final effectiveClasses = joinClasses([
       ?component.classes,
+      if (!isHoriz) ...[
+        kInsetOwnerClass,
+        if (!component.shrinkWrap) kFillScrollClass,
+      ],
       baseClass,
     ]);
 
@@ -1815,7 +1835,7 @@ class _GridViewBuilderState extends State<_GridViewBuilder>
 
       childAspect = delegate.childAspectRatio;
       mainAxisExtent = delegate.mainAxisExtent;
-      if (childAspect == null) mainAxisExtent ??= const Dim.auto();
+      if (childAspect == null) mainAxisExtent ??= Dim.auto;
     } else if (delegate is SliverGridDelegateWithMaxCrossAxisExtent) {
       crossAxisTemplate =
           'repeat(auto-fill, minmax(${delegate.maxCrossAxisExtent.cssText}, 1fr))';
@@ -1824,7 +1844,7 @@ class _GridViewBuilderState extends State<_GridViewBuilder>
 
       childAspect = delegate.childAspectRatio;
       mainAxisExtent = delegate.mainAxisExtent;
-      if (childAspect == null) mainAxisExtent ??= const Dim.auto();
+      if (childAspect == null) mainAxisExtent ??= Dim.auto;
     }
 
     final effectiveStyles = <String, String>{
@@ -1843,7 +1863,7 @@ class _GridViewBuilderState extends State<_GridViewBuilder>
         (isHoriz ? 'width' : 'height'): 'fit-content'
       else
         (isHoriz ? 'width' : 'height'): '100%',
-      ...?component.padding?.pProps,
+      ...Css.scrollPadding(component.padding, vertical: !isHoriz),
       ...?component.physics?.props(component.direction),
     };
 
@@ -1895,6 +1915,10 @@ class _GridViewBuilderState extends State<_GridViewBuilder>
     const baseClass = 'naki-gridview';
     final effectiveClasses = joinClasses([
       ?component.classes,
+      if (!isHoriz) ...[
+        kInsetOwnerClass,
+        if (!component.shrinkWrap) kFillScrollClass,
+      ],
       baseClass,
     ]);
 
@@ -2172,9 +2196,8 @@ class _PageViewState extends State<PageView> with NakiStatefulMixin {
     final effectiveStyles = {
       'overflow-x': isHoriz ? 'auto' : 'hidden',
       'overflow-y': !isHoriz ? 'auto' : 'hidden',
-      'scroll-snap-type': component.pageSnapping
-          ? '${isHoriz ? 'x' : 'y'} mandatory'
-          : 'none',
+      if (component.pageSnapping)
+        'scroll-snap-type': '${isHoriz ? 'x' : 'y'} mandatory',
       'flex-direction': isHoriz
           ? (component.reverse ? 'row-reverse' : 'row')
           : (component.reverse ? 'column-reverse' : 'column'),
@@ -2182,7 +2205,11 @@ class _PageViewState extends State<PageView> with NakiStatefulMixin {
     };
 
     const baseClass = 'naki-pageview';
-    final effectiveClasses = joinClasses([?component.classes, baseClass]);
+    final effectiveClasses = joinClasses([
+      ?component.classes,
+      kInsetOwnerClass,
+      baseClass,
+    ]);
 
     final Component child = .element(
       tag: 'naki-pageview',
@@ -2190,6 +2217,11 @@ class _PageViewState extends State<PageView> with NakiStatefulMixin {
       key: component.key,
       classes: effectiveClasses,
       styles: Styles(raw: effectiveStyles),
+      attributes: {
+        if (component.pageSnapping ||
+            component.physics?.type == ScrollPhysicsType.snapping)
+          'snap': '',
+      },
       children: component.children,
     );
 
@@ -2299,9 +2331,8 @@ class _PageViewBuilderState extends State<_PageViewBuilder>
     final effectiveStyles = {
       'overflow-x': isHoriz ? 'auto' : 'hidden',
       'overflow-y': !isHoriz ? 'auto' : 'hidden',
-      'scroll-snap-type': component.pageSnapping
-          ? '${isHoriz ? 'x' : 'y'} mandatory'
-          : 'none',
+      if (component.pageSnapping)
+        'scroll-snap-type': '${isHoriz ? 'x' : 'y'} mandatory',
       'flex-direction': isHoriz
           ? (component.reverse ? 'row-reverse' : 'row')
           : (component.reverse ? 'column-reverse' : 'column'),
@@ -2314,7 +2345,11 @@ class _PageViewBuilderState extends State<_PageViewBuilder>
     }
 
     const baseClass = 'naki-pageview';
-    final effectiveClasses = joinClasses([?component.classes, baseClass]);
+    final effectiveClasses = joinClasses([
+      ?component.classes,
+      kInsetOwnerClass,
+      baseClass,
+    ]);
 
     final Component child = .element(
       tag: 'naki-pageview',
@@ -2322,6 +2357,11 @@ class _PageViewBuilderState extends State<_PageViewBuilder>
       key: component.key,
       classes: effectiveClasses,
       styles: Styles(raw: effectiveStyles),
+      attributes: {
+        if (component.pageSnapping ||
+            component.physics?.type == ScrollPhysicsType.snapping)
+          'snap': '',
+      },
       children: pages,
     );
 
@@ -2381,14 +2421,14 @@ class CarouselView extends StatefulComponent {
   /// ### Example
   /// ```dart
   /// CarouselView(
-  ///   flexWeights: [1, 2, 3],
+  ///   flexWeights: [1, 0.5, 3],
   ///   itemExtent: Dim.px(100),
   ///   ...
   /// )
   /// ```
   ///
   /// When `null`, [children] will be sized based on [itemExtent].
-  final List<int>? flexWeights;
+  final List<double>? flexWeights;
 
   /// Scroll direction.
   final ScrollDirection direction;
@@ -2403,6 +2443,9 @@ class CarouselView extends StatefulComponent {
 
   /// Scroll controller for observing and controlling scrolling.
   final ScrollController? controller;
+
+  /// Spacing between [children] along the scroll [direction].
+  final Dim? mainAxisSpacing;
 
   /// Callback invoked when a component in [children] is tapped/clicked.
   final ValueChanged<int>? onTap;
@@ -2426,6 +2469,7 @@ class CarouselView extends StatefulComponent {
     this.reverse = false,
     this.itemSnapping = true,
     this.controller,
+    this.mainAxisSpacing,
     this.onTap,
     this.physics,
     this.flexWeights,
@@ -2465,6 +2509,7 @@ class CarouselView extends StatefulComponent {
   /// * [direction]: Scroll axis direction.
   /// * [reverse]: Whether components are rendered in reverse order.
   /// * [itemSnapping]: Whether components snap into alignment on scroll end.
+  /// * [mainAxisSpacing]: Spacing between components along the scroll direction
   /// * [controller]: Controller for programmatic scrolling.
   /// * [physics]: Scroll physics governing inertia and snap behavior.
   /// * [scrollBarConfig]: Scroll bar configuration.
@@ -2472,12 +2517,13 @@ class CarouselView extends StatefulComponent {
   /// * [classes]: Additional CSS class names applied to the carousel component.
   factory CarouselView.weighted({
     Key? key,
-    required List<int> flexWeights,
+    required List<double> flexWeights,
     required Dim itemExtent,
     required List<Component> children,
     ScrollDirection direction = ScrollDirection.horizontal,
     bool reverse = false,
     bool itemSnapping = true,
+    Dim? mainAxisSpacing,
     ScrollController? controller,
     ScrollPhysics? physics,
     ValueChanged<int>? onTap,
@@ -2492,6 +2538,7 @@ class CarouselView extends StatefulComponent {
       direction: direction,
       reverse: reverse,
       itemSnapping: itemSnapping,
+      mainAxisSpacing: mainAxisSpacing,
       controller: controller,
       physics: physics,
       onTap: onTap,
@@ -2546,11 +2593,11 @@ class _CarouselViewState extends State<CarouselView> with NakiStatefulMixin {
     final isHoriz = component.direction == ScrollDirection.horizontal;
 
     final effectiveStyles = {
+      Tokens.current.carouselGap.name: ?component.mainAxisSpacing?.cssText,
       'overflow-x': isHoriz ? 'auto' : 'hidden',
       'overflow-y': !isHoriz ? 'auto' : 'hidden',
-      'scroll-snap-type': component.itemSnapping
-          ? '${isHoriz ? 'x' : 'y'} mandatory'
-          : 'none',
+      if (component.itemSnapping)
+        'scroll-snap-type': '${isHoriz ? 'x' : 'y'} mandatory',
       'flex-direction': isHoriz
           ? (component.reverse ? 'row-reverse' : 'row')
           : (component.reverse ? 'column-reverse' : 'column'),
@@ -2566,7 +2613,7 @@ class _CarouselViewState extends State<CarouselView> with NakiStatefulMixin {
       final weight = (hasWeights && i < weights.length) ? weights[i] : null;
 
       final itemExtentCss = weight != null
-          ? 'calc(${component.itemExtent.cssText} * $weight)'
+          ? 'calc(${component.itemExtent.cssText} * ${weight.toCleanString})'
           : component.itemExtent.cssText;
 
       items.add(
@@ -2608,6 +2655,11 @@ class _CarouselViewState extends State<CarouselView> with NakiStatefulMixin {
       key: component.key,
       classes: effectiveClasses,
       styles: Styles(raw: effectiveStyles),
+      attributes: {
+        if (component.itemSnapping ||
+            component.physics?.type == ScrollPhysicsType.snapping)
+          'snap': '',
+      },
       children: items,
     );
 
@@ -2750,7 +2802,7 @@ class Table extends StatelessComponent {
   /// {@macro Table}
   const Table({
     super.key,
-    this.headers = const [],
+    required this.headers,
     this.rows = const [],
     this.headerBorderColor = Colors.transparent,
     this.emptyStateTitle = 'No data available',
@@ -2763,7 +2815,7 @@ class Table extends StatelessComponent {
     this.rowHoverColor,
     this.classes,
     this.emptyStateContent,
-  });
+  }) : assert(headers.length > 0, 'Table headers cannot be empty');
 
   @override
   Component build(BuildContext context) {
@@ -2787,7 +2839,7 @@ class Table extends StatelessComponent {
     emptyState = .wrapElement(classes: 'naki-table__empty', child: emptyState);
 
     emptyState = tr([
-      td(colspan: headers.length, id: 'no-data', [emptyState]),
+      td(colspan: min(headers.length, 7), id: 'no-data', [emptyState]),
     ]);
 
     // Column widths
@@ -2809,9 +2861,24 @@ class Table extends StatelessComponent {
     // Header
     if (headers.isNotEmpty) {
       for (int i = 0; i < headers.length; i++) {
-        final h = headers[i];
         final alignment = headerAlignment?.name;
-        headCells.add(th(styles: Styles(raw: {'text-align': ?alignment}), [h]));
+        final border =
+            '1px solid var(${Tokens.current.tableHeaderBorderColor})';
+
+        headCells.add(
+          th(
+            styles: Styles(
+              raw: {
+                'text-align': ?alignment,
+                if (headerBorderColor.value != 'transparent') ...{
+                  if (i < headers.length - 1) 'border-right': border,
+                  'border-bottom': border,
+                },
+              },
+            ),
+            [headers[i]],
+          ),
+        );
       }
     }
 
@@ -2844,9 +2911,10 @@ class Table extends StatelessComponent {
           tr(
             id: row.id,
             classes: row.classes,
-            attributes: row.onClick == null
-                ? null
-                : const {'role': 'button', 'tabindex': '0'},
+            attributes: {
+              if (row.onClick != null) ...{'role': 'button', 'tabindex': '0'},
+              if (rowHoverColor != null) 'hvr': '',
+            },
             events: row.onClick == null
                 ? null
                 : {
@@ -3098,8 +3166,7 @@ class _StaggeredViewState extends State<StaggeredView> with NakiStatefulMixin {
     final effectiveStyles = {
       if (!isHoriz) ...{
         'display': 'block',
-        'column-count': component.crossAxisCount.toString(),
-        'column-gap': component.crossAxisSpacing.cssText,
+        'height': '100%',
       } else ...{
         'display': 'grid',
         'grid-auto-flow': 'column',
@@ -3111,7 +3178,7 @@ class _StaggeredViewState extends State<StaggeredView> with NakiStatefulMixin {
       },
       'overflow-x': isHoriz ? 'auto' : 'hidden',
       'overflow-y': !isHoriz ? 'auto' : 'hidden',
-      ...?component.padding?.pProps,
+      ...Css.scrollPadding(component.padding, vertical: !isHoriz),
       ...?component.physics?.props(component.direction),
     };
 
@@ -3132,7 +3199,8 @@ class _StaggeredViewState extends State<StaggeredView> with NakiStatefulMixin {
       final isFullWidth = isSpanLast || (tile?.fullWidth ?? false);
 
       items.add(
-        .wrapElement(
+        .element(
+          tag: 'naki-staggered-item',
           classes: 'naki-staggered-item',
           styles: Styles(
             raw: {
@@ -3141,7 +3209,7 @@ class _StaggeredViewState extends State<StaggeredView> with NakiStatefulMixin {
               if (isHoriz) 'margin-right': component.mainAxisSpacing.cssText,
             },
           ),
-          child: child,
+          children: [child],
         ),
       );
     }
@@ -3149,6 +3217,7 @@ class _StaggeredViewState extends State<StaggeredView> with NakiStatefulMixin {
     const baseClass = 'naki-staggeredview';
     final effectiveClasses = joinClasses([
       ?component.classes,
+      if (!isHoriz) ...[kInsetOwnerClass, kFillScrollClass],
       baseClass,
     ]);
 
@@ -3158,7 +3227,22 @@ class _StaggeredViewState extends State<StaggeredView> with NakiStatefulMixin {
       key: component.key,
       classes: effectiveClasses,
       styles: Styles(raw: effectiveStyles),
-      children: items,
+      children: isHoriz
+          ? items
+          : [
+              .element(
+                tag: 'naki-staggered-columns',
+                classes: 'naki-staggered-columns',
+                styles: Styles(
+                  raw: {
+                    'display': 'block',
+                    'column-count': '${component.crossAxisCount}',
+                    'column-gap': component.crossAxisSpacing.cssText,
+                  },
+                ),
+                children: items,
+              ),
+            ],
     );
 
     return ScrollBarWrapper(

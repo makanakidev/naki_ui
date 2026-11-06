@@ -417,6 +417,16 @@ extension NumExtension on num {
   /// // returns: '12.34px'
   /// ```
   String get toPx => '${toCleanString}px';
+
+  /// Returns a CSS-formatted dimension string with '%' unit.
+  ///
+  /// Example:
+  /// ```dart
+  /// final number = 12.0;
+  /// final pctString = number.toPct;
+  /// // returns: '12%'
+  /// ```
+  String get toPct => '${clamp(0, 100).toCleanString}%';
 }
 
 /// Extension on [BuildContext] for accessing Naki
@@ -447,16 +457,6 @@ extension ContextExtension on BuildContext {
   // /////////////////////
   // ACCESS COLOR TOKEN VALUES
   // /////////////////////
-
-  /// Applies opacity to a [Color].
-  ///
-  /// Example:
-  /// ```dart
-  /// final color = context.primaryColor;
-  /// final withOpacity = context.withOpacity(color, 0.5);
-  /// // returns: Color(0x80FF0000) (50% opacity)
-  /// ```
-  Color withOpacity(Color color, double opacity) => color.withOpacity(opacity);
 
   // Brand Colors
 
@@ -606,7 +606,7 @@ extension ContextExtension on BuildContext {
   Color get buttonBackgroundColor => themeTokens.buttonBackgroundColor.color!;
 
   /// Button foreground color.
-  Color get buttonColor => themeTokens.buttonColor.color!;
+  Color get buttonForegroundColor => themeTokens.buttonForegroundColor.color!;
 
   /// Form field background color.
   Color get fieldBackgroundColor => themeTokens.fieldBackgroundColor.color!;
@@ -889,6 +889,54 @@ extension DateTimeExtension on DateTime {
     final formattedMinute = minute.toString().padLeft(2, '0');
     return '$formattedHour:$formattedMinute';
   }
+
+  /// Formats date range as '24/02/2026 - 26/02/2026'.
+  ///
+  /// Example:
+  /// ```dart
+  /// final date = DateTime(2026, 2, 24);
+  /// final formatted = date.asRange(DateTime(2026, 2, 26));
+  /// // returns: '24/02/2026 - 26/02/2026'
+  /// ```
+  String asRange(DateTime to) {
+    if (isSameAs(to)) return toDateWithSlashes;
+    return '$toDateWithSlashes - ${to.toDateWithSlashes}';
+  }
+
+  /// Returns every calendar day from this date through [end], inclusive.
+  ///
+  /// Days are built from calendar fields rather than a fixed 24-hour
+  /// [Duration], so each one stays at midnight across daylight saving changes.
+  ///
+  /// Example:
+  /// ```dart
+  /// final days = DateTime(2026, 2, 24).daysThrough(DateTime(2026, 2, 26));
+  /// // returns: [Feb 24, Feb 25, Feb 26]
+  /// ```
+  List<DateTime> daysThrough(DateTime end) {
+    final count = DateTime.utc(
+      end.year,
+      end.month,
+      end.day,
+    ).difference(DateTime.utc(year, month, day)).inDays;
+
+    return [
+      for (var i = 0; i <= count; i++) DateTime(year, month, day + i),
+    ];
+  }
+
+  /// Returns true if this calendar day is earlier than the day of [date],
+  /// ignoring the time of both.
+  ///
+  /// Example:
+  /// ```dart
+  /// final date = DateTime(2024, 2, 24, 23, 0);
+  /// final check = date.isBeforeDay(DateTime(2024, 2, 24, 8, 0));
+  /// // returns: false
+  /// ```
+  bool isBeforeDay(DateTime date) => DateTime.utc(year, month, day).isBefore(
+    DateTime.utc(date.year, date.month, date.day),
+  );
 
   /// Formats time as '10:30:05 PM'.
   ///

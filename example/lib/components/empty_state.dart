@@ -48,17 +48,15 @@ class EmptyState extends StatelessComponent {
               decoration: BoxDecoration(
                 backgroundColor: context.surfaceMutedColor,
                 borderRadius: BorderRadiusData.all(const Dim.px(28)),
-              ),
-              child: Padding(
+                margin: const EdgeInsets.only(bottom: Dim.px(4)),
                 padding: const EdgeInsets.all(Dim.px(16)),
-                child: Icon(
-                  MaterialIcons.icon_round_checklist,
-                  size: 32,
-                  color: context.subtitleColor,
-                ),
+              ),
+              child: Icon(
+                MaterialIcons.icon_round_checklist,
+                size: 32,
+                color: context.textColor,
               ),
             ),
-            const SizedBox.height(Dim.px(4)),
             NakiText(
               message,
               style: TextStyle(

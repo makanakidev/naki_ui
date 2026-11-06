@@ -58,8 +58,15 @@ class Checkbox extends StatelessComponent {
   /// (defaults to [Position.left]).
   final Position labelPosition;
 
-  /// Color applied to the checkbox tick.
+  /// Color of the checkbox tick.
   final Color? color;
+
+  /// When `true`, the checkbox will use a fully rounded shape
+  /// instead of the default square shape.
+  final bool rounded;
+
+  /// Custom size of the checkbox (in pixels).
+  final double? size;
 
   /// Whether the checkbox is currently checked.
   final bool isChecked;
@@ -82,6 +89,7 @@ class Checkbox extends StatelessComponent {
     super.key,
     required this.onChange,
     this.labelPosition = Position.left,
+    this.rounded = false,
     this.disabled = false,
     this.isChecked = false,
     this.expand = false,
@@ -90,6 +98,7 @@ class Checkbox extends StatelessComponent {
     this.value,
     this.classes,
     this.label,
+    this.size,
     this.color,
     this.labelStyle,
   }) : assert(
@@ -106,7 +115,7 @@ class Checkbox extends StatelessComponent {
     const String baseClass = 'naki-checkbox';
     final String effectiveClasses = joinClasses([?classes, baseClass]);
 
-    // Add checkbox
+    // Input
     children.add(
       span(classes: 'naki-control-hitbox', [
         input<bool>(
@@ -115,9 +124,18 @@ class Checkbox extends StatelessComponent {
           name: name,
           value: value,
           type: InputType.checkbox,
-          attributes: !disabled ? {'fcs': ''} : null,
+          attributes: {
+            'fcs': ?(!disabled ? '' : null),
+            'shape': rounded ? 'round' : 'square',
+          },
           classes: effectiveClasses,
-          styles: Styles(color: color),
+          styles: Styles(
+            raw: {
+              'color': ?color?.value,
+              'height': ?size?.toPx,
+              'width': ?size?.toPx,
+            },
+          ),
           checked: isChecked,
           disabled: disabled,
           onChange: disabled ? null : onChange,
@@ -125,7 +143,7 @@ class Checkbox extends StatelessComponent {
       ]),
     );
 
-    // Add label
+    // Label
     if (label.isNotNullAndEmpty) {
       final cleanedStyle = (labelStyle ?? const TextStyle()).copyWith(
         margin: .zero,
@@ -350,7 +368,7 @@ class Slider extends StatelessComponent {
   final ValueChanged<double>? onChange;
 
   /// Whether user interaction with the slider is allowed.
-  final bool allowInteraction;
+  final bool enable;
 
   /// Additional CSS classes applied to the slider component.
   final String? classes;
@@ -365,7 +383,7 @@ class Slider extends StatelessComponent {
     this.value = 0,
     this.minValue = 0.0,
     this.maxValue = 100.0,
-    this.allowInteraction = true,
+    this.enable = true,
     this.showValueIndicator = false,
     this.height = const Dim.px(24),
     this.width,
@@ -390,23 +408,32 @@ class Slider extends StatelessComponent {
   @override
   Component build(BuildContext context) {
     final String _id = 'nsl_$id';
-    final showTooltip = allowInteraction && showValueIndicator;
+    final showTooltip = enable && showValueIndicator;
 
-    final double percent = ((value - minValue) * 100) / (maxValue - minValue);
-    final String position = 'calc($percent% + (${8 - percent * 0.15}px))';
+    // Offset from the track position to the thumb center, which travels
+    // half a thumb less than the track at each end.
+    final double percent = (value - minValue) * 100 / (maxValue - minValue);
+    final String thumbSize =
+        'var(${Tokens.current.sliderThumbSize.name}, 24px)';
+    final String position =
+        'calc($percent% + $thumbSize * ${0.5 - percent / 100})';
 
     const String baseClass = 'naki-slider';
     final String effectiveClasses = joinClasses([?classes, baseClass]);
 
     final _style = {
-      Tokens.current.sliderThumbSize.name: height.cssText,
       Tokens.current.sliderThumbColor.name: ?thumbColor?.value,
       Tokens.current.sliderTrackColor.name: ?color?.value,
-      'width': ?width?.cssText,
     };
 
     return .element(
       tag: 'naki-slider',
+      styles: Styles(
+        raw: {
+          Tokens.current.sliderThumbSize.name: height.cssText,
+          'width': ?width?.cssText,
+        },
+      ),
       children: [
         // Input
         input<double>(
@@ -416,7 +443,7 @@ class Slider extends StatelessComponent {
           type: InputType.range,
           classes: effectiveClasses,
           styles: Styles(raw: _style),
-          disabled: !allowInteraction,
+          disabled: !enable,
           value: value.toCleanString,
           attributes: {
             'min': minValue.toCleanString,
@@ -426,14 +453,10 @@ class Slider extends StatelessComponent {
                 : ((maxValue - minValue) / divisions!).toCleanString,
             'aria-label': ?semanticLabel,
           },
-          onInput: allowInteraction
+          onInput: enable
               ? (value) {
                   onChange?.call(value);
-                  if (showTooltip) updateSliderTooltip(_id, hide: false);
                 }
-              : null,
-          events: showTooltip
-              ? {'blur': (_) => updateSliderTooltip(_id)}
               : null,
         ),
 
@@ -445,7 +468,7 @@ class Slider extends StatelessComponent {
             id: '$_id-tooltip',
             attributes: {'for': _id},
             styles: Styles(raw: {'left': position}),
-            children: [.text(value.toCleanString)],
+            children: [.text('${value.roundDown}')],
           ),
       ],
     );
@@ -557,6 +580,7 @@ class RadioButton extends StatelessComponent {
           styles: Styles(raw: styles),
           checked: isSelected,
           disabled: disabled,
+          attributes: {'role': 'radio', 'fcs': ?(!disabled ? '' : null)},
           onChange: disabled ? null : onChange,
         ),
       ]),

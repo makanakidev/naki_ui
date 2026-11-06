@@ -52,7 +52,7 @@ Image(
   ),
   fit: ObjectFit.cover,
   position: ObjectPosition.topCenter,
-  radius: BorderRadiusData.all(Dim.percent(50)),
+  radius: BorderRadiusData.all(Dim.px(999)),
 )
 ```
 
@@ -128,7 +128,7 @@ const Spinner(
 )
 ```
 
-Use `Spinner.ios` for the iOS-style variant and `Spinner.glass(surfaceColor: ...)` over translucent surfaces. Keep a meaningful semantic label and pair long operations with explanatory text.
+Use `Spinner.ios` for the iOS-style variant and `Spinner.glass()` (`surfaceColor` is optional) over translucent surfaces for a nice glass effect. Keep a meaningful semantic label and pair long operations with explanatory text. Under `prefers-reduced-motion`, spinners pulse slowly instead of rotating.
 
 ## GestureDetector
 

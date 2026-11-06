@@ -114,7 +114,7 @@ Use `initialValue` for the initial uncontrolled value and `value` for controlled
 
 ## Calendar
 
-Select a date, time, or both through an accessible dialog-backed picker.
+Select a date, time, both, or a date range through an accessible dialog-backed picker.
 
 ```dart
 Calendar(
@@ -131,4 +131,28 @@ Calendar(
 )
 ```
 
-`minimum` must not be after `maximum`, and `initialValue` must fall within the range. Enabling `autoValidate` requires a validator. When providing a custom `child` trigger, keep its purpose clear; the component supplies dialog-related ARIA metadata and gesture handling around it. The label comes from `InputDecoration`.
+`minimum` must not be after `maximum`, and `initialValue` and `initialRange` must fall within those bounds. Enabling `autoValidate` requires `validator` or `rangeValidator`. When providing a custom `child` trigger, keep its purpose clear; the component supplies dialog-related ARIA metadata and gesture handling around it. The label comes from `InputDecoration`.
+
+### Date ranges
+
+Use `CalendarType.range` with `initialRange`, `onSelectedRange`, and `rangeValidator`. `onSelected` is not called for range calendars, and `validator` receives only the start date.
+
+```dart
+Calendar(
+  id: 'trip-dates',
+  type: CalendarType.range,
+  initialRange: [tripStart, tripEnd],
+  autoValidate: true,
+  rangeValidator: (days) {
+    if (days == null) return 'Select your travel dates';
+    if (days.length > 14) return 'Maximum 14 days allowed';
+    return null;
+  },
+  onSelectedRange: updateTripDates,
+  decoration: const InputDecoration(labelText: 'Travel dates'),
+)
+```
+
+`onSelectedRange` and `rangeValidator` receive every day from start through end in ascending order; use `days.first` and `days.last` for the endpoints. `rangeValidator` receives `null` when nothing is selected. `initialRange` accepts dates in any order and ignores their time: the earliest and latest dates set the range, and a single date is a one-day range. Do not expand the range yourself with `Duration(days: 1)`, because that drifts across daylight saving changes; use `start.daysThrough(end)`.
+
+`Ok` stays disabled until the range has an end date, and every way of closing the picker other than `Ok` discards an unconfirmed selection. Native forms receive the start date under the calendar's `id` and the end date under `{id}_end`, both as `yyyy-MM-dd`.

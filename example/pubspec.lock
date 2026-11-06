@@ -311,7 +311,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "1.0.2"
+    version: "1.0.5"
   package_config:
     dependency: transitive
     description:

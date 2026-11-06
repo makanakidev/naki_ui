@@ -3,18 +3,159 @@ import '../models/styling.dart';
 import '../theme/tokens.dart';
 import 'text_style.dart';
 
+/// CSS variable holding the selected index of a frosted bottom navigation bar.
+const kNavbarIndexVar = '--naki-navbar-index';
+
+/// CSS variable holding the item count of a frosted bottom navigation bar.
+const kNavbarCountVar = '--naki-navbar-count';
+
+/// Custom property holding the frosted bottom navbar's refraction filter.
+const kNavbarRefractionVar = '--naki-navbar-refraction';
+
+/// Custom property holding the selection droplet's refraction filter.
+const kNavbarDropletRefractionVar = '--naki-navbar-droplet-refraction';
+
+/// Custom property holding the color behind a glass card.
+const kCardGlassColorVar = '--naki-card-glass-color';
+
+/// Marks a component that handles the Scaffold insets itself.
+///
+/// A Scaffold body with such a direct child publishes the insets through
+/// [kBodyInsetTopVar] and [kBodyInsetBottomVar] instead of padding its content.
+const kInsetOwnerClass = 'naki-inset-owner';
+
+/// Marks a scroll view that takes the height of its parent, so a
+/// parent Row or Column has to give it one.
+const kFillScrollClass = 'naki-fill-scroll';
+
+/// Height of the Scaffold body covered by a fixed app bar.
+const kScaffoldInsetTopVar = '--naki-scaffold-inset-top';
+
+/// Top inset a [kInsetOwnerClass] component has to apply.
+const kBodyInsetTopVar = '--naki-body-inset-top';
+
+/// Bottom inset a [kInsetOwnerClass] component has to apply.
+const kBodyInsetBottomVar = '--naki-body-inset-bottom';
+
 /// CSS styling utilities and default styles for Naki components.
 ///
 /// Contains default styles for common components
 /// (inputs, checkboxes, sliders, etc.) and helper method
 /// for color opacity manipulation.
 class Css {
+  /// Writes a variable token with its default value.
+  static String _var(Token token, [String? fallback]) =>
+      'var($token, ${fallback ?? token.value})';
+
+  /// White at [alpha], scaled by the rim strength in [token].
+  static String _glassRim(
+    double alpha, [
+    Token? token,
+  ]) {
+    final strength = _var(token ?? Tokens.current.bottomNavbarGlassRim);
+    return 'color-mix(in srgb, white calc($strength * $alpha), transparent)';
+  }
+
+  /// Lit edge of a glass surface: a hairline, two highlights and a soft glow.
+  static String _glassEdge(Token rim, {String glow = '10px'}) =>
+      'inset 0 0 0 1px ${_glassRim(0.45, rim)}, '
+      'inset 1.5px 1.5px 1px -0.5px ${_glassRim(0.85, rim)}, '
+      'inset -1.5px -1.5px 1px -0.5px ${_glassRim(0.6, rim)}, '
+      'inset 0 0 $glow 1px ${_glassRim(0.28, rim)}';
+
+  /// The recipe every glass surface shares: [color] mixed down to [tint] over
+  /// a blurred backdrop, finished with an edge lit by [rim].
+  ///
+  /// [refraction] names a custom property that replaces the blur when set.
+  static Map<String, String> _glassSurface({
+    required String color,
+    required String tint,
+    required String blur,
+    required Token rim,
+    String glow = '10px',
+    String? shadow,
+    String? refraction,
+  }) {
+    final frost = 'blur($blur)';
+    return {
+      'background-color': 'color-mix(in srgb, $color $tint, transparent)',
+      '-webkit-backdrop-filter': '$frost saturate(140%)',
+      'backdrop-filter': refraction == null
+          ? '$frost saturate(140%)'
+          : 'var($refraction, $frost) saturate(140%)',
+      'box-shadow': [?shadow, _glassEdge(rim, glow: glow)].join(', '),
+    };
+  }
+
+  /// Removes the backdrop effect from a glass surface.
+  static const _noGlass = {
+    '-webkit-backdrop-filter': 'none',
+    'backdrop-filter': 'none',
+  };
+
+  /// Opaque glass for `prefers-reduced-transparency`.
+  static Map<String, String> _glassSolid(String color) => {
+    ..._noGlass,
+    'background-color': color,
+  };
+
+  /// Opaque glass with a visible edge for `prefers-contrast`.
+  static Map<String, String> _glassHighContrast(String color) => {
+    ..._glassSolid(color),
+    'box-shadow': 'inset 0 0 0 1.5px currentColor',
+  };
+
+  /// Outlined glass for `forced-colors`.
+  static const _glassForcedColors = {
+    ..._noGlass,
+    'outline': '1px solid CanvasText',
+  };
+
+  /// Space between a glass spinner's disc and its arc.
+  static const _spinnerGlassInset = '8px';
+
+  /// Darkens the content behind the selection droplet.
+  static String get _dropletDim {
+    final strength = _var(Tokens.current.bottomNavbarGlassDroplet);
+    return 'brightness(calc(100% - $strength * 0.25))';
+  }
+
+  /// Padding of a scroll view: [padding], plus the Scaffold insets when the
+  /// view is [vertical], so its content can scroll clear of the bars.
+  static Map<String, String> scrollPadding(
+    EdgeInsets? padding, {
+    required bool vertical,
+  }) => {
+    ...?padding?.pProps,
+    if (vertical) ...{
+      'padding-top': _insetPadding(padding?.top, kBodyInsetTopVar),
+      'padding-bottom': _insetPadding(padding?.bottom, kBodyInsetBottomVar),
+    },
+  };
+
+  /// Adds the inset in [variable] to a padding [value].
+  static String _insetPadding(Dim? value, String variable) =>
+      'calc(${value?.cssText ?? '0px'} + var($variable, 0px))';
+
+  /// Bottom inset of the Scaffold body.
+  static String get _scaffoldInsetBottom =>
+      _var(Tokens.current.bottomNavbarInset);
+
+  /// Top inset of the Scaffold body.
+  static const _scaffoldInsetTop = 'var($kScaffoldInsetTopVar, 0px)';
+
+  /// Stops descendants from applying insets that are already handled.
+  static const nakiInsetConsumedStyle = {
+    kBodyInsetTopVar: '0px',
+    kBodyInsetBottomVar: '0px',
+  };
+
   /// Mixes a color with transparent space to apply a custom opacity level.
   ///
   /// [opacity] is a value from 0.0 to 1.0.
   static Color applyOpacity(Token token, double opacity) {
     opacity = opacity > 1 ? opacity / 100 : opacity;
-    return Color('var(${token.name}, ${token.value})').withOpacity(opacity);
+    return Color(_var(token)).withOpacity(opacity);
   }
 
   /// Floating Action Button z-index -> `900`.
@@ -83,10 +224,8 @@ class Css {
   static final nakiTextClampStyle = {
     'display': '-webkit-box',
     '-webkit-box-orient': 'vertical',
-    'line-clamp':
-        'var(${Tokens.current.textMaxLines}, ${Tokens.current.textMaxLines.value})',
-    '-webkit-line-clamp':
-        'var(${Tokens.current.textMaxLines}, ${Tokens.current.textMaxLines.value})',
+    '-webkit-line-clamp': _var(Tokens.current.textMaxLines),
+    'line-clamp': _var(Tokens.current.textMaxLines),
     'overflow': 'hidden',
     'height': 'auto',
     'max-height': 'none',
@@ -95,28 +234,18 @@ class Css {
   /// Default text style for form field labels.
   static final nakiLabelStyle = TextStyle(
     fontWeight: .w500,
-    fontSize: .variable(
-      Tokens.current.fontSizeLabel.name,
-      defaultValue: Tokens.current.fontSizeLabel.value,
-    ),
-    color: .variable(
-      '${Tokens.current.labelColor}, ${Tokens.current.labelColor.value}',
-    ),
-    lineHeight: const Dim.normal(),
-    width: const .fitContent(),
+    fontSize: Dim(null, unit: _var(Tokens.current.fontSizeLabel)),
+    color: Color(_var(Tokens.current.labelColor)),
+    lineHeight: Dim.normal,
+    width: Dim.fitContent,
     margin: const EdgeInsets.only(bottom: Dim.px(12)),
   );
 
   /// Default text style for helper/hint text.
   static final nakiHelperTextStyle = TextStyle(
-    fontSize: .variable(
-      Tokens.current.fontSizeHint.name,
-      defaultValue: Tokens.current.fontSizeHint.value,
-    ),
-    color: .variable(
-      '${Tokens.current.mutedColor}, ${Tokens.current.mutedColor.value}',
-    ),
-    lineHeight: const Dim.normal(),
+    fontSize: Dim(null, unit: _var(Tokens.current.fontSizeHint)),
+    color: Color(_var(Tokens.current.mutedColor)),
+    lineHeight: Dim.normal,
     padding: const EdgeInsets.only(top: Dim.px(5)),
     margin: EdgeInsets.zero,
     extra: {'white-space': 'pre-wrap', 'word-break': 'break-word'},
@@ -127,14 +256,9 @@ class Css {
 
   /// Default text style for form validation errors.
   static final nakiErrorTextStyle = TextStyle(
-    fontSize: .variable(
-      Tokens.current.fontSizeError.name,
-      defaultValue: Tokens.current.fontSizeError.value,
-    ),
-    lineHeight: const Dim.normal(),
-    color: .variable(
-      '${Tokens.current.errorColor}, ${Tokens.current.errorColor.value}',
-    ),
+    fontSize: Dim(null, unit: _var(Tokens.current.fontSizeError)),
+    lineHeight: Dim.normal,
+    color: Color(_var(Tokens.current.errorColor)),
     extra: {'white-space': 'pre-wrap', 'word-break': 'break-word'},
   );
 
@@ -157,8 +281,7 @@ class Css {
 
   /// Default placeholder text styling rule inside inputs.
   static final nakiPlaceholderStyle = {
-    'color':
-        'var(${Tokens.current.placeholderColor}, ${Tokens.current.placeholderColor.value})',
+    'color': _var(Tokens.current.placeholderColor),
     'opacity': '0.6',
     'z-index': '0',
     'position': 'absolute',
@@ -174,10 +297,8 @@ class Css {
   /// Default styling rules for single-line text inputs.
   static final nakiInputStyle = {
     'icon-wrapper': {
-      'height':
-          'var(${Tokens.current.inputHeight}, ${Tokens.current.inputHeight.value})',
-      'background-color':
-          'var(${Tokens.current.fieldBackgroundColor}, ${Tokens.current.fieldBackgroundColor.value})',
+      'height': _var(Tokens.current.inputHeight),
+      'background-color': _var(Tokens.current.fieldBackgroundColor),
       'border-radius': '12px',
       'border': Tokens.current.border.value,
       'overflow': 'clip',
@@ -185,19 +306,14 @@ class Css {
 
     'input': {
       'padding': '0 15px',
-      'background-color':
-          'var(${Tokens.current.fieldBackgroundColor}, '
-          '${Tokens.current.fieldBackgroundColor.value})',
-      'color':
-          'var(${Tokens.current.inputTextColor}, ${Tokens.current.inputTextColor.value})',
-      'font-size':
-          'var(${Tokens.current.fontSizeInput}, ${Tokens.current.fontSizeInput.value})',
+      'background-color': _var(Tokens.current.fieldBackgroundColor),
+      'color': _var(Tokens.current.inputTextColor),
+      'font-size': _var(Tokens.current.fontSizeInput),
       'margin': '0',
       'border-radius': '12px',
       'width': 'auto',
       'line-height': 'normal',
-      'height':
-          'var(${Tokens.current.inputHeight}, ${Tokens.current.inputHeight.value})',
+      'height': _var(Tokens.current.inputHeight),
       'border': Tokens.current.border.value,
       'overflow': 'clip',
     },
@@ -206,24 +322,18 @@ class Css {
   /// Default styling rules for multi-line textareas.
   static final nakiTextareaStyle = {
     'icon-wrapper': {
-      'min-height':
-          'var(${Tokens.current.inputHeight}, ${Tokens.current.inputHeight.value})',
-      'background-color':
-          'var(${Tokens.current.fieldBackgroundColor}, ${Tokens.current.fieldBackgroundColor.value})',
+      'min-height': _var(Tokens.current.inputHeight),
+      'background-color': _var(Tokens.current.fieldBackgroundColor),
       'border-radius': '12px',
       'border': Tokens.current.border.value,
       'overflow': 'clip',
     },
 
     'input': {
-      'min-height':
-          'var(${Tokens.current.inputHeight}, ${Tokens.current.inputHeight.value})',
-      'color':
-          'var(${Tokens.current.inputTextColor}, ${Tokens.current.inputTextColor.value})',
-      'font-size':
-          'var(${Tokens.current.fontSizeInput}, ${Tokens.current.fontSizeInput.value})',
-      'background-color':
-          'var(${Tokens.current.fieldBackgroundColor}, ${Tokens.current.fieldBackgroundColor.value})',
+      'min-height': _var(Tokens.current.inputHeight),
+      'color': _var(Tokens.current.inputTextColor),
+      'font-size': _var(Tokens.current.fontSizeInput),
+      'background-color': _var(Tokens.current.fieldBackgroundColor),
       'border': Tokens.current.border.value,
       'max-height': '250px',
       'padding': '10px 15px',
@@ -249,13 +359,10 @@ class Css {
       'width': '45px',
       'height': '45px',
       'text-align': 'center',
-      'font-size':
-          'var(${Tokens.current.fontSizeInput}, ${Tokens.current.fontSizeInput.value})',
+      'font-size': _var(Tokens.current.fontSizeInput),
       'font-weight': '600',
-      'color':
-          'var(${Tokens.current.inputTextColor}, ${Tokens.current.inputTextColor.value})',
-      'background-color':
-          'var(${Tokens.current.fieldBackgroundColor}, ${Tokens.current.fieldBackgroundColor.value})',
+      'color': _var(Tokens.current.inputTextColor),
+      'background-color': _var(Tokens.current.fieldBackgroundColor),
       'border': Tokens.current.border.value,
       'border-radius': '12px',
       'outline': 'none',
@@ -309,12 +416,11 @@ class Css {
       'display': 'inline-block',
       'flex-shrink': '0',
       'cursor': 'pointer',
-      'appearance': 'none',
       '-webkit-appearance': 'none',
-      'border-radius': '12px',
+      'appearance': 'none',
+      'border-radius': '4px',
       'padding': '4px',
       'vertical-align': 'middle',
-      'color': 'currentcolor',
       'transition': 'background 0.2s, box-shadow 0.2s',
       'width': '24px',
       'height': '24px',
@@ -363,8 +469,8 @@ class Css {
       'display': 'inline-grid',
       'flex-shrink': '0',
       'cursor': 'pointer',
-      'appearance': 'none',
       '-webkit-appearance': 'none',
+      'appearance': 'none',
       'place-content': 'center',
       'vertical-align': 'middle',
       'grid-template-columns': '0fr 1fr 1fr',
@@ -377,8 +483,7 @@ class Css {
     },
 
     'not-checked': {
-      'color':
-          'var(${Tokens.current.subtitleColor}, ${Tokens.current.subtitleColor.value})',
+      'color': _var(Tokens.current.subtitleColor),
     },
 
     'before': {
@@ -396,8 +501,7 @@ class Css {
 
     'checked': {
       'grid-template-columns': '1fr 1fr 0fr',
-      'color':
-          'var(${Tokens.current.switchThumbColor}, ${Tokens.current.switchThumbColor.value})',
+      'color': _var(Tokens.current.switchThumbColor),
       'background-color': 'color-mix(in srgb, currentcolor 15%, transparent)',
     },
 
@@ -414,91 +518,77 @@ class Css {
   /// (track, thumb, progress, tooltips).
   static final nakiSliderStyle = {
     'wrapper': {
-      'display': 'inline-block',
+      'display': 'flex',
       'position': 'relative',
-      'width': 'auto',
     },
 
     'tooltip': {
       'position': 'absolute',
-      'bottom': 'calc(100% + 2px)',
-      'left': '-100%',
+      'bottom': 'calc(100% + 5px)',
+      'opacity': '0',
       'transform': 'translateX(-50%)',
-      'background-color':
-          'var(${Tokens.current.baseTextColor}, ${Tokens.current.baseTextColor.value})',
-      'color':
-          'var(${Tokens.current.backgroundColor}, ${Tokens.current.backgroundColor.value})',
+      'background-color': _var(Tokens.current.baseTextColor),
+      'color': _var(Tokens.current.backgroundColor),
       'padding': '7px',
       'pointer-events': 'none',
-      'border-radius': '50%',
+      'border-radius': '999px',
       'font-size': '12px',
+      'min-width': '29px',
+      'min-height': '29px',
+      'text-align': 'center',
       'line-height': 'normal',
     },
 
     'input': {
       'border': 'none',
       'cursor': 'pointer',
-      'appearance': 'none',
       '-webkit-appearance': 'none',
+      'appearance': 'none',
       'border-radius': '12px',
       'background-color': 'transparent',
       'vertical-align': 'middle',
       'margin': '0',
-      'height':
-          'var(${Tokens.current.sliderThumbSize}, ${Tokens.current.sliderThumbSize.value})',
+      'width': '100%',
+      'height': _var(Tokens.current.sliderThumbSize),
     },
 
     'webkit-track': {
-      'background-color':
-          'var(${Tokens.current.sliderTrackColor}, ${Tokens.current.sliderTrackColor.value})',
+      'background-color': _var(Tokens.current.sliderTrackColor),
       'border-radius': '12px',
-      'height':
-          'calc(var(${Tokens.current.sliderThumbSize}, ${Tokens.current.sliderThumbSize.value}) * 0.5)',
+      'height': 'calc(${_var(Tokens.current.sliderThumbSize)} * 0.5)',
     },
 
     'webkit-thumb': {
       'position': 'relative',
       'box-sizing': 'border-box',
-      'border-radius': '50%',
-      'background-color':
-          'var(${Tokens.current.sliderTrackColor}, ${Tokens.current.sliderTrackColor.value})',
-      'height':
-          'var(${Tokens.current.sliderThumbSize}, ${Tokens.current.sliderThumbSize.value})',
-      'width':
-          'var(${Tokens.current.sliderThumbSize}, ${Tokens.current.sliderThumbSize.value})',
-      'border':
-          '5px solid var(${Tokens.current.sliderThumbColor}, ${Tokens.current.sliderThumbColor.value})',
-      'appearance': 'none',
+      'border-radius': '999px',
+      'background-color': _var(Tokens.current.sliderTrackColor),
+      'height': _var(Tokens.current.sliderThumbSize),
+      'width': _var(Tokens.current.sliderThumbSize),
+      'border': '5px solid ${_var(Tokens.current.sliderThumbColor)}',
       '-webkit-appearance': 'none',
-      'box-shadow':
-          '0 0 0 2px var(${Tokens.current.sliderTrackColor}, ${Tokens.current.sliderTrackColor.value})',
+      'appearance': 'none',
+      'box-shadow': '0 0 0 2px ${_var(Tokens.current.sliderTrackColor)}',
       'bottom': '50%',
     },
 
     'moz-track': {
       'width': '100%',
-      'background-color':
-          'var(${Tokens.current.sliderTrackColor}, ${Tokens.current.sliderTrackColor.value})',
+      'background-color': _var(Tokens.current.sliderTrackColor),
       'border-radius': '12px',
-      'height':
-          'calc(var(${Tokens.current.sliderThumbSize}, ${Tokens.current.sliderThumbSize.value}) * 0.5)',
+      'height': 'calc(${_var(Tokens.current.sliderThumbSize)} * 0.5)',
     },
 
     'moz-thumb': {
       'position': 'relative',
       'box-sizing': 'border-box',
-      'border-radius': '50%',
-      'background-color':
-          'var(${Tokens.current.sliderTrackColor}, ${Tokens.current.sliderTrackColor.value})',
-      'height':
-          'var(${Tokens.current.sliderThumbSize}, ${Tokens.current.sliderThumbSize.value})',
-      'width':
-          'var(${Tokens.current.sliderThumbSize}, ${Tokens.current.sliderThumbSize.value})',
-      'border':
-          '5px solid var(${Tokens.current.sliderThumbColor}, ${Tokens.current.sliderThumbColor.value})',
+      'border-radius': '999px',
+      'background-color': _var(Tokens.current.sliderTrackColor),
+      'height': _var(Tokens.current.sliderThumbSize),
+      'width': _var(Tokens.current.sliderThumbSize),
+      'border': '5px solid ${_var(Tokens.current.sliderThumbColor)}',
       'top': '50%',
-      'box-shadow':
-          '0 0 0 2px var(${Tokens.current.sliderTrackColor}, ${Tokens.current.sliderTrackColor.value})',
+      'box-shadow': '0 0 0 2px ${_var(Tokens.current.sliderTrackColor)}',
     },
 
     'disabled': nakiDisabledStyle,
@@ -518,34 +608,23 @@ class Css {
       'gap': '12px',
       'justify-content': 'space-between',
       'padding': '0 20px',
-      'backdrop-filter': 'blur(10px)',
-      '-webkit-backdrop-filter': 'blur(10px)',
-      'height':
-          'var(${Tokens.current.appbarHeight}, '
-          '${Tokens.current.appbarHeight.value})',
-      'background-color':
-          '${applyOpacity(Tokens.current.appbarBgColor, 70).value}',
+      'height': _var(Tokens.current.appbarHeight),
+      'background-color': _var(Tokens.current.appbarBgColor),
       'box-shadow': '0px 1px 2px rgba(0, 0, 0, 0.1)',
       'line-height': 'normal',
     },
 
     'title': {
-      'font-size':
-          'var(${Tokens.current.fontSize3xl}, '
-          '${Tokens.current.fontSize3xl.value})',
-      'font-weight':
-          'var(${Tokens.current.fontWeightSemiBold}, '
-          '${Tokens.current.fontWeightSemiBold.value})',
+      'font-size': _var(Tokens.current.fontSize3xl),
+      'font-weight': _var(Tokens.current.fontWeightSemiBold),
       'flex-grow': '1',
-      'text-overflow': 'ellipsis',
-      'overflow': 'hidden',
-      'white-space': 'nowrap',
+      ...nakiTextTruncateStyle,
     },
 
     'actions': {
       'margin-left': 'auto',
       'display': 'flex',
-      'gap': '10px',
+      'gap': '20px',
       'align-items': 'center',
     },
   };
@@ -558,60 +637,131 @@ class Css {
       'flex-shrink': '0',
       'bottom': '0',
       'left': '0',
-      'height':
-          'var(${Tokens.current.bottomNavbarHeight}, '
-          '${Tokens.current.bottomNavbarHeight.value})',
-      'background-color':
-          'var(${Tokens.current.bottomNavbarBgColor}, '
-          '${Tokens.current.bottomNavbarBgColor.value})',
+      'height': _var(Tokens.current.bottomNavbarHeight),
+      'background-color': _var(Tokens.current.bottomNavbarBgColor),
       'box-shadow': '0px -1px 0px rgba(0, 0, 0, 0.06)',
       'box-sizing': 'border-box',
       'z-index': _bottomNavBarZindex,
     },
 
     // Navbar types
-    'fixed': {'width': '100%', 'border-radius': '0'},
+    'fixed': {'width': '100%', 'border-radius': '0', 'padding': '0 3px'},
 
     'floating': {
       'width': 'calc(100% - 32px)',
       'max-width': '600px',
-      'border-radius': '12px',
-      'box-shadow': '0px 8px 24px rgba(0, 0, 0, 0.12)',
+      'border-radius': '25px',
+      'box-shadow':
+          '0px 8px 24px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08)',
     },
 
     'frosted-glass': {
       'width': 'calc(100% - 32px)',
       'max-width': '600px',
-      'border-radius': '12px',
-      'background-color':
-          'color-mix(in srgb, var(${Tokens.current.bottomNavbarBgColor}, ${Tokens.current.bottomNavbarBgColor.value}) 25%, transparent)',
-      'backdrop-filter': 'blur(8px) saturate(180%)',
-      '-webkit-backdrop-filter': 'blur(8px) saturate(180%)',
-      'border':
-          '1px solid ${applyOpacity(Tokens.current.borderColor, 10).value}',
-      'box-shadow': '0px -1px 0 rgba(0, 0, 0, 0.1)',
+      'border-radius': '999px',
+      'background-color': 'transparent',
+      'box-shadow':
+          '0 8px 28px rgba(0, 0, 0, 0.14), 0 1px 3px rgba(0, 0, 0, 0.08)',
+    },
+
+    'frosted-glass-rim': {
+      'content': '""',
+      'position': 'absolute',
+      'inset': '0',
+      'border-radius': 'inherit',
+      'pointer-events': 'none',
+      ..._glassSurface(
+        color: _var(Tokens.current.bottomNavbarBgColor),
+        tint: _var(Tokens.current.bottomNavbarGlassTint),
+        blur: _var(Tokens.current.bottomNavbarGlassBlur),
+        rim: Tokens.current.bottomNavbarGlassRim,
+        refraction: kNavbarRefractionVar,
+      ),
     },
 
     'frosted-glass-tile': {
+      'position': 'relative',
+      'flex': '1 1 0',
+      'min-width': '0',
       'padding': '0 5px',
-      'border-radius': '12px',
+      'border-radius': '999px',
       'line-height': 'normal',
       'transition':
-          'transform 0.15s ease, color 0.15s ease, background 0.2s ease, box-shadow 0.2s ease',
+          'scale 0.45s cubic-bezier(0.2, 1.6, 0.35, 1), color 0.15s ease, '
+          'background 0.2s ease',
     },
 
-    'frosted-glass-hover-tile': {
-      'background-color':
-          'color-mix(in srgb, var(${Tokens.current.primaryColor}, ${Tokens.current.primaryColor.value}) 7%, transparent)',
+    'frosted-glass-tile-target': {
+      'content': '""',
+      'position': 'absolute',
+      'inset': '0',
     },
 
-    'frosted-glass-selected-tile': {
+    'frosted-glass-indicator': {
+      'position': 'absolute',
+      'top': '3px',
+      'bottom': '3px',
+      'inset-inline-start':
+          'calc(100% * var($kNavbarIndexVar, 0) / var($kNavbarCountVar, 1) '
+          '+ 3px)',
+      'width': 'calc(100% / var($kNavbarCountVar, 1) - 6px)',
+      'border-radius': '999px',
+      'pointer-events': 'none',
       'background-color':
-          'color-mix(in srgb, var(${Tokens.current.primaryColor}, ${Tokens.current.primaryColor.value}) 14%, transparent)',
-      'height': '90%',
-      'padding': '0 22px',
+          'color-mix(in srgb, ${_var(Tokens.current.bottomNavbarBgColor)} '
+          '${_var(Tokens.current.bottomNavbarGlassDroplet)}, '
+          'transparent)',
+      '-webkit-backdrop-filter': _dropletDim,
+      'backdrop-filter': 'var($kNavbarDropletRefractionVar,) $_dropletDim',
       'box-shadow':
-          'inset 0 0 0 1px color-mix(in srgb, var(${Tokens.current.primaryColor}, ${Tokens.current.primaryColor.value}) 18%, transparent)',
+          '0 2px 10px rgba(0, 0, 0, 0.14), '
+          'inset 0 0 0 1px ${_glassRim(0.55)}, '
+          'inset 1.5px 1.5px 1px -0.5px ${_glassRim(0.9)}, '
+          'inset -1.5px -1.5px 1px -0.5px ${_glassRim(0.65)}, '
+          'inset 0 0 8px 1px ${_glassRim(0.35)}',
+      'transition': 'inset-inline-start 0.3s cubic-bezier(0.2, 0.9, 0.3, 1)',
+    },
+
+    'frosted-glass-refraction': {
+      'position': 'absolute',
+      'width': '0',
+      'height': '0',
+    },
+
+    'frosted-glass-reduced-transparency': {
+      'background-color': _var(Tokens.current.bottomNavbarBgColor),
+      ..._noGlass,
+    },
+
+    'frosted-glass-solid-indicator': {
+      ..._noGlass,
+      'background-color':
+          'color-mix(in srgb, '
+          '${_var(Tokens.current.primaryColor)} 14%, transparent)',
+      'box-shadow': 'none',
+    },
+
+    'frosted-glass-high-contrast': {
+      'background-color':
+          'color-mix(in srgb, '
+          '${_var(Tokens.current.bottomNavbarBgColor)} 92%, transparent)',
+      'box-shadow': 'inset 0 0 0 1.5px currentColor',
+    },
+
+    'frosted-glass-high-contrast-indicator': {
+      ..._noGlass,
+      'background-color':
+          'color-mix(in srgb, '
+          '${_var(Tokens.current.primaryColor)} 24%, transparent)',
+      'box-shadow': 'inset 0 0 0 2px ${_var(Tokens.current.primaryColor)}',
+    },
+
+    'frosted-glass-forced-colors': _glassForcedColors,
+
+    'frosted-glass-forced-colors-indicator': {
+      ..._noGlass,
+      'outline': '2px solid Highlight',
+      'outline-offset': '-2px',
     },
 
     // Landscape layouts
@@ -640,38 +790,46 @@ class Css {
       'white-space': 'nowrap',
     },
 
+    'frosted-glass-tile-focus': {'border-radius': '999px'},
+
+    'tile-focus': {
+      'outline': '2px solid ${_var(Tokens.current.primaryColor)}',
+      'outline-offset': '-2px',
+      'border-radius': '8px',
+    },
+
+    'tile-action': {'width': '100%'},
+
+    'pressed-tile': {'scale': '0.96'},
+
+    'hover-tile': {
+      'border-radius': 'inherit',
+      'background-color':
+          'color-mix(in srgb, '
+          '${_var(Tokens.current.primaryColor)} 7%, transparent)',
+    },
+
     'fixed-tile': {
       'flex': '1',
-      'min-width': '64px',
       'max-width': '168px',
-      'height': '100%',
-      'line-height': 'normal',
     },
   };
 
   /// Default CSS styles map for styling buttons
   /// (paddings, typography, hover/disabled transitions).
   static final nakiButtonStyle = {
-    'height':
-        'var(${Tokens.current.buttonHeight}, '
-        '${Tokens.current.buttonHeight.value})',
-    'width':
-        'var(${Tokens.current.buttonWidth}, '
-        '${Tokens.current.buttonWidth.value})',
+    'height': _var(Tokens.current.buttonHeight),
+    'width': _var(Tokens.current.buttonWidth),
     'display': 'flex',
     'box-sizing': 'border-box',
-    'padding': '13px 10px',
+    'padding': '8px',
     'border': 'none',
     'cursor': 'pointer',
     'border-radius': '12px',
-    'background-color':
-        'var(${Tokens.current.buttonBackgroundColor}, '
-        '${Tokens.current.buttonBackgroundColor.value})',
+    'background-color': _var(Tokens.current.buttonBackgroundColor),
     'justify-content': 'center',
     'align-items': 'center',
-    'color':
-        'var(${Tokens.current.buttonColor}, '
-        '${Tokens.current.buttonColor.value})',
+    'color': _var(Tokens.current.buttonForegroundColor),
     'text-wrap-mode': 'nowrap',
     'text-align': 'center',
     'line-height': 'normal',
@@ -697,9 +855,6 @@ class Css {
     'appbar': {
       'z-index': _appBarZindex,
       'position': 'absolute',
-      'top': '0',
-      'width': '100%',
-      'flex-shrink': '0',
     },
 
     'layout': {
@@ -719,6 +874,7 @@ class Css {
     },
 
     'body': {
+      ...nakiInsetConsumedStyle,
       'flex': '1',
       'min-width': '0',
       'min-height': '0',
@@ -726,6 +882,16 @@ class Css {
       'overflow': 'hidden',
       'position': 'relative',
       'box-sizing': 'border-box',
+      'padding-top': _scaffoldInsetTop,
+      'padding-bottom': _scaffoldInsetBottom,
+    },
+
+    // the owner takes over, so its content can pass behind the bars
+    'inset-owner-body': {
+      kBodyInsetTopVar: _scaffoldInsetTop,
+      kBodyInsetBottomVar: _scaffoldInsetBottom,
+      'padding-top': '0',
+      'padding-bottom': '0',
     },
 
     'bottom-navbar': {
@@ -738,7 +904,9 @@ class Css {
 
     'fab': {
       'position': 'fixed',
-      'bottom': '24px',
+      'bottom':
+          'calc(20px + ${_var(Tokens.current.bottomNavbarOffset, '0px')} '
+          '+ env(safe-area-inset-bottom, 0px))',
       'right': '24px',
       'z-index': _fabZindex,
     },
@@ -759,19 +927,15 @@ class Css {
       'display': 'inline-block',
       'flex-shrink': '0',
       'cursor': 'pointer',
-      'appearance': 'none',
       '-webkit-appearance': 'none',
-      'border-radius': '50%',
+      'appearance': 'none',
+      'border-radius': '999px',
       'padding': '4px',
       'vertical-align': 'middle',
-      'border': '1px solid',
-      'border-color': 'color-mix(in srgb, currentcolor 20%, #0000)',
-      'width':
-          'var(${Tokens.current.radioBtnRadius}, ${Tokens.current.radioBtnRadius.value})',
-      'height':
-          'var(${Tokens.current.radioBtnRadius}, ${Tokens.current.radioBtnRadius.value})',
-      'color':
-          'var(${Tokens.current.radioBtnColor}, ${Tokens.current.radioBtnColor.value})',
+      'border': '1px solid color-mix(in srgb, currentcolor 20%, #0000)',
+      'width': _var(Tokens.current.radioBtnRadius),
+      'height': _var(Tokens.current.radioBtnRadius),
+      'color': _var(Tokens.current.radioBtnColor),
       'transition': 'border-color 0.2s',
       'margin': '0',
     },
@@ -781,15 +945,14 @@ class Css {
       'display': 'block',
       'width': '100%',
       'height': '100%',
-      'border-radius': '50%',
+      'border-radius': '999px',
       'background-color': 'transparent',
       'transition': 'background 0.2s ease-out',
     },
 
     'checked': {
       'border-color': 'currentcolor',
-      'background-color':
-          'var(${Tokens.current.backgroundColor}, ${Tokens.current.backgroundColor.value})',
+      'background-color': _var(Tokens.current.backgroundColor),
     },
 
     'checked:before': {'background-color': 'currentcolor'},
@@ -802,8 +965,7 @@ class Css {
   static final nakiDropdownStyle = {
     'wrapper': {
       'position': 'relative',
-      'width':
-          'var(${Tokens.current.dropdownWidth}, ${Tokens.current.dropdownWidth.value})',
+      'width': _var(Tokens.current.dropdownWidth),
     },
 
     'trigger': {
@@ -812,53 +974,41 @@ class Css {
       'align-items': 'center',
       'box-sizing': 'border-box',
       'cursor': 'pointer',
-      'color':
-          'var(${Tokens.current.inputTextColor}, ${Tokens.current.inputTextColor.value})',
-      'font-size':
-          'var(${Tokens.current.fontSizeInput}, ${Tokens.current.fontSizeInput.value})',
-      'background-color':
-          'var(${Tokens.current.fieldBackgroundColor}, ${Tokens.current.fieldBackgroundColor.value})',
+      'color': _var(Tokens.current.inputTextColor),
+      'font-size': _var(Tokens.current.fontSizeInput),
+      'background-color': _var(Tokens.current.fieldBackgroundColor),
       'border-radius': '12px',
       'border': Tokens.current.border.value,
       'padding': '0 15px',
       'width': '100%',
-      'height':
-          'var(${Tokens.current.dropdownHeight}, ${Tokens.current.dropdownHeight.value})',
+      'height': _var(Tokens.current.dropdownHeight),
       'text-overflow': 'ellipsis',
       'overflow': 'hidden',
       'white-space': 'nowrap',
-      'line-height': '1',
     },
 
     'option': {
       'display': 'block',
       'scroll-snap-align': 'center',
       'scroll-margin-top': '40px',
-      'padding':
-          'var(${Tokens.current.dropdownOptionPadding}, ${Tokens.current.dropdownOptionPadding.value})',
+      'padding': _var(Tokens.current.dropdownOptionPadding),
       'cursor': 'pointer',
-      'font-size':
-          'var(${Tokens.current.dropdownOptionFontSize}, ${Tokens.current.dropdownOptionFontSize.value})',
+      'font-size': _var(Tokens.current.dropdownOptionFontSize),
     },
 
     'option:selected': {
-      'color':
-          'var(${Tokens.current.selectedItemColor}, ${Tokens.current.selectedItemColor.value})',
-      'background-color':
-          'var(${Tokens.current.selectedItemBgColor}, ${Tokens.current.selectedItemBgColor.value})',
+      'color': _var(Tokens.current.selectedItemColor),
+      'background-color': _var(Tokens.current.selectedItemBgColor),
     },
 
     'placeholder.option': {
-      'color':
-          'var(${Tokens.current.placeholderColor}, ${Tokens.current.placeholderColor.value})',
+      'color': _var(Tokens.current.placeholderColor),
       'pointer-events': 'none',
     },
 
     'section.option': {
-      'font-weight':
-          'var(${Tokens.current.fontWeightSectionHeader}, ${Tokens.current.fontWeightSectionHeader.value})',
-      'font-size':
-          'var(${Tokens.current.fontSizeSectionHeader}, ${Tokens.current.fontSizeSectionHeader.value})',
+      'font-weight': _var(Tokens.current.fontWeightSectionHeader),
+      'font-size': _var(Tokens.current.fontSizeSectionHeader),
       'pointer-events': 'none',
     },
 
@@ -905,13 +1055,11 @@ class Css {
       'pointer-events': 'auto',
       'height': 'fit-content',
       'overscroll-behavior': 'none',
-      'background-color':
-          'var(${Tokens.current.dropdownMenuBgColor}, ${Tokens.current.dropdownMenuBgColor.value})',
+      'background-color': _var(Tokens.current.dropdownMenuBgColor),
       'border': Tokens.current.border.value,
       'border-radius': '12px',
       'line-height': 'normal',
-      'max-height':
-          'var(${Tokens.current.dropdownMenuHeight}, ${Tokens.current.dropdownMenuHeight.value})',
+      'max-height': _var(Tokens.current.dropdownMenuHeight),
     },
 
     'upward:options-wrapper': {
@@ -924,16 +1072,14 @@ class Css {
       'position': 'sticky',
       'top': '-1px',
       'z-index': '15',
-      'background-color':
-          'var(${Tokens.current.dropdownMenuBgColor}, ${Tokens.current.dropdownMenuBgColor.value})',
+      'background-color': _var(Tokens.current.dropdownMenuBgColor),
     },
 
     'no-search-result': {
       'padding': '20px',
       'font-size': '13px',
       'text-align': 'center',
-      'color':
-          'var(${Tokens.current.placeholderColor}, ${Tokens.current.placeholderColor.value})',
+      'color': _var(Tokens.current.placeholderColor),
       'user-select': 'none',
       'margin': '0 auto',
     },
@@ -942,26 +1088,59 @@ class Css {
   /// Default CSS styles map for styling spinner.
   static final nakiSpinnerStyle = {
     'default': {
-      'width':
-          'var(${Tokens.current.spinnerSize}, ${Tokens.current.spinnerSize.value})',
-      'height':
-          'var(${Tokens.current.spinnerSize}, ${Tokens.current.spinnerSize.value})',
-      'border-radius': '50%',
+      'width': _var(Tokens.current.spinnerSize),
+      'height': _var(Tokens.current.spinnerSize),
+      'border-radius': '999px',
       'border': Tokens.current.spinnerBorder.value,
-      'border-top-color':
-          'var(${Tokens.current.spinnerColor}, ${Tokens.current.spinnerColor.value})',
+      'border-top-color': _var(Tokens.current.spinnerColor),
       'animation': 'nakiSpin 0.8s linear infinite',
       'user-select': 'none',
       'pointer-events': 'none',
     },
 
     'glass': {
-      'background-color':
-          'color-mix(in srgb, var(${Tokens.current.spinnerSurfaceColor}, ${Tokens.current.spinnerSurfaceColor.value}) 85%, grey)',
-      'backdrop-filter': 'blur(6px)',
-      '-webkit-backdrop-filter': 'blur(6px)',
-      'padding': '6px',
+      'position': 'relative',
+      'display': 'inline-block',
+      'box-sizing': 'content-box',
+      'padding': _spinnerGlassInset,
+      'border': 'none',
+      'animation': 'none',
+      ..._glassSurface(
+        color: _var(Tokens.current.spinnerSurfaceColor),
+        tint: '20%',
+        blur: '8px',
+        rim: Tokens.current.spinnerGlassRim,
+        glow: '8px',
+        shadow: '0 6px 18px rgba(0, 0, 0, 0.14), 0 1px 3px rgba(0, 0, 0, 0.08)',
+      ),
     },
+
+    'glass-arc': {
+      'content': '""',
+      'position': 'absolute',
+      'inset': _spinnerGlassInset,
+      'box-sizing': 'border-box',
+      'border-radius': '999px',
+      'border': Tokens.current.spinnerBorder.value,
+      'border-top-color': _var(Tokens.current.spinnerColor),
+      'animation': 'nakiSpin 0.8s linear infinite',
+    },
+
+    'reduced-motion': {
+      'animation-name': 'nakiSpinnerPulse !important',
+      'animation-duration': '0.8s !important',
+      'animation-timing-function': 'ease-in-out !important',
+      'animation-iteration-count': 'infinite !important',
+      'animation-direction': 'alternate !important',
+    },
+
+    'glass-solid': _glassSolid(_var(Tokens.current.spinnerSurfaceColor)),
+
+    'glass-high-contrast': _glassHighContrast(
+      _var(Tokens.current.spinnerSurfaceColor),
+    ),
+
+    'glass-forced-colors': _glassForcedColors,
 
     'ios': {
       'position': 'relative',
@@ -975,15 +1154,12 @@ class Css {
       'position': 'absolute',
       'top': '0',
       'height': '25%',
-      'background-color':
-          'var(${Tokens.current.spinnerBladeColor}, ${Tokens.current.spinnerBladeColor.value})',
+      'background-color': _var(Tokens.current.spinnerBladeColor),
       'border-radius': '2px',
       'left':
-          'calc(50% - (min(var(${Tokens.current.spinnerBorderWidth}, ${Tokens.current.spinnerBorderWidth.value}), 4px) / 2))',
-      'width':
-          'min(var(${Tokens.current.spinnerBorderWidth}, ${Tokens.current.spinnerBorderWidth.value}), 4px)',
-      'transform-origin':
-          '50% calc(var(${Tokens.current.spinnerSize}, ${Tokens.current.spinnerSize.value}) / 2)',
+          'calc(50% - (min(${_var(Tokens.current.spinnerBorderWidth)}, 4px) / 2))',
+      'width': 'min(${_var(Tokens.current.spinnerBorderWidth)}, 4px)',
+      'transform-origin': '50% calc(${_var(Tokens.current.spinnerSize)} / 2)',
     },
   };
 
@@ -1020,7 +1196,7 @@ class Css {
     'display': 'grid',
     'box-sizing': 'border-box',
     'grid-template-columns': 'repeat(auto-fill, minmax(150px, 1fr))',
-    'gap': 'var(${Tokens.current.gridGap})',
+    'gap': _var(Tokens.current.gridGap),
     'justify-items': 'start',
     'scrollbar-width': 'none',
   };
@@ -1032,9 +1208,19 @@ class Css {
     'overflow-x': 'auto',
     'overflow-y': 'auto',
     'flex': '1',
+    'width': '100%',
+    'height': '100%',
     'min-height': '0',
     'min-width': '0',
     'scrollbar-width': 'none',
+  };
+
+  /// Default CSS styles map for a PageView page that does not scroll, which
+  /// has nothing to pass behind the Scaffold's bars.
+  static final nakiPageViewStaticPageStyle = {
+    'box-sizing': 'border-box',
+    'padding-top': _insetPadding(null, kBodyInsetTopVar),
+    'padding-bottom': _insetPadding(null, kBodyInsetBottomVar),
   };
 
   /// Default CSS styles map for CarouselView.
@@ -1043,7 +1229,7 @@ class Css {
     'box-sizing': 'border-box',
     'overflow-x': 'auto',
     'overflow-y': 'hidden',
-    'gap': 'var(${Tokens.current.carouselGap})',
+    'gap': _var(Tokens.current.carouselGap),
     'scrollbar-width': 'none',
   };
 
@@ -1090,16 +1276,11 @@ class Css {
     'max-width': '600px',
     'width': 'max-content',
     'gap': '10px',
-    'background-color':
-        'var(${Tokens.current.snackbarBgColor}, ${Tokens.current.snackbarBgColor.value})',
-    'color':
-        'var(${Tokens.current.snackbarForegroundColor}, ${Tokens.current.snackbarForegroundColor.value})',
-    'border-radius':
-        'var(${Tokens.current.snackbarBorderRadius}, ${Tokens.current.snackbarBorderRadius.value})',
-    'padding':
-        'var(${Tokens.current.snackbarPadding}, ${Tokens.current.snackbarPadding.value})',
-    'box-shadow':
-        'var(${Tokens.current.largeShadow}, ${Tokens.current.largeShadow.value})',
+    'background-color': _var(Tokens.current.snackbarBgColor),
+    'color': _var(Tokens.current.snackbarForegroundColor),
+    'border-radius': _var(Tokens.current.snackbarBorderRadius),
+    'padding': _var(Tokens.current.snackbarPadding),
+    'box-shadow': _var(Tokens.current.largeShadow),
     'box-sizing': 'border-box',
     'line-height': 'normal',
     'animation': 'nakiDialogFadeIn 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards',
@@ -1109,16 +1290,11 @@ class Css {
   static final nakiBannerStyle = {
     'display': 'flex',
     'gap': '10px',
-    'background-color':
-        'var(${Tokens.current.bannerBgColor}, ${Tokens.current.bannerBgColor.value})',
-    'color':
-        'var(${Tokens.current.bannerForegroundColor}, ${Tokens.current.bannerForegroundColor.value})',
-    'border-radius':
-        'var(${Tokens.current.bannerBorderRadius}, ${Tokens.current.bannerBorderRadius.value})',
-    'padding':
-        'var(${Tokens.current.bannerPadding}, ${Tokens.current.bannerPadding.value})',
-    'border':
-        '1px solid var(${Tokens.current.bannerBorderColor}, ${Tokens.current.bannerBorderColor.value})',
+    'background-color': _var(Tokens.current.bannerBgColor),
+    'color': _var(Tokens.current.bannerForegroundColor),
+    'border-radius': _var(Tokens.current.bannerBorderRadius),
+    'padding': _var(Tokens.current.bannerPadding),
+    'border': '1px solid ${_var(Tokens.current.bannerBorderColor)}',
     'box-sizing': 'border-box',
     'width': '100%',
     'line-height': 'normal',
@@ -1132,16 +1308,11 @@ class Css {
     'content': {
       'position': 'absolute',
       'z-index': _tooltipZindex,
-      'background-color':
-          'var(${Tokens.current.tooltipBgColor}, ${Tokens.current.tooltipBgColor.value})',
-      'color':
-          'var(${Tokens.current.tooltipTextColor}, ${Tokens.current.tooltipTextColor.value})',
-      'border-radius':
-          'var(${Tokens.current.tooltipBorderRadius}, ${Tokens.current.tooltipBorderRadius.value})',
-      'padding':
-          'var(${Tokens.current.tooltipPadding}, ${Tokens.current.tooltipPadding.value})',
-      'font-size':
-          'var(${Tokens.current.tooltipFontSize}, ${Tokens.current.tooltipFontSize.value})',
+      'background-color': _var(Tokens.current.tooltipBgColor),
+      'color': _var(Tokens.current.tooltipTextColor),
+      'border-radius': _var(Tokens.current.tooltipBorderRadius),
+      'padding': _var(Tokens.current.tooltipPadding),
+      'font-size': _var(Tokens.current.tooltipFontSize),
       'pointer-events': 'none',
       'opacity': '0',
       'visibility': 'hidden',
@@ -1174,18 +1345,12 @@ class Css {
       'pointer-events': 'auto',
       'height': 'fit-content',
       'line-height': 'normal',
-      'background-color':
-          'var(${Tokens.current.popoverBgColor}, ${Tokens.current.popoverBgColor.value})',
-      'color':
-          'var(${Tokens.current.popoverTextColor}, ${Tokens.current.popoverTextColor.value})',
-      'border-radius':
-          'var(${Tokens.current.popoverBorderRadius}, ${Tokens.current.popoverBorderRadius.value})',
-      'border':
-          '1px solid var(${Tokens.current.popoverBorderColor}, ${Tokens.current.popoverBorderColor.value})',
-      'box-shadow':
-          'var(${Tokens.current.popoverShadow}, ${Tokens.current.popoverShadow.value})',
-      'padding':
-          'var(${Tokens.current.popoverPadding}, ${Tokens.current.popoverPadding.value})',
+      'background-color': _var(Tokens.current.popoverBgColor),
+      'color': _var(Tokens.current.popoverTextColor),
+      'border-radius': _var(Tokens.current.popoverBorderRadius),
+      'border': '1px solid ${_var(Tokens.current.popoverBorderColor)}',
+      'box-shadow': _var(Tokens.current.popoverShadow),
+      'padding': _var(Tokens.current.popoverPadding),
     },
 
     'popup': {
@@ -1197,6 +1362,7 @@ class Css {
       'height': '0',
       'width': 'fit-content',
       'box-sizing': 'border-box',
+      'transition': 'opacity 0.15s ease-in-out, visibility 0.15s ease-in-out',
     },
   };
 
@@ -1206,16 +1372,15 @@ class Css {
       'position': 'fixed',
       'inset': '0',
       'z-index': _modalBarrierZindex,
-      'background-color':
-          'var(${Tokens.current.dialogBarrierBg}, ${Tokens.current.dialogBarrierBg.value})',
+      'background-color': _var(Tokens.current.dialogBarrierBg),
       'display': 'flex',
       'align-items': 'center',
       'justify-content': 'center',
       'box-sizing': 'border-box',
       'width': '100dvw',
       'height': '100dvh',
-      'backdrop-filter': 'blur(5px)',
       '-webkit-backdrop-filter': 'blur(5px)',
+      'backdrop-filter': 'blur(5px)',
       'overscroll-behavior': 'none',
       'touch-action': 'none',
       'animation':
@@ -1228,12 +1393,9 @@ class Css {
       'display': 'flex',
       'flex-direction': 'column',
       'margin': '20px',
-      'background-color':
-          'var(${Tokens.current.dialogBgColor}, ${Tokens.current.dialogBgColor.value})',
-      'border-radius':
-          'var(${Tokens.current.dialogBorderRadius}, ${Tokens.current.dialogBorderRadius.value})',
-      'padding':
-          'var(${Tokens.current.dialogPadding}, ${Tokens.current.dialogPadding.value})',
+      'background-color': _var(Tokens.current.dialogBgColor),
+      'border-radius': _var(Tokens.current.dialogBorderRadius),
+      'padding': _var(Tokens.current.dialogPadding),
       'width': 'fit-content',
       'height': 'fit-content',
       'box-shadow': Tokens.current.largeShadow.value,
@@ -1242,15 +1404,34 @@ class Css {
       'animation':
           'nakiDialogPopIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
     },
+
+    // a blurred barrier is a backdrop root, which would hide the page from the
+    // glass above it
+    'glass-backdrop': _noGlass,
+
+    'glass': _glassSurface(
+      color: _var(Tokens.current.dialogBgColor),
+      tint: _var(Tokens.current.glassTint),
+      blur: _var(Tokens.current.glassBlur),
+      rim: Tokens.current.glassRim,
+      shadow: Tokens.current.largeShadow.value,
+    ),
+
+    'glass-solid': _glassSolid(_var(Tokens.current.dialogBgColor)),
+
+    'glass-high-contrast': _glassHighContrast(
+      _var(Tokens.current.dialogBgColor),
+    ),
+
+    'glass-forced-colors': _glassForcedColors,
   };
 
   /// Default CSS styles map for Sidebar.
   static final nakiSidebarStyle = {
     'content': {
-      'width':
-          'var(${Tokens.current.drawerWidth}, ${Tokens.current.drawerWidth.value})',
-      'background-color':
-          'var(${Tokens.current.drawerBgColor}, ${Tokens.current.drawerBgColor.value})',
+      'height': '100%',
+      'width': _var(Tokens.current.drawerWidth),
+      'background-color': _var(Tokens.current.drawerBgColor),
       'box-sizing': 'border-box',
       'overflow': 'auto',
       'line-height': 'normal',
@@ -1275,11 +1456,10 @@ class Css {
       'z-index': _drawerBarrierZindex,
       'width': '100dvw',
       'height': '100dvh',
-      'background-color':
-          'var(${Tokens.current.drawerBarrierBg}, ${Tokens.current.drawerBarrierBg.value})',
+      'background-color': _var(Tokens.current.drawerBarrierBg),
       'box-sizing': 'border-box',
-      'backdrop-filter': 'blur(5px)',
       '-webkit-backdrop-filter': 'blur(5px)',
+      'backdrop-filter': 'blur(5px)',
       'touch-action': 'none',
       'display': 'block',
     },
@@ -1290,10 +1470,8 @@ class Css {
       'bottom': '0',
       'overflow': 'auto',
       'z-index': _drawerZindex,
-      'width':
-          'var(${Tokens.current.drawerWidth}, ${Tokens.current.drawerWidth.value})',
-      'background-color':
-          'var(${Tokens.current.drawerBgColor}, ${Tokens.current.drawerBgColor.value})',
+      'width': _var(Tokens.current.drawerWidth),
+      'background-color': _var(Tokens.current.drawerBgColor),
       'box-shadow': Tokens.current.largeShadow.value,
       'box-sizing': 'border-box',
       'transition': 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -1307,16 +1485,15 @@ class Css {
       'position': 'fixed',
       'inset': '0',
       'z-index': _bottomSheetBarrierZindex,
-      'background-color':
-          'var(${Tokens.current.bottomSheetBarrierBg}, ${Tokens.current.bottomSheetBarrierBg.value})',
+      'background-color': _var(Tokens.current.bottomSheetBarrierBg),
       'display': 'flex',
       'align-items': 'flex-end',
       'justify-content': 'center',
       'width': '100dvw',
       'height': '100dvh',
       'box-sizing': 'border-box',
-      'backdrop-filter': 'blur(5px)',
       '-webkit-backdrop-filter': 'blur(5px)',
+      'backdrop-filter': 'blur(5px)',
       'overscroll-behavior': 'none',
       'touch-action': 'none',
       'animation':
@@ -1328,12 +1505,9 @@ class Css {
       'z-index': _bottomSheetZindex,
       'width': '100%',
       'max-width': '600px',
-      'max-height':
-          'var(${Tokens.current.bottomSheetMaxHeight}, ${Tokens.current.bottomSheetMaxHeight.value})',
-      'background-color':
-          'var(${Tokens.current.bottomSheetBgColor}, ${Tokens.current.bottomSheetBgColor.value})',
-      'border-radius':
-          'var(${Tokens.current.bottomSheetBorderRadius}, ${Tokens.current.bottomSheetBorderRadius.value})',
+      'max-height': _var(Tokens.current.bottomSheetMaxHeight),
+      'background-color': _var(Tokens.current.bottomSheetBgColor),
+      'border-radius': _var(Tokens.current.bottomSheetBorderRadius),
       'box-shadow': Tokens.current.largeShadow.value,
       'box-sizing': 'border-box',
       'overflow-y': 'hidden',
@@ -1362,53 +1536,38 @@ class Css {
     'wrapper': {'position': 'relative', 'display': 'block'},
 
     'default-trigger': {
-      'height':
-          'var(${Tokens.current.buttonHeight}, ${Tokens.current.buttonHeight.value})',
-      'color':
-          'var(${Tokens.current.inputTextColor}, ${Tokens.current.inputTextColor.value})',
-      'font-size':
-          'var(${Tokens.current.fontSizeInput}, ${Tokens.current.fontSizeInput.value})',
-      'background-color':
-          'var(${Tokens.current.fieldBackgroundColor}, ${Tokens.current.fieldBackgroundColor.value})',
+      'height': _var(Tokens.current.buttonHeight),
+      'color': _var(Tokens.current.inputTextColor),
+      'font-size': _var(Tokens.current.fontSizeInput),
+      'background-color': _var(Tokens.current.fieldBackgroundColor),
       'border-radius': '12px',
       'padding': '0 15px',
       'border': Tokens.current.border.value,
       'user-select': 'none',
-      'line-height': '1',
       'text-align': 'left',
       'justify-content': 'left',
       ...nakiTextTruncateStyle,
     },
 
     'modal': {
-      'top':
-          'var(${Tokens.current.calendarTop}, ${Tokens.current.calendarTop.value})',
-      'bottom':
-          'var(${Tokens.current.calendarBottom}, '
-          '${Tokens.current.calendarBottom.value})',
+      'top': _var(Tokens.current.calendarTop),
+      'bottom': _var(Tokens.current.calendarBottom),
       'left': '50%',
       'transform':
-          'translateX(calc(-50% + var(${Tokens.current.calendarShiftX}, '
-          '${Tokens.current.calendarShiftX.value}))) '
-          'translateY(var(${Tokens.current.calendarGap}, '
-          '${Tokens.current.calendarGap.value}))',
+          'translateX(calc(-50% + ${_var(Tokens.current.calendarShiftX)})) '
+          'translateY(${_var(Tokens.current.calendarGap)})',
       'z-index': '10',
       'overflow': 'auto',
       'box-sizing': 'border-box',
-      'width': 'max-content',
       'max-width': 'min(380px, calc(100dvw - 16px))',
-      'max-height':
-          'var(${Tokens.current.calendarMaxHeight}, '
-          '${Tokens.current.calendarMaxHeight.value})',
+      'max-height': _var(Tokens.current.calendarMaxHeight),
       'overscroll-behavior': 'none',
-      'height': 'fit-content',
       'position': 'absolute',
-      'background-color':
-          'var(${Tokens.current.dropdownMenuBgColor}, ${Tokens.current.dropdownMenuBgColor.value})',
+      'background-color': _var(Tokens.current.dropdownMenuBgColor),
       'border': Tokens.current.border.value,
       'border-radius': '12px',
-      'padding': '8px 5px',
-      'line-height': '1',
+      'padding': '8px 5px 0',
+      'box-shadow': _var(Tokens.current.popoverShadow),
     },
 
     'input': {
@@ -1429,9 +1588,7 @@ class Css {
     'selected': {
       Tokens.current.baseTextColor.name: 'white',
       'border-color': 'transparent',
-      'background-color':
-          'var(${Tokens.current.primaryColor}, '
-          '${Tokens.current.primaryColor.value})',
+      'background-color': _var(Tokens.current.primaryColor),
     },
 
     'disabled': {
@@ -1456,37 +1613,56 @@ class Css {
     'box-sizing': 'border-box',
   };
 
+  /// Color behind a glass card.
+  static String get _cardGlassColor =>
+      'var($kCardGlassColorVar, ${_var(Tokens.current.backgroundColor)})';
+
   /// Default CSS styles map for Card component.
   static final nakiCardStyle = {
     'root': {
       'display': 'block',
       'box-sizing': 'border-box',
-      'background-color':
-          'var(${Tokens.current.backgroundColor}, ${Tokens.current.backgroundColor.value})',
-      'color':
-          'var(${Tokens.current.baseTextColor}, ${Tokens.current.baseTextColor.value})',
-      'border-radius':
-          'var(${Tokens.current.radiusMd}, ${Tokens.current.radiusMd.value})',
+      'background-color': _var(Tokens.current.backgroundColor),
+      'color': _var(Tokens.current.baseTextColor),
+      'border-radius': _var(Tokens.current.radiusMd),
       'transition':
           'box-shadow 200ms ease, transform 200ms ease, border-color 200ms ease',
     },
 
     'elevated': {
       'box-shadow':
-          '0 1px 3px 0 var(${Tokens.current.shadowColor}, ${Tokens.current.shadowColor.value}), 0 1px 2px -1px var(${Tokens.current.shadowColor}, ${Tokens.current.shadowColor.value})',
+          '0 1px 3px 0 ${_var(Tokens.current.shadowColor)}, 0 1px 2px -1px ${_var(Tokens.current.shadowColor)}',
     },
 
     'outlined': {
-      'border':
-          '1px solid var(${Tokens.current.borderColor}, ${Tokens.current.borderColor.value})',
+      'border': '1px solid ${_var(Tokens.current.borderColor)}',
       'box-shadow': 'none',
     },
 
     'filled': {
-      'background-color':
-          'var(${Tokens.current.surfaceVariantColor}, ${Tokens.current.surfaceVariantColor.value})',
+      'background-color': _var(Tokens.current.surfaceVariantColor),
       'box-shadow': 'none',
     },
+
+    'glass': _glassSurface(
+      color: _cardGlassColor,
+      tint: _var(Tokens.current.glassTint),
+      blur: _var(Tokens.current.glassBlur),
+      rim: Tokens.current.glassRim,
+      shadow: '0 8px 28px rgba(0, 0, 0, 0.14), 0 1px 3px rgba(0, 0, 0, 0.08)',
+    ),
+
+    'glass-hover': {
+      'box-shadow':
+          '0 12px 36px rgba(0, 0, 0, 0.18), 0 2px 6px rgba(0, 0, 0, 0.1), '
+          '${_glassEdge(Tokens.current.glassRim)}',
+    },
+
+    'glass-solid': _glassSolid(_cardGlassColor),
+
+    'glass-high-contrast': _glassHighContrast(_cardGlassColor),
+
+    'glass-forced-colors': _glassForcedColors,
   };
 
   /// Default CSS styles map for ExpansionPanelList and ExpansionTile components.
@@ -1495,18 +1671,14 @@ class Css {
       'display': 'flex',
       'flex-direction': 'column',
       'width': '100%',
-      'box-sizing': 'border-box',
-      'background-color':
-          'var(${Tokens.current.backgroundColor}, ${Tokens.current.backgroundColor.value})',
+      'background-color': _var(Tokens.current.backgroundColor),
       'overflow': 'hidden',
-      'line-height': 'normal',
     },
 
     'panel': {
       'display': 'block',
       'position': 'relative',
-      'box-sizing': 'border-box',
-      'transition': 'background 200ms ease',
+      'transition': 'background-color 200ms ease',
     },
 
     'header': {
@@ -1514,8 +1686,7 @@ class Css {
       'align-items': 'center',
       'justify-content': 'space-between',
       'width': '100%',
-      'padding': '14px 16px',
-      'box-sizing': 'border-box',
+      'padding': '8px 12px',
       'cursor': 'pointer',
       'user-select': 'none',
       'background-color': 'transparent',
@@ -1525,7 +1696,7 @@ class Css {
       'font-family': 'inherit',
       'font-size': 'inherit',
       'color': 'inherit',
-      'transition': 'background 200ms ease',
+      'transition': 'background-color 200ms ease',
       'line-height': 'normal',
     },
 
@@ -1534,8 +1705,7 @@ class Css {
       'align-items': 'center',
       'justify-content': 'center',
       'transition': 'transform 250ms cubic-bezier(0.2, 0.8, 0.2, 1)',
-      'color':
-          'var(${Tokens.current.mutedColor}, ${Tokens.current.mutedColor.value})',
+      'color': _var(Tokens.current.mutedColor),
     },
 
     'body-wrapper': {

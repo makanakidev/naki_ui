@@ -758,6 +758,14 @@ class Dialog extends StatefulComponent {
   /// - [DialogPosition.bottom]: Aligns the dialog to the bottom.
   final DialogPosition position;
 
+  /// Whether the dialog is a translucent glass surface.
+  ///
+  /// [backgroundColor] sets the tint. `--naki-glass-tint`, `--naki-glass-rim`
+  /// and `--naki-glass-blur` tune the surface. The barrier stops blurring so
+  /// the glass can see the page, and the dialog turns opaque when less transparency
+  /// or more contrast is required.
+  final bool glass;
+
   /// Optional CSS classes applied to the dialog.
   final String? classes;
 
@@ -767,6 +775,7 @@ class Dialog extends StatefulComponent {
     required this.controller,
     this.position = DialogPosition.center,
     this.barrierDismissible = false,
+    this.glass = false,
     this.title,
     this.semanticLabel,
     this.subtitle,
@@ -848,7 +857,11 @@ class _DialogState extends State<Dialog>
     };
 
     final baseClass = 'naki-dialog dialog-${component.position.name}';
-    final effectiveClasses = joinClasses([?component.classes, baseClass]);
+    final effectiveClasses = joinClasses([
+      ?component.classes,
+      if (component.glass) 'dialog-glass',
+      baseClass,
+    ]);
 
     final showContentOnly = component.content != null;
 
@@ -885,7 +898,6 @@ class _DialogState extends State<Dialog>
           classes: 'naki-dialog-actions',
           spacing: 10,
           mainAxisAlignment: MainAxisAlignment.end,
-          mainAxisSize: MainAxisSize.max,
           children: component.actions!,
         ),
     ];
@@ -1578,18 +1590,18 @@ class Popover extends StatelessComponent {
           ),
 
         // trigger
-        .wrapElement(
-          child: child,
+        span(
           classes: 'naki-popover-trigger',
           attributes: {'canfocus': ?(!visible && onClose == null ? '' : null)},
+          [child],
         ),
 
         // content
-        .wrapElement(
+        div(
           classes: effectiveClasses,
           attributes: {'role': 'dialog', 'aria-label': semanticLabel},
           styles: Styles(raw: effectiveStyles),
-          child: content,
+          [content],
         ),
       ],
     );

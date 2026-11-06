@@ -19,7 +19,7 @@ import '../utilities/extensions.dart' show CssPropsExtension, NumExtension;
 /// A styling class for text that mimics Flutter's [TextStyle]
 /// and converts to CSS styles.
 class TextStyle implements NakiStylable {
-  /// Color to use when painting the text (default: currentcolor)
+  /// Color to use when painting the text.
   final Color? color;
 
   /// Display property of the text.
@@ -52,7 +52,7 @@ class TextStyle implements NakiStylable {
   /// Line height of the text.
   final Dim? lineHeight;
 
-  /// Width of the text.
+  /// Horizontal extent of the text.
   final Dim? width;
 
   /// Text overflow behavior.
@@ -85,17 +85,17 @@ class TextStyle implements NakiStylable {
   /// Margin of the text.
   final EdgeInsets? margin;
 
-  /// If true, the text will be truncated with an ellipsis if it overflows.
-  /// This property is ignored if `maxLines` is greater than 1.
+  /// If `true`, the text will be truncated with an ellipsis if it overflows.
+  /// This property is ignored if [maxLines] is provided.
   final bool truncate;
 
-  /// If true, the text will be selectable.
+  /// If `true`, the text will be selectable.
   final bool selectable;
 
   /// Whether the text should break at soft line breaks.
   final bool softWrap;
 
-  /// Maximum lines of text to display. If null, the full text will
+  /// Maximum lines of text to display. If `null`, the full text will
   /// be rendered, otherwise the text will be truncated with an ellipsis
   /// if it overflows more than the allowed lines.
   final int? maxLines;
@@ -107,7 +107,7 @@ class TextStyle implements NakiStylable {
   const TextStyle({
     this.truncate = false,
     this.selectable = false,
-    this.softWrap = false,
+    this.softWrap = true,
     this.display,
     this.color,
     this.fontSize,
@@ -235,8 +235,7 @@ class TextStyle implements NakiStylable {
   }
 
   bool get _shouldTruncate => truncate && maxLines == null;
-
-  bool get _shouldClamp => maxLines != null;
+  bool get _shouldClamp => maxLines != null && maxLines! > 0;
 
   @override
   String get cssText => props.cssText;
@@ -248,12 +247,12 @@ class TextStyle implements NakiStylable {
     Tokens.current.selectedTextColor.name: ?selectionTextColor?.value,
     'display': ?display?.value,
     'color': ?color?.value,
+    'width': ?width?.cssText,
     'background-color': ?backgroundColor?.value,
     'font-size': ?fontSize?.cssText,
     'font-weight': ?fontWeight?.value,
     'font-style': ?fontStyle?.name,
     'font-family': ?fontFamily?.value,
-    'width': ?width?.cssText,
     'letter-spacing': ?letterSpacing?.cssText,
     'word-spacing': ?wordSpacing?.cssText,
     'line-height': ?lineHeight?.cssText,
@@ -263,14 +262,17 @@ class TextStyle implements NakiStylable {
     'text-decoration-thickness': ?decorationThickness?.cssText,
     'text-align': ?textAlign?.value,
     'user-select': selectable ? 'text' : 'none',
-    'text-wrap': ?(softWrap && !_shouldTruncate ? 'wrap' : null),
+    'text-wrap': ?switch ((softWrap, _shouldClamp)) {
+      (false, _) => 'nowrap',
+      (true, true) => 'wrap',
+      (true, false) => null,
+    },
     'text-overflow': ?overflow?.value,
     ...?gradient?.props,
     ...?padding?.pProps,
     ...?margin?.mProps,
     ...?extra,
     if (_shouldTruncate) ...Css.nakiTextTruncateStyle,
-    if (_shouldTruncate && width != null) 'width': width!.cssText,
     if (_shouldClamp) ...{
       Tokens.current.textMaxLines.name: maxLines!.toCleanString,
       ...Css.nakiTextClampStyle,

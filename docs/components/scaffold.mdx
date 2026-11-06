@@ -78,6 +78,7 @@ class DashboardLayout extends StatelessComponent {
 ## `Drawer` & `Sidebar` Navigation
 
 `Scaffold` provides dedicated slots for both modal drawer navigation and persistent desktop sidebar navigation:
+
 - **`drawer` (`Drawer`)**: Modal slide-in navigation overlay with a darkened barrier backdrop. Can be opened programmatically using `Scaffold.maybeOf(context)?.openDrawer()`.
 - **`sideBar` (`Sidebar`)**: Persistent side navigation panel docked alongside the page body without an overlay backdrop barrier.
 
@@ -174,10 +175,39 @@ Scaffold(
 )
 ```
 
+### Frosted glass
+
+`BottomNavigationBarType.frostedGlass` blurs the content behind a pill-shaped bar, adds a light rim and depth, and slides a glass droplet between its equally wide tiles. Scroll content behind it with `extendBody: true` to see the effect.
+
+Tune the material with these `ComponentScheme` fields or their CSS variables:
+
+| `ComponentScheme` field    | CSS variable                         | Default                |
+| -------------------------- | ------------------------------------ | ---------------------- |
+| `bottomNavbarGlassTint`    | `--naki-bottom-navbar-glass-tint`    | `15%` (`30%` in dark)  |
+| `bottomNavbarGlassRim`     | `--naki-bottom-navbar-glass-rim`     | `100%` (`40%` in dark) |
+| `bottomNavbarGlassDroplet` | `--naki-bottom-navbar-glass-droplet` | `0%` (`50%` in dark)   |
+| `bottomNavbarGlassBlur`    | `--naki-bottom-navbar-glass-blur`    | `5px`                  |
+
+The bar falls back to a solid or near-opaque surface for `prefers-reduced-transparency`, `prefers-contrast: more` and `forced-colors`.
+
+### Liquid glass
+
+`BottomNavigationBarType.liquidGlass` is a frosted glass bar that bends the content behind its edges and selection droplet in Chromium browsers.
+
+```dart
+BottomNavigationBar(
+  type: BottomNavigationBarType.liquidGlass,
+  items: items,
+)
+```
+
+`bottomNavbarGlassRefraction` on `ComponentScheme` scales the displacement in percent. The default is `100`, and `0` leaves the bar frosted. It is a theme value rather than a CSS variable because an SVG filter cannot read one.
+
 ## `BottomNavigationBarType` Enum Variants
 
 | Enum Variant                           | Description                                                                                                                                          |
 | -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `BottomNavigationBarType.frostedGlass` | The bottom navigation bar has an iOS-style frosted glass effect, is elevated, centered on the screen, and has a smaller width than the screen width. |
+| `BottomNavigationBarType.liquidGlass`  | A `frostedGlass` bar that also refracts the content behind its edges and selection droplet in Chromium browsers.                                     |
 | `BottomNavigationBarType.floating`     | The bottom navigation bar is elevated, centered on the screen, and has a smaller width than the screen width.                                        |
 | `BottomNavigationBarType.fixed`        | The bottom navigation bar is fixed to the bottom of the screen and has the full width of the screen.                                                 |

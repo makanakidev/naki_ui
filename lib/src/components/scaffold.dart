@@ -12,6 +12,7 @@ import '../models/gesture.dart';
 import '../models/naki.dart';
 import '../models/overlays.dart';
 import '../models/styling.dart';
+import '../styles/css.dart';
 import '../styles/rules.dart';
 import '../styles/text_style.dart';
 import '../theme/tokens.dart';
@@ -19,7 +20,7 @@ import '../utilities/constants.dart';
 import '../utilities/enums.dart';
 import '../utilities/extensions.dart';
 import '../utilities/helpers.dart';
-import 'basics.dart' show Column, GestureDetector, Icon, NakiText, Row;
+import 'basics.dart' show Button, Column, GestureDetector, Icon, NakiText, Row;
 import 'layout.dart' show Padding;
 import 'media_query.dart' show MediaQueryProvider;
 import 'overlays.dart' show Drawer, Sidebar, Tooltip;
@@ -65,14 +66,26 @@ class AppBar extends StatelessComponent {
   /// Height of the app bar.
   final Dim? height;
 
-  /// A component to display before `title` or `titleText`.
+  /// Removes app bar shadow when `true`.
+  final bool removeShadow;
+
+  /// Enables background blur effect when `true`
+  /// and ignored if [fixed] is `false`.
+  final bool blurBackground;
+
+  /// Enables fixed app bar during scroll when `true`.
   ///
-  /// Usually a button for navigation, menu, etc.
+  /// Ignored if app bar is not assigned to [Scaffold.appBar].
+  final bool fixed;
+
+  /// Component displayed before `title` or `titleText`.
+  ///
+  /// Usually a [Button] for navigation, menu, etc.
   final Component? leading;
 
-  /// Components to display after `title` or `titleText`.
+  /// Components displayed after `title` or `titleText`.
   ///
-  /// Usually buttons for search, settings, etc.
+  /// Usually [Button]s for search, settings, etc.
   final List<Component>? actions;
 
   /// Background color of the app bar.
@@ -92,12 +105,12 @@ class AppBar extends StatelessComponent {
   /// Custom CSS classes applied to the app bar.
   final String? classes;
 
-  /// Removes app bar shadow when `true`, otherwise shadow is applied.
-  final bool? removeShadow;
-
   /// {@macro AppBar}
   const AppBar({
     super.key,
+    this.removeShadow = false,
+    this.blurBackground = true,
+    this.fixed = true,
     this.height,
     this.width,
     this.title,
@@ -108,7 +121,6 @@ class AppBar extends StatelessComponent {
     this.classes,
     this.titleText,
     this.titleStyle,
-    this.removeShadow,
   });
 
   @override
@@ -128,7 +140,7 @@ class AppBar extends StatelessComponent {
       Tokens.current.appbarBgColor.name: ?backgroundColor?.value,
       Tokens.current.appbarHeight.name: ?height?.cssText,
       'width': ?width?.cssText,
-      'box-shadow': ?(removeShadow == true ? 'none' : null),
+      'box-shadow': ?(removeShadow ? 'none' : null),
       ...?gradient?.props,
     };
 
@@ -136,7 +148,11 @@ class AppBar extends StatelessComponent {
       key: key,
       tag: 'naki-appbar',
       classes: effectiveClasses,
-      attributes: const {'role': 'banner'},
+      attributes: {
+        'role': 'banner',
+        'fixed': '$fixed',
+        'blur': '${blurBackground && fixed ? true : false}',
+      },
       styles: Styles(raw: effectiveStyles),
       children: [?leading, ?effectiveTitle, ?effectiveActions],
     );
@@ -192,15 +208,19 @@ class _BottomNavBarTile extends StatelessComponent {
       color: context.primaryColor,
     ).combineWith(selectedLabelStyle);
 
+    final defaultUnselectedColor = type.isGlass
+        ? context.mutedColor
+        : context.secondaryColor;
+
     final effectiveUnselectedLabelStyle = TextStyle(
-      color: context.secondaryColor,
+      color: defaultUnselectedColor,
     ).combineWith(unselectedLabelStyle);
 
     final selectedFontSize = effectiveSelectedLabelStyle.fontSize?.value ?? 12;
     final selectedFontColor =
         effectiveSelectedLabelStyle.color ?? context.primaryColor;
     final unselectedFontColor =
-        effectiveUnselectedLabelStyle.color ?? context.secondaryColor;
+        effectiveUnselectedLabelStyle.color ?? defaultUnselectedColor;
 
     final _selectedIconSize = selectedIconSize ?? iconSize;
     final _unselectedIconSize = unselectedIconSize ?? iconSize - 2.0;
@@ -268,9 +288,14 @@ class _BottomNavBarTile extends StatelessComponent {
 
     final Component tile =
         isLandscape && layout == BottomNavigationBarLandscapeLayout.linear
-        ? Row(spacing: 8, children: [icon, ?label])
+        ? Row(
+            spacing: 8,
+            mainAxisSize: MainAxisSize.min,
+            children: [icon, ?label],
+          )
         : Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [icon, ?label],
           );
 
@@ -418,9 +443,9 @@ class BottomNavigationBar extends StatefulComponent {
     required this.items,
     this.selectedIndex = 0,
     this.selectedIconSize = 24.0,
-    this.unSelectedIconSize = 20.0,
+    this.unSelectedIconSize = 24.0,
     this.selectedLabelFontSize = 12.0,
-    this.unSelectedLabelFontSize = 10.0,
+    this.unSelectedLabelFontSize = 12.0,
     this.showSelectedLabels = true,
     this.showUnSelectedLabels = true,
     this.enableFeedback = false,
@@ -446,12 +471,137 @@ class BottomNavigationBar extends StatefulComponent {
   State<BottomNavigationBar> createState() => _BottomNavigationBarState();
 
   @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('BottomNavBar', [Rules.nakiBottomNavBarRules]);
+  static List<StyleRule> get styles => NakiStyleRegistry.once('BottomNavBar', [
+    Rules.nakiBottomNavBarRules,
+  ]);
+}
+
+/// Measured sizes of a liquid glass bar and its selection droplet.
+class _RefractionSize {
+  final int barWidth;
+  final int barHeight;
+  final int dropletWidth;
+  final int dropletHeight;
+
+  const _RefractionSize({
+    required this.barWidth,
+    required this.barHeight,
+    required this.dropletWidth,
+    required this.dropletHeight,
+  });
+
+  @override
+  bool operator ==(Object other) =>
+      other is _RefractionSize &&
+      other.barWidth == barWidth &&
+      other.barHeight == barHeight &&
+      other.dropletWidth == dropletWidth &&
+      other.dropletHeight == dropletHeight;
+
+  @override
+  int get hashCode =>
+      Object.hash(barWidth, barHeight, dropletWidth, dropletHeight);
+}
+
+/// Builds a displacement map for a pill of [width] by [height].
+///
+/// Red encodes horizontal and blue vertical displacement. The neutral gray
+/// center leaves the middle untouched, so only the [bezel] bends content.
+String _refractionMap(int width, int height, int bezel) {
+  final radius = height / 2;
+  final innerRadius = radius - bezel;
+
+  return '<svg xmlns="http://www.w3.org/2000/svg" '
+      'width="$width" height="$height">'
+      '<defs>'
+      '<linearGradient id="r" x1="1" x2="0">'
+      '<stop offset="0" stop-color="#000"/>'
+      '<stop offset="1" stop-color="#f00"/>'
+      '</linearGradient>'
+      '<linearGradient id="b" x2="0" y2="1">'
+      '<stop offset="0" stop-color="#000"/>'
+      '<stop offset="1" stop-color="#00f"/>'
+      '</linearGradient>'
+      '</defs>'
+      '<rect width="$width" height="$height" fill="#000"/>'
+      '<rect width="$width" height="$height" rx="$radius" fill="url(#r)"/>'
+      '<rect width="$width" height="$height" rx="$radius" fill="url(#b)" '
+      'style="mix-blend-mode:difference"/>'
+      '<rect x="$bezel" y="$bezel" width="${width - bezel * 2}" '
+      'height="${height - bezel * 2}" rx="$innerRadius" fill="#808080" '
+      'fill-opacity=".97" style="filter:blur(${bezel / 2}px)"/>'
+      '</svg>';
+}
+
+/// A filter that bends the [bezel] of a [width] by [height] pill.
+Component _refractionFilter({
+  required String id,
+  required int width,
+  required int height,
+  required int strength,
+  required int bezel,
+}) {
+  final map = Uri.encodeComponent(_refractionMap(width, height, bezel));
+
+  return .element(
+    tag: 'filter',
+    attributes: {
+      'id': id,
+      'x': '0',
+      'y': '0',
+      'width': '$width',
+      'height': '$height',
+      'filterUnits': 'userSpaceOnUse',
+      'primitiveUnits': 'userSpaceOnUse',
+      'color-interpolation-filters': 'sRGB',
+    },
+    children: [
+      .element(
+        tag: 'feImage',
+        attributes: {
+          'href': 'data:image/svg+xml,$map',
+          'x': '0',
+          'y': '0',
+          'width': '$width',
+          'height': '$height',
+          'preserveAspectRatio': 'none',
+          'result': 'map',
+        },
+      ),
+      .element(
+        tag: 'feDisplacementMap',
+        attributes: {
+          'in': 'SourceGraphic',
+          'in2': 'map',
+          'scale': '-$strength',
+          'xChannelSelector': 'R',
+          'yChannelSelector': 'B',
+          'result': 'bent',
+        },
+      ),
+      const .element(
+        tag: 'feGaussianBlur',
+        attributes: {'in': 'bent', 'stdDeviation': '1'},
+      ),
+    ],
+  );
 }
 
 class _BottomNavigationBarState extends State<BottomNavigationBar> {
+  static int _nextRefractionId = 0;
+
   late int _currentIndex;
+
+  final _indicatorKey = GlobalNodeKey<HTMLElement>();
+  final _refractionId = 'naki-refraction-${_nextRefractionId++}';
+
+  BrowserLifecycleListeners? _refractionObserver;
+  _RefractionSize? _refractionSize;
+
+  BottomNavigationBarType get _effectiveType =>
+      component.type ?? BottomNavigationBarType.fixed;
+
+  String get _dropletRefractionId => '$_refractionId-droplet';
 
   @override
   void setState(VoidCallback fn) {
@@ -470,6 +620,7 @@ class _BottomNavigationBarState extends State<BottomNavigationBar> {
     );
 
     _currentIndex = component.selectedIndex;
+    _syncRefraction();
   }
 
   @override
@@ -478,6 +629,59 @@ class _BottomNavigationBarState extends State<BottomNavigationBar> {
     if (oldComponent.selectedIndex != component.selectedIndex) {
       _currentIndex = component.selectedIndex;
     }
+    _syncRefraction();
+  }
+
+  @override
+  void dispose() {
+    _refractionObserver?.dispose();
+    super.dispose();
+  }
+
+  /// Measures the bar for a [BottomNavigationBarType.liquidGlass] filter.
+  ///
+  /// The filter only runs in the browser, so server-rendered markup and
+  /// unsupported browsers keep the frosted glass bar.
+  void _syncRefraction() {
+    if (!kIsWeb) return;
+
+    final isLiquid = _effectiveType == BottomNavigationBarType.liquidGlass;
+    if (isLiquid && _refractionObserver != null) return;
+
+    if (!isLiquid) {
+      _refractionObserver?.dispose();
+      _refractionObserver = null;
+      _refractionSize = null;
+      return;
+    }
+
+    final agent = window.navigator.userAgent;
+    if (!agent.contains('Chrome/') && !agent.contains('Chromium/')) return;
+
+    _refractionObserver = BrowserLifecycleListeners()
+      ..observeComponentSize(
+        (_, _, _) => _measureRefraction(),
+        key: _indicatorKey,
+      )
+      ..register();
+  }
+
+  void _measureRefraction() {
+    final droplet = _indicatorKey.currentNode;
+    final bar = droplet?.parentElement;
+    if (droplet == null || bar == null) return;
+
+    final barBox = bar.getBoundingClientRect();
+    final dropletBox = droplet.getBoundingClientRect();
+
+    final size = _RefractionSize(
+      barWidth: barBox.width.round(),
+      barHeight: barBox.height.round(),
+      dropletWidth: dropletBox.width.round(),
+      dropletHeight: dropletBox.height.round(),
+    );
+
+    if (size != _refractionSize) setState(() => _refractionSize = size);
   }
 
   void _handleTap(int index) {
@@ -497,11 +701,12 @@ class _BottomNavigationBarState extends State<BottomNavigationBar> {
       ...?component.gradient?.props,
     };
 
-    final effectiveType =
-        component.type ??
-        (component.items.length <= 3
-            ? BottomNavigationBarType.fixed
-            : BottomNavigationBarType.floating);
+    final effectiveType = _effectiveType;
+    final isGlass = effectiveType.isGlass;
+
+    final refraction =
+        context.themeTokens.bottomNavbarGlassRefractionValue / 100;
+    final refractionSize = refraction > 0 ? _refractionSize : null;
 
     final effectiveLayout =
         component.landscapeLayout ?? BottomNavigationBarLandscapeLayout.spread;
@@ -532,8 +737,51 @@ class _BottomNavigationBarState extends State<BottomNavigationBar> {
         'role': 'navigation',
         'aria-label': 'Bottom navigation',
       },
-      styles: Styles(raw: effectiveStyles),
+      styles: Styles(
+        raw: {
+          ...effectiveStyles,
+          if (isGlass) ...{
+            kNavbarIndexVar: '$_currentIndex',
+            kNavbarCountVar: '${component.items.length}',
+          },
+          if (refractionSize != null) ...{
+            kNavbarRefractionVar: 'url(#$_refractionId)',
+            kNavbarDropletRefractionVar: 'url(#$_dropletRefractionId)',
+          },
+        },
+      ),
       children: [
+        if (refractionSize != null)
+          .element(
+            tag: 'svg',
+            classes: 'naki-navbar-refraction',
+            attributes: const {'aria-hidden': 'true'},
+            children: [
+              _refractionFilter(
+                id: _refractionId,
+                width: refractionSize.barWidth,
+                height: refractionSize.barHeight,
+                strength: (26 * refraction).round(),
+                bezel: 12,
+              ),
+              _refractionFilter(
+                id: _dropletRefractionId,
+                width: refractionSize.dropletWidth,
+                height: refractionSize.dropletHeight,
+                strength: (34 * refraction).round(),
+                bezel: 14,
+              ),
+            ],
+          ),
+
+        if (isGlass)
+          .element(
+            key: _indicatorKey,
+            tag: 'naki-navbar-indicator',
+            classes: 'naki-navbar-indicator',
+            attributes: const {'aria-hidden': 'true'},
+          ),
+
         for (int i = 0; i < component.items.length; i++)
           _BottomNavBarTile(
             key: component.items[i].key,
@@ -716,7 +964,9 @@ class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
 
     if (oldComponent.extendBody != component.extendBody ||
         oldComponent.appBar != component.appBar ||
-        oldComponent.bottomNavigationBar != component.bottomNavigationBar) {
+        oldComponent.bottomNavigationBar != component.bottomNavigationBar ||
+        oldComponent.body != component.body ||
+        oldComponent.sideBar != component.sideBar) {
       refreshAfterRender();
     }
   }
@@ -742,11 +992,9 @@ class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
           as HTMLElement?;
 
   void _syncInsets() {
-    final appBar = getVisibleElement('.naki-appbar-wrapper naki-appbar');
     final wrapper = getVisibleElement('.naki-navbar-wrapper');
-    final bottombar = getVisibleElement(
-      '.naki-navbar-wrapper naki-bottombar',
-    );
+    final appBar = getVisibleElement('.naki-appbar-wrapper .naki-appbar');
+    final bottombar = getVisibleElement('.naki-navbar-wrapper .naki-bottombar');
 
     if (appBar != null) {
       final height = appBar.getBoundingClientRect().height.roundDown.toPx;
@@ -758,10 +1006,9 @@ class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
     }
 
     if (bottombar != null) {
-      final bodyBottom = _scaffoldBody(
-        wrapper!,
-      )?.getBoundingClientRect().bottom;
       final rect = bottombar.getBoundingClientRect();
+      final body = _scaffoldBody(wrapper!);
+      final bodyBottom = body?.getBoundingClientRect().bottom;
 
       var offset = 0.0;
       var inset = 0.0;
@@ -782,6 +1029,7 @@ class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
       if ((rect.x == 0 && rect.left == 0) || !component.extendBody) {
         _bottomNavbarInset = null;
         wrapper.style.removeProperty(Tokens.current.bottomNavbarInset.name);
+        body?.style.removeProperty(Tokens.current.bottomNavbarInset.name);
         return;
       }
 
@@ -789,7 +1037,14 @@ class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
       final bottomInset = inset.roundDown.toPx;
       if (bottomInset != _bottomNavbarInset) {
         _bottomNavbarInset = bottomInset;
+
         wrapper.style.setProperty(
+          Tokens.current.bottomNavbarInset.name,
+          bottomInset,
+        );
+
+        body?.style.removeProperty(Tokens.current.bottomNavbarInset.name);
+        body?.style.setProperty(
           Tokens.current.bottomNavbarInset.name,
           bottomInset,
         );

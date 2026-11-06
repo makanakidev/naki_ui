@@ -374,6 +374,12 @@ class PageController extends ScrollController {
   /// The fraction of the viewport that each page should occupy (default 1.0).
   final double viewportFraction;
 
+  /// Marks a page view whose controller is animating it.
+  static const _animatingAttribute = 'data-animating';
+
+  /// Identifies the latest [animateToPage] call.
+  int _animation = 0;
+
   /// Creates a new [PageController].
   PageController({
     this.initialPage = 0,
@@ -447,8 +453,9 @@ class PageController extends ScrollController {
     // calculate target scroll offset
     final targetOffset = page * pageSize;
 
-    // jump immediately if duration is zero
-    if (duration == Duration.zero) {
+    // jump immediately if duration is zero or the user prefers less motion
+    if (duration == Duration.zero ||
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       jumpToPage(page);
       return;
     }
@@ -465,8 +472,17 @@ class PageController extends ScrollController {
     final startTime = DateTime.now().millisecondsSinceEpoch;
     final totalDurationMs = duration.inMilliseconds;
 
+    final element = _attachedElement!;
+
+    // a newer animation takes over from this one
+    final animation = ++_animation;
+
     void step() {
-      if (_attachedElement == null) return;
+      if (_attachedElement == null || animation != _animation) return;
+
+      // scroll snapping would pull every frame back to the nearest page, and
+      // a rebuild clears attributes it did not set, so this is set every frame
+      element.setAttribute(_animatingAttribute, '');
 
       // calculate animation progress
       final elapsed = DateTime.now().millisecondsSinceEpoch - startTime;
@@ -489,7 +505,11 @@ class PageController extends ScrollController {
       notifyListeners();
 
       // continue animation if not done
-      if (progress < 1.0) onComponentRendered(step);
+      if (progress < 1.0) {
+        onComponentRendered(step);
+      } else {
+        element.removeAttribute(_animatingAttribute);
+      }
     }
 
     // start animation

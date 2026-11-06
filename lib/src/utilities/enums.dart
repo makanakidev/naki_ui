@@ -947,6 +947,9 @@ enum CalendarType {
 
   /// Shows date and time.
   both,
+
+  /// Selects a range of dates (start date and end date).
+  range,
 }
 
 /// Controls the overall lighting of a component
@@ -978,13 +981,25 @@ enum BottomNavigationBarType {
   /// The bottom navigation bar has an iOS-style frosted glass effect,
   /// is elevated, centered on the screen, and has a smaller width
   /// than the screen width.
-  frostedGlass('navbar__frosted-glass')
+  frostedGlass('navbar__frosted-glass'),
+
+  /// A [frostedGlass] bar that also bends the content behind its edges and
+  /// selection droplet. Refraction needs a Chromium browser, so other
+  /// browsers show the regular [frostedGlass] bar.
+  liquidGlass('navbar__frosted-glass navbar__liquid-glass')
   ;
 
   /// The CSS class name representing the bottom navigation bar style.
   /// example: 'navbar__floating'
   final String className;
   const BottomNavigationBarType(this.className);
+
+  /// Whether the bar has a glass surface and a selection droplet.
+  bool get isGlass => this == frostedGlass || this == liquidGlass;
+
+  /// Whether the bar is centered on the screen
+  /// and `Scaffold.extendBody` should be `true`.
+  bool get isElevated => this != fixed;
 }
 
 /// Refines the landscape layout of a bottom navigation bar.
@@ -1023,6 +1038,9 @@ enum CardVariant {
 
   /// Card with surface container fill.
   filled,
+
+  /// Translucent card with a blurred backdrop and a light rim.
+  glass,
 }
 
 /// File types.

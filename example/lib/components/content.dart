@@ -6,6 +6,7 @@ import 'package:naki_ui/theme.dart';
 
 import '../models/todo_item.dart';
 import '../services/todo_storage.dart';
+
 import 'empty_state.dart';
 import 'todo_filter_bar.dart';
 import 'todo_header.dart';
@@ -97,18 +98,6 @@ class _ContentState extends State<Content> {
     );
   }
 
-  // void _clearCompleted() {
-  //   final completedCount = _todos.where((t) => t.isCompleted).length;
-  //   if (completedCount == 0) return;
-
-  //   _todos = _todos.where((t) => !t.isCompleted).toList();
-
-  //   _showFeedback(
-  //     'Cleared $completedCount completed ${completedCount == 1 ? 'task' : 'tasks'}',
-  //   );
-  //   _save();
-  // }
-
   @override
   Component build(BuildContext context) {
     return SingleChildScrollView(
@@ -146,6 +135,7 @@ class _ContentState extends State<Content> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 spacing: 16,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   // header
                   TodoHeader(
@@ -173,6 +163,7 @@ class _ContentState extends State<Content> {
                     Column(
                       spacing: 8,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
+                      mainAxisSize: MainAxisSize.min,
                       children: filteredTodos
                           .map(
                             (todo) => TodoItemTile(
@@ -186,19 +177,49 @@ class _ContentState extends State<Content> {
                           .toList(),
                     ),
 
-                  // QaDemo(onMessage: _showFeedback),
-
                   // Footer
                   Align(
                     alignment: Alignment.center,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: Dim.px(30)),
                       child: Align(
-                        child: NakiText(
-                          'Built with Jaspr & Naki UI',
-                          style: TextStyle(
-                            color: context.subtitleColor,
-                            fontSize: const Dim.rem(0.9),
+                        child: RichText(
+                          style: const TextStyle(fontSize: const Dim.rem(0.9)),
+                          text: TextSpan(
+                            text: 'Built with ',
+                            style: TextStyle(
+                              color: context.subtitleColor,
+                            ),
+                            children: [
+                              TextSpan(
+                                text: 'Jaspr',
+                                style: TextStyle(
+                                  color: context.primaryColor,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                recognizer: GestureRecognizer(
+                                  onClick: (e) => window.open(
+                                    'https://pub.dev/packages/jaspr',
+                                  ),
+                                ),
+                              ),
+                              TextSpan(
+                                text: ' & ',
+                                style: TextStyle(color: context.subtitleColor),
+                              ),
+                              TextSpan(
+                                text: 'Naki UI',
+                                style: TextStyle(
+                                  color: context.primaryColor,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                recognizer: GestureRecognizer(
+                                  onClick: (e) => window.open(
+                                    'https://pub.dev/packages/naki_ui',
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -214,7 +235,7 @@ class _ContentState extends State<Content> {
                     showCloseIcon: true,
                     backgroundColor: context.primaryColor,
                     foregroundColor: Colors.white,
-                    closeIconColor: Colors.black,
+                    closeIconColor: Colors.white.withOpacity(80),
                   ),
                 ],
               ),

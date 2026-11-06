@@ -1158,8 +1158,6 @@ class _DrawerState extends State<Drawer>
       ...?component.gradient?.props,
     };
 
-    final showBarrier = component.modal;
-
     final baseClass = component.modal ? 'naki-drawer' : 'naki-sidebar';
     final effectiveClasses = joinClasses([?component.classes, baseClass]);
 
@@ -1172,29 +1170,22 @@ class _DrawerState extends State<Drawer>
       key: component.key,
       id: _id,
       classes: effectiveClasses,
-      attributes: exitAttributes,
+      attributes: component.modal ? {...exitAttributes, 'modal': 'true'} : null,
       styles: Styles(raw: effectiveStyles),
+      events: component.barrierDismissible ? {'click': (_) => _close()} : null,
       children: [
-        // Barrier
-        if (showBarrier)
-          div(
-            classes: 'naki-drawer-barrier',
-            events: component.barrierDismissible
-                ? {'click': (_) => _close()}
-                : null,
-            const [],
-          ),
-
         // Content
         aside(
           key: overlaySurfaceKey,
           classes: contentClass,
           attributes: {
-            if (component.modal) 'role': 'dialog',
-            if (component.modal) 'aria-modal': 'true',
+            if (component.modal) ...{
+              'role': 'dialog',
+              'aria-modal': 'true',
+              'tabindex': '-1',
+              ...exitAttributes,
+            },
             'aria-label': component.semanticLabel,
-            if (component.modal) 'tabindex': '-1',
-            ...exitAttributes,
           },
           [component.child],
         ),

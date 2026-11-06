@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:ua_parser/ua_parser.dart';
+
 import '../models/platform.dart';
 import '../utilities/constants.dart';
 import '../utilities/extensions.dart';
@@ -14,12 +16,14 @@ final class PlatformData extends BrowserPlatform {
     this.width = 0,
     this.height = 0,
     String? language,
-  }) : _language = language.isNullOrEmpty ? null : language;
+  }) : _language = language.isNullOrEmpty ? null : language,
+       _parsedAgent = userAgent.isEmpty ? null : UaParser.parse(userAgent);
 
   final String? _language;
+  final UaParserResult? _parsedAgent;
 
   @override
-  String get name => Platform.operatingSystem;
+  String get name => _parsedAgent?.browser.name ?? 'Chrome';
 
   @override
   final String baseUrl;
@@ -28,14 +32,10 @@ final class PlatformData extends BrowserPlatform {
   final String currentPath;
 
   @override
-  String get device {
-    if (isMacOS) return 'MacOS';
-    if (isWindows) return 'Windows';
-    if (isAndroid) return 'Android';
-    if (isiOS) return 'iOS';
-    if (Platform.isLinux) return 'Linux';
-    return 'Server';
-  }
+  String get os => _parsedAgent?.os.name ?? 'Unknown';
+
+  @override
+  String get device => _parsedAgent?.device.model ?? 'Unknown';
 
   @override
   String get language => _language ?? Platform.localeName.split('.').first;
@@ -56,13 +56,15 @@ final class PlatformData extends BrowserPlatform {
   bool get isTablet => !isMobile && !isDesktop;
 
   @override
-  bool get isDesktop => isMacOS || isWindows || Platform.isLinux;
+  bool get isDesktop => isMacOS || isWindows || width >= kBreakpointLarge;
 
   @override
   bool get isPWA => false;
 
   @override
-  bool get isIphone => isiOS && height >= 300 && height < kBreakpointMedium;
+  bool get isIphone =>
+      isiOS &&
+      (device == 'iPhone' || (height >= 300 && height < kBreakpointMedium));
 
   @override
   bool get isiPad => isiOS && isTablet;

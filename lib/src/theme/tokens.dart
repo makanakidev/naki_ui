@@ -893,10 +893,10 @@ abstract class Tokens {
   );
 
   /// Default value for [sliderThumbColor].
-  String get sliderThumbColorValue => 'currentcolor';
+  String get sliderThumbColorValue => primaryColorValue;
 
   /// Slider thumb color
-  /// (default: `currentcolor`,
+  /// (default: `primary color`,
   /// CSS variable: `--naki-slider-thumb-color`).
   Token get sliderThumbColor => Token(
     value: sliderThumbColorValue,
@@ -905,10 +905,10 @@ abstract class Tokens {
   );
 
   /// Default value for [sliderTrackColor].
-  String get sliderTrackColorValue => Color.currentColor.withOpacity(0.7).value;
+  String get sliderTrackColorValue => secondaryColorValue;
 
   /// Slider track color
-  /// (default: `70% of current color`,
+  /// (default: `secondary color`,
   /// CSS variable: `--naki-slider-track-color`).
   Token get sliderTrackColor => Token(
     value: sliderTrackColorValue,
@@ -917,15 +917,15 @@ abstract class Tokens {
   );
 
   /// Slider thumb size
-  /// (default: `24px`, CSS variable: `--naki-slider-thumb-size`).
+  /// (default: `20px`, CSS variable: `--naki-slider-thumb-size`).
   Token get sliderThumbSize =>
-      const Token(value: '24px', name: '--naki-slider-thumb-size');
+      const Token(value: '20px', name: '--naki-slider-thumb-size');
 
   /// Default value for [switchThumbColor].
-  String get switchThumbColorValue => 'currentcolor';
+  String get switchThumbColorValue => primaryColorValue;
 
   /// Switch thumb color
-  /// (default: `currentcolor`, CSS variable: `--naki-switch-thumb-color`).
+  /// (default: `primary color`, CSS variable: `--naki-switch-thumb-color`).
   Token get switchThumbColor => Token(
     value: switchThumbColorValue,
     name: '--naki-switch-thumb-color',
@@ -938,10 +938,10 @@ abstract class Tokens {
       const Token(value: '24px', name: '--naki-radio-btn-radius');
 
   /// Default value for [radioBtnColor].
-  String get radioBtnColorValue => 'currentcolor';
+  String get radioBtnColorValue => primaryColorValue;
 
   /// Radio button color
-  /// (default: `currentcolor`, CSS variable: `--naki-radio-btn-color`).
+  /// (default: `primary color`, CSS variable: `--naki-radio-btn-color`).
   Token get radioBtnColor => Token(
     value: radioBtnColorValue,
     name: '--naki-radio-btn-color',

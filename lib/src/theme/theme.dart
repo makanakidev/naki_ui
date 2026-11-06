@@ -721,22 +721,21 @@ class _DarkModeTokens extends Tokens {
 
   // Selection Component Overrides
 
-  /// Slider thumb color (dark: `currentcolor`).
+  /// Slider thumb color (dark: `primary color`).
   @override
-  String get sliderThumbColorValue => 'currentcolor';
+  String get sliderThumbColorValue => primaryColorValue;
 
-  /// Slider track color (dark: opacity 70%).
+  /// Slider track color (dark: `secondary color`).
   @override
-  String get sliderTrackColorValue =>
-      'color-mix(in srgb, currentcolor 70%, transparent)';
+  String get sliderTrackColorValue => secondaryColorValue;
 
-  /// Switch thumb color (dark: `currentcolor`).
+  /// Switch thumb color (dark: `primary color`).
   @override
-  String get switchThumbColorValue => 'currentcolor';
+  String get switchThumbColorValue => primaryColorValue;
 
-  /// Radio button color (dark: `currentcolor`).
+  /// Radio button color (dark: `primary color`).
   @override
-  String get radioBtnColorValue => 'currentcolor';
+  String get radioBtnColorValue => primaryColorValue;
 
   /// Appbar background color (dark: `#1e293b`).
   @override

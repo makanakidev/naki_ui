@@ -1670,7 +1670,7 @@ class _ExpansionPanelListState extends State<ExpansionPanelList> {
                 hoverColor: panel.backgroundColor ?? Colors.transparent,
                 disabled: panel.disabled,
                 attributes: {
-                  'aria-expanded': isExpanded ? 'true' : 'false',
+                  'aria-expanded': '${isExpanded}',
                   'aria-controls': bodyId,
                 },
                 onTap: panel.canTapOnHeader && !panel.disabled
@@ -1687,7 +1687,7 @@ class _ExpansionPanelListState extends State<ExpansionPanelList> {
               attributes: {
                 'role': 'region',
                 'aria-labelledby': headerId,
-                'aria-hidden': (!isExpanded).toString(),
+                'aria-hidden': '${!isExpanded}',
               },
               [
                 div(classes: 'naki-expansion-panel__body-content', [

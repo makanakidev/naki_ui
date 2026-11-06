@@ -1,3 +1,4 @@
+import 'package:ua_parser/ua_parser.dart';
 import 'package:universal_web/web.dart';
 
 import '../../theme.dart';
@@ -15,7 +16,7 @@ final class PlatformData extends BrowserPlatform {
     String? language,
   }) : _baseUrl = baseUrl.trim().isEmpty ? null : baseUrl,
        _currentPath = currentPath.trim().isEmpty ? null : currentPath,
-       _userAgent = userAgent.trim().isEmpty ? null : userAgent,
+       _userAgent = userAgent.trim().isEmpty ? null : userAgent.toLowerCase(),
        _width = width == 0 ? null : width,
        _height = height == 0 ? null : height,
        _language = language.isNullOrEmpty ? null : language;
@@ -30,11 +31,11 @@ final class PlatformData extends BrowserPlatform {
   final navigator = window.navigator;
   final location = window.location;
 
-  String get _ua => userAgent.toLowerCase();
-  String get _platform => navigator.platform.toLowerCase();
+  String get _ua => _userAgent ?? navigator.userAgent.toLowerCase();
+  UaParserResult get _parsedAgent => UaParser.parse(_ua);
 
   @override
-  String get name => _platform.contains('win') ? 'windows' : _platform;
+  String get name => _parsedAgent.browser.name ?? 'Chrome';
 
   /// Raw `href` of the document's `<base>` element.
   ///
@@ -79,21 +80,25 @@ final class PlatformData extends BrowserPlatform {
   }
 
   @override
+  String get os => _parsedAgent.os.name ?? 'Unknown';
+
+  @override
   String get device {
+    final model = _parsedAgent.device.model;
+    if (model != null) return model;
     if (isIphone) return 'iPhone';
     if (isiPad) return 'iPad';
     if (isAndroid) return 'Android';
     if (isWindows) return 'Windows';
     if (isMacOS) return 'MacOS';
-    if (_ua.contains('linux')) return 'Linux';
-    return 'PC';
+    return 'Unknown';
   }
 
   @override
   String get language => _language ?? navigator.language.split('.').first;
 
   @override
-  String get userAgent => _userAgent ?? navigator.userAgent;
+  String get userAgent => _ua;
 
   @override
   int get height => _height ?? window.innerHeight;
@@ -117,23 +122,22 @@ final class PlatformData extends BrowserPlatform {
   bool get isPWA => window.matchMedia('(display-mode: standalone)').matches;
 
   @override
-  bool get isIphone => _ua.contains('iphone');
+  bool get isIphone => device == 'iPhone';
 
   @override
-  bool get isiPad =>
-      _ua.contains('ipad') || (isMacOS && navigator.maxTouchPoints > 1);
+  bool get isiPad => device == 'iPad';
 
   @override
-  bool get isMacOS => _ua.contains('macintosh') || _ua.contains('mac os');
+  bool get isMacOS => os == 'macOS';
 
   @override
-  bool get isWindows => _ua.contains('windows') || name.contains('win');
+  bool get isWindows => os == 'Windows';
 
   @override
-  bool get isAndroid => _ua.contains('android');
+  bool get isAndroid => os == 'Android';
 
   @override
-  bool get isiOS => isiPad || isIphone;
+  bool get isiOS => os == 'iOS';
 
   @override
   bool get isMobileBrowser => isMobile && !isPWA;

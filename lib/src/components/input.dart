@@ -591,14 +591,14 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
         if (labelText.isNotEmpty)
           Label(labelText, fieldId: id, style: labelStyle),
 
-        // Input
-        inputArea,
-
         // Helper text
         if (helperText.isNotEmpty)
           p(classes: 'naki-helper', styles: Styles(raw: helperStyle?.props), [
             .text(helperText),
           ]),
+
+        // Input
+        inputArea,
       ],
     );
   }

@@ -244,9 +244,9 @@ class Css {
   /// Default text style for helper/hint text.
   static final nakiHelperTextStyle = TextStyle(
     fontSize: Dim(null, unit: _var(Tokens.current.fontSizeHint)),
-    color: Color(_var(Tokens.current.mutedColor)),
+    color: Color(_var(Tokens.current.subtitleColor)),
     lineHeight: Dim.normal,
-    padding: const EdgeInsets.only(top: Dim.px(5)),
+    padding: const EdgeInsets.only(bottom: Dim.px(8)),
     margin: EdgeInsets.zero,
     extra: {'white-space': 'pre-wrap', 'word-break': 'break-word'},
   );
@@ -433,7 +433,7 @@ class Css {
       'width': '100%',
       'height': '100%',
       'rotate': '45deg',
-      'background-color': 'currentcolor',
+      'background-color': _var(Tokens.current.primaryColor),
       'opacity': '0%',
       'transition': 'clip-path 0.3s, opacity 0.1s, rotate 0.3s, translate 0.3s',
       'transition-delay': '0.1s',
@@ -483,7 +483,7 @@ class Css {
     },
 
     'not-checked': {
-      'color': _var(Tokens.current.subtitleColor),
+      'color': _var(Tokens.current.secondaryColor),
     },
 
     'before': {
@@ -496,7 +496,8 @@ class Css {
       'border-radius': '12px',
       'background-color': 'currentcolor',
       'translate': '0',
-      'transition': 'background 0.1s, translate 0.2s, inset-inline-start 0.2s',
+      'transition':
+          'background-color 0.1s, translate 0.2s, inset-inline-start 0.2s',
     },
 
     'checked': {
@@ -552,8 +553,20 @@ class Css {
       'height': _var(Tokens.current.sliderThumbSize),
     },
 
+    'active-track': {
+      'position': 'absolute',
+      'height': 'calc(${_var(Tokens.current.sliderThumbSize)} * 0.5)',
+      'border-radius': '12px',
+      'top': '50%',
+      'translate': '0 -50%',
+      'background-color': _var(Tokens.current.sliderThumbColor),
+    },
+
     'webkit-track': {
-      'background-color': _var(Tokens.current.sliderTrackColor),
+      'background-color': applyOpacity(
+        Tokens.current.sliderTrackColor,
+        38,
+      ).value,
       'border-radius': '12px',
       'height': 'calc(${_var(Tokens.current.sliderThumbSize)} * 0.5)',
     },
@@ -562,19 +575,21 @@ class Css {
       'position': 'relative',
       'box-sizing': 'border-box',
       'border-radius': '999px',
-      'background-color': _var(Tokens.current.sliderTrackColor),
+      'background-color': _var(Tokens.current.sliderThumbColor),
       'height': _var(Tokens.current.sliderThumbSize),
       'width': _var(Tokens.current.sliderThumbSize),
-      'border': '5px solid ${_var(Tokens.current.sliderThumbColor)}',
       '-webkit-appearance': 'none',
       'appearance': 'none',
-      'box-shadow': '0 0 0 2px ${_var(Tokens.current.sliderTrackColor)}',
       'bottom': '50%',
+      'box-shadow': '0 0 0 2px ${_var(Tokens.current.sliderThumbColor)}',
     },
 
     'moz-track': {
       'width': '100%',
-      'background-color': _var(Tokens.current.sliderTrackColor),
+      'background-color': applyOpacity(
+        Tokens.current.sliderTrackColor,
+        38,
+      ).value,
       'border-radius': '12px',
       'height': 'calc(${_var(Tokens.current.sliderThumbSize)} * 0.5)',
     },
@@ -583,12 +598,11 @@ class Css {
       'position': 'relative',
       'box-sizing': 'border-box',
       'border-radius': '999px',
-      'background-color': _var(Tokens.current.sliderTrackColor),
+      'background-color': _var(Tokens.current.sliderThumbColor),
       'height': _var(Tokens.current.sliderThumbSize),
       'width': _var(Tokens.current.sliderThumbSize),
-      'border': '5px solid ${_var(Tokens.current.sliderThumbColor)}',
       'top': '50%',
-      'box-shadow': '0 0 0 2px ${_var(Tokens.current.sliderTrackColor)}',
+      'box-shadow': '0 0 0 2px ${_var(Tokens.current.sliderThumbColor)}',
     },
 
     'disabled': nakiDisabledStyle,
@@ -798,7 +812,7 @@ class Css {
       'border-radius': '8px',
     },
 
-    'tile-action': {'width': '100%'},
+    'tile-action': {'width': '100%', 'cursor': 'default'},
 
     'pressed-tile': {'scale': '0.96'},
 
@@ -832,6 +846,7 @@ class Css {
     'color': _var(Tokens.current.buttonForegroundColor),
     'text-wrap-mode': 'nowrap',
     'text-align': 'center',
+    'font-size': '14px',
     'line-height': 'normal',
   };
 
@@ -932,11 +947,12 @@ class Css {
       'border-radius': '999px',
       'padding': '4px',
       'vertical-align': 'middle',
-      'border': '1px solid color-mix(in srgb, currentcolor 20%, #0000)',
+      'border':
+          '1px solid ${applyOpacity(Tokens.current.secondaryColor, 80).value}',
       'width': _var(Tokens.current.radioBtnRadius),
       'height': _var(Tokens.current.radioBtnRadius),
       'color': _var(Tokens.current.radioBtnColor),
-      'transition': 'border-color 0.2s',
+      'transition': 'border-color 0.2s, background-color 0.2s',
       'margin': '0',
     },
 
@@ -947,7 +963,7 @@ class Css {
       'height': '100%',
       'border-radius': '999px',
       'background-color': 'transparent',
-      'transition': 'background 0.2s ease-out',
+      'transition': 'background-color 0.2s ease-out',
     },
 
     'checked': {
@@ -1441,19 +1457,12 @@ class Css {
   /// Default CSS styles map for Drawer.
   static final nakiDrawerStyle = {
     'wrapper': {
-      'position': 'relative',
       'overflow': 'auto',
       'overscroll-behavior': 'none',
       'z-index': _drawerZindex,
       'display': 'inline-flex',
-      'animation':
-          'nakiDrawerFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-    },
-
-    'barrier': {
       'position': 'fixed',
       'inset': '0',
-      'z-index': _drawerBarrierZindex,
       'width': '100dvw',
       'height': '100dvh',
       'background-color': _var(Tokens.current.drawerBarrierBg),
@@ -1461,7 +1470,8 @@ class Css {
       '-webkit-backdrop-filter': 'blur(5px)',
       'backdrop-filter': 'blur(5px)',
       'touch-action': 'none',
-      'display': 'block',
+      'animation':
+          'nakiDrawerFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards',
     },
 
     'content': {
@@ -1687,17 +1697,12 @@ class Css {
       'justify-content': 'space-between',
       'width': '100%',
       'padding': '8px 12px',
-      'cursor': 'pointer',
+      'cursor': 'default',
       'user-select': 'none',
       'background-color': 'transparent',
-      'border': 'none',
       'text-align': 'left',
       'text-wrap-mode': 'wrap',
-      'font-family': 'inherit',
-      'font-size': 'inherit',
       'color': 'inherit',
-      'transition': 'background-color 200ms ease',
-      'line-height': 'normal',
     },
 
     'chevron': {

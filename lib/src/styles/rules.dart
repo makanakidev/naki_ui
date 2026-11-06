@@ -1027,13 +1027,18 @@ class Rules {
     // tooltip
     css('.slider-tooltip').styles(raw: Css.nakiSliderStyle['tooltip']),
 
+    // active track
+    css(
+      '.naki-slider-active-track',
+    ).styles(raw: Css.nakiSliderStyle['active-track']),
+
     // input element
     css('.naki-slider', [
       css('&').styles(raw: Css.nakiSliderStyle['input']),
 
       // tooltip visibility
       css(
-        '&:is(:hover, :focus-visible, :active) + .slider-tooltip',
+        '&:is(:hover, :focus-visible, :active) ~ .slider-tooltip',
       ).styles(raw: {'opacity': '1'}),
 
       // track (webkit)
@@ -2467,18 +2472,15 @@ class Rules {
 
     // main
     css('.naki-drawer', [
-      // wrapper
+      // barrier
       css('&').styles(raw: Css.nakiDrawerStyle['wrapper']),
 
-      // wrapper exit
+      // exit animation
       css(
         '&[data-exiting="true"]',
       ).styles(
         raw: {'animation': 'nakiDrawerFadeOut 0.2s 0.05s linear forwards'},
       ),
-
-      // barrier
-      css('.naki-drawer-barrier').styles(raw: Css.nakiDrawerStyle['barrier']),
 
       // content
       css('.naki-drawer-content').styles(raw: Css.nakiDrawerStyle['content']),
@@ -2488,7 +2490,7 @@ class Rules {
         raw: {
           'left': '0',
           'animation':
-              'nakiDrawerSlideInLeft 0.25s '
+              'nakiDrawerSlideInLeft 0.3s '
               'cubic-bezier(0.16, 1, 0.3, 1) forwards',
         },
       ),
@@ -2497,7 +2499,7 @@ class Rules {
       css('.drawer-left[data-exiting="true"]').styles(
         raw: {
           'animation':
-              'nakiDrawerSlideOutLeft 0.25s '
+              'nakiDrawerSlideOutLeft 0.3s '
               'cubic-bezier(0.16, 1, 0.3, 1) forwards',
         },
       ),
@@ -2507,7 +2509,7 @@ class Rules {
         raw: {
           'right': '0',
           'animation':
-              'nakiDrawerSlideInRight 0.25s '
+              'nakiDrawerSlideInRight 0.3s '
               'cubic-bezier(0.16, 1, 0.3, 1) forwards',
         },
       ),
@@ -2516,7 +2518,7 @@ class Rules {
       css('.drawer-right[data-exiting="true"]').styles(
         raw: {
           'animation':
-              'nakiDrawerSlideOutRight 0.25s '
+              'nakiDrawerSlideOutRight 0.3s '
               'cubic-bezier(0.16, 1, 0.3, 1) forwards',
         },
       ),
@@ -2525,7 +2527,6 @@ class Rules {
     // prevent background body scrolling when drawer is open
     css(':root:has(.naki-drawer)', [
       css('&').styles(raw: Css.nakiBackgroundLockStyle),
-      //..._appbarAdjustment,
     ]),
   ];
 

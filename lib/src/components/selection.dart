@@ -385,7 +385,7 @@ class Slider extends StatelessComponent {
     this.maxValue = 100.0,
     this.enable = true,
     this.showValueIndicator = false,
-    this.height = const Dim.px(24),
+    this.height = const Dim.px(20),
     this.width,
     this.name,
     this.onChange,
@@ -458,6 +458,13 @@ class Slider extends StatelessComponent {
                   onChange?.call(value);
                 }
               : null,
+        ),
+
+        // active track
+        .element(
+          tag: 'span',
+          classes: 'naki-slider-active-track',
+          styles: Styles(raw: {'width': position}),
         ),
 
         // Tooltip

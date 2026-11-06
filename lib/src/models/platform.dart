@@ -8,8 +8,11 @@ abstract class BrowserPlatform {
   /// Default const constructor for [BrowserPlatform].
   const BrowserPlatform();
 
-  /// Browser platform name.
+  /// Browser name.
   String get name;
+
+  /// Operating System name.
+  String get os;
 
   /// Base URL.
   ///
@@ -79,6 +82,7 @@ abstract class BrowserPlatform {
       'device': device,
       'language': language,
       'userAgent': userAgent,
+      'os': os,
       'height': height.toPx,
       'width': width.toPx,
       'isMobile': isMobile,

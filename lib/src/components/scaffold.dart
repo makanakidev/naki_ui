@@ -276,7 +276,7 @@ class _BottomNavBarTile extends StatelessComponent {
             : effectiveUnselectedLabelStyle,
       );
 
-      label = .wrapElement(classes: 'naki-navbar-label', child: label);
+      label = span(classes: 'naki-navbar-label', [label]);
     }
 
     final Component icon = Icon(
@@ -289,7 +289,7 @@ class _BottomNavBarTile extends StatelessComponent {
     final Component tile =
         isLandscape && layout == BottomNavigationBarLandscapeLayout.linear
         ? Row(
-            spacing: 8,
+            spacing: 5,
             mainAxisSize: MainAxisSize.min,
             children: [icon, ?label],
           )
@@ -312,7 +312,7 @@ class _BottomNavBarTile extends StatelessComponent {
       gestures: Events(
         onClick: (_) {
           if (enableFeedback) {
-            hapticFeedback(duration: const Duration(milliseconds: 50));
+            hapticFeedback(duration: const Duration(milliseconds: 150));
           }
           onTap();
         },
@@ -638,25 +638,39 @@ class _BottomNavigationBarState extends State<BottomNavigationBar> {
     super.dispose();
   }
 
+  /// Checks if the browser supports [BottomNavigationBarType.liquidGlass].
+  bool get supportsLiquidRefraction {
+    if (!kIsWeb) return false;
+
+    final hasBackdrop =
+        CSS.supports('backdrop-filter', 'blur(10px)') ||
+        CSS.supports('-webkit-backdrop-filter', 'blur(10px)');
+    if (!hasBackdrop) return false;
+
+    final ua = window.navigator.userAgent;
+    final isChromium = ua.contains('Chrome/') || ua.contains('Chromium/');
+    final isEdge = ua.contains('Edg/');
+
+    return isChromium || isEdge;
+  }
+
   /// Measures the bar for a [BottomNavigationBarType.liquidGlass] filter.
   ///
-  /// The filter only runs in the browser, so server-rendered markup and
-  /// unsupported browsers keep the frosted glass bar.
+  /// The filter only runs on the client-side, so server-rendered markup and
+  /// browsers that don't support liquid glass keep the frosted glass bar.
   void _syncRefraction() {
     if (!kIsWeb) return;
 
-    final isLiquid = _effectiveType == BottomNavigationBarType.liquidGlass;
-    if (isLiquid && _refractionObserver != null) return;
-
-    if (!isLiquid) {
+    if (_effectiveType != BottomNavigationBarType.liquidGlass) {
       _refractionObserver?.dispose();
       _refractionObserver = null;
       _refractionSize = null;
       return;
     }
 
-    final agent = window.navigator.userAgent;
-    if (!agent.contains('Chrome/') && !agent.contains('Chromium/')) return;
+    if (_refractionObserver != null) return;
+
+    if (!supportsLiquidRefraction) return;
 
     _refractionObserver = BrowserLifecycleListeners()
       ..observeComponentSize(

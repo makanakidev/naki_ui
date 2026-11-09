@@ -6,7 +6,7 @@ import 'package:naki_ui/theme.dart';
 
 import 'showcase.dart';
 
-/// Dialog, BottomSheet, Drawer, Snackbar and Popover.
+/// Dialog, BottomSheet, Drawer, Snackbar, Popover and Tooltip.
 class OverlaysPage extends StatefulComponent {
   const OverlaysPage({super.key});
 
@@ -20,6 +20,8 @@ class _OverlaysPageState extends State<OverlaysPage> {
   final _sheet = OverlayController();
   final _drawer = OverlayController();
   final _snackbar = OverlayController();
+
+  String? _popoverVisible;
 
   @override
   void dispose() {
@@ -43,6 +45,7 @@ class _OverlaysPageState extends State<OverlaysPage> {
           'Close',
           onTap: controller.close,
           width: const Dim.px(150),
+          height: const Dim.px(40),
           backgroundColor: Colors.red,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(
@@ -50,6 +53,78 @@ class _OverlaysPageState extends State<OverlaysPage> {
           ),
         ),
       ],
+    );
+  }
+
+  Future<void> _askToDelete() async {
+    final deleted = await showDialog<bool>(
+      context: context,
+      builder: (context) => Dialog(
+        title: 'Delete item?',
+        subtitle: 'showDialog completes with the button you pick.',
+        barrierDismissible: true,
+        actions: [
+          Button.text('Cancel', onTap: () => closeDialog(context, false)),
+          Button.text(
+            'Delete',
+            backgroundColor: Colors.red,
+            foregroundColor: Colors.white,
+            onTap: () => closeDialog(context, true),
+          ),
+        ],
+      ),
+    );
+
+    if (!mounted) return;
+
+    showSnackbar(
+      context,
+      Snackbar(
+        position: SnackbarPosition.top,
+        duration: const Duration(seconds: 2),
+        content: NakiText(switch (deleted) {
+          true => 'Deleted',
+          false => 'Kept',
+          null => 'Dismissed',
+        }),
+      ),
+    );
+  }
+
+  Future<void> _pickShareTarget() async {
+    Component option(BuildContext context, String label) => Button.text(
+      label,
+      onTap: () => closeModalBottomSheet(context, label),
+      width: const Dim.px(200),
+      height: const Dim.px(40),
+      padding: const EdgeInsets.symmetric(horizontal: Dim.px(20)),
+    );
+
+    final target = await showModalBottomSheet<String>(
+      context: context,
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(Dim.px(24)),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          spacing: 20,
+          children: [
+            const Heading('Share to', level: 3),
+            option(context, 'Messages'),
+            option(context, 'Mail'),
+          ],
+        ),
+      ),
+    );
+
+    if (!mounted) return;
+
+    showSnackbar(
+      context,
+      Snackbar(
+        position: SnackbarPosition.top,
+        duration: const Duration(seconds: 2),
+        content: NakiText(target == null ? 'Dismissed' : 'Shared to $target'),
+      ),
     );
   }
 
@@ -69,6 +144,7 @@ class _OverlaysPageState extends State<OverlaysPage> {
                   Button.text(
                     'Open',
                     onTap: _dialog.open,
+                    height: const Dim.px(40),
                     padding: const EdgeInsets.symmetric(
                       horizontal: Dim.px(12),
                     ),
@@ -76,8 +152,17 @@ class _OverlaysPageState extends State<OverlaysPage> {
                   Button.text(
                     'Open glass',
                     onTap: _glassDialog.open,
+                    height: const Dim.px(40),
                     padding: const EdgeInsets.symmetric(
                       horizontal: Dim.px(20),
+                    ),
+                  ),
+                  Button.text(
+                    'showDialog',
+                    onTap: _askToDelete,
+                    height: const Dim.px(40),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: Dim.px(12),
                     ),
                   ),
                   _dialogFor(_dialog),
@@ -87,15 +172,23 @@ class _OverlaysPageState extends State<OverlaysPage> {
             ),
             Demo(
               name: 'BottomSheet',
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
+              child: Row(
+                spacing: 8,
                 children: [
                   Button.text(
                     'Open',
                     onTap: _sheet.open,
+                    height: const Dim.px(40),
                     padding: const EdgeInsets.symmetric(
                       horizontal: Dim.px(20),
+                    ),
+                  ),
+                  Button.text(
+                    'showModalBottomSheet',
+                    onTap: _pickShareTarget,
+                    height: const Dim.px(40),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: Dim.px(12),
                     ),
                   ),
                   BottomSheet(
@@ -107,11 +200,11 @@ class _OverlaysPageState extends State<OverlaysPage> {
                         spacing: 20,
                         children: [
                           const Heading('Share', level: 3),
-                          const SizedBox.height(Dim.px(20)),
                           Button.text(
                             'Copy link',
                             onTap: _sheet.close,
                             width: const Dim.px(200),
+                            height: const Dim.px(40),
                             padding: const EdgeInsets.symmetric(
                               horizontal: Dim.px(20),
                             ),
@@ -120,6 +213,7 @@ class _OverlaysPageState extends State<OverlaysPage> {
                             'Send by email',
                             onTap: _sheet.close,
                             width: const Dim.px(200),
+                            height: const Dim.px(40),
                             padding: const EdgeInsets.symmetric(
                               horizontal: Dim.px(20),
                             ),
@@ -140,6 +234,7 @@ class _OverlaysPageState extends State<OverlaysPage> {
                   Button.text(
                     'Open',
                     onTap: _drawer.open,
+                    height: const Dim.px(40),
                     padding: const EdgeInsets.symmetric(
                       horizontal: Dim.px(20),
                     ),
@@ -157,6 +252,7 @@ class _OverlaysPageState extends State<OverlaysPage> {
                           const Heading('Menu', level: 3),
                           Button.text(
                             'Close',
+                            height: const Dim.px(40),
                             onTap: _drawer.close,
                             backgroundColor: Colors.red,
                             foregroundColor: Colors.white,
@@ -198,12 +294,81 @@ class _OverlaysPageState extends State<OverlaysPage> {
             Demo(
               name: 'Popover',
               child: Row(
+                mainAxisAlignment: .spaceBetween,
                 children: [
                   Popover(
-                    position: PopoverPosition.bottomLeft,
-                    content: const NakiText('Anchored to its trigger'),
+                    position: PopoverPosition.left,
+                    visible: _popoverVisible == 'left',
+                    content: const NakiText(
+                      'Opens left, flips when there is no room',
+                    ),
+                    onClose: () => setState(() => _popoverVisible = null),
                     child: Button.text(
-                      'Options',
+                      'Left',
+                      onTap: () => setState(() => _popoverVisible = 'left'),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: Dim.px(20),
+                      ),
+                    ),
+                  ),
+                  Popover(
+                    position: PopoverPosition.top,
+                    content: const NakiText('Shown on hover or focus'),
+                    child: Button.text(
+                      'Hover',
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: Dim.px(20),
+                      ),
+                    ),
+                  ),
+                  Popover(
+                    position: PopoverPosition.bottom,
+                    visible: _popoverVisible == 'bottom',
+                    content: const NakiText(
+                      'Anchored to its trigger, inside the safe area',
+                    ),
+                    onClose: () => setState(() => _popoverVisible = null),
+                    child: Button.text(
+                      'Right',
+                      onTap: () => setState(() => _popoverVisible = 'bottom'),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: Dim.px(20),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Demo(
+              name: 'Tooltip',
+              child: Row(
+                mainAxisAlignment: .spaceBetween,
+                children: [
+                  Tooltip(
+                    text: 'Flips to stay on screen',
+                    position: TooltipPosition.left,
+                    child: Button.text(
+                      'Left',
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: Dim.px(20),
+                      ),
+                    ),
+                  ),
+                  Tooltip(
+                    text: 'Shown on hover or focus',
+                    position: TooltipPosition.top,
+                    child: Button.text(
+                      'Top',
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: Dim.px(20),
+                      ),
+                    ),
+                  ),
+                  Tooltip(
+                    text: 'Slides to stay on screen',
+                    position: TooltipPosition.right,
+                    child: Button.text(
+                      'Right',
                       padding: const EdgeInsets.symmetric(
                         horizontal: Dim.px(20),
                       ),

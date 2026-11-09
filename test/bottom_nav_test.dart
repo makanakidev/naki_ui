@@ -90,6 +90,7 @@ void main() {
         'url(#${droplet.id})',
       );
       expect(bar.querySelector('feImage')!.namespaceURI, contains('svg'));
+      expect(_bar.hasAttribute('data-refracted'), isTrue);
     });
 
     testClient('keeps the frosted glass styles and droplet', (tester) async {
@@ -152,6 +153,13 @@ void main() {
       await _settle();
 
       expect(_tile(1), contains('--naki-secondary-color'));
+    });
+
+    testClient('frosted glass is never marked as refracted', (tester) async {
+      pumpBar(tester, type: BottomNavigationBarType.frostedGlass);
+      await _settle();
+
+      expect(_bar.hasAttribute('data-refracted'), isFalse);
     });
 
     testClient('frosted glass has no refraction filter', (tester) async {

@@ -43,18 +43,16 @@ class AppShell extends StatefulComponent {
 
 class _AppShellState extends State<AppShell> {
   final _pageController = PageController();
-  final _snackbarController = OverlayController();
 
-  List<BottomNavigationBarType> _navbarTypes = [
-    BottomNavigationBarType.liquidGlass,
+  final List<BottomNavigationBarType> _navbarTypes = const [
     BottomNavigationBarType.frostedGlass,
-    BottomNavigationBarType.fixed,
+    BottomNavigationBarType.liquidGlass,
     BottomNavigationBarType.floating,
+    BottomNavigationBarType.fixed,
   ];
 
-  BottomNavigationBarType _currentNavbar = BottomNavigationBarType.liquidGlass;
+  BottomNavigationBarType _currentNavbar = BottomNavigationBarType.frostedGlass;
 
-  String _message = '';
   int _page = 0;
 
   /// Page a navigation bar tap is scrolling to, if any.
@@ -68,7 +66,6 @@ class _AppShellState extends State<AppShell> {
   @override
   void dispose() {
     _pageController.dispose();
-    _snackbarController.dispose();
     super.dispose();
   }
 
@@ -85,13 +82,27 @@ class _AppShellState extends State<AppShell> {
   }
 
   void _showMessage(String message) {
-    setState(() => _message = message);
-    _snackbarController.open();
+    showSnackbar(
+      context,
+      Snackbar(
+        duration: const Duration(seconds: 3),
+        position: SnackbarPosition.top,
+        content: NakiText(message),
+        showCloseIcon: true,
+        backgroundColor: context.primaryColor,
+        foregroundColor: Colors.white,
+        closeIconColor: Colors.white.withOpacity(80),
+      ),
+    );
   }
 
   void _changeNavbar() {
     final idx = _navbarTypes.indexOf(_currentNavbar);
-    _currentNavbar = idx >= 3 ? _navbarTypes.first : _navbarTypes[idx + 1];
+    setState(
+      () => _currentNavbar = idx >= _navbarTypes.length - 1
+          ? _navbarTypes.first
+          : _navbarTypes[idx + 1],
+    );
     _showMessage('Navbar type: ${_currentNavbar.name}');
   }
 
@@ -136,16 +147,6 @@ class _AppShellState extends State<AppShell> {
           const Content(),
           const BasicsPage(),
           FormsPage(onMessage: _showMessage),
-          Snackbar(
-            controller: _snackbarController,
-            duration: const Duration(seconds: 3),
-            position: SnackbarPosition.top,
-            content: NakiText(_message),
-            showCloseIcon: true,
-            backgroundColor: context.primaryColor,
-            foregroundColor: Colors.white,
-            closeIconColor: Colors.white.withOpacity(80),
-          ),
           const LayoutPage(),
           const OverlaysPage(),
         ],

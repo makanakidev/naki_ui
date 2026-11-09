@@ -37,15 +37,6 @@ import 'selection.dart';
 /// Signature for callbacks that validate form field.
 typedef FieldValidator<T> = String? Function(T value);
 
-bool _listEquals<T>(List<T> a, List<T> b) {
-  if (identical(a, b)) return true;
-  if (a.length != b.length) return false;
-  for (int i = 0; i < a.length; i++) {
-    if (a[i] != b[i]) return false;
-  }
-  return true;
-}
-
 // /////////////////////////////////////////////////////////////////////////////
 // INPUT COMPONENTS
 // /////////////////////////////////////////////////////////////////////////////
@@ -899,7 +890,20 @@ class _AutoCompleteFieldState extends State<AutoCompleteField>
   @override
   FutureOr<VoidCallback?> afterRender(BuildContext context) {
     if (component.autoFocus) inputNode?.focus();
-    return null;
+
+    final tapSubscription = listenTapOutside(
+      () => document.getElementById('${_id}__autocomplete'),
+      (_) {
+        if (_filteredOptions.value.isEmpty) return;
+
+        setState(() {
+          _activeOptionIndex = null;
+          _filteredOptions.value = [];
+        });
+      },
+    );
+
+    return tapSubscription.cancel;
   }
 
   /// Handles typing
@@ -1828,10 +1832,10 @@ class Calendar extends StatefulComponent {
   ]);
 }
 
-class _CalendarState extends State<Calendar> with NakiStatefulMixin {
+class _CalendarState extends State<Calendar>
+    with NakiStatefulMixin, NakiPlacementMixin {
   late DateTime _visibleDate, _minDate, _maxDate;
 
-  final _dialogKey = GlobalNodeKey<HTMLElement>();
   late final String _calendarId = nakiDomId(context, 'ncp', id: component.id);
 
   bool _pickTime = false;
@@ -1850,7 +1854,7 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
 
   HTMLElement? _previousFocus;
   StreamSubscription<KeyboardEvent>? _keyboardSubscription;
-  StreamSubscription<Event>? _resizeSubscription;
+
   String? _triggerText;
 
   static _CalendarState? _openCalendar;
@@ -1872,10 +1876,11 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
 
     if (oldComponent.type != component.type ||
         oldComponent.initialValue != component.initialValue ||
-        !_listEquals(oldComponent.initialRange, component.initialRange) ||
-        oldComponent.minimum != component.minimum ||
-        oldComponent.maximum != component.maximum) {
+        !listEquals(oldComponent.initialRange, component.initialRange)) {
       _initCalendar();
+    } else if (oldComponent.minimum != component.minimum ||
+        oldComponent.maximum != component.maximum) {
+      _updateBounds();
     }
   }
 
@@ -1891,46 +1896,7 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
       (document.getElementById(triggerId) as HTMLButtonElement?)?.focus();
     }
 
-    // listener that checks if an outside click occurred
-    final clickSubscription = EventStreamProviders.clickEvent
-        .forTarget(window)
-        .listen((event) {
-          if (!_pickTime && !_pickDate) return;
-
-          final target = event.target as Node?;
-          if (target == null) return;
-
-          // ignore targets that were unmounted during click handling
-          if (!target.isConnected) return;
-
-          // ignore clicks inside the calendar
-          if (calendarNode != null && calendarNode!.contains(target)) return;
-
-          // if dropdown menu is open, let dropdown handle closing
-          final dropdownMenu =
-              calendarNode?.querySelector('naki-dropdown[open]')
-                  as HTMLElement? ??
-              document.querySelector('naki-dropdown[open]') as HTMLElement?;
-
-          if (dropdownMenu != null) return;
-
-          if (_showYear) {
-            setState(() => _showYear = false);
-            return;
-          }
-
-          if (_isRange) {
-            _dismissPicker();
-            return;
-          }
-
-          setState(() {
-            _pickTime = false;
-            _pickDate = false;
-          });
-        });
-
-    return clickSubscription.cancel;
+    return null;
   }
 
   /// Initializes the calendar
@@ -1961,12 +1927,21 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
       );
     }
 
+    _updateBounds();
+
+    _committedDates = [..._selectedDates];
+    _committedTime = _selectedTime;
+
+    _updateTriggerText();
+  }
+
+  void _updateBounds() {
     _minDate =
         component.minimum ??
         _visibleDate.subtract(const Duration(days: 100 * 365));
     _maxDate =
         component.maximum ??
-        (initialDates.lastOrNull ?? _visibleDate).add(
+        (_initialDates.lastOrNull ?? _visibleDate).add(
           const Duration(days: 10 * 365),
         );
 
@@ -1975,10 +1950,6 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
     final count = maxYear >= minYear ? (maxYear - minYear) + 1 : 0;
 
     _years = List.generate(count, (i) => minYear + i);
-    _committedDates = [..._selectedDates];
-    _committedTime = _selectedTime;
-
-    _updateTriggerText();
   }
 
   bool get _isRange => component.type == CalendarType.range;
@@ -2042,7 +2013,7 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
 
   bool _isSelected(DateTime date) {
     if (!_isRange || _selectedDates.length < 2) {
-      return _selectedDates.contains(date);
+      return _selectedDates.map(_dateOnly).contains(date);
     }
 
     return !date.isBefore(_selectedDates.first) &&
@@ -2061,17 +2032,18 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
   void _togglePicker() {
     if (component.disable) return;
 
+    // open the picker for the first time
     if (!_pickDate && !_pickTime) {
-      // close any other open calendar
       final other = _openCalendar;
       if (other != null && !identical(other, this) && other.mounted) {
+        // close any other open calendar
         other._dismissPicker(restoreFocus: false);
       }
 
       _openCalendar = this;
       _committedDates = [..._selectedDates];
       _committedTime = _selectedTime;
-    } else if (_isRange) {
+    } else {
       _dismissPicker();
       return;
     }
@@ -2118,70 +2090,66 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
     });
   }
 
-  /// Keeps the open picker inside the viewport: shifts it horizontally away
-  /// from the screen edges, flips it above the trigger when there is more
-  /// room there, and caps its height (it scrolls) when neither side fits.
-  void _positionModal() {
-    final modal = _dialogKey.currentNode;
-    final anchor = modal?.parentElement;
-    if (modal == null || anchor == null) return;
-
-    final style = modal.style;
+  @override
+  Map<String, String> computePlacement(
+    HTMLElement modal,
+    HTMLElement anchor,
+    ({double top, double right, double bottom, double left}) bounds,
+  ) {
     const tokens = Tokens.current;
-    final vars = [
-      tokens.calendarTop.name,
-      tokens.calendarBottom.name,
-      tokens.calendarGap.name,
-      tokens.calendarShiftX.name,
-      tokens.calendarMaxHeight.name,
-    ];
-
-    // measure from the default placement
-    for (final name in vars) style.removeProperty(name);
-
-    const margin = 8.0;
     const gap = 10.0;
 
-    final viewportWidth =
-        (document.documentElement?.clientWidth ?? window.innerWidth).toDouble();
-    final viewportHeight = window.innerHeight.toDouble();
+    final style = modal.style;
+    final values = <String, String>{};
 
     final anchorRect = anchor.getBoundingClientRect();
     final height = modal.getBoundingClientRect().height.toDouble();
 
     // vertical placement
-    final spaceBelow = viewportHeight - anchorRect.bottom - gap - margin;
-    final spaceAbove = anchorRect.top - gap - margin;
-    final placeAbove = height > spaceBelow && spaceAbove > spaceBelow;
+    final vertical = placePicker(
+      height: height,
+      anchorTop: anchorRect.top.toDouble(),
+      anchorBottom: anchorRect.bottom.toDouble(),
+      safeTop: bounds.top,
+      safeBottom: bounds.bottom,
+      gap: gap,
+    );
 
-    if (placeAbove) {
-      style
-        ..setProperty(tokens.calendarTop.name, 'auto')
-        ..setProperty(tokens.calendarBottom.name, '100%')
-        ..setProperty(tokens.calendarGap.name, '-${gap}px');
+    if (vertical.above) {
+      values[tokens.calendarTop.name] = 'auto';
+      values[tokens.calendarBottom.name] = '100%';
+      values[tokens.calendarGap.name] = '-${gap}px';
     }
 
-    final available = placeAbove ? spaceAbove : spaceBelow;
-    if (height > available) {
-      final maxHeight = available < 160 ? 160 : available;
-      style.setProperty(tokens.calendarMaxHeight.name, '${maxHeight}px');
+    if (vertical.top case final top?) {
+      final parentTop = (modal.offsetParent ?? anchor)
+          .getBoundingClientRect()
+          .top;
+      final gapToTop = top - (parentTop + modal.offsetTop);
+      values[tokens.calendarGap.name] = '${gapToTop}px';
     }
+
+    if (vertical.maxHeight case final maxHeight?) {
+      values[tokens.calendarMaxHeight.name] = '${maxHeight}px';
+    }
+
+    values.forEach((name, value) => style.setProperty(name, value));
 
     // horizontal placement
     final rect = modal.getBoundingClientRect();
     var shift = 0.0;
 
-    if (rect.width > viewportWidth - 2 * margin) {
-      shift = margin - rect.left;
-    } else if (rect.left < margin) {
-      shift = margin - rect.left;
-    } else if (rect.right > viewportWidth - margin) {
-      shift = viewportWidth - margin - rect.right;
+    if (rect.width > bounds.right - bounds.left || rect.left < bounds.left) {
+      shift = bounds.left - rect.left;
+    } else if (rect.right > bounds.right) {
+      shift = bounds.right - rect.right;
     }
 
     if (shift != 0) {
-      style.setProperty(tokens.calendarShiftX.name, '${shift}px');
+      values[tokens.calendarShiftX.name] = '${shift}px';
     }
+
+    return values;
   }
 
   List<HTMLElement> _focusableElements(HTMLElement surface) {
@@ -2197,8 +2165,10 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
   }
 
   void _activateDialog() {
-    final surface = _dialogKey.currentNode;
+    final surface = placementKey.currentNode;
     if (surface == null) return;
+
+    place();
 
     _previousFocus = document.activeElement as HTMLElement?;
 
@@ -2209,16 +2179,11 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
             )
             as HTMLElement?;
 
-    (initialFocus ?? surface).focus();
+    // scrolling here would move the picker off the place just measured
+    (initialFocus ?? surface).focus(FocusOptions(preventScroll: true));
     _keyboardSubscription?.cancel();
 
     NakiOverlayStack.push(this);
-
-    // keep the picker on screen when the viewport changes
-    _resizeSubscription?.cancel();
-    _resizeSubscription = EventStreamProviders.resizeEvent
-        .forTarget(window)
-        .listen((_) => _positionModal());
 
     _keyboardSubscription = EventStreamProviders.keyDownEvent
         .forTarget(document)
@@ -2294,8 +2259,8 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
 
     if (identical(_openCalendar, this)) _openCalendar = null;
 
-    _resizeSubscription?.cancel();
-    _resizeSubscription = null;
+    stopPlacing();
+
     _keyboardSubscription?.cancel();
     _keyboardSubscription = null;
 
@@ -2522,13 +2487,6 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
 
     _syncDialogAccessibility(pickerOpen);
 
-    // re-measure after every render while open
-    if (pickerOpen) {
-      onComponentRendered(() {
-        if (mounted) _positionModal();
-      });
-    }
-
     final daysInMonth = _buildCalendarMonth(_visibleDate).days;
 
     final triggerIcon = showDatePickerOnly || showBoth
@@ -2570,7 +2528,6 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
           )
         : div(
             attributes: triggerAttributes,
-            styles: const Styles(raw: {'cursor': 'pointer'}),
             events: events(onClick: _togglePicker),
             [component.child!],
           );
@@ -2655,9 +2612,10 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
                   width: 2,
                 ),
                 child: span(
-                  key: _dialogKey,
+                  key: placementKey,
                   id: '${_calendarId}_dialog',
                   classes: 'naki-calendar-modal',
+                  styles: Styles(raw: placement),
                   attributes: {
                     'role': 'dialog',
                     'aria-modal': 'true',
@@ -2732,7 +2690,7 @@ class _CalendarState extends State<Calendar> with NakiStatefulMixin {
                                   icon:
                                       MaterialIcons.icon_round_arrow_drop_down,
                                   text: _visibleDate.toMonthYear,
-                                  classes: 'naki-calendar-header-title',
+                                  classes: 'naki-calendar-year-btn',
                                   height: const Dim.px(40),
                                   iconSize: 28,
                                   foregroundColor: context.placeholderColor,

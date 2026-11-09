@@ -13,7 +13,7 @@ import '../models/styling.dart' show Dim;
 import '../styles/rules.dart';
 import '../utilities/enums.dart' show Brightness, ThemeMode;
 import '../utilities/extensions.dart';
-import '../utilities/helpers.dart' show updateRootTheme;
+import '../utilities/helpers.dart' show listEquals, updateRootTheme;
 import '../utilities/storage.dart';
 
 import 'tokens.dart';
@@ -781,6 +781,10 @@ class _DarkModeTokens extends Tokens {
   @override
   String get spinnerSurfaceColorValue => '#1e293b';
 
+  /// Card and dialog glass tint (dark: `30%`).
+  @override
+  String get glassTintValue => '30%';
+
   /// Card and dialog glass rim strength (dark: `40%`).
   @override
   String get glassRimValue => '40%';
@@ -866,16 +870,6 @@ class _DarkModeTokens extends Tokens {
 // /////////////////////////////////////////////////////////////////////////////
 // NAKI THEME CONFIG (USER MODIFIABLE)
 // /////////////////////////////////////////////////////////////////////////////
-
-/// Helper function to compare two lists for equality.
-bool _listEquals<T>(List<T>? a, List<T>? b) {
-  if (identical(a, b)) return true;
-  if (a == null || b == null || a.length != b.length) return false;
-  for (int i = 0; i < a.length; i++) {
-    if (a[i] != b[i]) return false;
-  }
-  return true;
-}
 
 /// Normalizes a list of font family names by adding quotes to font names that contain spaces.
 String _normaliseFontFamily(List<String> fonts) {
@@ -1271,7 +1265,7 @@ class TypographyScheme {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     return other is TypographyScheme &&
-        _listEquals(other.fontFamily, fontFamily) &&
+        listEquals(other.fontFamily, fontFamily) &&
         other.fontSizeSm == fontSizeSm &&
         other.fontSizeMd == fontSizeMd &&
         other.fontSizeLg == fontSizeLg &&

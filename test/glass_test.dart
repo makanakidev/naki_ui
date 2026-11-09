@@ -7,6 +7,7 @@ import 'package:jaspr/dom.dart' show Color;
 import 'package:jaspr_test/client_test.dart';
 import 'package:naki_ui/framework.dart';
 import 'package:naki_ui/naki_ui.dart';
+import 'package:naki_ui/src/styles/css.dart';
 import 'package:naki_ui/theme.dart';
 import 'package:universal_web/web.dart' as web;
 
@@ -123,16 +124,36 @@ void main() {
     expect(_element('.naki-popover-content').textContent, 'Details');
   });
 
+  group('Dialog glass barrier', () {
+    test('animates its color, not its opacity', () {
+      // opacity below 1 would hide the page from the glass during the fade
+      final backdrop = Css.nakiDialogStyle['glass-backdrop']!;
+      final exit = Css.nakiDialogStyle['glass-backdrop-exit']!;
+
+      expect(backdrop['animation'], contains('nakiDialogBarrierIn'));
+      expect(exit['animation'], contains('nakiDialogBarrierOut'));
+    });
+  });
+
   group('glass theme values', () {
-    test('default to a readable tint and a softer dark rim', () {
+    test('default to the bottom navbar tint and a softer dark rim', () {
       const light = LightThemeData();
       const dark = DarkThemeData();
 
-      expect(light.glassTint.value, '60%');
+      expect(light.glassTint.value, '15%');
+      expect(dark.glassTint.value, '30%');
       expect(light.glassRim.value, '100%');
       expect(dark.glassRim.value, '40%');
       expect(light.glassBlur.value, '16px');
       expect(light.bottomNavbarGlassRefractionValue, 100);
+    });
+
+    test('card and dialog glass tint matches the frosted navbar', () {
+      const light = LightThemeData();
+      const dark = DarkThemeData();
+
+      expect(light.glassTint.value, light.bottomNavbarGlassTint.value);
+      expect(dark.glassTint.value, dark.bottomNavbarGlassTint.value);
     });
 
     test('come from ComponentScheme', () {

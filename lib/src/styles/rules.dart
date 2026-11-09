@@ -283,11 +283,12 @@ class Rules {
       ),
     ]),
 
-    // theme switching animation
+    // while the theme's color variables fade on <html>, everything else
+    // follows them directly; a component's own transition would trail behind
     css(
       'html.switching-theme *, html.switching-theme *::before, '
       'html.switching-theme *::after',
-    ).styles(raw: {'transition': 'all $_slowTransition'}),
+    ).styles(raw: {'transition': 'none !important'}),
 
     css.supports('(view-transition-name: root)', [
       css('html').styles(raw: {'view-transition-name': 'root'}),
@@ -296,7 +297,7 @@ class Rules {
         '::view-transition-old(root), ::view-transition-new(root)',
       ).styles(
         raw: {
-          'animation-duration': '500ms',
+          'animation-duration': '250ms',
           'animation-timing-function': 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
           'opacity': '1',
         },
@@ -332,6 +333,7 @@ class Rules {
         'scrollbar-width': 'none',
         'box-sizing': 'border-box',
         'font-family': _var(Tokens.current.fontFamily),
+        '-webkit-tap-highlight-color': 'transparent',
       },
     ),
 
@@ -573,18 +575,10 @@ class Rules {
       css('.naki-calendar-modal', [
         css('&').styles(raw: Css.nakiCalendarStyle['modal']),
 
-        css('&:has(.naki-dropdown-trigger[aria-expanded="true"])').styles(
-          raw: {'overflow': 'visible'},
-        ),
-
         // header area
-        css('.naki-calendar-header').styles(
-          raw: {
-            'position': 'sticky',
-            'top': '-10px',
-            'background-color': _var(Tokens.current.dropdownMenuBgColor),
-          },
-        ),
+        css(
+          '.naki-calendar-header',
+        ).styles(raw: Css.nakiCalendarStyle['header']),
 
         // header title
         css('.naki-calendar-title').styles(
@@ -653,6 +647,7 @@ class Rules {
                 'font-size': _var(Tokens.current.calendarTitleFontSize),
                 'font-weight': '500',
                 'cursor': 'pointer',
+                '-webkit-user-select': 'none',
                 'user-select': 'none',
                 'padding': '0',
                 'transition': 'transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1)',
@@ -664,11 +659,6 @@ class Rules {
               'font-size': Tokens.current.calendarTitleFontSize,
             }),
 
-            // place header above year-month popover barrier when open
-            css(
-              '&[showyear]',
-            ).styles(raw: {'position': 'relative', 'z-index': '50'}),
-
             // rotate chevron icon
             css(
               '&[showyear] .naki-icon',
@@ -679,8 +669,8 @@ class Rules {
           css('.naki-calendar-ymp', [
             // years dropdown
             css(
-              '.naki-calendar-ymp__years',
-            ).styles(raw: Css.nakiCalendarStyle['years-dropdown']),
+              '.naki-calendar-ymp__years .naki-dropdown-menu.upward',
+            ).styles(raw: Css.nakiCalendarStyle['years-menu']),
 
             // months grid item
             css('.naki-calendar-ymp__month', [
@@ -744,9 +734,13 @@ class Rules {
               ),
 
               // fill the column so a range has no gaps between dates
-              css(
-                '&[data-in-range]',
-              ).styles(raw: {'width': '100%', 'border-radius': '0'}),
+              css('&[data-in-range]').styles(
+                raw: {
+                  'width': '100%',
+                  'min-width': _var(Tokens.current.calendarCellSize),
+                  'border-radius': '0',
+                },
+              ),
 
               // range start
               css(
@@ -777,6 +771,10 @@ class Rules {
                 'font-size': Tokens.current.calendarDateFontSize,
                 'width': Tokens.current.calendarCellSize,
                 'height': Tokens.current.calendarCellSize,
+              }),
+
+              _compactCalendarRule('&[data-in-range]', {
+                'min-width': Tokens.current.calendarCellSize,
               }),
             ]),
           ]),
@@ -889,7 +887,7 @@ class Rules {
       // small screens: cap the themed sizes so 7 columns always fit
       // (smaller values from the theme are kept)
       css.media(const MediaQuery.screen(maxWidth: Unit.pixels(420)), [
-        css('.naki-calendar-modal').styles(raw: {'padding': '6px 3px'}),
+        css('.naki-calendar-modal').styles(raw: {'padding': '6px 3px 0'}),
       ]),
     ]),
   ];
@@ -1075,7 +1073,7 @@ class Rules {
           'backdrop-filter': 'blur(10px)',
           'background-color': Css.applyOpacity(
             Tokens.current.appbarBgColor,
-            55,
+            65,
           ).value,
         },
       ),
@@ -1104,6 +1102,8 @@ class Rules {
     // fixed navbar type
     css('&.navbar__fixed', [
       css('&').styles(raw: Css.nakiBottomNavBarStyle['fixed']),
+
+      css('&::after').styles(raw: Css.nakiBottomNavBarStyle['fixed-safe-area']),
 
       css('& > .naki-navbar-tile', [
         css('&').styles(raw: {'width': '100%'}),
@@ -1185,6 +1185,17 @@ class Rules {
           ),
         ],
       ),
+
+      // browsers without SVG backdrop filters, such as WebKit on iOS
+      css('&.navbar__liquid-glass:not([data-refracted])', [
+        css(
+          '&::before',
+        ).styles(raw: Css.nakiBottomNavBarStyle['liquid-glass-lens']),
+
+        css(
+          '& > .naki-navbar-indicator',
+        ).styles(raw: Css.nakiBottomNavBarStyle['liquid-glass-lens-indicator']),
+      ]),
 
       css.media(const MediaQuery.raw('(hover: hover)'), [
         css(
@@ -1272,8 +1283,8 @@ class Rules {
   /// Icon rules
   static final nakiIconRules = css('.naki-icon').styles(raw: Css.nakiIconStyle);
 
-  /// FragmentScope rules
-  static final nakiFragmentScopeRules = css(
+  /// Fragment rules
+  static final nakiFragmentRules = css(
     'naki-fragment',
   ).styles(raw: {'display': 'contents'});
 
@@ -1287,6 +1298,24 @@ class Rules {
       '.naki-appbar-wrapper .naki-appbar[fixed="true"]',
     ).styles(raw: Css.nakiScaffoldStyle['appbar']),
 
+    // the app bar paints behind the status bar, so it owns the top inset
+    css(
+      '&:has(> .naki-appbar-wrapper)',
+    ).styles(raw: {'padding-top': '0'}),
+
+    css(
+      '& > .naki-appbar-wrapper .naki-appbar',
+    ).styles(raw: Css.nakiScaffoldStyle['appbar-inset']),
+
+    // an app bar in the flow still paints out to the screen edges
+    css('& > .naki-appbar-wrapper .naki-appbar:not([fixed="true"])').styles(
+      raw: {
+        'margin-left': 'calc(-1 * ${Css.safeAreaLeft})',
+        'margin-right': 'calc(-1 * ${Css.safeAreaRight})',
+        'width': 'calc(100% + ${Css.safeAreaLeft} + ${Css.safeAreaRight})',
+      },
+    ),
+
     // layout
     css('.naki-scaffold-layout').styles(raw: Css.nakiScaffoldStyle['layout']),
 
@@ -1295,7 +1324,12 @@ class Rules {
 
     // a fixed app bar overlays the body
     css('&:has(.naki-appbar-wrapper .naki-appbar[fixed="true"])').styles(
-      raw: {kScaffoldInsetTopVar: _var(Tokens.current.appbarOffset, '56px')},
+      raw: {
+        kScaffoldInsetTopVar: _var(
+          Tokens.current.appbarOffset,
+          Css.nakiScaffoldStyle['appbar-inset']!['height'],
+        ),
+      },
     ),
 
     css('.naki-scaffold-body', [
@@ -1310,9 +1344,9 @@ class Rules {
     css('.extended-body ~ .naki-navbar-wrapper').styles(
       raw: {
         'position': 'absolute',
-        'left': 'env(safe-area-inset-left, 0px)',
-        'right': 'env(safe-area-inset-right, 0px)',
-        'bottom': 'env(safe-area-inset-bottom, 0px)',
+        'left': Css.safeAreaLeft,
+        'right': Css.safeAreaRight,
+        'bottom': Css.safeAreaBottom,
         'width': 'auto',
       },
     ),
@@ -1325,7 +1359,7 @@ class Rules {
 
       ..._childRules({
         'position': 'fixed',
-        'bottom': 'calc(20px + env(safe-area-inset-bottom, 0px))',
+        'bottom': 'calc(20px + ${Css.safeAreaBottom})',
         'left': '50%',
         'transform': 'translateX(-50%)',
       }, ':is(.navbar__floating, .navbar__frosted-glass)'),
@@ -1405,7 +1439,13 @@ class Rules {
 
     // interactive card
     css('&.naki-card--interactive', [
-      css('&').styles(raw: {'cursor': 'pointer', 'user-select': 'none'}),
+      css('&').styles(
+        raw: {
+          'cursor': 'pointer',
+          '-webkit-user-select': 'none',
+          'user-select': 'none',
+        },
+      ),
 
       // hover state
       css('&[hvr]:hover').styles(
@@ -1936,7 +1976,8 @@ class Rules {
     // top position
     css('&.sb-top').styles(
       raw: {
-        'top': _var(Tokens.current.snackbarOffset),
+        'top':
+            'max(${_var(Tokens.current.snackbarOffset)}, calc(10px + ${Css.safeAreaTop}))',
         'left': '50%',
         'transform': 'translateX(-50%)',
       },
@@ -1945,7 +1986,8 @@ class Rules {
     // bottom position
     css('&.sb-bottom').styles(
       raw: {
-        'bottom': _var(Tokens.current.snackbarOffset),
+        'bottom':
+            'max(${_var(Tokens.current.snackbarOffset)}, calc(10px + ${Css.safeAreaBottom}))',
         'left': '50%',
         'transform': 'translateX(-50%)',
       },
@@ -1956,8 +1998,9 @@ class Rules {
       '&.sb-top-left',
     ).styles(
       raw: {
-        'top': _var(Tokens.current.snackbarOffset),
-        'left': '20px',
+        'top':
+            'max(${_var(Tokens.current.snackbarOffset)}, calc(10px + ${Css.safeAreaTop}))',
+        'left': 'calc(20px + ${Css.safeAreaLeft})',
       },
     ),
 
@@ -1966,8 +2009,9 @@ class Rules {
       '&.sb-top-right',
     ).styles(
       raw: {
-        'top': _var(Tokens.current.snackbarOffset),
-        'right': '20px',
+        'top':
+            'max(${_var(Tokens.current.snackbarOffset)}, calc(10px + ${Css.safeAreaTop}))',
+        'right': 'calc(20px + ${Css.safeAreaRight})',
       },
     ),
 
@@ -1976,8 +2020,9 @@ class Rules {
       '&.sb-bottom-left',
     ).styles(
       raw: {
-        'bottom': _var(Tokens.current.snackbarOffset),
-        'left': '20px',
+        'bottom':
+            'max(${_var(Tokens.current.snackbarOffset)}, calc(10px + ${Css.safeAreaBottom}))',
+        'left': 'calc(20px + ${Css.safeAreaLeft})',
       },
     ),
 
@@ -1986,8 +2031,9 @@ class Rules {
       '&.sb-bottom-right',
     ).styles(
       raw: {
-        'bottom': _var(Tokens.current.snackbarOffset),
-        'right': '20px',
+        'bottom':
+            'max(${_var(Tokens.current.snackbarOffset)}, calc(10px + ${Css.safeAreaBottom}))',
+        'right': 'calc(20px + ${Css.safeAreaRight})',
       },
     ),
   ]);
@@ -2057,12 +2103,19 @@ class Rules {
     css(
       '.naki-tooltip-content::after',
     ).styles(
-      raw: {'content': '""', 'position': 'absolute', 'border-style': 'solid'},
+      raw: {
+        'content': '""',
+        'position': 'absolute',
+        'border-style': 'solid',
+        'translate':
+            'var($kTooltipArrowXVar, 0px) var($kTooltipArrowYVar, 0px)',
+        'rotate': 'var($kTooltipArrowRotateVar, 0deg)',
+      },
     ),
 
     // show tooltip on target hover or focus
     css(
-      '.naki-tooltip-target:is(:hover, :focus-within) ~ .naki-tooltip-content',
+      '.naki-tooltip-target:is(:hover, :has(:focus-visible)) ~ .naki-tooltip-content',
     ).styles(raw: {'opacity': '1', 'visibility': 'visible'}),
 
     // Escape-dismissed tooltips remain hidden until pointer leave or refocus.
@@ -2085,8 +2138,7 @@ class Rules {
     css('.tooltip-top::after').styles(
       raw: {
         'top': '100%',
-        'left': '50%',
-        'transform': 'translateX(-50%)',
+        'left': 'calc(50% - 6px)',
         'border-width': '6px 6px 0 6px',
         'border-color':
             '${_var(Tokens.current.tooltipBgColor)} '
@@ -2109,8 +2161,7 @@ class Rules {
     css('.tooltip-bottom::after').styles(
       raw: {
         'bottom': '100%',
-        'left': '50%',
-        'transform': 'translateX(-50%)',
+        'left': 'calc(50% - 6px)',
         'border-width': '0 6px 6px 6px',
         'border-color':
             'transparent transparent '
@@ -2131,8 +2182,7 @@ class Rules {
     css('.tooltip-left::after').styles(
       raw: {
         'left': '100%',
-        'top': '50%',
-        'transform': 'translateY(-50%)',
+        'top': 'calc(50% - 6px)',
         'border-width': '6px 0 6px 6px',
         'border-color':
             'transparent transparent transparent '
@@ -2155,8 +2205,7 @@ class Rules {
     css('.tooltip-right::after').styles(
       raw: {
         'right': '100%',
-        'top': '50%',
-        'transform': 'translateY(-50%)',
+        'top': 'calc(50% - 6px)',
         'border-width': '6px 6px 6px 0',
         'border-color':
             'transparent ${_var(Tokens.current.tooltipBgColor)} '
@@ -2171,15 +2220,12 @@ class Rules {
       // wrapper
       css('&').styles(raw: Css.nakiPopoverStyle['wrapper']),
 
-      // barrier (closes popover when tapped)
-      css('.naki-popover-barrier').styles(raw: Css.nakiPopoverStyle['barrier']),
-
       // popover content
       css('.naki-popover-content').styles(raw: Css.nakiPopoverStyle['popup']),
 
       // show popover content when trigger can be focused or hovered
       css(
-        '.naki-popover-trigger[canfocus]:is(:focus-within, :hover) ~ '
+        '.naki-popover-trigger[canfocus]:is(:hover, :has(:focus-visible)) ~ '
         '.naki-popover-content',
       ).styles(raw: Css.nakiPopoverStyle['show']),
 
@@ -2200,7 +2246,9 @@ class Rules {
 
       // scale top popover when visible and hovered or focused
       css(
-        '&[aria-expanded="true"] .popover-top, .popover-top:hover, '
+        '&[aria-expanded="true"] .popover-top, '
+        '.naki-popover-trigger[canfocus]:is(:hover, :has(:focus-visible)) ~ '
+        '.popover-top, .popover-top:hover, '
         '.popover-top:focus-within',
       ).styles(
         raw: {'transform': 'translateX(-50%) translateY(-8px) scale(1)'},
@@ -2220,7 +2268,9 @@ class Rules {
 
       // scale bottom popover when visible and hovered or focused
       css(
-        '&[aria-expanded="true"] .popover-bottom, .popover-bottom:hover, '
+        '&[aria-expanded="true"] .popover-bottom, '
+        '.naki-popover-trigger[canfocus]:is(:hover, :has(:focus-visible)) ~ '
+        '.popover-bottom, .popover-bottom:hover, '
         '.popover-bottom:focus-within',
       ).styles(raw: {'transform': 'translateX(-50%) translateY(8px) scale(1)'}),
 
@@ -2238,7 +2288,9 @@ class Rules {
 
       // scale left popover when visible and hovered or focused
       css(
-        '&[aria-expanded="true"] .popover-left, .popover-left:hover, '
+        '&[aria-expanded="true"] .popover-left, '
+        '.naki-popover-trigger[canfocus]:is(:hover, :has(:focus-visible)) ~ '
+        '.popover-left, .popover-left:hover, '
         '.popover-left:focus-within',
       ).styles(
         raw: {'transform': 'translateY(-50%) translateX(-8px) scale(1)'},
@@ -2259,6 +2311,8 @@ class Rules {
       // scale right popover when visible and hovered or focused
       css(
         '&[aria-expanded="true"] .popover-right, '
+        '.naki-popover-trigger[canfocus]:is(:hover, :has(:focus-visible)) ~ '
+        '.popover-right, '
         '.popover-right:hover, '
         '.popover-right:focus-within',
       ).styles(raw: {'transform': 'translateY(-50%) translateX(8px) scale(1)'}),
@@ -2278,6 +2332,8 @@ class Rules {
       // scale top-left popover when visible and hovered or focused
       css(
         '&[aria-expanded="true"] .popover-top-left, '
+        '.naki-popover-trigger[canfocus]:is(:hover, :has(:focus-visible)) ~ '
+        '.popover-top-left, '
         '.popover-top-left:hover, '
         '.popover-top-left:focus-within',
       ).styles(raw: {'transform': 'translateY(-8px) scale(1)'}),
@@ -2297,6 +2353,8 @@ class Rules {
       // scale top-right popover when visible and hovered or focused
       css(
         '&[aria-expanded="true"] .popover-top-right, '
+        '.naki-popover-trigger[canfocus]:is(:hover, :has(:focus-visible)) ~ '
+        '.popover-top-right, '
         '.popover-top-right:hover, '
         '.popover-top-right:focus-within',
       ).styles(raw: {'transform': 'translateY(-8px) scale(1)'}),
@@ -2316,6 +2374,8 @@ class Rules {
       // scale bottom-left popover when visible and hovered or focused
       css(
         '&[aria-expanded="true"] .popover-bottom-left, '
+        '.naki-popover-trigger[canfocus]:is(:hover, :has(:focus-visible)) ~ '
+        '.popover-bottom-left, '
         '.popover-bottom-left:hover, '
         '.popover-bottom-left:focus-within',
       ).styles(raw: {'transform': 'translateY(8px) scale(1)'}),
@@ -2335,14 +2395,72 @@ class Rules {
       // scale bottom-right popover when visible and hovered or focused
       css(
         '&[aria-expanded="true"] .popover-bottom-right, '
+        '.naki-popover-trigger[canfocus]:is(:hover, :has(:focus-visible)) ~ '
+        '.popover-bottom-right, '
         '.popover-bottom-right:hover, '
         '.popover-bottom-right:focus-within',
       ).styles(raw: {'transform': 'translateY(8px) scale(1)'}),
     ]),
   ];
 
+  /// A modal scrim fades its own color and blur, as Material 3's scrim is a
+  /// layer of its own. Fading the barrier's opacity would also fade the
+  /// dialog, sheet or drawer inside it.
+  static final _scrimKeyframes = [
+    css.keyframes('nakiScrimIn', {
+      'from': const Styles(
+        raw: {
+          'background-color': 'transparent',
+          '-webkit-backdrop-filter': 'blur(0)',
+          'backdrop-filter': 'blur(0)',
+        },
+      ),
+    }),
+    css.keyframes('nakiScrimOut', {
+      'to': const Styles(
+        raw: {
+          'background-color': 'transparent',
+          '-webkit-backdrop-filter': 'blur(0)',
+          'backdrop-filter': 'blur(0)',
+        },
+      ),
+    }),
+  ];
+
   /// Dialog rules
   static final nakiDialogRules = [
+    ..._scrimKeyframes,
+
+    css.keyframes('nakiDialogGrow', {
+      'from': Styles(
+        raw: {
+          'clip-path':
+              'inset(0 0 65% 0 round ${_var(Tokens.current.dialogBorderRadius)})',
+        },
+      ),
+      'to': Styles(
+        raw: {
+          'clip-path':
+              'inset(0 round ${_var(Tokens.current.dialogBorderRadius)})',
+        },
+      ),
+    }),
+
+    css.keyframes('nakiDialogShrink', {
+      'from': Styles(
+        raw: {
+          'clip-path':
+              'inset(0 round ${_var(Tokens.current.dialogBorderRadius)})',
+        },
+      ),
+      'to': Styles(
+        raw: {
+          'clip-path':
+              'inset(0 0 65% 0 round ${_var(Tokens.current.dialogBorderRadius)})',
+        },
+      ),
+    }),
+
     // fade in animation for backdrop
     css.keyframes('nakiDialogFadeIn', {
       'from': const Styles(raw: {'opacity': '0'}),
@@ -2355,22 +2473,20 @@ class Rules {
       'to': const Styles(raw: {'opacity': '0'}),
     }),
 
-    // pop in ease-in animation for dialog card
-    css.keyframes('nakiDialogPopIn', {
-      'from': const Styles(
-        raw: {'opacity': '0', 'transform': 'scale(0.94) translateY(6px)'},
-      ),
-      'to': const Styles(
-        raw: {'opacity': '1', 'transform': 'scale(1) translateY(0)'},
+    // a barrier below full opacity is a backdrop root, so a glass dialog's
+    // barrier fades its color instead
+    css.keyframes('nakiDialogBarrierIn', {
+      'from': const Styles(raw: {'background-color': 'transparent'}),
+      'to': Styles(
+        raw: {'background-color': _var(Tokens.current.dialogBarrierBg)},
       ),
     }),
 
-    // pop out ease-out animation for dialog card
-    css.keyframes('nakiDialogPopOut', {
-      'from': const Styles(raw: {'opacity': '1', 'transform': 'scale(1)'}),
-      'to': const Styles(
-        raw: {'opacity': '0', 'transform': 'scale(0.94) translateY(6px)'},
+    css.keyframes('nakiDialogBarrierOut', {
+      'from': Styles(
+        raw: {'background-color': _var(Tokens.current.dialogBarrierBg)},
       ),
+      'to': const Styles(raw: {'background-color': 'transparent'}),
     }),
 
     // main
@@ -2382,21 +2498,33 @@ class Rules {
       css(
         '&[data-exiting="true"]',
       ).styles(
-        raw: {'animation': 'nakiDialogFadeOut 0.2s 0.05s linear forwards'},
+        raw: {'animation': 'nakiScrimOut 150ms linear both'},
       ),
 
       // content container
       css('.naki-dialog-content').styles(raw: Css.nakiDialogStyle['container']),
 
-      // exit content
-      css(
-        '.naki-dialog-content[data-exiting="true"]',
-      ).styles(
-        raw: {
-          'animation':
-              'nakiDialogPopOut 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-        },
+      // content and actions fade in after the container starts growing
+      css('.naki-dialog-content > *').styles(
+        raw: {'animation': 'nakiDialogFadeIn 200ms linear 50ms backwards'},
       ),
+      css('.naki-dialog-content > .naki-dialog-actions').styles(
+        raw: {'animation': 'nakiDialogFadeIn 150ms linear 150ms backwards'},
+      ),
+
+      // exit content
+      css('.naki-dialog-content[data-exiting="true"]', [
+        css('&').styles(
+          raw: {
+            'animation':
+                'nakiDialogShrink 150ms cubic-bezier(0.3, 0, 0.8, 0.15) forwards, '
+                'nakiDialogFadeOut 50ms linear 100ms forwards',
+          },
+        ),
+        css('& > *').styles(
+          raw: {'animation': 'nakiDialogFadeOut 100ms linear forwards'},
+        ),
+      ]),
 
       // center position (default)
       css('&.dialog-center').styles(raw: {'align-items': 'center'}),
@@ -2418,9 +2546,12 @@ class Rules {
       css('&.dialog-glass', [
         css('&').styles(raw: Css.nakiDialogStyle['glass-backdrop']),
 
+        css('&[data-exiting="true"]').styles(
+          raw: Css.nakiDialogStyle['glass-backdrop-exit'],
+        ),
+
         css('.naki-dialog-content', [
           css('&').styles(raw: Css.nakiDialogStyle['glass']),
-
           ..._glassFallbacks(Css.nakiDialogStyle),
         ]),
       ]),
@@ -2434,17 +2565,7 @@ class Rules {
 
   /// Drawer rules
   static final nakiDrawerRules = [
-    // fade in animation for backdrop
-    css.keyframes('nakiDrawerFadeIn', {
-      'from': const Styles(raw: {'opacity': '0'}),
-      'to': const Styles(raw: {'opacity': '1'}),
-    }),
-
-    // fade out animation for backdrop
-    css.keyframes('nakiDrawerFadeOut', {
-      'from': const Styles(raw: {'opacity': '1'}),
-      'to': const Styles(raw: {'opacity': '0'}),
-    }),
+    ..._scrimKeyframes,
 
     // slide in left animation
     css.keyframes('nakiDrawerSlideInLeft', {
@@ -2479,7 +2600,10 @@ class Rules {
       css(
         '&[data-exiting="true"]',
       ).styles(
-        raw: {'animation': 'nakiDrawerFadeOut 0.2s 0.05s linear forwards'},
+        raw: {
+          'animation':
+              'nakiScrimOut 120ms cubic-bezier(0.25, 0.3, 0.15, 1) both',
+        },
       ),
 
       // content
@@ -2489,9 +2613,12 @@ class Rules {
       css('.drawer-left').styles(
         raw: {
           'left': '0',
+          'padding-left': Css.safeAreaLeft,
+          'width':
+              'calc(${_var(Tokens.current.drawerWidth)} + '
+              '${Css.safeAreaLeft})',
           'animation':
-              'nakiDrawerSlideInLeft 0.3s '
-              'cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              'nakiDrawerSlideInLeft 210ms cubic-bezier(0.2, 0.05, 0.25, 1) both',
         },
       ),
 
@@ -2499,8 +2626,7 @@ class Rules {
       css('.drawer-left[data-exiting="true"]').styles(
         raw: {
           'animation':
-              'nakiDrawerSlideOutLeft 0.3s '
-              'cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              'nakiDrawerSlideOutLeft 120ms cubic-bezier(0.25, 0.3, 0.15, 1) both',
         },
       ),
 
@@ -2508,9 +2634,12 @@ class Rules {
       css('.drawer-right').styles(
         raw: {
           'right': '0',
+          'padding-right': Css.safeAreaRight,
+          'width':
+              'calc(${_var(Tokens.current.drawerWidth)} + '
+              '${Css.safeAreaRight})',
           'animation':
-              'nakiDrawerSlideInRight 0.3s '
-              'cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              'nakiDrawerSlideInRight 210ms cubic-bezier(0.2, 0.05, 0.25, 1) both',
         },
       ),
 
@@ -2518,8 +2647,7 @@ class Rules {
       css('.drawer-right[data-exiting="true"]').styles(
         raw: {
           'animation':
-              'nakiDrawerSlideOutRight 0.3s '
-              'cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              'nakiDrawerSlideOutRight 120ms cubic-bezier(0.25, 0.3, 0.15, 1) both',
         },
       ),
     ]),
@@ -2538,7 +2666,15 @@ class Rules {
   ];
 
   /// BottomSheet rules
+  ///
+  /// Material 3 motion, from Compose's ModalBottomSheet: the sheet shows on the
+  /// DefaultSpatial spring (210ms cubic-bezier(0.2, 0.05, 0.25, 1)) and hides
+  /// on the FastEffects spring (120ms cubic-bezier(0.25, 0.3, 0.15, 1)), while
+  /// the scrim fades on its own on the DefaultEffects spring
+  /// (190ms cubic-bezier(0.25, 0.3, 0.15, 1)).
   static final nakiBottomSheetRules = [
+    ..._scrimKeyframes,
+
     // slide up animation
     css.keyframes('nakiBottomSheetSlideUp', {
       'from': const Styles(raw: {'transform': 'translateY(100%)'}),
@@ -2560,7 +2696,10 @@ class Rules {
       css(
         '&[data-exiting="true"]',
       ).styles(
-        raw: {'animation': 'nakiDrawerFadeOut 0.2s 0.1s linear forwards'},
+        raw: {
+          'animation':
+              'nakiScrimOut 190ms cubic-bezier(0.25, 0.3, 0.15, 1) both',
+        },
       ),
 
       // content
@@ -2572,7 +2711,7 @@ class Rules {
       css('.naki-bottomsheet-content[data-exiting="true"]').styles(
         raw: {
           'animation':
-              'nakiBottomSheetSlideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              'nakiBottomSheetSlideDown 120ms cubic-bezier(0.25, 0.3, 0.15, 1) both',
         },
       ),
 

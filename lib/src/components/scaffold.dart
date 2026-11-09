@@ -12,6 +12,7 @@ import '../models/gesture.dart';
 import '../models/naki.dart';
 import '../models/overlays.dart';
 import '../models/styling.dart';
+import '../stub/index.dart';
 import '../styles/css.dart';
 import '../styles/rules.dart';
 import '../styles/text_style.dart';
@@ -20,6 +21,7 @@ import '../utilities/constants.dart';
 import '../utilities/enums.dart';
 import '../utilities/extensions.dart';
 import '../utilities/helpers.dart';
+
 import 'basics.dart' show Button, Column, GestureDetector, Icon, NakiText, Row;
 import 'layout.dart' show Padding;
 import 'media_query.dart' show MediaQueryProvider;
@@ -312,7 +314,7 @@ class _BottomNavBarTile extends StatelessComponent {
       gestures: Events(
         onClick: (_) {
           if (enableFeedback) {
-            hapticFeedback(duration: const Duration(milliseconds: 150));
+            hapticFeedback(duration: const Duration(milliseconds: 30));
           }
           onTap();
         },
@@ -620,7 +622,7 @@ class _BottomNavigationBarState extends State<BottomNavigationBar> {
     );
 
     _currentIndex = component.selectedIndex;
-    _syncRefraction();
+    _syncRefraction(true);
   }
 
   @override
@@ -658,7 +660,7 @@ class _BottomNavigationBarState extends State<BottomNavigationBar> {
   ///
   /// The filter only runs on the client-side, so server-rendered markup and
   /// browsers that don't support liquid glass keep the frosted glass bar.
-  void _syncRefraction() {
+  void _syncRefraction([bool init = false]) {
     if (!kIsWeb) return;
 
     if (_effectiveType != BottomNavigationBarType.liquidGlass) {
@@ -671,6 +673,8 @@ class _BottomNavigationBarState extends State<BottomNavigationBar> {
     if (_refractionObserver != null) return;
 
     if (!supportsLiquidRefraction) return;
+
+    if (init) context.binding.addPostFrameCallback(_measureRefraction);
 
     _refractionObserver = BrowserLifecycleListeners()
       ..observeComponentSize(
@@ -747,9 +751,10 @@ class _BottomNavigationBarState extends State<BottomNavigationBar> {
       key: component.key,
       tag: 'naki-bottombar',
       classes: effectiveClasses,
-      attributes: const {
+      attributes: {
         'role': 'navigation',
         'aria-label': 'Bottom navigation',
+        'data-refracted': ?(refractionSize != null ? '' : null),
       },
       styles: Styles(
         raw: {
@@ -936,6 +941,15 @@ class Scaffold extends StatefulComponent {
 
 /// State for a [Scaffold].
 class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
+  /// Last value of [kViewportInsetTopVar], in pixels.
+  int _viewportInset = 0;
+
+  /// Last value of [kViewportInsetBottomVar], in pixels.
+  int _viewportInsetBottom = 0;
+
+  CSSStyleDeclaration? get _rootStyle =>
+      (document.documentElement as HTMLElement?)?.style;
+
   late final _drawerController = OverlayController();
   String? _bottomNavbarInset;
 
@@ -987,15 +1001,37 @@ class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
 
   @override
   FutureOr<VoidCallback?> afterRender(BuildContext context) {
-    if (component.appBar == null && component.bottomNavigationBar == null) {
-      return null;
-    }
-
     final observer = BrowserLifecycleListeners();
-    observer.whenResized = (height, width, orientation) => _syncInsets();
-    observer.register();
+    observer.whenResized = (height, width, orientation) {
+      _syncViewportInset();
+      _syncInsets();
+    };
 
-    return observer.dispose;
+    final viewport = window.visualViewport;
+    final viewportSubscriptions = [
+      if (viewport != null) ...[
+        EventStreamProviders.resizeEvent
+            .forTarget(viewport)
+            .listen((_) => _syncViewportInset()),
+        EventStreamProviders.scrollEvent
+            .forTarget(viewport)
+            .listen((_) => _syncViewportInset()),
+      ],
+    ];
+
+    observer.register();
+    _syncViewportInset();
+
+    return () {
+      observer.dispose();
+      for (final subscription in viewportSubscriptions) {
+        subscription.cancel();
+      }
+      _rootStyle?.removeProperty(kViewportInsetTopVar);
+      _rootStyle?.removeProperty(kViewportInsetBottomVar);
+      _viewportInset = 0;
+      _viewportInsetBottom = 0;
+    };
   }
 
   HTMLElement? _scaffoldBody(HTMLElement wrapper) =>
@@ -1004,6 +1040,49 @@ class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
             ':scope > .naki-scaffold-layout > .naki-scaffold-body',
           )
           as HTMLElement?;
+
+  /// Moves the page content out from under Safari's status bar and address
+  /// pill, and the bars off its home indicator, while its toolbar is hidden.
+  void _syncViewportInset() {
+    final viewport = window.visualViewport;
+    final scaffold = getVisibleElement('.naki-scaffold');
+    if (viewport == null || scaffold == null) return;
+
+    final pageHeight = scaffold.getBoundingClientRect().height;
+    final viewportUnits = viewportUnitHeights();
+
+    final hidden = isToolbarHidden(
+      pageHeight: pageHeight,
+      smallHeight: viewportUnits.small,
+      largeHeight: viewportUnits.large,
+      scale: viewport.scale,
+    );
+
+    final inset = hiddenViewportInset(
+      hidden: hidden,
+      pageHeight: pageHeight,
+      innerHeight: window.innerHeight,
+      offsetTop: viewport.offsetTop,
+    );
+
+    final bottom = hiddenToolbarBottomInset(
+      hidden: hidden,
+      iPhone: PlatformData().isIphone,
+      screenWidth: window.screen.width,
+      screenHeight: window.screen.height,
+      landscape: window.innerWidth > window.innerHeight,
+    );
+
+    if (inset == _viewportInset && bottom == _viewportInsetBottom) return;
+
+    _viewportInset = inset;
+    _viewportInsetBottom = bottom;
+    _rootStyle?.setProperty(kViewportInsetTopVar, '${inset}px');
+    _rootStyle?.setProperty(kViewportInsetBottomVar, '${bottom}px');
+
+    // the bars have moved
+    _syncInsets();
+  }
 
   void _syncInsets() {
     final wrapper = getVisibleElement('.naki-navbar-wrapper');
@@ -1207,7 +1286,7 @@ class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
     return ScaffoldScope(
       state: this,
       child: isStandalone
-          ? .fragment([scaffoldComponent, const OverlayRegion()])
+          ? OverlayHost(child: scaffoldComponent)
           : scaffoldComponent,
     );
   }

@@ -224,18 +224,6 @@ abstract class InlineSpan {
   bool visitChildren(bool Function(InlineSpan span) visitor);
 }
 
-/// Mixin on Naki text components.
-mixin NakiTextScope on Component {
-  /// Style applied to the text.
-  TextStyle? get style;
-
-  /// Additional CSS classes applied to the text.
-  String? get classes;
-
-  /// Additional HTML attributes applied to the text.
-  Map<String, String>? get attributes;
-}
-
 /// A helper class to represent SEO tags for a page.
 class SEO {
   /// Page description.

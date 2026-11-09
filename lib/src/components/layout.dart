@@ -2017,5 +2017,5 @@ class FragmentScope extends StatelessComponent {
 
   @css
   static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('FragmentScope', [Rules.nakiFragmentScopeRules]);
+      NakiStyleRegistry.once('Fragment', [Rules.nakiFragmentRules]);
 }

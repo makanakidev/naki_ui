@@ -4,26 +4,9 @@ import '../styles/text_style.dart';
 import '../theme/tokens.dart';
 import '../utilities/enums.dart';
 import '../utilities/extensions.dart';
+import '../utilities/helpers.dart' show listEquals, mapEquals;
 
 import 'naki.dart';
-
-bool _listEquals<T>(List<T>? a, List<T>? b) {
-  if (identical(a, b)) return true;
-  if (a == null || b == null || a.length != b.length) return false;
-  for (int i = 0; i < a.length; i++) {
-    if (a[i] != b[i]) return false;
-  }
-  return true;
-}
-
-bool _mapEquals<K, V>(Map<K, V>? a, Map<K, V>? b) {
-  if (identical(a, b)) return true;
-  if (a == null || b == null || a.length != b.length) return false;
-  for (final key in a.keys) {
-    if (!b.containsKey(key) || b[key] != a[key]) return false;
-  }
-  return true;
-}
 
 /// Represents CSS dimensions with optional `!important` suffix.
 class Dim {
@@ -1276,7 +1259,7 @@ class PositionData implements NakiStylable {
           zIndex == other.zIndex &&
           visibility == other.visibility &&
           overflow == other.overflow &&
-          _mapEquals(extra, other.extra);
+          mapEquals(extra, other.extra);
 
   @override
   int get hashCode => Object.hashAll([
@@ -1570,7 +1553,7 @@ class Filter implements NakiStylable {
       identical(this, other) ||
       other is Filter &&
           runtimeType == other.runtimeType &&
-          _listEquals(_filters, other._filters);
+          listEquals(_filters, other._filters);
 
   @override
   int get hashCode => Object.hashAll(_filters);
@@ -2101,7 +2084,7 @@ class Gradient implements NakiStylable {
       identical(this, other) ||
       other is Gradient &&
           runtimeType == other.runtimeType &&
-          _listEquals(_gradients, other._gradients);
+          listEquals(_gradients, other._gradients);
 
   @override
   int get hashCode => Object.hashAll(_gradients);

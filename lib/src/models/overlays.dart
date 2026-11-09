@@ -1,3 +1,4 @@
+import 'package:jaspr/dom.dart' show Styles;
 import 'package:jaspr/jaspr.dart';
 
 import '../framework/inherited.dart';
@@ -17,7 +18,7 @@ class SnackbarRegistry {
   /// closes any previously active snackbar.
   static void onOpen(OverlayController controller) {
     if (_currentController != null && _currentController != controller) {
-      _currentController?.close();
+      closeCurrent();
     }
     _currentController = controller;
   }
@@ -26,6 +27,9 @@ class SnackbarRegistry {
   static void onClose(OverlayController controller) {
     if (_currentController == controller) _currentController = null;
   }
+
+  /// Closes the snackbar that is currently open, if any.
+  static void closeCurrent() => _currentController?.close();
 }
 
 /// Controls an overlay component (Dialog, Drawer, BottomSheet,
@@ -237,6 +241,121 @@ class _OverlayScopeState extends State<OverlayScope> {
   Component build(BuildContext context) {
     return !_canRegister ? component.child : const .empty();
   }
+}
+
+// /////////////////////////////////////////////////////////////////////////////
+// OVERLAY HOST
+// /////////////////////////////////////////////////////////////////////////////
+
+/// Renders the overlays shown with `showSnackbar` and `showDialog` next to
+/// its [child], so they keep the theme and `Scaffold` context of the place
+/// they are shown from.
+///
+/// `NakiApp` and `Scaffold` include one; the closest one shows the overlay.
+class OverlayHost extends StatefulComponent {
+  /// The content the overlays are shown next to.
+  final Component child;
+
+  /// Creates an [OverlayHost] around [child].
+  const OverlayHost({super.key, required this.child});
+
+  /// The closest [OverlayHostState] above [context], if any.
+  static OverlayHostState? maybeOf(BuildContext context) =>
+      context.dependOnInheritedComponentOfExactType<_OverlayHostScope>()?.state;
+
+  @override
+  State<OverlayHost> createState() => OverlayHostState();
+}
+
+class OverlayHostState extends State<OverlayHost> {
+  final _entries = <int, Component>{};
+  int _nextId = 0;
+
+  /// Shows [overlay] until [controller] closes, then removes it once its
+  /// [exitDuration] exit animation has played.
+  ///
+  /// [onClosed] runs once, as soon as [controller] closes.
+  void show(
+    Component overlay, {
+    required OverlayController controller,
+    Duration exitDuration = const Duration(milliseconds: 200),
+    VoidCallback? onClosed,
+  }) {
+    final id = _nextId++;
+
+    void listener() {
+      if (controller.isOpen) return;
+
+      controller.removeListener(listener);
+      onClosed?.call();
+
+      Future.delayed(exitDuration, () {
+        if (mounted) setState(() => _entries.remove(id));
+      });
+    }
+
+    controller.addListener(listener);
+
+    setState(() {
+      _entries[id] = OverlayEntryScope(
+        key: ValueKey('naki-overlay-$id'),
+        controller: controller,
+        child: overlay,
+      );
+    });
+  }
+
+  @override
+  Component build(BuildContext context) {
+    return _OverlayHostScope(
+      state: this,
+      child: .fragment([
+        component.child,
+        // portal for modals
+        const OverlayRegion(),
+        // injected snackbars and modals
+        .element(
+          tag: 'naki-overlay-host',
+          styles: const Styles(raw: {'display': 'contents'}),
+          children: _entries.values.toList(),
+        ),
+      ]),
+    );
+  }
+}
+
+class _OverlayHostScope extends InheritedComponent {
+  final OverlayHostState state;
+
+  const _OverlayHostScope({required this.state, required super.child});
+
+  @override
+  bool updateShouldNotify(_OverlayHostScope oldComponent) =>
+      state != oldComponent.state;
+}
+
+/// Hands the controller of an overlay shown by an [OverlayHost] to the
+/// `Snackbar` or `Dialog` inside it, so they need no controller of their own.
+class OverlayEntryScope extends InheritedComponent {
+  /// Controller of the overlay below this scope.
+  final OverlayController controller;
+
+  /// Creates an [OverlayEntryScope].
+  const OverlayEntryScope({
+    super.key,
+    required this.controller,
+    required super.child,
+  });
+
+  /// The controller of the overlay [context] belongs to, if it was shown by
+  /// an [OverlayHost].
+  static OverlayController? maybeOf(BuildContext context) => context
+      .dependOnInheritedComponentOfExactType<OverlayEntryScope>()
+      ?.controller;
+
+  @override
+  bool updateShouldNotify(OverlayEntryScope oldComponent) =>
+      controller != oldComponent.controller;
 }
 
 /// {@template naki_ui.overlay_region}

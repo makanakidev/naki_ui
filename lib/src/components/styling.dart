@@ -1,7 +1,7 @@
 import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
 
-import '../models/naki.dart';
+import '../framework/framework.dart' show NakiTextScope;
 import '../models/styling.dart';
 import '../styles/rules.dart';
 import '../styles/text_style.dart';

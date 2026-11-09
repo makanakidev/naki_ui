@@ -30,6 +30,44 @@ class _PromptState extends State<Prompt> {
 
 Read `isOpen`, call `open`, `close`, or `toggle`, and use listeners only when another object must react to state changes. `OverlayState.open(controller)` and related methods are convenience equivalents.
 
+## Show functions
+
+For a one-off overlay, skip the controller. These functions mount the overlay in the closest `NakiApp` or `Scaffold`, give it a controller, and remove it after it closes. They do nothing on the server.
+
+```dart
+// Snackbar: replaces any snackbar already open.
+showSnackbar(context, const Snackbar(content: NakiText('Saved')));
+closeSnackbar();
+
+// Dialog: builder returns the Dialog. Completes with the closeDialog value,
+// or null when dismissed another way.
+final confirmed = await showDialog<bool>(
+  context: context,
+  builder: (context) => Dialog(
+    title: 'Delete item?',
+    actions: [
+      Button.text('Cancel', onTap: () => closeDialog(context, false)),
+      Button.text('Delete', onTap: () => closeDialog(context, true)),
+    ],
+  ),
+);
+
+// Bottom sheet: builder returns the content; sheet options are arguments.
+final target = await showModalBottomSheet<String>(
+  context: context,
+  isDismissible: true,
+  builder: (context) => Column(
+    children: [
+      Button.text('Mail', onTap: () => closeModalBottomSheet(context, 'mail')),
+    ],
+  ),
+);
+```
+
+- Call `closeDialog` and `closeModalBottomSheet` with the `context` the builder receives, not the page's context. They assert otherwise.
+- Leave `controller` out of a `Snackbar` or `Dialog` passed to these functions.
+- Check `mounted` after `await` before using the page's `context` again.
+
 ## ScrollController
 
 ```dart

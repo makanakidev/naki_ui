@@ -261,6 +261,7 @@ class TextStyle implements NakiStylable {
     'text-decoration-style': ?decorationStyle?.name,
     'text-decoration-thickness': ?decorationThickness?.cssText,
     'text-align': ?textAlign?.value,
+    '-webkit-user-select': selectable ? 'text' : 'none',
     'user-select': selectable ? 'text' : 'none',
     'text-wrap': ?switch ((softWrap, _shouldClamp)) {
       (false, _) => 'nowrap',

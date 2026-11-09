@@ -1,14 +1,33 @@
-## Unreleased
+## 1.0.6
+
+### Breaking changes
+
+- `Popover.visible` is now nullable and defaults to `null`. Setting it, even to `false`, gives the parent control and turns off opening on hover and focus.
+- Replaced the `important` argument of `Dim` constructors with `Dim.px(500).important`.
+
+### Added
 
 - Added `Card.glass` and `Dialog(glass: true)`, translucent surfaces with fallbacks for reduced transparency, higher contrast and forced colors. Added the `glassTint`, `glassRim` and `glassBlur` theme properties.
-- Added the `bottomNavbarGlassRefraction` theme property to scale or turn off `BottomNavigationBarType.liquidGlass` refraction.
-- Fixed `PageController.animateToPage` stepping a page at a time when page snapping is on, and overlapping animations fighting each other.
-- Improved `Spinner.glass`: the glass disc now stays still while only the arc spins, with a clearer surface, a light rim and fallbacks for reduced transparency, higher contrast and forced colors. `surfaceColor` is now optional. Added the `spinnerGlassRim` theme value.
 - Added `BottomNavigationBarType.liquidGlass`, a frosted glass bottom navigation bar that bends the content behind its edges and selection droplet in Chromium browsers. Use `bottomNavbarGlassBlur` theme property to control the blur strength of the liquid glass effect.
-- Improved `BottomNavigationBarType.frostedGlass` rendering: the frosted glass bottom navigation bar is now a clearer glass pill with equal-width tiles, a sliding glass droplet, stronger unselected tile colors, inner rim highlights, more depth, and fallbacks for reduced transparency, higher contrast and forced colors. Added the `bottomNavbarGlassTint`, `bottomNavbarGlassRim`, `bottomNavbarGlassDroplet` and `bottomNavbarGlassBlur` theme properties.
-- Replaced the `important` argument of `Dim` constructors with `Dim.px(500).important`.
+- Added the `bottomNavbarGlassRefraction` theme property to scale or turn off `BottomNavigationBarType.liquidGlass` refraction.
 - Added `CalendarType.range` to `Calendar`, with `initialRange`, `onSelectedRange` and `rangeValidator`.
+- Added `showSnackbar`, `closeSnackbar`, `showDialog` and `closeDialog`, which show a `Snackbar` or `Dialog` without a controller, as in Flutter. `showDialog` completes with the value passed to `closeDialog`. `Snackbar.controller` and `Dialog.controller` are now optional.
+- Added `showModalBottomSheet` and `closeModalBottomSheet`. `showModalBottomSheet` shows the content its `builder` returns in a `BottomSheet` and completes with the value passed to `closeModalBottomSheet`. `BottomSheet.controller` is now optional.
 - Added `fixed` and `blurBackground` properties to `AppBar`. These properties are now used to determine the behavior of the app bar in the `Scaffold` component.
+
+### Changed
+
+- `Popover` now stays anchored to its trigger inside the safe areas and the Scaffold's bars, flipping or sliding when it would cross an edge. A tap outside its content or scrolling the page closes it.
+- `Tooltip` now flips and slides to stay inside the safe areas and the Scaffold's bars.
+- `Dialog`, `BottomSheet` and `Drawer` now open and close with Material 3 motion.
+- Improved `Spinner.glass`. The glass disc now stays still while only the arc spins, with a clearer surface, a light rim and fallbacks for reduced transparency, higher contrast and forced colors. `surfaceColor` is now optional. Added the `spinnerGlassRim` theme value.
+- Improved `BottomNavigationBarType.frostedGlass`. The frosted glass bottom navigation bar is now a clearer glass pill with equal-width tiles, a sliding glass droplet, stronger unselected tile colors, inner rim highlights, more depth, and fallbacks for reduced transparency, higher contrast and forced colors. Added the `bottomNavbarGlassTint`, `bottomNavbarGlassRim`, `bottomNavbarGlassDroplet` and `bottomNavbarGlassBlur` theme properties.
+
+### Fixed
+
+- Removed the dark flash iOS Safari draws on tapped buttons and fields.
+- Fixed `Dropdown` and `AutoCompleteField` not closing on a tap outside.
+- `Calendar` now closes only from `Cancel`, `Ok` or `Escape` key press, leaving it open on a tap outside.
 
 ## 1.0.5
 

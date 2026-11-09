@@ -142,6 +142,34 @@ AppBar(
 )
 ```
 
+### Pinned or scrolling (`fixed`, `blurBackground`)
+
+Inside `Scaffold.appBar`, the app bar is pinned to the top by default and the body starts below it. `blurBackground` makes a pinned bar translucent with a frosted blur, so content shows through as it scrolls underneath:
+
+```dart
+Scaffold(
+  appBar: const AppBar(
+    titleText: 'Inbox',
+    fixed: true,          // default: stays at the top while the page scrolls
+    blurBackground: true, // default: frosted, translucent background
+  ),
+  body: const InboxList(),
+)
+```
+
+Set `fixed: false` for a header that scrolls away with the page, like a page title:
+
+```dart
+const AppBar(titleText: 'Article', fixed: false)
+```
+
+| Property         | Default | Effect                                                                                                                  |
+| :--------------- | :------ | :---------------------------------------------------------------------------------------------------------------------- |
+| `fixed`          | `true`  | Pins the app bar to the top of the `Scaffold` and starts the body below it. Ignored outside `Scaffold.appBar`.        |
+| `blurBackground` | `true`  | Gives a pinned app bar a translucent background (65% of `appbarBgColor`) with a 10px backdrop blur. Ignored when `fixed` is `false`. |
+
+Both keep the app bar clear of the status bar and notch, and snackbars shown in the `Scaffold` sit below a pinned bar.
+
 ---
 
 ## `BottomNavigationBar`

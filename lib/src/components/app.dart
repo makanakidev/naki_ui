@@ -474,11 +474,9 @@ class _NakiAppState extends State<NakiApp> {
     }
   }
 
-  /// Places the [OverlayRegion] next to [child] so
-  /// overlays share its theme and text style context.
-  Component _withOverlayRegion(Component child) {
-    return .fragment([child, const OverlayRegion()]);
-  }
+  /// Wraps the [child] in an [OverlayHost] so that
+  /// overlays share the theme and text style context of the app.
+  Component _withOverlayHost(Component child) => OverlayHost(child: child);
 
   Component get _appBody {
     final textStyles = component.textStyle;
@@ -518,7 +516,7 @@ class _NakiAppState extends State<NakiApp> {
                     );
                   }
 
-                  return _withOverlayRegion(
+                  return _withOverlayHost(
                     effectiveChild ??
                         const PageNotFound(
                           errorTitle: 'Unable to apply text style',
@@ -534,7 +532,7 @@ class _NakiAppState extends State<NakiApp> {
             effectiveChild = component.builder!(themeCtx, effectiveChild);
           }
 
-          return _withOverlayRegion(
+          return _withOverlayHost(
             effectiveChild ??
                 const PageNotFound(
                   errorTitle: 'Unable to build application router',
@@ -564,7 +562,7 @@ class _NakiAppState extends State<NakiApp> {
                   );
                 }
 
-                return _withOverlayRegion(
+                return _withOverlayHost(
                   effectiveChild ??
                       const PageNotFound(
                         errorTitle: 'Unable to apply text style',
@@ -580,7 +578,7 @@ class _NakiAppState extends State<NakiApp> {
           effectiveChild = component.pageBuilder!(themeCtx, effectiveChild);
         }
 
-        return _withOverlayRegion(
+        return _withOverlayHost(
           effectiveChild ??
               const PageNotFound(
                 errorTitle: 'Unable to build application page',

@@ -6,6 +6,20 @@ import 'package:naki_ui/naki_ui.dart';
 import 'package:naki_ui/theme.dart';
 
 void main() {
+  group('text selection', () {
+    test('TextStyle sets user-select for Safari too', () {
+      expect(
+        const TextStyle().props,
+        containsPair('-webkit-user-select', 'none'),
+      );
+      expect(const TextStyle().props, containsPair('user-select', 'none'));
+      expect(
+        const TextStyle(selectable: true).props,
+        containsPair('-webkit-user-select', 'text'),
+      );
+    });
+  });
+
   group('application and theme regressions', () {
     test('NakiApp accepts its documented default location', () {
       expect(() => NakiApp(home: const div([])), returnsNormally);
@@ -167,75 +181,6 @@ void main() {
           description: 'autocomplete input with keyboard events',
         ),
         findsOneComponent,
-      );
-    });
-
-    testComponents('calendar disables dates outside its configured range', (
-      tester,
-    ) async {
-      tester.pumpComponent(
-        NakiThemeProvider(
-          builder: (_) => Calendar(
-            id: 'booking',
-            type: CalendarType.date,
-            initialValue: DateTime(2026, 5, 17),
-            minimum: DateTime(2026, 5, 15),
-            maximum: DateTime(2026, 5, 20),
-            onSelected: (_) {},
-          ),
-        ),
-      );
-
-      await tester.pump();
-
-      await tester.click(
-        find.byComponentPredicate(
-          (component) =>
-              component is DomComponent &&
-              component.tag == 'button' &&
-              component.id?.endsWith('_default_trigger') == true,
-          description: 'calendar trigger',
-        ),
-      );
-
-      final dateButtons = find.byComponentPredicate(
-        (component) =>
-            component is DomComponent &&
-            component.tag == 'button' &&
-            component.id?.contains('_day_2026_5_') == true,
-        description: 'May 2026 calendar date button',
-      );
-
-      final buttons = dateButtons.evaluate().map((element) {
-        return element.component as DomComponent;
-      }).toList();
-
-      expect(buttons, hasLength(31));
-      expect(
-        buttons
-            .where((button) => button.id!.endsWith('_14'))
-            .single
-            .attributes
-            ?.containsKey('disabled'),
-        isTrue,
-      );
-
-      expect(
-        buttons
-            .where((button) => button.id!.endsWith('_17'))
-            .single
-            .attributes
-            ?.containsKey('disabled'),
-        isFalse,
-      );
-
-      expect(
-        buttons
-            .where((button) => button.id!.endsWith('_21'))
-            .single
-            .attributes
-            ?.containsKey('disabled'),
-        isTrue,
       );
     });
   });

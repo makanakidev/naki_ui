@@ -155,4 +155,4 @@ Calendar(
 
 `onSelectedRange` and `rangeValidator` receive every day from start through end in ascending order; use `days.first` and `days.last` for the endpoints. `rangeValidator` receives `null` when nothing is selected. `initialRange` accepts dates in any order and ignores their time: the earliest and latest dates set the range, and a single date is a one-day range. Do not expand the range yourself with `Duration(days: 1)`, because that drifts across daylight saving changes; use `start.daysThrough(end)`.
 
-`Ok` stays disabled until the range has an end date, and every way of closing the picker other than `Ok` discards an unconfirmed selection. Native forms receive the start date under the calendar's `id` and the end date under `{id}_end`, both as `yyyy-MM-dd`.
+`Ok` stays disabled until the range has an end date, and every way of closing the picker other than `Ok` discards an unconfirmed selection. The picker closes only from `Ok`, `Cancel`, `Escape` or its trigger; a tap outside leaves it open. Native forms receive the start date under the calendar's `id` and the end date under `{id}_end`, both as `yyyy-MM-dd`.

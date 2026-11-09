@@ -163,7 +163,7 @@ Spinner.glass(
 )
 ```
 
-`Spinner.glass` has a `size` parameter that's the arc's diameter. The disc shows 20% of its surface color, so the glass effect works well over any content.
+`Spinner.glass` has a `size` parameter that's the arc's diameter. The disc shows 20% of its surface color, so the glass effect works well over any content. `surfaceColor` is optional and defaults to the theme's `spinnerSurfaceColor`. Set the `spinnerGlassRim` theme value (`--naki-spinner-glass-rim`, default `100%`, `40%` in dark mode) to soften or strengthen the disc's light rim. The disc stays still while only the arc spins, and it falls back to a solid surface under reduced transparency, higher contrast and forced colors.
 
 Under `prefers-reduced-motion`, spinners pulse slowly instead of rotating, so they still show activity.
 

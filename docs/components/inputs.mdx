@@ -138,6 +138,8 @@ Calendar(
 )
 ```
 
+The picker closes only from `Ok`, `Cancel`, `Escape` key press or its trigger, so a stray tap outside doesn't lose a selection in progress. Opening one calendar closes any other.
+
 ### Date ranges
 
 Use `CalendarType.range` to select a start and end date. Range calendars use `initialRange`, `onSelectedRange`, and `rangeValidator`; `onSelected` is not called.
@@ -165,5 +167,4 @@ Calendar(
 - **`onSelectedRange`**: receives every day from the start date through the end date in ascending order, so a list it emits can be passed back as `initialRange`.
 - **`rangeValidator`**: receives the same list, or `null` when nothing is selected. It runs before `validator`, which receives only the start date.
 - **Selecting**: the first click sets the start date and the next click sets the end date. Clicking an earlier date starts a new range, and clicking the start date again selects one day.
-- **Confirming**: `Ok` stays disabled until the range has an end date. Pressing `Escape`, pressing `Cancel`, clicking outside the picker, or clicking the trigger discards an unconfirmed selection.
-- **Forms**: the start date is submitted under the calendar's `id` and the end date under `{id}_end`, both as `yyyy-MM-dd`.
+- **Confirming**: `Ok` stays disabled until the range has an end date. Pressing `Escape`, pressing `Cancel`, or clicking the trigger discards an unconfirmed selection. A tap outside the picker leaves it open.

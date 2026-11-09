@@ -91,8 +91,8 @@ class _FormsPageState extends State<FormsPage> {
                 options: const ['Jaspr', 'Flutter', 'Dart', 'Naki UI'],
                 decoration: const InputDecoration(
                   labelText: 'Framework',
-                  placeholderText: 'Type to filter',
-                  helperText: 'For example, type "a" to see options',
+                  placeholderText: 'Type to search',
+                  helperText: 'Try typing "a" to see suggestions',
                 ),
                 onSelected: (selection) =>
                     component.onMessage('Selected $selection'),
@@ -118,6 +118,20 @@ class _FormsPageState extends State<FormsPage> {
                 onSelectedRange: (range) => component.onMessage(
                   'Trip: ${range.first.asRange(range.last)}',
                 ),
+              ),
+            ),
+            Demo(
+              name: 'Calendar with limits',
+              child: Calendar(
+                id: 'showcase-booking',
+                type: CalendarType.date,
+                minimum: DateTime.now(),
+                maximum: DateTime.now().add(const Duration(days: 14)),
+                decoration: const InputDecoration(
+                  labelText: 'Book within two weeks',
+                ),
+                onSelected: (date) =>
+                    component.onMessage('Booked ${date.toDdMmmYyyy}'),
               ),
             ),
           ],
@@ -172,11 +186,14 @@ class _FormsPageState extends State<FormsPage> {
               name: 'Dropdown',
               child: Dropdown<String>(
                 id: 'showcase-priority',
-                placeholder: 'Priority',
+                placeholder: 'Choose priority',
                 options: const [
                   DropdownItem(value: 'low', label: 'Low'),
                   DropdownItem(value: 'medium', label: 'Medium'),
                   DropdownItem(value: 'high', label: 'High'),
+                  DropdownItem(label: 'Premium Plans', section: true),
+                  DropdownItem(value: 'platinum', label: 'Platinum'),
+                  DropdownItem(value: 'enterprise', label: 'Enterprise'),
                 ],
                 onSelected: (item) =>
                     component.onMessage('Priority: ${item.label}'),

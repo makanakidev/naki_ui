@@ -644,10 +644,10 @@ abstract class Tokens {
   );
 
   /// Default value for [glassTint].
-  String get glassTintValue => '60%';
+  String get glassTintValue => '15%';
 
   /// How much of its background color a glass card or dialog keeps
-  /// (default: `60%`, CSS variable: `--naki-glass-tint`).
+  /// (default: `15%`, dark: `30%`, CSS variable: `--naki-glass-tint`).
   Token get glassTint =>
       Token(value: glassTintValue, name: '--naki-glass-tint');
 
@@ -1200,14 +1200,14 @@ abstract class Tokens {
       const Token(value: '12px', name: '--naki-tooltip-border-radius');
 
   /// Tooltip padding
-  /// (default: `6px`, CSS variable: `--naki-tooltip-padding`).
+  /// (default: `10px`, CSS variable: `--naki-tooltip-padding`).
   Token get tooltipPadding =>
-      const Token(value: '6px', name: '--naki-tooltip-padding');
+      const Token(value: '10px', name: '--naki-tooltip-padding');
 
   /// Tooltip font size
-  /// (default: `12px`, CSS variable: `--naki-tooltip-font-size`).
+  /// (default: `14px`, CSS variable: `--naki-tooltip-font-size`).
   Token get tooltipFontSize =>
-      const Token(value: '12px', name: '--naki-tooltip-font-size');
+      const Token(value: '14px', name: '--naki-tooltip-font-size');
 
   /// Default value for [popoverBgColor].
   String get popoverBgColorValue => '#ffffff';

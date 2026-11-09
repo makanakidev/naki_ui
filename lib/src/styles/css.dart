@@ -28,6 +28,23 @@ const kInsetOwnerClass = 'naki-inset-owner';
 /// parent Row or Column has to give it one.
 const kFillScrollClass = 'naki-fill-scroll';
 
+/// Part of the page Safari keeps above the visible viewport when its toolbar
+/// is hidden, measured by the Scaffold because `env()` reports nothing there.
+const kViewportInsetTopVar = '--naki-viewport-inset-top';
+
+/// Height of the home indicator while Safari's toolbar is hidden, set by the
+/// Scaffold because `env()` reports nothing there either.
+const kViewportInsetBottomVar = '--naki-viewport-inset-bottom';
+
+/// How far a repositioned tooltip's arrow moves across it.
+const kTooltipArrowXVar = '--naki-tooltip-arrow-x';
+
+/// How far a repositioned tooltip's arrow moves down it.
+const kTooltipArrowYVar = '--naki-tooltip-arrow-y';
+
+/// Rotation of a flipped tooltip's arrow.
+const kTooltipArrowRotateVar = '--naki-tooltip-arrow-rotate';
+
 /// Height of the Scaffold body covered by a fixed app bar.
 const kScaffoldInsetTopVar = '--naki-scaffold-inset-top';
 
@@ -120,6 +137,12 @@ class Css {
     return 'brightness(calc(100% - $strength * 0.25))';
   }
 
+  /// Backdrop of a liquid glass bar where SVG backdrop filters don't work.
+  static const _liquidLens = 'blur(8px) saturate(180%)';
+
+  /// Backdrop of a liquid glass droplet where SVG backdrop filters don't work.
+  static String get _liquidDroplet => 'blur(2px) saturate(180%) $_dropletDim';
+
   /// Padding of a scroll view: [padding], plus the Scaffold insets when the
   /// view is [vertical], so its content can scroll clear of the bars.
   static Map<String, String> scrollPadding(
@@ -136,6 +159,21 @@ class Css {
   /// Adds the inset in [variable] to a padding [value].
   static String _insetPadding(Dim? value, String variable) =>
       'calc(${value?.cssText ?? '0px'} + var($variable, 0px))';
+
+  /// Height at the top of the screen the page can't draw content in.
+  static const safeAreaTop =
+      'max(env(safe-area-inset-top, 0px), var($kViewportInsetTopVar, 0px))';
+
+  /// Height at the bottom of the screen the page can't draw content in.
+  static const safeAreaBottom =
+      'max(env(safe-area-inset-bottom, 0px), '
+      'var($kViewportInsetBottomVar, 0px))';
+
+  /// Width at the left of the screen the page can't draw content in.
+  static const safeAreaLeft = 'env(safe-area-inset-left, 0px)';
+
+  /// Width at the right of the screen the page can't draw content in.
+  static const safeAreaRight = 'env(safe-area-inset-right, 0px)';
 
   /// Bottom inset of the Scaffold body.
   static String get _scaffoldInsetBottom =>
@@ -158,6 +196,30 @@ class Css {
     return Color(_var(token)).withOpacity(opacity);
   }
 
+  // Page layers. Popovers, menus, the calendar and tooltips scroll with their
+  // trigger, so they stay below the bars and slide under them with the page.
+
+  /// Behind its parent's content -> `-1`.
+  static const _behindZindex = '-1';
+
+  /// Level with its siblings -> `0`.
+  static const _baseZindex = '0';
+
+  /// Above the rest of its own component -> `1`.
+  static const _raisedZindex = '1';
+
+  /// Popover z-index -> `800`.
+  static const _popoverZindex = '800';
+
+  /// Dropdown z-index -> `810`.
+  static const _dropdownZindex = '810';
+
+  /// Calendar z-index -> `820`.
+  static const _calendarZindex = '820';
+
+  /// Tooltip z-index -> `850`.
+  static const _tooltipZindex = '850';
+
   /// Floating Action Button z-index -> `900`.
   static const _fabZindex = '900';
 
@@ -166,18 +228,6 @@ class Css {
 
   /// Bottom navigation bar z-index -> `950`.
   static const _bottomNavBarZindex = '950';
-
-  /// Popover barrier z-index -> `999`.
-  static const _popoverBarrierZindex = '999';
-
-  /// Popover z-index -> `1000`.
-  static const _popoverZindex = '1000';
-
-  /// Dropdown z-index -> `1050`.
-  static const _dropdownZindex = '1050';
-
-  /// Drawer barrier z-index -> `1099`.
-  static const _drawerBarrierZindex = '1099';
 
   /// Drawer z-index -> `1100`.
   static const _drawerZindex = '1100';
@@ -196,9 +246,6 @@ class Css {
 
   /// Snackbar z-index -> `5000`.
   static const _snackbarZindex = '5000';
-
-  /// Tooltip z-index -> `10000`.
-  static const _tooltipZindex = '10000';
 
   /// Default text truncation CSS styling rule.
   /// Prevents long text from wrapping and clips it with an ellipsis.
@@ -283,7 +330,7 @@ class Css {
   static final nakiPlaceholderStyle = {
     'color': _var(Tokens.current.placeholderColor),
     'opacity': '0.6',
-    'z-index': '0',
+    'z-index': _baseZindex,
     'position': 'absolute',
   };
 
@@ -395,10 +442,10 @@ class Css {
 
   /// Default CSS styles map for safe area.
   static final nakiSafeAreaStyles = {
-    'padding-top': 'env(safe-area-inset-top, 0px)',
-    'padding-left': 'env(safe-area-inset-left, 0px)',
-    'padding-right': 'env(safe-area-inset-right, 0px)',
-    'padding-bottom': 'env(safe-area-inset-bottom, 0px)',
+    'padding-top': safeAreaTop,
+    'padding-left': safeAreaLeft,
+    'padding-right': safeAreaRight,
+    'padding-bottom': safeAreaBottom,
   };
 
   /// Default CSS styles map for styling check boxes
@@ -655,14 +702,28 @@ class Css {
       'background-color': _var(Tokens.current.bottomNavbarBgColor),
       'box-shadow': '0px -1px 0px rgba(0, 0, 0, 0.06)',
       'box-sizing': 'border-box',
+      'overflow': 'hidden',
       'z-index': _bottomNavBarZindex,
     },
 
     // Navbar types
     'fixed': {'width': '100%', 'border-radius': '0', 'padding': '0 3px'},
 
+    // carries the bar's color out through the safe areas, as the app bar does
+    'fixed-safe-area': {
+      'content': '""',
+      'position': 'absolute',
+      'top': '0',
+      'left': 'calc(-1 * $safeAreaLeft)',
+      'right': 'calc(-1 * $safeAreaRight)',
+      'bottom': 'calc(-1 * $safeAreaBottom)',
+      'z-index': _behindZindex,
+      'background-color': _var(Tokens.current.bottomNavbarBgColor),
+      'pointer-events': 'none',
+    },
+
     'floating': {
-      'width': 'calc(100% - 32px)',
+      'width': 'calc(100% - 32px - $safeAreaLeft - $safeAreaRight)',
       'max-width': '600px',
       'border-radius': '25px',
       'box-shadow':
@@ -670,7 +731,7 @@ class Css {
     },
 
     'frosted-glass': {
-      'width': 'calc(100% - 32px)',
+      'width': 'calc(100% - 32px - $safeAreaLeft - $safeAreaRight)',
       'max-width': '600px',
       'border-radius': '999px',
       'background-color': 'transparent',
@@ -736,6 +797,16 @@ class Css {
       'transition': 'inset-inline-start 0.3s cubic-bezier(0.2, 0.9, 0.3, 1)',
     },
 
+    'liquid-glass-lens': {
+      '-webkit-backdrop-filter': _liquidLens,
+      'backdrop-filter': _liquidLens,
+    },
+
+    'liquid-glass-lens-indicator': {
+      '-webkit-backdrop-filter': _liquidDroplet,
+      'backdrop-filter': _liquidDroplet,
+    },
+
     'frosted-glass-refraction': {
       'position': 'absolute',
       'width': '0',
@@ -787,8 +858,8 @@ class Css {
 
     // Tile
     'tile': {
-      'cursor': 'pointer',
       'height': '100%',
+      '-webkit-user-select': 'none',
       'user-select': 'none',
       'box-sizing': 'border-box',
       'transition': 'transform 0.15s ease, color 0.15s ease',
@@ -812,7 +883,7 @@ class Css {
       'border-radius': '8px',
     },
 
-    'tile-action': {'width': '100%', 'cursor': 'default'},
+    'tile-action': {'width': '100%'},
 
     'pressed-tile': {'scale': '0.96'},
 
@@ -847,6 +918,7 @@ class Css {
     'text-wrap-mode': 'nowrap',
     'text-align': 'center',
     'font-size': '14px',
+    'transform': 'none',
     'line-height': 'normal',
   };
 
@@ -861,15 +933,25 @@ class Css {
       'overflow': 'hidden',
       'position': 'relative',
       'width': '100%',
-      'padding-top': 'env(safe-area-inset-top, 0px)',
-      'padding-left': 'env(safe-area-inset-left, 0px)',
-      'padding-right': 'env(safe-area-inset-right, 0px)',
-      'padding-bottom': 'env(safe-area-inset-bottom, 0px)',
+      'padding-top': safeAreaTop,
+      'padding-left': safeAreaLeft,
+      'padding-right': safeAreaRight,
+      'padding-bottom': safeAreaBottom,
     },
 
     'appbar': {
       'z-index': _appBarZindex,
       'position': 'absolute',
+    },
+
+    'appbar-inset': {
+      'box-sizing': 'border-box',
+      'height':
+          'calc(${_var(Tokens.current.appbarHeight)} '
+          '+ $safeAreaTop)',
+      'padding-top': safeAreaTop,
+      'padding-left': 'calc(20px + $safeAreaLeft)',
+      'padding-right': 'calc(20px + $safeAreaRight)',
     },
 
     'layout': {
@@ -921,8 +1003,8 @@ class Css {
       'position': 'fixed',
       'bottom':
           'calc(20px + ${_var(Tokens.current.bottomNavbarOffset, '0px')} '
-          '+ env(safe-area-inset-bottom, 0px))',
-      'right': '24px',
+          '+ $safeAreaBottom)',
+      'right': 'calc(24px + $safeAreaRight)',
       'z-index': _fabZindex,
     },
   };
@@ -1087,7 +1169,7 @@ class Css {
     'search-box': {
       'position': 'sticky',
       'top': '-1px',
-      'z-index': '15',
+      'z-index': _raisedZindex,
       'background-color': _var(Tokens.current.dropdownMenuBgColor),
     },
 
@@ -1096,6 +1178,7 @@ class Css {
       'font-size': '13px',
       'text-align': 'center',
       'color': _var(Tokens.current.placeholderColor),
+      '-webkit-user-select': 'none',
       'user-select': 'none',
       'margin': '0 auto',
     },
@@ -1110,6 +1193,7 @@ class Css {
       'border': Tokens.current.spinnerBorder.value,
       'border-top-color': _var(Tokens.current.spinnerColor),
       'animation': 'nakiSpin 0.8s linear infinite',
+      '-webkit-user-select': 'none',
       'user-select': 'none',
       'pointer-events': 'none',
     },
@@ -1319,7 +1403,7 @@ class Css {
 
   /// Default CSS styles map for Tooltip.
   static final nakiTooltipStyle = {
-    'wrapper': {'position': 'relative', 'display': 'inline-block'},
+    'wrapper': {'position': 'relative', 'display': 'block'},
 
     'content': {
       'position': 'absolute',
@@ -1334,7 +1418,8 @@ class Css {
       'visibility': 'hidden',
       'transition': 'opacity 0.15s ease, visibility 0.15s ease',
       'width': 'max-content',
-      'max-width': '200px',
+      'max-width':
+          'min(200px, calc(100dvw - 16px - $safeAreaLeft - $safeAreaRight))',
       'line-height': 'normal',
       'height': 'fit-content',
       'overflow': 'visible',
@@ -1347,38 +1432,37 @@ class Css {
   static final nakiPopoverStyle = {
     'wrapper': {'position': 'relative', 'display': 'block'},
 
-    'barrier': {
-      'position': 'fixed',
-      'inset': '0',
-      'z-index': _popoverBarrierZindex,
-      'background-color': 'transparent',
-      'cursor': 'default',
-    },
-
     'show': {
       'opacity': '1',
       'visibility': 'visible',
       'pointer-events': 'auto',
-      'height': 'fit-content',
-      'line-height': 'normal',
-      'background-color': _var(Tokens.current.popoverBgColor),
-      'color': _var(Tokens.current.popoverTextColor),
-      'border-radius': _var(Tokens.current.popoverBorderRadius),
-      'border': '1px solid ${_var(Tokens.current.popoverBorderColor)}',
-      'box-shadow': _var(Tokens.current.popoverShadow),
+      'max-height': '100dvh',
       'padding': _var(Tokens.current.popoverPadding),
+      'transition': 'opacity 0.15s ease-in-out, visibility 0.15s ease-in-out',
     },
 
+    // what closing collapses waits for the fade, so it fades out where it was
     'popup': {
       'position': 'absolute',
       'z-index': _popoverZindex,
       'opacity': '0',
       'visibility': 'hidden',
       'pointer-events': 'none',
-      'height': '0',
-      'width': 'fit-content',
+      'max-height': '0',
+      'padding-block': '0',
+      'line-height': 'normal',
+      'width': 'max-content',
+      'max-width': 'calc(100dvw - 16px - $safeAreaLeft - $safeAreaRight)',
       'box-sizing': 'border-box',
-      'transition': 'opacity 0.15s ease-in-out, visibility 0.15s ease-in-out',
+      'background-color': _var(Tokens.current.popoverBgColor),
+      'color': _var(Tokens.current.popoverTextColor),
+      'border-radius': _var(Tokens.current.popoverBorderRadius),
+      'border': '1px solid ${_var(Tokens.current.popoverBorderColor)}',
+      'box-shadow': _var(Tokens.current.popoverShadow),
+      'transition':
+          'opacity 0.15s ease-in-out, visibility 0.15s ease-in-out, '
+          'max-height 0s linear 0.15s, padding 0s linear 0.15s, '
+          'transform 0s linear 0.15s',
     },
   };
 
@@ -1395,12 +1479,12 @@ class Css {
       'box-sizing': 'border-box',
       'width': '100dvw',
       'height': '100dvh',
+      'padding': '$safeAreaTop $safeAreaRight $safeAreaBottom $safeAreaLeft',
       '-webkit-backdrop-filter': 'blur(5px)',
       'backdrop-filter': 'blur(5px)',
       'overscroll-behavior': 'none',
       'touch-action': 'none',
-      'animation':
-          'nakiDialogFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+      'animation': 'nakiScrimIn 500ms linear both',
     },
 
     'container': {
@@ -1418,12 +1502,18 @@ class Css {
       'box-sizing': 'border-box',
       'line-height': 'normal',
       'animation':
-          'nakiDialogPopIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+          'nakiDialogGrow 500ms cubic-bezier(0.3, 0, 0, 1) backwards, '
+          'nakiDialogFadeIn 50ms linear backwards',
     },
 
-    // a blurred barrier is a backdrop root, which would hide the page from the
-    // glass above it
-    'glass-backdrop': _noGlass,
+    'glass-backdrop': {
+      ..._noGlass,
+      'animation': 'nakiDialogBarrierIn 500ms linear both',
+    },
+
+    'glass-backdrop-exit': {
+      'animation': 'nakiDialogBarrierOut 150ms linear both',
+    },
 
     'glass': _glassSurface(
       color: _var(Tokens.current.dialogBgColor),
@@ -1470,8 +1560,7 @@ class Css {
       '-webkit-backdrop-filter': 'blur(5px)',
       'backdrop-filter': 'blur(5px)',
       'touch-action': 'none',
-      'animation':
-          'nakiDrawerFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+      'animation': 'nakiScrimIn 210ms cubic-bezier(0.2, 0.05, 0.25, 1) both',
     },
 
     'content': {
@@ -1480,11 +1569,12 @@ class Css {
       'bottom': '0',
       'overflow': 'auto',
       'z-index': _drawerZindex,
+      'padding-top': safeAreaTop,
+      'padding-bottom': safeAreaBottom,
       'width': _var(Tokens.current.drawerWidth),
       'background-color': _var(Tokens.current.drawerBgColor),
       'box-shadow': Tokens.current.largeShadow.value,
       'box-sizing': 'border-box',
-      'transition': 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
       'line-height': 'normal',
     },
   };
@@ -1502,12 +1592,12 @@ class Css {
       'width': '100dvw',
       'height': '100dvh',
       'box-sizing': 'border-box',
+      'padding': '$safeAreaTop $safeAreaRight 0 $safeAreaLeft',
       '-webkit-backdrop-filter': 'blur(5px)',
       'backdrop-filter': 'blur(5px)',
       'overscroll-behavior': 'none',
       'touch-action': 'none',
-      'animation':
-          'nakiDrawerFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+      'animation': 'nakiScrimIn 190ms cubic-bezier(0.25, 0.3, 0.15, 1) both',
     },
 
     'container': {
@@ -1516,6 +1606,7 @@ class Css {
       'width': '100%',
       'max-width': '600px',
       'max-height': _var(Tokens.current.bottomSheetMaxHeight),
+      'padding-bottom': safeAreaBottom,
       'background-color': _var(Tokens.current.bottomSheetBgColor),
       'border-radius': _var(Tokens.current.bottomSheetBorderRadius),
       'box-shadow': Tokens.current.largeShadow.value,
@@ -1525,7 +1616,7 @@ class Css {
       'flex-direction': 'column',
       'line-height': 'normal',
       'animation':
-          'nakiBottomSheetSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+          'nakiBottomSheetSlideUp 210ms cubic-bezier(0.2, 0.05, 0.25, 1) both',
     },
 
     'handle': {
@@ -1553,6 +1644,7 @@ class Css {
       'border-radius': '12px',
       'padding': '0 15px',
       'border': Tokens.current.border.value,
+      '-webkit-user-select': 'none',
       'user-select': 'none',
       'text-align': 'left',
       'justify-content': 'left',
@@ -1566,7 +1658,7 @@ class Css {
       'transform':
           'translateX(calc(-50% + ${_var(Tokens.current.calendarShiftX)})) '
           'translateY(${_var(Tokens.current.calendarGap)})',
-      'z-index': '10',
+      'z-index': _calendarZindex,
       'overflow': 'auto',
       'box-sizing': 'border-box',
       'max-width': 'min(380px, calc(100dvw - 16px))',
@@ -1593,7 +1685,14 @@ class Css {
       'width': '0',
     },
 
-    'years-dropdown': {'z-index': '12'},
+    'header': {
+      'position': 'sticky',
+      'top': '-10px',
+      'z-index': _raisedZindex,
+      'background-color': _var(Tokens.current.dropdownMenuBgColor),
+    },
+
+    'years-menu': {'top': 'calc(100% + 3px)', 'bottom': 'auto'},
 
     'selected': {
       Tokens.current.baseTextColor.name: 'white',
@@ -1697,7 +1796,7 @@ class Css {
       'justify-content': 'space-between',
       'width': '100%',
       'padding': '8px 12px',
-      'cursor': 'default',
+      '-webkit-user-select': 'none',
       'user-select': 'none',
       'background-color': 'transparent',
       'text-align': 'left',

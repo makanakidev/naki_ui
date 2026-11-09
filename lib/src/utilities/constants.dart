@@ -71,4 +71,3 @@ const double kBreakpointLarge = 1024.0;
 
 /// Breakpoint width `1280px` for desktops.
 const double kBreakpointXLarge = 1280.0;
-

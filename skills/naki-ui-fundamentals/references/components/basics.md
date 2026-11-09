@@ -128,7 +128,7 @@ const Spinner(
 )
 ```
 
-Use `Spinner.ios` for the iOS-style variant and `Spinner.glass()` (`surfaceColor` is optional) over translucent surfaces for a nice glass effect. Keep a meaningful semantic label and pair long operations with explanatory text. Under `prefers-reduced-motion`, spinners pulse slowly instead of rotating.
+Use `Spinner.ios` for the iOS-style variant and `Spinner.glass()` (`surfaceColor` is optional) over translucent surfaces for a nice glass effect; the `spinnerGlassRim` theme value sets the strength of its light rim. Keep a meaningful semantic label and pair long operations with explanatory text. Under `prefers-reduced-motion`, spinners pulse slowly instead of rotating.
 
 ## GestureDetector
 

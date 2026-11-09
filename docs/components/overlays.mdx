@@ -33,6 +33,15 @@ Snackbar(
 )
 ```
 
+Or show one without a controller, as in Flutter. `showSnackbar` closes any snackbar already open, and `closeSnackbar()` closes the current one early:
+
+```dart
+showSnackbar(
+  context,
+  const Snackbar(content: NakiText('Profile changes saved successfully!')),
+);
+```
+
 ---
 
 ## `Dialog`
@@ -63,6 +72,24 @@ Dialog(
 )
 ```
 
+Or show one without a controller with `showDialog`, which completes with the value passed to `closeDialog`, or `null` when the barrier dismisses it:
+
+```dart
+final confirmed = await showDialog<bool>(
+  context: context,
+  builder: (context) => Dialog(
+    title: 'Confirm Deletion',
+    barrierDismissible: true,
+    actions: [
+      Button.text('Cancel', onTap: () => closeDialog(context, false)),
+      Button.text('Delete', onTap: () => closeDialog(context, true)),
+    ],
+  ),
+);
+```
+
+Both need a `NakiApp` or `Scaffold` above `context`; the overlay keeps that context, so it sits clear of the app bar and bottom navigation bar.
+
 Set `glass: true` for a translucent dialog. `backgroundColor` sets the tint, and the barrier stops blurring so the glass can see the page. See `Card.glass` for the `glassTint`, `glassRim` and `glassBlur` theme values and the accessibility fallbacks.
 
 ---
@@ -92,6 +119,21 @@ BottomSheet(
 )
 ```
 
+Or show one without a controller with `showModalBottomSheet`. `builder` returns the sheet's content, and the future completes with the value passed to `closeModalBottomSheet`, or `null` when the barrier dismisses it:
+
+```dart
+final target = await showModalBottomSheet<String>(
+  context: context,
+  builder: (context) => Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Button.text('Messages', onTap: () => closeModalBottomSheet(context, 'messages')),
+      Button.text('Mail', onTap: () => closeModalBottomSheet(context, 'mail')),
+    ],
+  ),
+);
+```
+
 ---
 
 ## `Popover` & `Tooltip`
@@ -99,7 +141,7 @@ BottomSheet(
 Anchored contextual flyouts and hover tooltips:
 
 ```dart
-// Floating Popover anchored to child trigger
+// Popover shown on hover or focus
 Popover(
   child: Button.text('Options', onTap: () {}),
   position: PopoverPosition.bottomLeft,
@@ -107,6 +149,15 @@ Popover(
     padding: EdgeInsets.all(Dim.px(12)),
     child: NakiText('Popover content panel'),
   ),
+)
+
+// Popover controlled by its parent: hover and focus do nothing, and tapping
+// outside the content or scrolling the page calls onClose
+Popover(
+  visible: _open,
+  onClose: () => setState(() => _open = false),
+  child: Button.text('Options', onTap: () => setState(() => _open = true)),
+  content: const NakiText('Popover content panel'),
 )
 
 // Hover/focus Tooltip
@@ -119,6 +170,8 @@ Tooltip(
   ),
 )
 ```
+
+`Popover` and `Tooltip` open at `position` and stay anchored to their trigger inside the safe areas and the Scaffold's bars: they flip to the opposite side when only that side fits, and slide along the trigger when they would cross an edge. A tooltip's arrow keeps pointing at the trigger. Once placed, they scroll with the trigger and are only placed again when the viewport's width changes.
 
 ---
 
@@ -155,3 +208,17 @@ Drawer(
   ),
 )
 ```
+
+---
+
+## Motion
+
+`Dialog`, `BottomSheet` and `Drawer` follow Material 3 motion:
+
+| Overlay       | Opening                                                                                     | Closing                                       |
+| :------------ | :------------------------------------------------------------------------------------------ | :-------------------------------------------- |
+| `Dialog`      | Grows from 35% of its height over 500ms on the emphasized curve, then its content fades in | Shrinks and fades over 150ms (emphasized accelerate) |
+| `BottomSheet` | Slides up over 210ms                                                                        | Slides down over 120ms                        |
+| `Drawer`      | Slides in over 210ms                                                                        | Slides out over 120ms                         |
+
+The scrim fades its own color and blur, so the overlay above it is never see-through. Under `prefers-reduced-motion`, overlays appear and disappear without animating.

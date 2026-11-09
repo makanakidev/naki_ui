@@ -535,8 +535,8 @@ class RadioButton extends StatelessComponent {
   /// Additional CSS classes applied to the radio button component.
   final String? classes;
 
-  /// The width and height of the radio button.
-  final Dim? size;
+  /// The width and height of the radio button in pixels.
+  final double? size;
 
   /// When `true`, the radio button and [label] will be evenly spaced across
   /// the available horizontal space.
@@ -570,7 +570,7 @@ class RadioButton extends StatelessComponent {
     final String effectiveClasses = joinClasses([?classes, baseClass]);
 
     final styles = {
-      Tokens.current.radioBtnRadius.name: ?size?.cssText,
+      Tokens.current.radioBtnRadius.name: ?size?.toPx,
       Tokens.current.radioBtnColor.name: ?color?.value,
     };
 
@@ -798,27 +798,19 @@ class _DropdownState<T> extends State<Dropdown<T>> with NakiStatefulMixin {
 
   @override
   FutureOr<VoidCallback?> afterRender(BuildContext context) {
-    // listener that checks if an outside click occurred
-    final clickSubscription = EventStreamProviders.clickEvent
-        .forTarget(window)
-        .listen((event) {
-          if (!_isOpen) return;
+    final tapSubscription = listenTapOutside(
+      () => document.getElementById('${_id}__dropdown'),
+      (_) {
+        if (!_isOpen) return;
 
-          final target = event.target as Node?;
-          final parent =
-              document.querySelector('#${_id}__dropdown[open]') as HTMLElement?;
-
-          if (parent != null && target != null && !parent.contains(target)) {
-            event.stopPropagation();
-
-            setState(() {
-              _isOpen = false;
-              _activeOption = null;
-            });
-          }
+        setState(() {
+          _isOpen = false;
+          _activeOption = null;
         });
+      },
+    );
 
-    return clickSubscription.cancel;
+    return tapSubscription.cancel;
   }
 
   @override
@@ -877,10 +869,12 @@ class _DropdownState<T> extends State<Dropdown<T>> with NakiStatefulMixin {
     // get dropdown options bounding box
     final optionsRect = optionsBoxElem.getBoundingClientRect();
     final viewportHeight = window.innerHeight;
+    final safeArea = safeAreaInsets();
 
     // calculate space available below and above the dropdown
-    final spaceAvailableBelow = viewportHeight - optionsRect.bottom;
-    final spaceAvailableAbove = optionsRect.top;
+    final spaceAvailableBelow =
+        viewportHeight - safeArea.bottom - optionsRect.bottom;
+    final spaceAvailableAbove = optionsRect.top - safeArea.top;
 
     // determine if dropdown should be displayed in upward direction
     _showUpward = spaceAvailableAbove > spaceAvailableBelow;

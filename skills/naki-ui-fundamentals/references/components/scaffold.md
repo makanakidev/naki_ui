@@ -24,6 +24,15 @@ AppBar(
 
 Use either `titleText` with `titleStyle` or a custom `title` component. Keep icon actions labeled. Set `removeShadow` for a flat header.
 
+Inside `Scaffold.appBar`, `fixed` (default `true`) pins the bar to the top and starts the body below it; `fixed: false` lets it scroll away with the page. `blurBackground` (default `true`) gives a pinned bar a translucent, frosted background and is ignored when `fixed` is `false`. Both are ignored outside `Scaffold.appBar`.
+
+```dart
+Scaffold(
+  appBar: const AppBar(titleText: 'Article', fixed: false),
+  body: const ArticleBody(),
+)
+```
+
 ## BottomNavigationBar
 
 Display two or more primary destinations.

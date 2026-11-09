@@ -43,14 +43,14 @@ typedef Events = GestureRecognizer;
 /// ```
 /// {@endtemplate}
 class GestureRecognizer {
-  /// Callback invoked when a standard click gesture occurs.
+  /// Callback invoked when a component is clicked or tapped.
   final void Function(Event e)? onClick;
 
-  /// Callback invoked when a double-click gesture occurs.
+  /// Callback invoked when a component is double-clicked or double-tapped.
   final void Function(MouseEvent e)? onDoubleClick;
 
-  /// Callback invoked when a pointer is held down for longer
-  /// than [longPressDuration].
+  /// Callback invoked when a component is clicked or tapped and
+  /// held down for longer than [longPressDuration].
   final void Function(PointerEvent e)? onLongPress;
 
   /// Callback invoked when a pointer device
@@ -64,13 +64,13 @@ class GestureRecognizer {
   /// (e.g. system interrupt).
   final void Function(PointerEvent e)? onPointerCancel;
 
-  /// Callback invoked when a pointer enters the element boundaries.
+  /// Callback invoked when a pointer enters a component boundaries.
   final void Function(PointerEvent e)? onPointerEnter;
 
-  /// Callback invoked when a pointer leaves the element boundaries.
+  /// Callback invoked when a pointer leaves a component boundaries.
   final void Function(PointerEvent e)? onPointerLeave;
 
-  /// Callback invoked when a pointer moves across the element.
+  /// Callback invoked when a pointer moves across a component.
   final void Function(PointerEvent e)? onPointerMove;
 
   /// Callback invoked when a pointer is moved onto the
@@ -81,16 +81,16 @@ class GestureRecognizer {
   /// element or its descendants.
   final void Function(PointerEvent e)? onPointerOut;
 
-  /// Callback invoked when an input element's value
+  /// Callback invoked when an input component's value
   /// changes synchronously (e.g. while typing).
   final void Function(Event e)? onInput;
 
-  /// Callback invoked when an input element's value
+  /// Callback invoked when an input component's value
   /// change is committed (e.g. on blur/submit).
   final void Function(Event e)? onChange;
 
-  /// Callback invoked when the user selects some text
-  /// (for input/textarea elements).
+  /// Callback invoked when the user selects some text in
+  /// an input component.
   final void Function(Event e)? onSelect;
 
   /// Callback invoked when a mouse button is pressed.
@@ -99,19 +99,19 @@ class GestureRecognizer {
   /// Callback invoked when a mouse button is released.
   final void Function(MouseEvent e)? onMouseUp;
 
-  /// Callback invoked when the mouse cursor enters the element.
+  /// Callback invoked when the mouse cursor is on a component.
   final void Function(MouseEvent e)? onMouseEnter;
 
-  /// Callback invoked when the mouse cursor leaves the element.
+  /// Callback invoked when the mouse cursor is no longer on a component.
   final void Function(MouseEvent e)? onMouseLeave;
 
-  /// Callback invoked when the mouse cursor moves within the element.
+  /// Callback invoked when the mouse cursor moves across a component.
   final void Function(MouseEvent e)? onMouseMove;
 
-  /// Callback invoked when a key is pressed down.
+  /// Callback invoked when a keyboard key is pressed down.
   final void Function(KeyboardEvent e)? onKeyDown;
 
-  /// Callback invoked when a key is released.
+  /// Callback invoked when a keyboard key is released after being pressed.
   final void Function(KeyboardEvent e)? onKeyUp;
 
   /// Callback invoked periodically during an active drag operation.
@@ -132,25 +132,25 @@ class GestureRecognizer {
   /// Callback invoked when a drag operation is initiated.
   final void Function(DragEvent e)? onDragStart;
 
-  /// Callback invoked when the element gains focus.
+  /// Callback invoked when a component gains focus generally.
   final void Function(FocusEvent e)? onFocus;
 
-  /// Callback invoked when focus moves into the element or any descendant.
+  /// Callback invoked when a component or its descendant gains focus.
   final void Function(FocusEvent e)? onFocusIn;
 
-  /// Callback invoked when focus moves out of the element or any descendant.
+  /// Callback invoked when a component or its descendant loses focus.
   final void Function(FocusEvent e)? onFocusOut;
 
-  /// Callback invoked when the element loses focus.
+  /// Callback invoked when a component loses focus generally.
   final void Function(FocusEvent e)? onBlur;
 
   /// Callback invoked when the input is invalid.
   final void Function(Event e)? onInvalid;
 
-  /// Callback invoked when a user pastes data into the element.
+  /// Callback invoked when a user pastes data into a component.
   final void Function(ClipboardEvent e)? onPaste;
 
-  /// Callback invoked when the form is submitted.
+  /// Callback invoked when a form is submitted.
   final void Function(Event e)? onSubmit;
 
   /// Duration threshold required to trigger [onLongPress] (default: 500ms).
@@ -158,9 +158,7 @@ class GestureRecognizer {
 
   /// {@macro GestureRecognizer}
   const GestureRecognizer({
-    this.longPressDuration = const Duration(
-      milliseconds: 500,
-    ),
+    this.longPressDuration = const Duration(milliseconds: 500),
     this.onClick,
     this.onDoubleClick,
     this.onLongPress,

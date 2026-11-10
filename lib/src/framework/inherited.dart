@@ -251,7 +251,7 @@ class ScaffoldScope extends InheritedComponent {
   final ScaffoldState state;
 
   /// {@macro ScaffoldScope}
-  const ScaffoldScope({super.key, required super.child, required this.state});
+  const ScaffoldScope({required super.child, required this.state});
 
   /// Finds the nearest [ScaffoldScope] instance in the component tree.
   /// This scans the component tree upwards from the component [context]

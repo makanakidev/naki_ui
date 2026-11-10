@@ -11,7 +11,7 @@ class FormsPage extends StatefulComponent {
   const FormsPage({super.key, required this.onMessage});
 
   /// Reports a short status message.
-  final ValueChanged<String> onMessage;
+  final void Function(BuildContext context, String message) onMessage;
 
   @override
   State<FormsPage> createState() => _FormsPageState();
@@ -29,6 +29,8 @@ class _FormsPageState extends State<FormsPage> {
   void setState(VoidCallback fn) {
     if (mounted && kIsWeb) super.setState(fn);
   }
+
+  void _showMessage(String message) => component.onMessage(context, message);
 
   RadioButton _shippingOption(String value, String label) {
     return RadioButton(
@@ -66,7 +68,7 @@ class _FormsPageState extends State<FormsPage> {
               child: FormBuilder(
                 formKey: _formKey,
                 spacing: 12,
-                onSubmit: () => component.onMessage('Form submitted'),
+                onSubmit: () => _showMessage('Form submitted'),
                 children: [
                   TextField(
                     id: 'showcase-name',
@@ -94,8 +96,7 @@ class _FormsPageState extends State<FormsPage> {
                   placeholderText: 'Type to search',
                   helperText: 'Try typing "a" to see suggestions',
                 ),
-                onSelected: (selection) =>
-                    component.onMessage('Selected $selection'),
+                onSelected: (selection) => _showMessage('Selected $selection'),
               ),
             ),
             Demo(
@@ -104,7 +105,7 @@ class _FormsPageState extends State<FormsPage> {
                 id: 'showcase-pin',
                 length: 4,
                 type: SegmentedInputType.number,
-                onCompleted: (pin) => component.onMessage('PIN $pin'),
+                onCompleted: (pin) => _showMessage('PIN $pin'),
               ),
             ),
             Demo(
@@ -115,7 +116,7 @@ class _FormsPageState extends State<FormsPage> {
                 decoration: const InputDecoration(
                   labelText: 'Select trip dates',
                 ),
-                onSelectedRange: (range) => component.onMessage(
+                onSelectedRange: (range) => _showMessage(
                   'Trip: ${range.first.asRange(range.last)}',
                 ),
               ),
@@ -131,7 +132,7 @@ class _FormsPageState extends State<FormsPage> {
                   labelText: 'Book within two weeks',
                 ),
                 onSelected: (date) =>
-                    component.onMessage('Booked ${date.toDdMmmYyyy}'),
+                    _showMessage('Booked ${date.toDdMmmYyyy}'),
               ),
             ),
           ],
@@ -195,8 +196,7 @@ class _FormsPageState extends State<FormsPage> {
                   DropdownItem(value: 'platinum', label: 'Platinum'),
                   DropdownItem(value: 'enterprise', label: 'Enterprise'),
                 ],
-                onSelected: (item) =>
-                    component.onMessage('Priority: ${item.label}'),
+                onSelected: (item) => _showMessage('Priority: ${item.label}'),
               ),
             ),
           ],

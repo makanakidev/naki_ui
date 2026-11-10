@@ -1,3 +1,14 @@
+## 1.0.7
+
+### Breaking changes
+
+- `PlatformData()` no longer takes arguments and returns the shared instance, also available as `PlatformData.current`. Pass overrides to `PlatformData.init()` instead, called once at startup before the first read of `PlatformData.current`.
+
+### Fixed
+
+- Fixed `PlatformData.isIphone` and `PlatformData.isiPad` detection, which gave the `Scaffold` body the wrong bottom inset on devices other than iPhone. An iPad that reports a desktop Mac user agent is now detected as an iPad.
+- The `Slider` active track no longer intercepts pointer events.
+
 ## 1.0.6
 
 ### Breaking changes

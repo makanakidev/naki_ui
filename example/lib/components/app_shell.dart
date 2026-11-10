@@ -81,29 +81,29 @@ class _AppShellState extends State<AppShell> {
     if (page != _page) setState(() => _page = page);
   }
 
-  void _showMessage(String message) {
+  void _showMessage(BuildContext ctx, String message) {
     showSnackbar(
-      context,
+      ctx,
       Snackbar(
-        duration: const Duration(seconds: 3),
+        duration: const Duration(seconds: 5),
         position: SnackbarPosition.top,
         content: NakiText(message),
         showCloseIcon: true,
-        backgroundColor: context.primaryColor,
+        backgroundColor: ctx.primaryColor,
         foregroundColor: Colors.white,
         closeIconColor: Colors.white.withOpacity(80),
       ),
     );
   }
 
-  void _changeNavbar() {
+  void _changeNavbar(BuildContext ctx) {
     final idx = _navbarTypes.indexOf(_currentNavbar);
     setState(
       () => _currentNavbar = idx >= _navbarTypes.length - 1
           ? _navbarTypes.first
           : _navbarTypes[idx + 1],
     );
-    _showMessage('Navbar type: ${_currentNavbar.name}');
+    _showMessage(ctx, 'Navbar type: ${_currentNavbar.name}');
   }
 
   @override
@@ -112,16 +112,18 @@ class _AppShellState extends State<AppShell> {
       appBar: AppBar(
         titleText: 'Naki UI',
         actions: [
-          Button.text(
-            'Change Navbar',
-            backgroundColor: Colors.transparent,
-            foregroundColor: context.textColor,
-            height: const Dim.px(30),
-            border: BorderData(
-              radius: BorderRadiusData.all(const Dim.px(5)),
-              color: context.textColor,
+          Builder(
+            builder: (ctx) => Button.text(
+              'Change Navbar',
+              backgroundColor: Colors.transparent,
+              foregroundColor: context.textColor,
+              height: const Dim.px(30),
+              border: BorderData(
+                radius: BorderRadiusData.all(const Dim.px(5)),
+                color: context.textColor,
+              ),
+              onTap: () => _changeNavbar(ctx),
             ),
-            onTap: _changeNavbar,
           ),
 
           Button.icon(
@@ -156,7 +158,6 @@ class _AppShellState extends State<AppShell> {
         selectedIndex: _page,
         onTap: _onNavTap,
         items: _navItems,
-        enableFeedback: true,
       ),
     );
   }

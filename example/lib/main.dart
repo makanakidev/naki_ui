@@ -45,7 +45,7 @@ class TodoApp extends StatelessComponent {
         title: 'Minimalist Task App — Naki UI',
         description:
             'A sleek, minimalist to-do application built with Naki UI.',
-        url: PlatformData().baseUrl,
+        url: PlatformData.current.baseUrl,
         logo: 'https://makanakidev.github.io/naki_ui/assets/icon-dark.jpg',
       ),
       pageBuilder: (context, child) => const AppShell(),

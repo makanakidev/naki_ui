@@ -42,7 +42,7 @@ friends work the way you expect, rendered as plain HTML and CSS.
 ```yaml
 dependencies:
   jaspr: ^0.23.5
-  naki_ui: ^1.0.6
+  naki_ui: ^1.0.7
 ```
 
 ```shell

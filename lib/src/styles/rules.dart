@@ -1285,7 +1285,7 @@ class Rules {
 
   /// Fragment rules
   static final nakiFragmentRules = css(
-    'naki-fragment',
+    'naki-fragment, naki-overlay-host',
   ).styles(raw: {'display': 'contents'});
 
   /// Scaffold rules

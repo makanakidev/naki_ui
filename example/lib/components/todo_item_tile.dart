@@ -36,6 +36,7 @@ class TodoItemTile extends StatelessComponent {
             id: 'checkbox-${todo.id}',
             isChecked: todo.isCompleted,
             label: todo.title,
+            size: 20,
             labelPosition: Position.right,
             labelStyle: todo.isCompleted
                 ? TextStyle(

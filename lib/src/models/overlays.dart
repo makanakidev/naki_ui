@@ -1,7 +1,8 @@
-import 'package:jaspr/dom.dart' show Styles;
+import 'package:jaspr/dom.dart' show StyleRule, css;
 import 'package:jaspr/jaspr.dart';
 
 import '../framework/inherited.dart';
+import '../styles/rules.dart';
 import '../utilities/constants.dart';
 import '../utilities/extensions.dart';
 
@@ -265,6 +266,10 @@ class OverlayHost extends StatefulComponent {
 
   @override
   State<OverlayHost> createState() => OverlayHostState();
+
+  @css
+  static List<StyleRule> get styles =>
+      NakiStyleRegistry.once('Fragment', [Rules.nakiFragmentRules]);
 }
 
 class OverlayHostState extends State<OverlayHost> {
@@ -311,12 +316,13 @@ class OverlayHostState extends State<OverlayHost> {
       state: this,
       child: .fragment([
         component.child,
-        // portal for modals
+
+        // portal for overlays injected via OverlayScope
         const OverlayRegion(),
-        // injected snackbars and modals
+
+        // portal for overlays injected via show* functions
         .element(
           tag: 'naki-overlay-host',
-          styles: const Styles(raw: {'display': 'contents'}),
           children: _entries.values.toList(),
         ),
       ]),

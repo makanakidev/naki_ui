@@ -8,34 +8,36 @@
 import 'package:naki_ui/framework.dart';
 
 // Uses ambient browser window/location on web, or default server values on SSR
-final platform = PlatformData();
+final platform = PlatformData.current;
 ```
 
 `PlatformData` automatically resolves to the client-side implementation on web browsers and the server-side implementation during SSR/SSG pre-rendering or testing.
 
-### Constructor Parameters
+### Init Parameters
 
-The constructor accepts optional override parameters, which is particularly useful for server-side rendering, testing, or custom URL resolution:
+`PlatformData.init()` method accepts optional override parameters, which is particularly useful for server-side rendering, testing, or custom URL resolution. The method should be called before accessing `PlatformData.current`:
 
 ```dart
-final customPlatform = PlatformData(
+PlatformData.init(
   baseUrl: 'https://example.com',
-  currentUrl: '/settings',
+  currentPath: '/settings',
   userAgent: 'Mozilla/5.0...',
   width: 1440,
   height: 900,
   language: 'en',
 );
+
+final customPlatform = PlatformData.current;
 ```
 
-| Parameter    | Type      | Default (Client)         | Default (Server)               | Description                         |
-| ------------ | --------- | ------------------------ | ------------------------------ | ----------------------------------- |
-| `baseUrl`    | `String?` | `window.location.origin` | `'/'`                          | Base URL origin of the application  |
-| `currentUrl` | `String?` | Path without `baseUrl`   | `'/'`                          | Current URL path with leading slash |
-| `userAgent`  | `String?` | `navigator.userAgent`    | `''`                           | User agent header string            |
-| `width`      | `int?`    | `window.innerWidth`      | `0`                            | Viewport width in pixels            |
-| `height`     | `int?`    | `window.innerHeight`     | `0`                            | Viewport height in pixels           |
-| `language`   | `String?` | `navigator.language`     | `Platform.localeName` / `'en'` | Preferred locale or language code   |
+| Parameter     | Type      | Default (Client)         | Default (Server)               | Description                         |
+| ------------- | --------- | ------------------------ | ------------------------------ | ----------------------------------- |
+| `baseUrl`     | `String?` | `window.location.origin` | `'/'`                          | Base URL origin of the application  |
+| `currentPath` | `String?` | Path without `baseUrl`   | `'/'`                          | Current URL path with leading slash |
+| `userAgent`   | `String?` | `navigator.userAgent`    | `''`                           | User agent header string            |
+| `width`       | `int?`    | `window.innerWidth`      | `0`                            | Viewport width in pixels            |
+| `height`      | `int?`    | `window.innerHeight`     | `0`                            | Viewport height in pixels           |
+| `language`    | `String?` | `navigator.language`     | `Platform.localeName` / `'en'` | Preferred locale or language code   |
 
 ## Properties and Capabilities
 
@@ -91,8 +93,8 @@ final currentLanguage = platform.language;
 // Base origin (e.g. 'https://example.com' on web, or '/' on server)
 final baseUrl = platform.baseUrl;
 
-// Current path relative to baseUrl (always starts with leading '/')
-final currentPath = platform.currentUrl;
+// Current path relative to baseUrl (always starts with a '/')
+final currentPath = platform.currentPath;
 ```
 
 ### Serialization
@@ -119,7 +121,7 @@ class SearchShortcutHint extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
-    final platform = PlatformData();
+    final platform = PlatformData.current;
 
     if (platform.isMobile) {
       return const NakiText('Tap search icon');
@@ -139,7 +141,7 @@ class PwaPromotionBanner extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
-    final platform = PlatformData();
+    final platform = PlatformData.current;
 
     // Show promotional banner only for mobile users not yet using the standalone PWA
     if (platform.isMobileBrowser) {
@@ -171,7 +173,7 @@ class DeviceTypeLayout extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
-    final platform = PlatformData();
+    final platform = PlatformData.current;
 
     if (platform.isiOS) {
       return iosView;
@@ -188,6 +190,6 @@ class DeviceTypeLayout extends StatelessComponent {
 
 ## Best Practices
 
-- Use `PlatformData` instead of raw `window` or `document` checks so components can render safely on the server without throwing `NoSuchMethodError` or unsupported errors.
-- Combine `PlatformData.isMobileBrowser` with banners or dialogs for PWA installation prompts.
+- Use `PlatformData.current` instead of raw `window` or `document` checks so components can render safely on the server without throwing `NoSuchMethodError` or unsupported errors.
+- Combine `PlatformData.current.isMobileBrowser` with banners or dialogs for PWA installation prompts.
 - Do not import `package:naki_ui/src/stub/...` directly; always import `package:naki_ui/framework.dart`.

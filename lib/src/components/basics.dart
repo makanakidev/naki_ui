@@ -370,7 +370,7 @@ class Image extends StatelessComponent with NakiStatelessMixin {
 
   @override
   FutureOr<VoidCallback?> afterRender(BuildContext context) {
-    if (cache) cacheImage(src, PlatformData().baseUrl);
+    if (cache) cacheImage(src, PlatformData.current.baseUrl);
     return null;
   }
 

@@ -552,7 +552,7 @@ String normaliseLink(String link, [String? siteUrl]) {
   final linkUri = Uri.tryParse(trimmed);
   if (linkUri != null && linkUri.hasScheme) return trimmed;
 
-  siteUrl ??= PlatformData().baseUrl;
+  siteUrl ??= PlatformData.current.baseUrl;
   siteUrl = siteUrl.trim();
 
   // if siteUrl is empty or just root, return cleaned link directly
@@ -638,7 +638,7 @@ List<Component> seoTagBuilder(
 }) {
   if (seo == null) return const <Component>[];
 
-  final base = seo.url ?? PlatformData().baseUrl;
+  final base = seo.url ?? PlatformData.current.baseUrl;
   String? route;
 
   if (context != null) {
@@ -651,7 +651,7 @@ List<Component> seoTagBuilder(
     }
   }
 
-  route ??= PlatformData().currentPath.trim();
+  route ??= PlatformData.current.currentPath;
   if (route.isEmpty) route = '/';
 
   // Strip query parameters and hash fragments for the canonical URL

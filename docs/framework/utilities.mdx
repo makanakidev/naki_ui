@@ -15,7 +15,7 @@ Access device, browser environment, operating system, and viewport information s
 import 'package:naki_ui/framework.dart';
 
 // Uses ambient browser window/location on web, or default server values on SSR
-final platform = PlatformData();
+final platform = PlatformData.current;
 
 // Device & OS detection
 final isApple = platform.isiOS || platform.isMacOS;
@@ -33,33 +33,35 @@ final height = platform.height;
 final locale = platform.language; // e.g. 'en'
 
 // URL & Base Origin
-final currentPath = platform.currentUrl; // e.g. '/dashboard'
+final currentPath = platform.currentPath; // e.g. '/dashboard'
 final baseOrigin = platform.baseUrl; // e.g. 'https://example.com'
 ```
 
 `PlatformData` automatically resolves to the client-side implementation on web browsers and the server-side implementation during SSR/SSG pre-rendering or testing.
 
-The constructor accepts optional override parameters, which is particularly useful for server-side rendering, testing, or custom URL resolution:
+`PlatformData.init()` method accepts optional override parameters, which is particularly useful for server-side rendering, testing, or custom URL resolution. The method should be called before accessing `PlatformData.current`.
 
 ```dart
-final customPlatform = PlatformData(
+PlatformData.init(
   baseUrl: 'https://example.com',
-  currentUrl: '/settings',
+  currentPath: '/settings',
   userAgent: 'Mozilla/5.0...',
   width: 1440,
   height: 900,
   language: 'en',
 );
+
+final customPlatform = PlatformData.current;
 ```
 
-| Parameter    | Type      | Default (Client)         | Default (Server)               | Description                         |
-| ------------ | --------- | ------------------------ | ------------------------------ | ----------------------------------- |
-| `baseUrl`    | `String?` | `window.location.origin` | `'/'`                          | Base URL origin of the application  |
-| `currentUrl` | `String?` | Path without `baseUrl`   | `'/'`                          | Current URL path with leading slash |
-| `userAgent`  | `String?` | `navigator.userAgent`    | `''`                           | User agent header string            |
-| `width`      | `int?`    | `window.innerWidth`      | `0`                            | Viewport width in pixels            |
-| `height`     | `int?`    | `window.innerHeight`     | `0`                            | Viewport height in pixels           |
-| `language`   | `String?` | `navigator.language`     | `Platform.localeName` / `'en'` | Preferred locale or language code   |
+| Parameter     | Type      | Default (Client)         | Default (Server)               | Description                         |
+| ------------- | --------- | ------------------------ | ------------------------------ | ----------------------------------- |
+| `baseUrl`     | `String?` | `window.location.origin` | `'/'`                          | Base URL origin of the application  |
+| `currentPath` | `String?` | Path without `baseUrl`   | `'/'`                          | Current URL path with leading slash |
+| `userAgent`   | `String?` | `navigator.userAgent`    | `''`                           | User agent header string            |
+| `width`       | `int?`    | `window.innerWidth`      | `0`                            | Viewport width in pixels            |
+| `height`      | `int?`    | `window.innerHeight`     | `0`                            | Viewport height in pixels           |
+| `language`    | `String?` | `navigator.language`     | `Platform.localeName` / `'en'` | Preferred locale or language code   |
 
 ### Common Use Cases
 
@@ -75,7 +77,7 @@ class AdaptiveShortcutHint extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
-    final platform = PlatformData();
+    final platform = PlatformData.current;
 
     if (platform.isMobile) {
       return const NakiText('Tap search icon above');
@@ -95,7 +97,7 @@ class PwaPromotionBanner extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
-    final platform = PlatformData();
+    final platform = PlatformData.current;
 
     // Display banner only on mobile browsers when not already installed as standalone PWA
     if (platform.isMobileBrowser) {

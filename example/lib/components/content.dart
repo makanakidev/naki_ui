@@ -116,7 +116,7 @@ class _ContentState extends State<Content> {
             final activeCount = totalCount - completedCount;
 
             final mqHeight = MediaQueryProvider.heightOf(context) ?? 0;
-            final isScrollable = mqHeight > PlatformData().height;
+            final isScrollable = mqHeight > PlatformData.current.height;
 
             final filteredTodos = _todos.where((todo) {
               switch (_filter) {

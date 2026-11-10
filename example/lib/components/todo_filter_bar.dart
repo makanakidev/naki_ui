@@ -26,7 +26,6 @@ class TodoFilterBar extends StatelessComponent {
   Component build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.center,
       scrollable: true,
       children: [
         // item counter

@@ -2,7 +2,7 @@
 name: naki-ui-framework
 description: Use when implementing, reviewing, or troubleshooting Naki UI behavior with package:naki_ui/framework.dart, including platform detection, lifecycle mixins, browser listeners, gestures, input events, overlay and scroll controllers, animation curves, scrolling models, shared data models, enums, and debounce utilities.
 metadata:
-  version: "1.0.6"
+  version: "1.0.7"
   author: "makanakidev"
 ---
 
@@ -63,7 +63,7 @@ Access device, browser, and viewport information safely across both client and s
 ```dart
 import 'package:naki_ui/framework.dart';
 
-final platform = PlatformData();
+final platform = PlatformData.current;
 
 // Device & OS detection
 final isApple = platform.isiOS || platform.isMacOS;
@@ -81,7 +81,7 @@ final height = platform.height;
 final locale = platform.language; // e.g. 'en'
 
 // URL & Base Origin
-final currentPath = platform.currentUrl; // e.g. '/dashboard'
+final currentPath = platform.currentPath; // e.g. '/dashboard'
 final baseOrigin = platform.baseUrl; // e.g. 'https://example.com'
 ```
 

@@ -5,9 +5,6 @@ import '../../theme.dart';
 /// A class that represents the browser platform data in
 /// the client and server environment.
 abstract class BrowserPlatform {
-  /// Default const constructor for [BrowserPlatform].
-  const BrowserPlatform();
-
   /// Browser name.
   String get name;
 

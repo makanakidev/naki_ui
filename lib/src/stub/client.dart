@@ -1,38 +1,65 @@
 import 'package:ua_parser/ua_parser.dart';
 import 'package:universal_web/web.dart';
 
-import '../../theme.dart';
 import '../models/platform.dart';
 
-/// Client-side implementation of [BrowserPlatform] for web browsers.
+/// Client-side [BrowserPlatform] implementation.
 final class PlatformData extends BrowserPlatform {
-  /// Creates a client-side [PlatformData] instance.
-  PlatformData({
+  static PlatformData _instance = PlatformData._();
+
+  /// Returns the current instance of [PlatformData].
+  static PlatformData get current => _instance;
+
+  /// Returns the current instance of [PlatformData].
+  factory PlatformData() => _instance;
+
+  PlatformData._({
     String baseUrl = '',
     String currentPath = '',
     String userAgent = '',
     int width = 0,
     int height = 0,
     String? language,
-  }) : _baseUrl = baseUrl.trim().isEmpty ? null : baseUrl,
-       _currentPath = currentPath.trim().isEmpty ? null : currentPath,
-       _userAgent = userAgent.trim().isEmpty ? null : userAgent.toLowerCase(),
+  }) : _baseUrl = baseUrl.isEmpty ? null : baseUrl,
+       _currentPath = currentPath.isEmpty ? null : currentPath,
+       _userAgent = userAgent.isEmpty ? window.navigator.userAgent : userAgent,
        _width = width == 0 ? null : width,
        _height = height == 0 ? null : height,
-       _language = language.isNullOrEmpty ? null : language;
+       _language = language;
+
+  /// Initializes the [PlatformData] instance with the given values, falling
+  /// back to the browser's values for any that are omitted.
+  ///
+  /// Call once at startup, before the first read of [PlatformData.current].
+  /// Each call replaces the instance, so values from an earlier call are not
+  /// kept.
+  static void init({
+    String? baseUrl,
+    String? currentPath,
+    String? userAgent,
+    int? width,
+    int? height,
+    String? language,
+  }) {
+    _instance = PlatformData._(
+      baseUrl: baseUrl ?? '',
+      currentPath: currentPath ?? '',
+      userAgent: userAgent ?? '',
+      width: width ?? 0,
+      height: height ?? 0,
+      language: language,
+    );
+  }
 
   final String? _baseUrl;
   final String? _currentPath;
-  final String? _userAgent;
+  final String _userAgent;
   final int? _width;
   final int? _height;
   final String? _language;
 
-  final navigator = window.navigator;
-  final location = window.location;
-
-  String get _ua => _userAgent ?? navigator.userAgent.toLowerCase();
-  UaParserResult get _parsedAgent => UaParser.parse(_ua);
+  late final _parsedAgent = UaParser.parse(_userAgent);
+  late final location = window.location;
 
   @override
   String get name => _parsedAgent.browser.name ?? 'Chrome';
@@ -95,10 +122,11 @@ final class PlatformData extends BrowserPlatform {
   }
 
   @override
-  String get language => _language ?? navigator.language.split('.').first;
+  String get language =>
+      _language ?? window.navigator.language.split('.').first;
 
   @override
-  String get userAgent => _ua;
+  String get userAgent => _userAgent;
 
   @override
   int get height => _height ?? window.innerHeight;
@@ -122,10 +150,12 @@ final class PlatformData extends BrowserPlatform {
   bool get isPWA => window.matchMedia('(display-mode: standalone)').matches;
 
   @override
-  bool get isIphone => device == 'iPhone';
+  bool get isIphone => isiOS && _userAgent.contains('iPhone');
 
   @override
-  bool get isiPad => device == 'iPad';
+  bool get isiPad =>
+      (isiOS && _userAgent.contains('iPad')) ||
+      (isMacOS && window.navigator.maxTouchPoints > 1);
 
   @override
   bool get isMacOS => os == 'macOS';

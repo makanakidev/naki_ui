@@ -1020,7 +1020,6 @@ class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
     ];
 
     observer.register();
-    _syncViewportInset();
 
     return () {
       observer.dispose();
@@ -1067,7 +1066,7 @@ class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
 
     final bottom = hiddenToolbarBottomInset(
       hidden: hidden,
-      iPhone: PlatformData().isIphone,
+      iPhone: PlatformData.current.isIphone,
       screenWidth: window.screen.width,
       screenHeight: window.screen.height,
       landscape: window.innerWidth > window.innerHeight,
@@ -1136,7 +1135,6 @@ class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
           bottomInset,
         );
 
-        body?.style.removeProperty(Tokens.current.bottomNavbarInset.name);
         body?.style.setProperty(
           Tokens.current.bottomNavbarInset.name,
           bottomInset,

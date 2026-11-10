@@ -605,6 +605,7 @@ class Css {
       'height': 'calc(${_var(Tokens.current.sliderThumbSize)} * 0.5)',
       'border-radius': '12px',
       'top': '50%',
+      'pointer-events': 'none',
       'translate': '0 -50%',
       'background-color': _var(Tokens.current.sliderThumbColor),
     },

@@ -1242,21 +1242,22 @@ class Card extends StatelessComponent {
     ]);
 
     final shadow = decoration?.shadow;
+    final effectiveBgColor = color?.value ?? decoration?.backgroundColor?.value;
 
     final effectiveStyles = {
-      ...?decoration?.props,
+      ...?decoration?.props.without(['background-color']),
       ...?_border?.props,
-      'overflow': ?(clip ? 'hidden' : null),
-      if (_variant == CardVariant.glass)
-        kCardGlassColorVar: ?color?.value
-      else
-        'background-color': ?color?.value,
-      'height': ?height?.cssText,
-      'width': ?width?.cssText,
       ...?constraints?.props,
       ...?borderRadius?.props,
       ...?padding?.pProps,
       ...?gradient?.props,
+      if (_variant == CardVariant.glass)
+        kCardGlassColorVar: ?effectiveBgColor
+      else
+        'background-color': ?effectiveBgColor,
+      'overflow': ?(clip ? 'hidden' : null),
+      'height': ?height?.cssText,
+      'width': ?width?.cssText,
       if (shadow == null &&
           elevation != null &&
           _variant == CardVariant.elevated &&

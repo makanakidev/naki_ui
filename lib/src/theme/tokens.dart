@@ -679,10 +679,8 @@ abstract class Tokens {
 
   /// Strength of the light rim on a glass spinner
   /// (default: `100%`, CSS variable: `--naki-spinner-glass-rim`).
-  Token get spinnerGlassRim => Token(
-    value: spinnerGlassRimValue,
-    name: '--naki-spinner-glass-rim',
-  );
+  Token get spinnerGlassRim =>
+      Token(value: spinnerGlassRimValue, name: '--naki-spinner-glass-rim');
 
   // ===========================================================================
   // Spacing Tokens
@@ -1200,9 +1198,9 @@ abstract class Tokens {
       const Token(value: '12px', name: '--naki-tooltip-border-radius');
 
   /// Tooltip padding
-  /// (default: `10px`, CSS variable: `--naki-tooltip-padding`).
+  /// (default: `5px 10px`, CSS variable: `--naki-tooltip-padding`).
   Token get tooltipPadding =>
-      const Token(value: '10px', name: '--naki-tooltip-padding');
+      const Token(value: '5px 10px', name: '--naki-tooltip-padding');
 
   /// Tooltip font size
   /// (default: `14px`, CSS variable: `--naki-tooltip-font-size`).

@@ -1201,10 +1201,7 @@ class Spinner extends StatelessComponent {
         : null;
 
     const baseClass = 'naki-spinner';
-    final effectiveClasses = joinClasses([
-      ?classes,
-      baseClass,
-    ]);
+    final effectiveClasses = joinClasses([?classes, baseClass]);
 
     final effectiveStyles = {
       Tokens.current.spinnerSize.name: size.cssText,
@@ -1741,14 +1738,18 @@ class Banner extends StatelessComponent {
           ),
       ]),
 
-      // trailing close icon
+      // trailing close button
       if (dismissible)
-        Icon(
+        Button.icon(
           MaterialIcons.icon_round_close,
           size: 20,
-          color: closeIconColor ?? context.red,
+          padding: EdgeInsets.zero,
+          backgroundColor: Colors.transparent,
+          foregroundColor: closeIconColor ?? context.red,
+          height: Dim.auto,
+          width: Dim.auto,
           onTap: onClose,
-          semanticLabel: 'Dismiss',
+          attributes: const {'aria-label': 'Dismiss banner'},
         ),
     ];
 

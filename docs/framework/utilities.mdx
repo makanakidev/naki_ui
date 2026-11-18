@@ -19,6 +19,8 @@ final platform = PlatformData.current;
 
 // Device & OS detection
 final isApple = platform.isiOS || platform.isMacOS;
+// An iPad that requests the desktop site (Mac user agent) is iOS, not macOS:
+// isiOS and isiPad are true, isMacOS is false, os is 'iOS' and device is 'iPad'.
 final isMobile = platform.isMobile;
 final isDesktop = platform.isDesktop;
 final deviceName = platform.device; // 'iPhone', 'iPad', 'MacOS', 'Windows', 'Android', 'Linux'

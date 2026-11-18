@@ -60,15 +60,12 @@ const kBodyInsetBottomVar = '--naki-body-inset-bottom';
 /// (inputs, checkboxes, sliders, etc.) and helper method
 /// for color opacity manipulation.
 class Css {
-  /// Writes a variable token with its default value.
+  /// Writes a variable token with its fallback value.
   static String _var(Token token, [String? fallback]) =>
       'var($token, ${fallback ?? token.value})';
 
   /// White at [alpha], scaled by the rim strength in [token].
-  static String _glassRim(
-    double alpha, [
-    Token? token,
-  ]) {
+  static String _glassRim(double alpha, [Token? token]) {
     final strength = _var(token ?? Tokens.current.bottomNavbarGlassRim);
     return 'color-mix(in srgb, white calc($strength * $alpha), transparent)';
   }
@@ -529,9 +526,7 @@ class Css {
       'margin': '0',
     },
 
-    'not-checked': {
-      'color': _var(Tokens.current.secondaryColor),
-    },
+    'not-checked': {'color': _var(Tokens.current.secondaryColor)},
 
     'before': {
       'content': '""',
@@ -565,10 +560,7 @@ class Css {
   /// Default CSS styles map for styling range sliders
   /// (track, thumb, progress, tooltips).
   static final nakiSliderStyle = {
-    'wrapper': {
-      'display': 'flex',
-      'position': 'relative',
-    },
+    'wrapper': {'display': 'flex', 'position': 'relative'},
 
     'tooltip': {
       'position': 'absolute',
@@ -686,7 +678,7 @@ class Css {
     'actions': {
       'margin-left': 'auto',
       'display': 'flex',
-      'gap': '20px',
+      'gap': '15px',
       'align-items': 'center',
     },
   };
@@ -895,10 +887,7 @@ class Css {
           '${_var(Tokens.current.primaryColor)} 7%, transparent)',
     },
 
-    'fixed-tile': {
-      'flex': '1',
-      'max-width': '168px',
-    },
+    'fixed-tile': {'flex': '1', 'max-width': '168px'},
   };
 
   /// Default CSS styles map for styling buttons
@@ -940,10 +929,7 @@ class Css {
       'padding-bottom': safeAreaBottom,
     },
 
-    'appbar': {
-      'z-index': _appBarZindex,
-      'position': 'absolute',
-    },
+    'appbar': {'z-index': _appBarZindex, 'position': 'absolute'},
 
     'appbar-inset': {
       'box-sizing': 'border-box',
@@ -1391,6 +1377,7 @@ class Css {
   static final nakiBannerStyle = {
     'display': 'flex',
     'gap': '10px',
+    'justify-content': 'space-between',
     'background-color': _var(Tokens.current.bannerBgColor),
     'color': _var(Tokens.current.bannerForegroundColor),
     'border-radius': _var(Tokens.current.bannerBorderRadius),
@@ -1399,7 +1386,8 @@ class Css {
     'box-sizing': 'border-box',
     'width': '100%',
     'line-height': 'normal',
-    'overflow': 'clip',
+    'align-items': 'center',
+    'overflow': 'hidden',
   };
 
   /// Default CSS styles map for Tooltip.
@@ -1624,7 +1612,7 @@ class Css {
       'display': 'block',
       'position': 'sticky',
       'top': '0',
-      'z-index': _bottomSheetZindex,
+      'z-index': '1',
       'width': '70px',
       'height': '5px',
       'border-radius': '12px',

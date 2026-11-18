@@ -61,6 +61,11 @@ final class PlatformData extends BrowserPlatform {
   late final _parsedAgent = UaParser.parse(_userAgent);
   late final location = window.location;
 
+  late final bool _isDesktopModeIpad =
+      _parsedAgent.os.name == 'Mac OS' &&
+      window.navigator.maxTouchPoints == 1 &&
+      _userAgent.contains('Macintosh');
+
   @override
   String get name => _parsedAgent.browser.name ?? 'Chrome';
 
@@ -107,18 +112,15 @@ final class PlatformData extends BrowserPlatform {
   }
 
   @override
-  String get os => _parsedAgent.os.name ?? 'Unknown';
+  String get os =>
+      _isDesktopModeIpad ? 'iOS' : _parsedAgent.os.name ?? 'Unknown';
 
   @override
   String get device {
+    if (_isDesktopModeIpad) return 'iPad';
     final model = _parsedAgent.device.model;
     if (model != null) return model;
-    if (isIphone) return 'iPhone';
-    if (isiPad) return 'iPad';
-    if (isAndroid) return 'Android';
-    if (isWindows) return 'Windows';
-    if (isMacOS) return 'MacOS';
-    return 'Unknown';
+    return _parsedAgent.device.vendor ?? 'Unknown';
   }
 
   @override
@@ -153,12 +155,10 @@ final class PlatformData extends BrowserPlatform {
   bool get isIphone => isiOS && _userAgent.contains('iPhone');
 
   @override
-  bool get isiPad =>
-      (isiOS && _userAgent.contains('iPad')) ||
-      (isMacOS && window.navigator.maxTouchPoints > 1);
+  bool get isiPad => device == 'iPad' || _userAgent.contains('iPad');
 
   @override
-  bool get isMacOS => os == 'macOS';
+  bool get isMacOS => os == 'Mac OS';
 
   @override
   bool get isWindows => os == 'Windows';

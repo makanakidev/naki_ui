@@ -15,7 +15,7 @@ extension CssPropsExtension on Map<String, String> {
   /// ```dart
   /// final css = {'display': 'block', 'color': 'red'};
   /// final cssText = css.cssText;
-  /// // returns: 'display: block; color: red'
+  /// // returns: 'display: block; color: red;'
   /// ```
   String get cssText => entries.map((e) => '${e.key}: ${e.value};').join(' ');
 
@@ -47,20 +47,19 @@ extension CssPropsExtension on Map<String, String> {
     return map;
   }
 
-  /// Deletes [keys] and their values from this map and
-  /// returns a new map without them.
+  @Deprecated('This will be removed in v2.0.0. Use .without() instead.')
+  Map<String, String> except(Iterable<String> keys) => without(keys);
+
+  /// Returns a new map containing all entries except those with keys in [keys].
   ///
   /// Example:
   /// ```dart
   /// final style = {'color': 'red', 'font-size': '10px', 'font-weight': 'bold'};
-  /// final withoutColorAndSize = style.except(['color', 'font-size']);
+  /// final withoutColorAndSize = style.without(['color', 'font-size']);
   /// // returns: {'font-weight': 'bold'}
   /// ```
-  Map<String, String> except(List<String> keys) {
-    final map = Map<String, String>.of(this);
-    for (final key in keys) map.remove(key);
-    return map;
-  }
+  Map<String, String> without(Iterable<String> keys) =>
+      Map.fromEntries(entries.where((e) => !keys.contains(e.key)));
 
   /// Returns a new map containing only the entries in [keys].
   ///
@@ -70,11 +69,8 @@ extension CssPropsExtension on Map<String, String> {
   /// final onlyColorAndSize = style.only(['color', 'font-size']);
   /// // returns: {'color': 'red', 'font-size': '10px'}
   /// ```
-  Map<String, String> only(List<String> keys) {
-    final map = <String, String>{};
-    for (final key in keys) if (containsKey(key)) map[key] = this[key]!;
-    return map;
-  }
+  Map<String, String> only(Iterable<String> keys) =>
+      Map.fromEntries(entries.where((e) => keys.contains(e.key)));
 }
 
 /// Extension on [ValueListenable] for reactive component rebuilds.
@@ -920,9 +916,7 @@ extension DateTimeExtension on DateTime {
       end.day,
     ).difference(DateTime.utc(year, month, day)).inDays;
 
-    return [
-      for (var i = 0; i <= count; i++) DateTime(year, month, day + i),
-    ];
+    return [for (var i = 0; i <= count; i++) DateTime(year, month, day + i)];
   }
 
   /// Returns true if this calendar day is earlier than the day of [date],
@@ -934,9 +928,11 @@ extension DateTimeExtension on DateTime {
   /// final check = date.isBeforeDay(DateTime(2024, 2, 24, 8, 0));
   /// // returns: false
   /// ```
-  bool isBeforeDay(DateTime date) => DateTime.utc(year, month, day).isBefore(
-    DateTime.utc(date.year, date.month, date.day),
-  );
+  bool isBeforeDay(DateTime date) => DateTime.utc(
+    year,
+    month,
+    day,
+  ).isBefore(DateTime.utc(date.year, date.month, date.day));
 
   /// Formats time as '10:30:05 PM'.
   ///

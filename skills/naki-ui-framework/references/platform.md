@@ -52,6 +52,8 @@ final isMac = platform.isMacOS;
 final isIos = platform.isiOS;
 final isIphone = platform.isIphone;
 final isIpad = platform.isiPad;
+// An iPad that requests the desktop site (Mac user agent) is iOS, not macOS:
+// isiOS and isiPad are true, isMacOS is false, os is 'iOS' and device is 'iPad'.
 
 // Form factor classification
 final isMobile = platform.isMobile;

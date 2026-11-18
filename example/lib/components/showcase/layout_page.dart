@@ -215,9 +215,6 @@ class LayoutPage extends StatelessComponent {
                 title: const NakiText('Does it hydrate?'),
                 leading: const Icon(MaterialIcons.icon_round_info, size: 18),
                 backgroundColor: context.surfaceVariantColor,
-                collapsedShape: const BorderData.only(
-                  radius: BorderRadiusData.circular,
-                ),
                 radius: BorderRadiusData.all(const Dim.px(20)),
                 children: const [
                   NakiText('Yes, on top of Jaspr server rendering.'),

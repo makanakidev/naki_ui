@@ -163,7 +163,7 @@ class BreakPointWrapper extends StatelessComponent {
   final double? maxWidth;
 
   /// {@macro BreakPointWrapper}
-  BreakPointWrapper({
+  const BreakPointWrapper({
     super.key,
     required this.child,
     this.minWidth,
@@ -203,9 +203,6 @@ class BreakPointWrapper extends StatelessComponent {
       ]),
     ];
 
-    // the wrapper comes first: a fragment that starts with a head portal
-    // (which renders elsewhere) breaks Jaspr's placement when nested in
-    // another fragment, e.g. several BreakPointWrappers in `.fragment([])`
     return .fragment([
       span(classes: 'naki-breakpoint br-$id', [child]),
       Document.head(children: [StyleRules(styles, id: id)]),

@@ -481,10 +481,12 @@ class _SnackbarState extends State<Snackbar>
       if (component.showCloseIcon)
         Button.icon(
           MaterialIcons.icon_round_close,
-          size: 18,
+          size: 20,
           padding: EdgeInsets.zero,
           backgroundColor: Colors.transparent,
           foregroundColor: component.closeIconColor ?? context.red,
+          height: Dim.auto,
+          width: Dim.auto,
           onTap: _close,
           attributes: const {'aria-label': 'Close notification'},
         ),
@@ -603,6 +605,26 @@ class Tooltip extends StatefulComponent {
 
 class _TooltipState extends State<Tooltip>
     with NakiStatefulMixin, NakiPlacementMixin {
+  late final tooltipId = nakiDomId(context, 'tooltip', id: component.id);
+
+  /// Parses the maximum border radius from a given string.
+  double _parseMaxRadius(String? radiusStr, {double fallback = 12.0}) {
+    if (radiusStr.isNullOrEmpty) return fallback;
+
+    final parts = radiusStr!.trim().split(RegExp(r'\s+'));
+    final radii = <double>[];
+
+    for (final part in parts) {
+      final cleaned = part.replaceAll(RegExp(r'[^0-9.]'), '');
+      final val = double.tryParse(cleaned);
+      if (val != null) radii.add(val);
+    }
+
+    if (radii.isEmpty) return fallback;
+
+    return radii.reduce((a, b) => a > b ? a : b);
+  }
+
   @override
   Map<String, String> computePlacement(
     HTMLElement overlay,
@@ -610,8 +632,12 @@ class _TooltipState extends State<Tooltip>
     ({double top, double right, double bottom, double left}) bounds,
   ) {
     const gap = 8.0;
-    const arrowLength = 6.0;
-    const arrowInset = 14.0;
+    const arrowLength = 8.0;
+    const arrowHalfBase = 6.0;
+    const arrowOverlap = 1.0;
+
+    final maxCornerRadius = _parseMaxRadius(component.borderRadius?.value);
+    final arrowInset = maxCornerRadius + arrowHalfBase;
 
     final position = component.position;
     final tip = elementEdges(overlay);
@@ -648,15 +674,16 @@ class _TooltipState extends State<Tooltip>
     final flipped = sideShift.abs() >= size + targetSize;
     final startsBefore =
         position == TooltipPosition.top || position == TooltipPosition.left;
-    final arrowSide = !flipped
-        ? 0.0
-        : (startsBefore ? -1 : 1) * (size + arrowLength - 1);
 
     final limit = max(0.0, across / 2 - arrowInset);
-    final arrowSlide = (-slide).clamp(-limit, limit);
+    final arrowSlide = (-slide).clamp(-limit, limit).roundDown;
+
+    final crossing = (size + arrowLength - 2 * arrowOverlap).roundDown;
+    final arrowSide = !flipped ? 0 : (startsBefore ? -crossing : crossing);
 
     return {
-      'translate': '${placed.shiftX}px ${placed.shiftY}px',
+      'translate':
+          '${placed.shiftX.roundDown.toPx} ${placed.shiftY.roundDown.toPx}',
       kTooltipArrowXVar: '${vertical ? arrowSlide : arrowSide}px',
       kTooltipArrowYVar: '${vertical ? arrowSide : arrowSlide}px',
       if (flipped) kTooltipArrowRotateVar: '180deg',
@@ -665,7 +692,6 @@ class _TooltipState extends State<Tooltip>
 
   @override
   FutureOr<VoidCallback?> afterRender(BuildContext context) {
-    final tooltipId = nakiDomId(context, 'tooltip', id: component.id);
     final root = document.getElementById(tooltipId) as HTMLElement?;
 
     final target =
@@ -712,7 +738,6 @@ class _TooltipState extends State<Tooltip>
 
   @override
   Component build(BuildContext context) {
-    final tooltipId = nakiDomId(context, 'tooltip', id: component.id);
     final contentId = '${tooltipId}_content';
 
     final effectiveStyles = {
@@ -725,8 +750,6 @@ class _TooltipState extends State<Tooltip>
 
     final baseClass = 'naki-tooltip-content tooltip-${component.position.name}';
     final effectiveClasses = joinClasses([?component.classes, baseClass]);
-
-    final effectiveContent = component.content ?? .text(component.text!);
 
     return .element(
       tag: 'naki-tooltip',
@@ -757,7 +780,7 @@ class _TooltipState extends State<Tooltip>
           styles: Styles(
             raw: {...?component.sizeConstraints?.props, ...placement},
           ),
-          [effectiveContent],
+          [component.content ?? .text(component.text!)],
         ),
       ],
     );
@@ -1889,10 +1912,7 @@ class _PopoverState extends State<Popover> with NakiPlacementMixin {
         div(
           key: placementKey,
           classes: effectiveClasses,
-          attributes: {
-            'role': 'dialog',
-            'aria-label': component.semanticLabel,
-          },
+          attributes: {'role': 'dialog', 'aria-label': component.semanticLabel},
           styles: Styles(raw: effectiveStyles),
           [component.content],
         ),

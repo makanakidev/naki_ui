@@ -1,5 +1,6 @@
 # Repository-internal tooling and automation
 /.*
+!/.gitignore
 /playground/
 /test/
 

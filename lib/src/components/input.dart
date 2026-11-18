@@ -305,6 +305,7 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
   /// [validator], then any native constraint (pattern, type, length, ...).
   String _computeError() {
     final value = currentValue ?? '';
+
     final custom = required && value.isEmpty
         ? 'This field is required'
         : validator?.call(value) ?? '';
@@ -329,8 +330,8 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
     if (!kIsWeb) return;
 
     NakiDebounce.cancel('validate_$id');
-    final error = _computeError();
 
+    final error = _computeError();
     if (_shouldValidate) showValidationError(id, error);
 
     _setValidity(error == _nativeValidationMessage ? '' : error);
@@ -400,17 +401,15 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
 
     final node = inputNode;
     final handled = node != null && NakiFormFields.focusNextOrSubmit(node);
-
     if (handled || onSubmit != null) event.preventDefault();
   }
 
   @override
   Component build(BuildContext context) {
     final iconsWrapperId = nakiDomId(context, 'iconsWrapper');
-
     final hasIcon = leadingIcon != null || trailingIcon != null;
-    final effectiveWidth = expand ? null : width;
 
+    final effectiveWidth = expand ? const Dim.percent(100) : width;
     final baseClass = 'naki-${isMultiline ? 'textarea' : 'input'}';
     final effectiveClasses = joinClasses([?classes, 'naki-form-field']);
 
@@ -436,19 +435,17 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
 
     void _focusIconsWrapper(bool isFocus) {
       final wrapper = document.getElementById(iconsWrapperId) as HTMLElement?;
-      if (wrapper == null || !allowFocus) return;
-
-      if (isFocus) {
-        wrapper.setAttribute('data-focused', '');
-      } else {
-        wrapper.removeAttribute('data-focused');
+      if (wrapper != null && allowFocus) {
+        isFocus
+            ? wrapper.setAttribute('data-focused', '')
+            : wrapper.removeAttribute('data-focused');
       }
     }
 
     final defaultEvents = InputEvents(
       onInvalid: _invalid,
       onKeyDown: _handleSubmit,
-      onFocusIn: hasIcon ? (_) => _focusIconsWrapper(true) : null,
+      onFocusIn: (_) => _focusIconsWrapper(true),
       onFocusOut: (_) {
         _focusIconsWrapper(false);
         _validate();
@@ -528,30 +525,31 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
             events: effectiveEvents.toMap,
           );
 
-    if (expand) {
-      inputArea = Expanded(child: inputArea);
-      if (!hasIcon)
-        inputArea = Row(mainAxisSize: MainAxisSize.min, children: [inputArea]);
-    }
-
     if (hasIcon) {
       inputArea = .wrapElement(
         id: iconsWrapperId,
-        classes: baseClass,
         attributes: {
           'hvr': ?(allowHover ? '' : null),
           'fcs': ?(allowFocus ? '' : null),
           'disabled': ?(disable ? '' : null),
           'has-icon': '',
         },
-        child: Card.filled(
-          decoration: BoxDecoration(border: border),
+        child: Container(
+          classes: baseClass,
           height: height,
           width: effectiveWidth,
-          color: backgroundColor,
+          decoration: BoxDecoration(
+            border: border,
+            backgroundColor: backgroundColor,
+          ),
           child: Row(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [?leadingIcon, inputArea, ?trailingIcon],
+            children: [
+              ?leadingIcon,
+              Expanded(child: inputArea),
+              ?trailingIcon,
+            ],
           ),
         ),
       );
@@ -574,6 +572,7 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
           Tokens.current.placeholderColor.name: ?placeholderColor?.value,
           Tokens.current.fieldHoverColor.name: ?hoverColor?.value,
           Tokens.current.focusBorderColor.name: ?focusColor?.value,
+          if (expand) 'width': '100%',
           ...?margin?.mProps,
         },
       ),

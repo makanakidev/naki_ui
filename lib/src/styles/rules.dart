@@ -168,7 +168,7 @@ class Rules {
     ),
   ];
 
-  /// Writes a variable token with its default value.
+  /// Writes a variable token with its fallback value.
   static String _var(Token token, [String? fallback]) =>
       'var($token, ${fallback ?? token.value})';
 
@@ -293,9 +293,7 @@ class Rules {
     css.supports('(view-transition-name: root)', [
       css('html').styles(raw: {'view-transition-name': 'root'}),
 
-      css(
-        '::view-transition-old(root), ::view-transition-new(root)',
-      ).styles(
+      css('::view-transition-old(root), ::view-transition-new(root)').styles(
         raw: {
           'animation-duration': '250ms',
           'animation-timing-function': 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
@@ -309,9 +307,9 @@ class Rules {
 
     // ensure section elements are not hidden by the appbar when
     // scrolling to them via anchor links
-    css('section').styles(
-      raw: {'scroll-margin-top': _var(Tokens.current.appbarHeight)},
-    ),
+    css(
+      'section',
+    ).styles(raw: {'scroll-margin-top': _var(Tokens.current.appbarHeight)}),
 
     // override browser's focus outline on buttons, links, and inputs
     css(':is(html) :focus-visible:not([fcs])').styles(raw: {'outline': 'none'}),
@@ -319,7 +317,9 @@ class Rules {
     // iOS Safari zooms into inputs below 16px on focus; keep inputs at 16px
     // there instead of disabling pinch-zoom for everyone (WCAG 1.4.4)
     css.supports('(-webkit-touch-callout: none)', [
-      css('input, textarea, select').styles(
+      css(
+        'input, textarea, select',
+      ).styles(
         raw: {
           'font-size':
               'max(16px, ${_var(Tokens.current.fontSizeInput)}) !important',
@@ -430,9 +430,7 @@ class Rules {
     css('&:disabled').styles(raw: {'cursor': 'not-allowed'}),
 
     // leading / trailing icon
-    css(
-      '.naki-icon',
-    ).styles(raw: {'height': _var(Tokens.current.inputHeight)}),
+    css('.naki-icon').styles(raw: {'height': _var(Tokens.current.inputHeight)}),
 
     // input
     css('input, input.naki-input').styles(raw: Css.nakiInputStyle['input']),
@@ -479,9 +477,7 @@ class Rules {
     css('&:disabled').styles(raw: {'cursor': 'not-allowed'}),
 
     // leading / trailing icon
-    css('.naki-icon').styles(
-      raw: {'height': _var(Tokens.current.inputHeight)},
-    ),
+    css('.naki-icon').styles(raw: {'height': _var(Tokens.current.inputHeight)}),
 
     // textarea
     css(
@@ -542,10 +538,12 @@ class Rules {
 
       // wrapped trigger
       css('.naki-calendar-trigger', [
+        css('&').styles(raw: {'cursor': 'pointer'}),
+
         // no-value state
-        css('&[novalue]').styles(
-          raw: {'color': _var(Tokens.current.placeholderColor)},
-        ),
+        css(
+          '&[novalue]',
+        ).styles(raw: {'color': _var(Tokens.current.placeholderColor)}),
 
         // disabled state
         css('&[disabled]').styles(raw: Css.nakiDisabledStyle),
@@ -628,12 +626,7 @@ class Rules {
 
         // date picker
         css('.naki-date-picker', [
-          css('&').styles(
-            raw: {
-              'width': '100%',
-              'padding': '6px 4px 0',
-            },
-          ),
+          css('&').styles(raw: {'width': '100%', 'padding': '6px 4px 0'}),
 
           // header button
           css(
@@ -753,7 +746,9 @@ class Rules {
               ).styles(raw: {'border-radius': '0 999px 999px 0'}),
 
               // today
-              css('&[data-today]').styles(
+              css(
+                '&[data-today]',
+              ).styles(
                 raw: {
                   'border': '1px solid ${_var(Tokens.current.primaryColor)}',
                 },
@@ -782,12 +777,7 @@ class Rules {
 
         // time picker
         css('.naki-time-picker', [
-          css('&').styles(
-            raw: {
-              'width': '100%',
-              'padding': '10px 12px 0',
-            },
-          ),
+          css('&').styles(raw: {'width': '100%', 'padding': '10px 12px 0'}),
 
           // steppers separator
           css('.naki-time-separator').styles(
@@ -844,7 +834,6 @@ class Rules {
                 'color': _var(Tokens.current.inputTextColor),
                 'background-color': _var(Tokens.current.dropdownMenuBgColor),
                 'box-shadow': '0 1px 2px rgb(0 0 0 / 0.06)',
-                '-moz-appearance': 'textfield',
               },
             ),
 
@@ -968,9 +957,7 @@ class Rules {
       // round shape
       css('&[shape="round"]').styles(raw: {'border-radius': '999px'}),
 
-      css(
-        '&[fcs]:is(:focus)',
-      ).styles(raw: Css.nakiFocusBorderStyle),
+      css('&[fcs]:is(:focus)').styles(raw: Css.nakiFocusBorderStyle),
 
       // tick (default)
       css('&::before').styles(raw: Css.nakiCheckboxStyle['before']),
@@ -994,9 +981,7 @@ class Rules {
     css('.naki-switch', [
       css('&').styles(raw: Css.nakiSwitchStyle['input']),
 
-      css(
-        '&[fcs]:is(:focus)',
-      ).styles(raw: Css.nakiFocusBorderStyle),
+      css('&[fcs]:is(:focus)').styles(raw: Css.nakiFocusBorderStyle),
 
       // track (default)
       css('&:not(:checked)').styles(raw: Css.nakiSwitchStyle['not-checked']),
@@ -1108,9 +1093,7 @@ class Rules {
       css('& > .naki-navbar-tile', [
         css('&').styles(raw: {'width': '100%'}),
 
-        css(
-          '&:is(:focus-within)',
-        ).styles(
+        css('&:is(:focus-within)').styles(
           raw: {
             'border-radius': '10px',
             'height': 'calc(100% - 12px)',
@@ -1130,9 +1113,7 @@ class Rules {
       css('& > .naki-navbar-tile', [
         css('&').styles(raw: Css.nakiBottomNavBarStyle['fixed-tile']),
 
-        css(
-          '&:is(:focus-within)',
-        ).styles(
+        css('&:is(:focus-within)').styles(
           raw: {
             'border-radius': 'inherit',
             'transition': 'height $_fastTransition',
@@ -1180,7 +1161,9 @@ class Rules {
                 Css.nakiBottomNavBarStyle['frosted-glass-reduced-transparency'],
           ),
           css('&::before').styles(raw: {'display': 'none'}),
-          css('& > .naki-navbar-indicator').styles(
+          css(
+            '& > .naki-navbar-indicator',
+          ).styles(
             raw: Css.nakiBottomNavBarStyle['frosted-glass-solid-indicator'],
           ),
         ],
@@ -1204,22 +1187,26 @@ class Rules {
       ]),
 
       css.media(const MediaQuery.raw('(prefers-contrast: more)'), [
-        css('&').styles(
-          raw: Css.nakiBottomNavBarStyle['frosted-glass-high-contrast'],
-        ),
+        css(
+          '&',
+        ).styles(raw: Css.nakiBottomNavBarStyle['frosted-glass-high-contrast']),
         css('&::before').styles(raw: {'display': 'none'}),
-        css('& > .naki-navbar-indicator').styles(
+        css(
+          '& > .naki-navbar-indicator',
+        ).styles(
           raw: Css
               .nakiBottomNavBarStyle['frosted-glass-high-contrast-indicator'],
         ),
       ]),
 
       css.media(const MediaQuery.raw('(forced-colors: active)'), [
-        css('&').styles(
-          raw: Css.nakiBottomNavBarStyle['frosted-glass-forced-colors'],
-        ),
+        css(
+          '&',
+        ).styles(raw: Css.nakiBottomNavBarStyle['frosted-glass-forced-colors']),
         css('&::before').styles(raw: {'display': 'none'}),
-        css('& > .naki-navbar-indicator').styles(
+        css(
+          '& > .naki-navbar-indicator',
+        ).styles(
           raw: Css
               .nakiBottomNavBarStyle['frosted-glass-forced-colors-indicator'],
         ),
@@ -1256,7 +1243,9 @@ class Rules {
   /// Button rules
   static final nakiButtonRules = css('.naki-button', [
     // button
-    css('&').styles(
+    css(
+      '&',
+    ).styles(
       raw: Css.nakiButtonStyle.combine({
         'transition': 'background-color $_fastTransition',
       }),
@@ -1271,9 +1260,7 @@ class Rules {
 
     // hover state
     css('&[hvr]:hover').styles(
-      raw: {
-        'background-color': _var(Tokens.current.buttonHoverBgColor),
-      },
+      raw: {'background-color': _var(Tokens.current.buttonHoverBgColor)},
     ),
 
     // scale down when tapped
@@ -1299,9 +1286,7 @@ class Rules {
     ).styles(raw: Css.nakiScaffoldStyle['appbar']),
 
     // the app bar paints behind the status bar, so it owns the top inset
-    css(
-      '&:has(> .naki-appbar-wrapper)',
-    ).styles(raw: {'padding-top': '0'}),
+    css('&:has(> .naki-appbar-wrapper)').styles(raw: {'padding-top': '0'}),
 
     css(
       '& > .naki-appbar-wrapper .naki-appbar',
@@ -1335,9 +1320,9 @@ class Rules {
     css('.naki-scaffold-body', [
       css('&').styles(raw: Css.nakiScaffoldStyle['body']),
 
-      css('&:has(> .$kInsetOwnerClass)').styles(
-        raw: Css.nakiScaffoldStyle['inset-owner-body'],
-      ),
+      css(
+        '&:has(> .$kInsetOwnerClass)',
+      ).styles(raw: Css.nakiScaffoldStyle['inset-owner-body']),
     ]),
 
     // extendBody: fixed navbar overlays the body as well
@@ -1430,16 +1415,18 @@ class Rules {
     css('&.naki-card--glass', [
       css('&').styles(raw: Css.nakiCardStyle['glass']),
 
-      css('&.naki-card--interactive[hvr]:hover').styles(
-        raw: Css.nakiCardStyle['glass-hover'],
-      ),
+      css(
+        '&.naki-card--interactive[hvr]:hover',
+      ).styles(raw: Css.nakiCardStyle['glass-hover']),
 
       ..._glassFallbacks(Css.nakiCardStyle),
     ]),
 
     // interactive card
     css('&.naki-card--interactive', [
-      css('&').styles(
+      css(
+        '&',
+      ).styles(
         raw: {
           'cursor': 'pointer',
           '-webkit-user-select': 'none',
@@ -1525,9 +1512,7 @@ class Rules {
       css('&').styles(raw: Css.nakiRadioBtnStyle['input']),
 
       // when focused
-      css(
-        '&[fcs]:is(:focus)',
-      ).styles(raw: Css.nakiFocusBorderStyle),
+      css('&[fcs]:is(:focus)').styles(raw: Css.nakiFocusBorderStyle),
 
       // dot indicator (default)
       css('&::before').styles(raw: Css.nakiRadioBtnStyle['before']),
@@ -1583,11 +1568,9 @@ class Rules {
       // wrapped trigger
       css('.naki-dropdown-trigger', [
         // color when no selection is made
-        css('&:not([data-selected])').styles(
-          raw: {
-            'color': _var(Tokens.current.placeholderColor),
-          },
-        ),
+        css(
+          '&:not([data-selected])',
+        ).styles(raw: {'color': _var(Tokens.current.placeholderColor)}),
 
         // disabled state
         css('&[aria-disabled="true"]').styles(raw: Css.nakiDisabledStyle),
@@ -1838,9 +1821,9 @@ class Rules {
     ]),
 
     // PageController.animateToPage drives the scroll position itself
-    css('&[data-animating]').styles(
-      raw: {'scroll-snap-type': 'none !important'},
-    ),
+    css(
+      '&[data-animating]',
+    ).styles(raw: {'scroll-snap-type': 'none !important'}),
 
     //
     css('&[snap] > *').styles(raw: {'scroll-snap-stop': 'always'}),
@@ -1910,9 +1893,9 @@ class Rules {
     css('td').styles(raw: {'padding': '12px 16px'}),
 
     // row hover state
-    css('tbody tr[hvr]:hover').styles(
-      raw: {'background-color': _var(Tokens.current.tableRowHoverBg)},
-    ),
+    css(
+      'tbody tr[hvr]:hover',
+    ).styles(raw: {'background-color': _var(Tokens.current.tableRowHoverBg)}),
   ]);
 
   /// Aspect ratio rules
@@ -1994,9 +1977,7 @@ class Rules {
     ),
 
     // top-left position
-    css(
-      '&.sb-top-left',
-    ).styles(
+    css('&.sb-top-left').styles(
       raw: {
         'top':
             'max(${_var(Tokens.current.snackbarOffset)}, calc(10px + ${Css.safeAreaTop}))',
@@ -2005,9 +1986,7 @@ class Rules {
     ),
 
     // top-right position
-    css(
-      '&.sb-top-right',
-    ).styles(
+    css('&.sb-top-right').styles(
       raw: {
         'top':
             'max(${_var(Tokens.current.snackbarOffset)}, calc(10px + ${Css.safeAreaTop}))',
@@ -2016,9 +1995,7 @@ class Rules {
     ),
 
     // bottom-left position
-    css(
-      '&.sb-bottom-left',
-    ).styles(
+    css('&.sb-bottom-left').styles(
       raw: {
         'bottom':
             'max(${_var(Tokens.current.snackbarOffset)}, calc(10px + ${Css.safeAreaBottom}))',
@@ -2027,9 +2004,7 @@ class Rules {
     ),
 
     // bottom-right position
-    css(
-      '&.sb-bottom-right',
-    ).styles(
+    css('&.sb-bottom-right').styles(
       raw: {
         'bottom':
             'max(${_var(Tokens.current.snackbarOffset)}, calc(10px + ${Css.safeAreaBottom}))',
@@ -2046,17 +2021,16 @@ class Rules {
     // content area
     css('.banner-content').styles(
       raw: {
-        'flex': '1',
+        'flex': '1 1 0%',
         'display': 'flex',
         'flex-direction': 'column',
-        'height': 'auto',
         'gap': '4px',
         'text-wrap': 'wrap',
       },
     ),
 
     // actions area
-    css('.banner-actions').styles(raw: {'margin-top': '10px', 'gap': '10px'}),
+    css('.banner-actions').styles(raw: {'margin-top': '10px', 'gap': '15px'}),
 
     // info banner
     css('&.banner-info').styles(
@@ -2100,17 +2074,8 @@ class Rules {
     css('.naki-tooltip-content').styles(raw: Css.nakiTooltipStyle['content']),
 
     // arrow spike base style
-    css(
-      '.naki-tooltip-content::after',
-    ).styles(
-      raw: {
-        'content': '""',
-        'position': 'absolute',
-        'border-style': 'solid',
-        'translate':
-            'var($kTooltipArrowXVar, 0px) var($kTooltipArrowYVar, 0px)',
-        'rotate': 'var($kTooltipArrowRotateVar, 0deg)',
-      },
+    css('.naki-tooltip-content::after').styles(
+      raw: {'content': '""', 'position': 'absolute', 'border-style': 'solid'},
     ),
 
     // show tooltip on target hover or focus
@@ -2137,9 +2102,12 @@ class Rules {
     // top tooltip arrow
     css('.tooltip-top::after').styles(
       raw: {
-        'top': '100%',
-        'left': 'calc(50% - 6px)',
-        'border-width': '6px 6px 0 6px',
+        'top': 'calc(100% - 1px)',
+        'left': '50%',
+        'translate':
+            'calc(-50% + var($kTooltipArrowXVar, 0px)) var($kTooltipArrowYVar, 0px)',
+        'rotate': 'var($kTooltipArrowRotateVar, 0deg)',
+        'border-width': '8px 6px 0 6px',
         'border-color':
             '${_var(Tokens.current.tooltipBgColor)} '
             'transparent transparent transparent',
@@ -2160,9 +2128,12 @@ class Rules {
     // bottom tooltip arrow
     css('.tooltip-bottom::after').styles(
       raw: {
-        'bottom': '100%',
-        'left': 'calc(50% - 6px)',
-        'border-width': '0 6px 6px 6px',
+        'bottom': 'calc(100% - 1px)',
+        'left': '50%',
+        'translate':
+            'calc(-50% + var($kTooltipArrowXVar, 0px)) var($kTooltipArrowYVar, 0px)',
+        'rotate': 'var($kTooltipArrowRotateVar, 0deg)',
+        'border-width': '0 6px 8px 6px',
         'border-color':
             'transparent transparent '
             '${_var(Tokens.current.tooltipBgColor)} transparent',
@@ -2181,9 +2152,12 @@ class Rules {
     // left tooltip arrow
     css('.tooltip-left::after').styles(
       raw: {
-        'left': '100%',
-        'top': 'calc(50% - 6px)',
-        'border-width': '6px 0 6px 6px',
+        'left': 'calc(100% - 1px)',
+        'top': '50%',
+        'translate':
+            'var($kTooltipArrowXVar, 0px) calc(-50% + var($kTooltipArrowYVar, 0px))',
+        'rotate': 'var($kTooltipArrowRotateVar, 0deg)',
+        'border-width': '6px 0 6px 8px',
         'border-color':
             'transparent transparent transparent '
             '${_var(Tokens.current.tooltipBgColor)}',
@@ -2204,9 +2178,12 @@ class Rules {
     // right tooltip arrow
     css('.tooltip-right::after').styles(
       raw: {
-        'right': '100%',
-        'top': 'calc(50% - 6px)',
-        'border-width': '6px 6px 6px 0',
+        'right': 'calc(100% - 1px)',
+        'top': '50%',
+        'translate':
+            'var($kTooltipArrowXVar, 0px) calc(-50% + var($kTooltipArrowYVar, 0px))',
+        'rotate': 'var($kTooltipArrowRotateVar, 0deg)',
+        'border-width': '6px 8px 6px 0',
         'border-color':
             'transparent ${_var(Tokens.current.tooltipBgColor)} '
             'transparent transparent',
@@ -2497,18 +2474,20 @@ class Rules {
       // exit backdrop
       css(
         '&[data-exiting="true"]',
-      ).styles(
-        raw: {'animation': 'nakiScrimOut 150ms linear both'},
-      ),
+      ).styles(raw: {'animation': 'nakiScrimOut 150ms linear both'}),
 
       // content container
       css('.naki-dialog-content').styles(raw: Css.nakiDialogStyle['container']),
 
       // content and actions fade in after the container starts growing
-      css('.naki-dialog-content > *').styles(
+      css(
+        '.naki-dialog-content > *',
+      ).styles(
         raw: {'animation': 'nakiDialogFadeIn 200ms linear 50ms backwards'},
       ),
-      css('.naki-dialog-content > .naki-dialog-actions').styles(
+      css(
+        '.naki-dialog-content > .naki-dialog-actions',
+      ).styles(
         raw: {'animation': 'nakiDialogFadeIn 150ms linear 150ms backwards'},
       ),
 
@@ -2521,9 +2500,9 @@ class Rules {
                 'nakiDialogFadeOut 50ms linear 100ms forwards',
           },
         ),
-        css('& > *').styles(
-          raw: {'animation': 'nakiDialogFadeOut 100ms linear forwards'},
-        ),
+        css(
+          '& > *',
+        ).styles(raw: {'animation': 'nakiDialogFadeOut 100ms linear forwards'}),
       ]),
 
       // center position (default)
@@ -2546,9 +2525,9 @@ class Rules {
       css('&.dialog-glass', [
         css('&').styles(raw: Css.nakiDialogStyle['glass-backdrop']),
 
-        css('&[data-exiting="true"]').styles(
-          raw: Css.nakiDialogStyle['glass-backdrop-exit'],
-        ),
+        css(
+          '&[data-exiting="true"]',
+        ).styles(raw: Css.nakiDialogStyle['glass-backdrop-exit']),
 
         css('.naki-dialog-content', [
           css('&').styles(raw: Css.nakiDialogStyle['glass']),
@@ -2666,12 +2645,6 @@ class Rules {
   ];
 
   /// BottomSheet rules
-  ///
-  /// Material 3 motion, from Compose's ModalBottomSheet: the sheet shows on the
-  /// DefaultSpatial spring (210ms cubic-bezier(0.2, 0.05, 0.25, 1)) and hides
-  /// on the FastEffects spring (120ms cubic-bezier(0.25, 0.3, 0.15, 1)), while
-  /// the scrim fades on its own on the DefaultEffects spring
-  /// (190ms cubic-bezier(0.25, 0.3, 0.15, 1)).
   static final nakiBottomSheetRules = [
     ..._scrimKeyframes,
 

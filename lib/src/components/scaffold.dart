@@ -21,6 +21,7 @@ import '../utilities/constants.dart';
 import '../utilities/enums.dart';
 import '../utilities/extensions.dart';
 import '../utilities/helpers.dart';
+import '../utilities/refraction.dart';
 
 import 'basics.dart' show Button, Column, GestureDetector, Icon, NakiText, Row;
 import 'layout.dart' show Padding;
@@ -478,116 +479,20 @@ class BottomNavigationBar extends StatefulComponent {
   ]);
 }
 
-/// Measured sizes of a liquid glass bar and its selection droplet.
-class _RefractionSize {
-  final int barWidth;
-  final int barHeight;
-  final int dropletWidth;
-  final int dropletHeight;
+// Both use a soft gradient that reaches deep into the glass, so the whole bar
+// bends the content behind it, pulling it in from past the edge.
 
-  const _RefractionSize({
-    required this.barWidth,
-    required this.barHeight,
-    required this.dropletWidth,
-    required this.dropletHeight,
-  });
+/// Glass of a liquid glass bar. It peaks at a 13px bend.
+const _barGlass = RefractionShape(
+  bezel: 12,
+  thickness: 13,
+);
 
-  @override
-  bool operator ==(Object other) =>
-      other is _RefractionSize &&
-      other.barWidth == barWidth &&
-      other.barHeight == barHeight &&
-      other.dropletWidth == dropletWidth &&
-      other.dropletHeight == dropletHeight;
-
-  @override
-  int get hashCode =>
-      Object.hash(barWidth, barHeight, dropletWidth, dropletHeight);
-}
-
-/// Builds a displacement map for a pill of [width] by [height].
-///
-/// Red encodes horizontal and blue vertical displacement. The neutral gray
-/// center leaves the middle untouched, so only the [bezel] bends content.
-String _refractionMap(int width, int height, int bezel) {
-  final radius = height / 2;
-  final innerRadius = radius - bezel;
-
-  return '<svg xmlns="http://www.w3.org/2000/svg" '
-      'width="$width" height="$height">'
-      '<defs>'
-      '<linearGradient id="r" x1="1" x2="0">'
-      '<stop offset="0" stop-color="#000"/>'
-      '<stop offset="1" stop-color="#f00"/>'
-      '</linearGradient>'
-      '<linearGradient id="b" x2="0" y2="1">'
-      '<stop offset="0" stop-color="#000"/>'
-      '<stop offset="1" stop-color="#00f"/>'
-      '</linearGradient>'
-      '</defs>'
-      '<rect width="$width" height="$height" fill="#000"/>'
-      '<rect width="$width" height="$height" rx="$radius" fill="url(#r)"/>'
-      '<rect width="$width" height="$height" rx="$radius" fill="url(#b)" '
-      'style="mix-blend-mode:difference"/>'
-      '<rect x="$bezel" y="$bezel" width="${width - bezel * 2}" '
-      'height="${height - bezel * 2}" rx="$innerRadius" fill="#808080" '
-      'fill-opacity=".97" style="filter:blur(${bezel / 2}px)"/>'
-      '</svg>';
-}
-
-/// A filter that bends the [bezel] of a [width] by [height] pill.
-Component _refractionFilter({
-  required String id,
-  required int width,
-  required int height,
-  required int strength,
-  required int bezel,
-}) {
-  final map = Uri.encodeComponent(_refractionMap(width, height, bezel));
-
-  return .element(
-    tag: 'filter',
-    attributes: {
-      'id': id,
-      'x': '0',
-      'y': '0',
-      'width': '$width',
-      'height': '$height',
-      'filterUnits': 'userSpaceOnUse',
-      'primitiveUnits': 'userSpaceOnUse',
-      'color-interpolation-filters': 'sRGB',
-    },
-    children: [
-      .element(
-        tag: 'feImage',
-        attributes: {
-          'href': 'data:image/svg+xml,$map',
-          'x': '0',
-          'y': '0',
-          'width': '$width',
-          'height': '$height',
-          'preserveAspectRatio': 'none',
-          'result': 'map',
-        },
-      ),
-      .element(
-        tag: 'feDisplacementMap',
-        attributes: {
-          'in': 'SourceGraphic',
-          'in2': 'map',
-          'scale': '-$strength',
-          'xChannelSelector': 'R',
-          'yChannelSelector': 'B',
-          'result': 'bent',
-        },
-      ),
-      const .element(
-        tag: 'feGaussianBlur',
-        attributes: {'in': 'bent', 'stdDeviation': '1'},
-      ),
-    ],
-  );
-}
+/// Glass of a liquid glass selection droplet. It peaks at a 17px bend.
+const _dropletGlass = RefractionShape(
+  bezel: 14,
+  thickness: 17,
+);
 
 class _BottomNavigationBarState extends State<BottomNavigationBar> {
   static int _nextRefractionId = 0;
@@ -598,7 +503,14 @@ class _BottomNavigationBarState extends State<BottomNavigationBar> {
   final _refractionId = 'naki-refraction-${_nextRefractionId++}';
 
   BrowserLifecycleListeners? _refractionObserver;
-  _RefractionSize? _refractionSize;
+
+  /// Sizes of the bar and droplet the current bake is for.
+  (int, int, int, int)? _measured;
+
+  /// Counts bakes, so a bake that finishes after a newer one is dropped.
+  int _bakes = 0;
+
+  ({BakedRefraction bar, BakedRefraction droplet})? _refraction;
 
   BottomNavigationBarType get _effectiveType =>
       component.type ?? BottomNavigationBarType.fixed;
@@ -637,24 +549,13 @@ class _BottomNavigationBarState extends State<BottomNavigationBar> {
   @override
   void dispose() {
     _refractionObserver?.dispose();
+    _bakes++;
     super.dispose();
   }
 
-  /// Checks if the browser supports [BottomNavigationBarType.liquidGlass].
-  bool get supportsLiquidRefraction {
-    if (!kIsWeb) return false;
-
-    final hasBackdrop =
-        CSS.supports('backdrop-filter', 'blur(10px)') ||
-        CSS.supports('-webkit-backdrop-filter', 'blur(10px)');
-    if (!hasBackdrop) return false;
-
-    final ua = window.navigator.userAgent;
-    final isChromium = ua.contains('Chrome/') || ua.contains('Chromium/');
-    final isEdge = ua.contains('Edg/');
-
-    return isChromium || isEdge;
-  }
+  /// Only Chromium runs an SVG filter inside `backdrop-filter`. Other engines
+  /// ignore the `url()`, so the bar stays frosted there.
+  bool get supportsLiquidRefraction => PlatformData.current.isChromium;
 
   /// Measures the bar for a [BottomNavigationBarType.liquidGlass] filter.
   ///
@@ -666,7 +567,9 @@ class _BottomNavigationBarState extends State<BottomNavigationBar> {
     if (_effectiveType != BottomNavigationBarType.liquidGlass) {
       _refractionObserver?.dispose();
       _refractionObserver = null;
-      _refractionSize = null;
+      _measured = null;
+      _refraction = null;
+      _bakes++;
       return;
     }
 
@@ -684,7 +587,7 @@ class _BottomNavigationBarState extends State<BottomNavigationBar> {
       ..register();
   }
 
-  void _measureRefraction() {
+  Future<void> _measureRefraction() async {
     final droplet = _indicatorKey.currentNode;
     final bar = droplet?.parentElement;
     if (droplet == null || bar == null) return;
@@ -692,14 +595,37 @@ class _BottomNavigationBarState extends State<BottomNavigationBar> {
     final barBox = bar.getBoundingClientRect();
     final dropletBox = droplet.getBoundingClientRect();
 
-    final size = _RefractionSize(
-      barWidth: barBox.width.round(),
-      barHeight: barBox.height.round(),
-      dropletWidth: dropletBox.width.round(),
-      dropletHeight: dropletBox.height.round(),
+    final size = (
+      barBox.width.round(),
+      barBox.height.round(),
+      dropletBox.width.round(),
+      dropletBox.height.round(),
     );
 
-    if (size != _refractionSize) setState(() => _refractionSize = size);
+    if (size == _measured) return;
+    _measured = size;
+
+    final run = ++_bakes;
+    final (barWidth, barHeight, dropletWidth, dropletHeight) = size;
+
+    final [barGlass, dropletGlass] = await Future.wait([
+      bakeRefraction(
+        width: barWidth.toDouble(),
+        height: barHeight.toDouble(),
+        radius: barHeight / 2,
+        shape: _barGlass,
+      ),
+      bakeRefraction(
+        width: dropletWidth.toDouble(),
+        height: dropletHeight.toDouble(),
+        radius: dropletHeight / 2,
+        shape: _dropletGlass,
+      ),
+    ]);
+
+    if (run != _bakes) return;
+
+    setState(() => _refraction = (bar: barGlass, droplet: dropletGlass));
   }
 
   void _handleTap(int index) {
@@ -716,6 +642,7 @@ class _BottomNavigationBarState extends State<BottomNavigationBar> {
       Tokens.current.bottomNavbarHeight.name: ?component.height?.cssText,
       'width': ?component.width?.cssText,
       'box-shadow': ?(component.removeShadow ? 'none' : null),
+      kNavbarShadowVar: ?(component.removeShadow ? '0 0 transparent' : null),
       ...?component.gradient?.props,
     };
 
@@ -724,7 +651,7 @@ class _BottomNavigationBarState extends State<BottomNavigationBar> {
 
     final refraction =
         context.themeTokens.bottomNavbarGlassRefractionValue / 100;
-    final refractionSize = refraction > 0 ? _refractionSize : null;
+    final refracted = refraction > 0 ? _refraction : null;
 
     final effectiveLayout =
         component.landscapeLayout ?? BottomNavigationBarLandscapeLayout.spread;
@@ -754,7 +681,7 @@ class _BottomNavigationBarState extends State<BottomNavigationBar> {
       attributes: {
         'role': 'navigation',
         'aria-label': 'Bottom navigation',
-        'data-refracted': ?(refractionSize != null ? '' : null),
+        'data-refracted': ?(refracted != null ? '' : null),
       },
       styles: Styles(
         raw: {
@@ -763,32 +690,30 @@ class _BottomNavigationBarState extends State<BottomNavigationBar> {
             kNavbarIndexVar: '$_currentIndex',
             kNavbarCountVar: '${component.items.length}',
           },
-          if (refractionSize != null) ...{
+          if (refracted != null) ...{
             kNavbarRefractionVar: 'url(#$_refractionId)',
             kNavbarDropletRefractionVar: 'url(#$_dropletRefractionId)',
           },
         },
       ),
       children: [
-        if (refractionSize != null)
+        if (refracted != null)
           .element(
             tag: 'svg',
             classes: 'naki-navbar-refraction',
             attributes: const {'aria-hidden': 'true'},
             children: [
-              _refractionFilter(
+              RefractionFilter(
                 id: _refractionId,
-                width: refractionSize.barWidth,
-                height: refractionSize.barHeight,
-                strength: (26 * refraction).round(),
-                bezel: 12,
+                baked: refracted.bar,
+                strength: refraction,
+                blur: 1,
               ),
-              _refractionFilter(
+              RefractionFilter(
                 id: _dropletRefractionId,
-                width: refractionSize.dropletWidth,
-                height: refractionSize.dropletHeight,
-                strength: (34 * refraction).round(),
-                bezel: 14,
+                baked: refracted.droplet,
+                strength: refraction,
+                blur: 1,
               ),
             ],
           ),

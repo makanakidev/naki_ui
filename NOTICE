@@ -112,6 +112,20 @@ runtime dependencies of the published library.
    License: BSD 3-Clause License
 
 ===============================================================================
+ADAPTED SOURCE CODE
+===============================================================================
+
+11. Liquid-Glass
+
+   Component: refraction maths in lib/src/utilities/refraction.dart
+   Creator: Zaki Sheriff
+   Copyright: Copyright (c) 2026 Zaki Sheriff
+   Source: https://github.com/zakisheriff/Liquid-Glass
+   License: MIT License
+   Changes: The displacement-map bake and SVG filter chain were ported from
+   TypeScript to Dart and adapted to Jaspr components.
+
+===============================================================================
 LICENSE TEXTS
 ===============================================================================
 

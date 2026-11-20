@@ -1,3 +1,13 @@
+## Unreleased
+
+### Added
+
+- Added `PlatformData.isChromium` and `PlatformData.isWebKit` to detect the browser engine. Chrome, Edge and Firefox on iOS count as WebKit.
+
+### Fixed
+
+- Removed the grey streaks at both ends of `BottomNavigationBarType.liquidGlass`, where the glass bent the bar's own shadow into view.
+
 ## 1.0.7
 
 ### Breaking changes

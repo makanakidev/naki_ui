@@ -29,6 +29,10 @@ final deviceName = platform.device; // 'iPhone', 'iPad', 'MacOS', 'Windows', 'An
 final isPWA = platform.isPWA; // Running as an installed Progressive Web App
 final isMobileBrowser = platform.isMobileBrowser; // Mobile browser (not running as standalone PWA)
 
+// Browser engine
+final isChromium = platform.isChromium; // Chrome, Edge, Opera, … (not iOS browsers, which run WebKit)
+final isWebKit = platform.isWebKit; // Safari and every iOS/iPadOS browser
+
 // Viewport dimensions & locale
 final width = platform.width;
 final height = platform.height;

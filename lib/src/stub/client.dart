@@ -63,7 +63,7 @@ final class PlatformData extends BrowserPlatform {
 
   late final bool _isDesktopModeIpad =
       _parsedAgent.os.name == 'Mac OS' &&
-      window.navigator.maxTouchPoints == 1 &&
+      window.navigator.maxTouchPoints >= 1 &&
       _userAgent.contains('Macintosh');
 
   @override

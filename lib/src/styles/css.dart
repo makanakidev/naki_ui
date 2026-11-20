@@ -15,6 +15,10 @@ const kNavbarRefractionVar = '--naki-navbar-refraction';
 /// Custom property holding the selection droplet's refraction filter.
 const kNavbarDropletRefractionVar = '--naki-navbar-droplet-refraction';
 
+/// Custom property holding the frosted bottom navbar's drop shadow, painted
+/// on its glass layer so the glass never samples it.
+const kNavbarShadowVar = '--naki-navbar-shadow';
+
 /// Custom property holding the color behind a glass card.
 const kCardGlassColorVar = '--naki-card-glass-color';
 
@@ -100,6 +104,12 @@ class Css {
       'box-shadow': [?shadow, _glassEdge(rim, glow: glow)].join(', '),
     };
   }
+
+  /// The frosted bottom navbar's drop shadow, overridable through
+  /// [kNavbarShadowVar].
+  static const _navbarGlassShadow =
+      'var($kNavbarShadowVar, 0 8px 28px rgba(0, 0, 0, 0.14), '
+      '0 1px 3px rgba(0, 0, 0, 0.08))';
 
   /// Removes the backdrop effect from a glass surface.
   static const _noGlass = {
@@ -728,8 +738,8 @@ class Css {
       'max-width': '600px',
       'border-radius': '999px',
       'background-color': 'transparent',
-      'box-shadow':
-          '0 8px 28px rgba(0, 0, 0, 0.14), 0 1px 3px rgba(0, 0, 0, 0.08)',
+      'box-shadow': 'none',
+      'overflow': 'visible',
     },
 
     'frosted-glass-rim': {
@@ -743,6 +753,7 @@ class Css {
         tint: _var(Tokens.current.bottomNavbarGlassTint),
         blur: _var(Tokens.current.bottomNavbarGlassBlur),
         rim: Tokens.current.bottomNavbarGlassRim,
+        shadow: _navbarGlassShadow,
         refraction: kNavbarRefractionVar,
       ),
     },
@@ -787,6 +798,7 @@ class Css {
           'inset 1.5px 1.5px 1px -0.5px ${_glassRim(0.9)}, '
           'inset -1.5px -1.5px 1px -0.5px ${_glassRim(0.65)}, '
           'inset 0 0 8px 1px ${_glassRim(0.35)}',
+      'clip-path': 'inset(-3px round 999px)',
       'transition': 'inset-inline-start 0.3s cubic-bezier(0.2, 0.9, 0.3, 1)',
     },
 
@@ -808,6 +820,7 @@ class Css {
 
     'frosted-glass-reduced-transparency': {
       'background-color': _var(Tokens.current.bottomNavbarBgColor),
+      'box-shadow': _navbarGlassShadow,
       ..._noGlass,
     },
 
@@ -1257,7 +1270,6 @@ class Css {
     'flex-direction': 'column',
     'min-height': '0',
     'min-width': '0',
-    'overflow': 'auto',
   };
 
   /// Default CSS styles map for SingleChildScrollView.
@@ -1600,7 +1612,6 @@ class Css {
       'border-radius': _var(Tokens.current.bottomSheetBorderRadius),
       'box-shadow': Tokens.current.largeShadow.value,
       'box-sizing': 'border-box',
-      'overflow-y': 'hidden',
       'display': 'flex',
       'flex-direction': 'column',
       'line-height': 'normal',

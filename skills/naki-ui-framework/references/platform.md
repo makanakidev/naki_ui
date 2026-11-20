@@ -78,6 +78,16 @@ final isMobileBrowser = platform.isMobileBrowser; // true when mobile and not ru
 final userAgent = platform.userAgent;
 ```
 
+### Browser Engine
+
+```dart
+// Engine, from the user agent. Every iOS browser (CriOS, FxiOS, EdgiOS) runs WebKit.
+final isChromium = platform.isChromium; // Chrome, Edge, Opera, … on desktop and Android
+final isWebKit = platform.isWebKit; // Safari and every iOS/iPadOS browser
+```
+
+`isChromium` and `isWebKit` read `userAgent`, so they follow `PlatformData.init(userAgent: ...)` on the client and the server.
+
 ### Viewport and Localization
 
 ```dart

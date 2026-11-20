@@ -91,6 +91,19 @@ void main() {
       );
       expect(bar.querySelector('feImage')!.namespaceURI, contains('svg'));
       expect(_bar.hasAttribute('data-refracted'), isTrue);
+
+      // Ray-traced maps, baked to PNG, in pixel units for backdrop-filter.
+      final map = bar.querySelector('feImage')!;
+      expect(map.getAttribute('href'), startsWith('data:image/png'));
+      expect(bar.getAttribute('primitiveUnits'), 'userSpaceOnUse');
+      expect(
+        bar
+            .querySelector('feDisplacementMap')!
+            .getAttribute(
+              'yChannelSelector',
+            ),
+        'G',
+      );
     });
 
     testClient('keeps the frosted glass styles and droplet', (tester) async {

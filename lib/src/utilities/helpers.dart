@@ -256,9 +256,7 @@ void updateRootTheme(String mode) {
 
   // WebKit paints the transition from flat snapshots: they drop backdrop
   // blurs, tint Safari's bars, and sit off-screen while its toolbar is hidden.
-  // Every iOS browser runs WebKit, and only Chromium names itself 'Chrome/'.
-  final ua = window.navigator.userAgent;
-  final isWebKit = ua.contains('AppleWebKit') && !ua.contains('Chrome/');
+  final isWebKit = PlatformData.current.isWebKit;
 
   // Fades the theme's color variables on <html> instead of every element's
   // colors: `color` is inherited, so per-element transitions chain and a deeply
@@ -484,22 +482,43 @@ void hapticFeedback({
   Duration duration = const Duration(milliseconds: 15),
   List<int>? vibrationPattern,
 }) {
-  if (kIsServer) return;
+  if (kIsServer || !window.matchMedia('(pointer: coarse)').matches) return;
+
+  final isAppleTouch =
+      PlatformData.current.isiOS || PlatformData.current.isiPad;
 
   try {
-    // custom vibration pattern
-    if (vibrationPattern != null && vibrationPattern.isNotEmpty) {
-      final jsPattern = vibrationPattern.map((d) => d.toJS).toList().toJS;
-      window.navigator.vibrate(jsPattern);
-      return;
+    if (!isAppleTouch) {
+      // custom vibration pattern
+      if (vibrationPattern != null && vibrationPattern.isNotEmpty) {
+        final jsPattern = vibrationPattern.map((d) => d.toJS).toList().toJS;
+        window.navigator.vibrate(jsPattern);
+        return;
+      }
+
+      // default vibration duration
+      final durationMs = duration.inMilliseconds
+          .clamp(0, double.infinity)
+          .toInt();
+
+      window.navigator.vibrate(durationMs.toJS);
+    } else {
+      final label = document.createElement('label') as HTMLLabelElement;
+      label.setAttribute('aria-hidden', 'true');
+      label.style.cssText =
+          'position:fixed;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none;left:-9px;top:-9px';
+
+      final input = document.createElement('input') as HTMLInputElement;
+      input.type = 'checkbox';
+      input.setAttribute('switch', '');
+      input.tabIndex = -1;
+
+      label.append(input);
+      document.body?.append(label);
+      label.click();
+
+      Timer(const Duration(milliseconds: 100), () => label.remove());
     }
-
-    // default vibration duration
-    final durationMs = duration.inMilliseconds
-        .clamp(0, double.infinity)
-        .toInt();
-
-    window.navigator.vibrate(durationMs.toJS);
   } catch (_) {}
 }
 

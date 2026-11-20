@@ -70,6 +70,23 @@ abstract class BrowserPlatform {
   /// a mobile browser but not as a PWA.
   bool get isMobileBrowser;
 
+  /// Returns `true` if the browser runs the Chromium engine on a platform
+  /// that ships it (Chrome, Edge, Opera, Brave, … on desktop and Android).
+  ///
+  /// Chrome, Edge and Firefox on iOS name themselves `CriOS`, `EdgiOS` and
+  /// `FxiOS` but run WebKit, so they are not Chromium.
+  bool get isChromium =>
+      _chromiumAgent.hasMatch(userAgent) && !_iosAgent.hasMatch(userAgent);
+
+  /// Returns `true` if the browser runs the WebKit engine: Safari, and every
+  /// browser on iOS and iPadOS.
+  bool get isWebKit =>
+      userAgent.contains('AppleWebKit/') &&
+      (_iosAgent.hasMatch(userAgent) || !_chromiumAgent.hasMatch(userAgent));
+
+  static final _chromiumAgent = RegExp(r'Chrom(e|ium)/|Edg/');
+  static final _iosAgent = RegExp(r'CriOS|FxiOS|EdgiOS');
+
   /// Convert the platform data to a JSON map.
   Map<String, dynamic> toJson() {
     return {
@@ -93,6 +110,8 @@ abstract class BrowserPlatform {
       'isAndroid': isAndroid,
       'isiOS': isiOS,
       'isMobileBrowser': isMobileBrowser,
+      'isChromium': isChromium,
+      'isWebKit': isWebKit,
     };
   }
 

@@ -492,22 +492,23 @@ class _SnackbarState extends State<Snackbar>
         ),
     ];
 
-    return OverlayScope(
+    final Component _snackbar = .element(
+      tag: 'naki-snackbar',
       id: _id,
-      child: .element(
-        tag: 'naki-snackbar',
-        id: _id,
-        key: component.key,
-        classes: effectiveClasses,
-        attributes: {
-          'role': 'status',
-          'aria-live': 'polite',
-          ...exitAttributes,
-        },
-        styles: Styles(raw: effectiveStyles),
-        children: effectiveChildren,
-      ),
+      key: component.key,
+      classes: effectiveClasses,
+      attributes: {
+        'role': 'status',
+        'aria-live': 'polite',
+        ...exitAttributes,
+      },
+      styles: Styles(raw: effectiveStyles),
+      children: effectiveChildren,
     );
+
+    return OverlayEntryScope.maybeOf(context) != null
+        ? _snackbar
+        : OverlayScope(id: _id, child: _snackbar);
   }
 }
 
@@ -1046,41 +1047,42 @@ class _DialogState extends State<Dialog>
         ),
     ];
 
-    return OverlayScope(
+    final Component _dialog = .element(
+      tag: 'naki-dialog',
       id: _id,
-      child: .element(
-        tag: 'naki-dialog',
-        id: _id,
-        key: component.key,
-        classes: effectiveClasses,
-        attributes: exitAttributes,
-        styles: Styles(raw: effectiveStyles),
-        events: component.barrierDismissible
-            ? {'click': (e) => _onBarrierClick(e, _onClose)}
-            : null,
-        children: [
-          div(
-            key: overlaySurfaceKey,
-            classes: 'naki-dialog-content',
-            attributes: {
-              'role': 'dialog',
-              'aria-modal': 'true',
-              'aria-label':
-                  component.semanticLabel ?? component.title ?? 'Dialog',
-              'tabindex': '-1',
-              ...exitAttributes,
+      key: component.key,
+      classes: effectiveClasses,
+      attributes: exitAttributes,
+      styles: Styles(raw: effectiveStyles),
+      events: component.barrierDismissible
+          ? {'click': (e) => _onBarrierClick(e, _onClose)}
+          : null,
+      children: [
+        div(
+          key: overlaySurfaceKey,
+          classes: 'naki-dialog-content',
+          attributes: {
+            'role': 'dialog',
+            'aria-modal': 'true',
+            'aria-label':
+                component.semanticLabel ?? component.title ?? 'Dialog',
+            'tabindex': '-1',
+            ...exitAttributes,
+          },
+          styles: Styles(
+            raw: {
+              ...?component.gradient?.props,
+              ...?component.sizeConstraints?.props,
             },
-            styles: Styles(
-              raw: {
-                ...?component.gradient?.props,
-                ...?component.sizeConstraints?.props,
-              },
-            ),
-            dialogChildren,
           ),
-        ],
-      ),
+          dialogChildren,
+        ),
+      ],
     );
+
+    return OverlayEntryScope.maybeOf(context) != null
+        ? _dialog
+        : OverlayScope(id: _id, child: _dialog);
   }
 }
 
@@ -1311,7 +1313,7 @@ class _DrawerState extends State<Drawer>
         ? 'naki-drawer-content drawer-${component.position.name}'
         : 'naki-sidebar-content';
 
-    final drawer = Component.element(
+    return .element(
       tag: baseClass,
       key: component.key,
       id: _id,
@@ -1339,8 +1341,6 @@ class _DrawerState extends State<Drawer>
         ),
       ],
     );
-
-    return drawer;
   }
 }
 
@@ -1577,40 +1577,41 @@ class _BottomSheetState extends State<BottomSheet>
       component.child,
     ];
 
-    return OverlayScope(
+    final Component _bottomSheet = .element(
+      tag: 'naki-bottomsheet',
       id: _id,
-      child: .element(
-        tag: 'naki-bottomsheet',
-        id: _id,
-        key: component.key,
-        classes: effectiveClasses,
-        attributes: exitAttributes,
-        styles: Styles(raw: effectiveStyles),
-        events: component.barrierDismissible
-            ? {'click': (e) => _onBarrierClick(e, _close)}
-            : null,
-        children: [
-          div(
-            key: overlaySurfaceKey,
-            classes: 'naki-bottomsheet-content',
-            attributes: {
-              'role': 'dialog',
-              'aria-modal': 'true',
-              'aria-label': component.semanticLabel,
-              'tabindex': '-1',
-              ...exitAttributes,
+      key: component.key,
+      classes: effectiveClasses,
+      attributes: exitAttributes,
+      styles: Styles(raw: effectiveStyles),
+      events: component.barrierDismissible
+          ? {'click': (e) => _onBarrierClick(e, _close)}
+          : null,
+      children: [
+        div(
+          key: overlaySurfaceKey,
+          classes: 'naki-bottomsheet-content',
+          attributes: {
+            'role': 'dialog',
+            'aria-modal': 'true',
+            'aria-label': component.semanticLabel,
+            'tabindex': '-1',
+            ...exitAttributes,
+          },
+          styles: Styles(
+            raw: {
+              'max-width': ?component.maxWidth?.cssText,
+              ...?component.gradient?.props,
             },
-            styles: Styles(
-              raw: {
-                'max-width': ?component.maxWidth?.cssText,
-                ...?component.gradient?.props,
-              },
-            ),
-            effectiveChildren,
           ),
-        ],
-      ),
+          effectiveChildren,
+        ),
+      ],
     );
+
+    return OverlayEntryScope.maybeOf(context) != null
+        ? _bottomSheet
+        : OverlayScope(id: _id, child: _bottomSheet);
   }
 }
 

@@ -1,5 +1,5 @@
 // BottomNavigationBar only rebuilds on the web, so these tests run in a
-// browser: dart test -p chrome test/bottom_nav_test.dart
+// browser: dart test -p chrome test/components/bottom_nav_test.dart
 @TestOn('browser')
 library;
 

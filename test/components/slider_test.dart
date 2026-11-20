@@ -1,5 +1,5 @@
 // The Slider tooltip position has to follow rebuilds, so these tests run in a
-// browser: dart test -p chrome test/slider_test.dart
+// browser: dart test -p chrome test/components/slider_test.dart
 @TestOn('browser')
 library;
 

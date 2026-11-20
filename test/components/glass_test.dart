@@ -1,5 +1,5 @@
 // Overlays and the bottom bar only rebuild on the web, so these tests run in a
-// browser: dart test -p chrome test/glass_test.dart
+// browser: dart test -p chrome test/components/glass_test.dart
 @TestOn('browser')
 library;
 

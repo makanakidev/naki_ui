@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze_and_test:
+    name: Analyze, Format & Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+
+      - name: Install dependencies
+        run: dart pub get
+
+      - name: Check formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze package
+        run: dart analyze
+
+      - name: Run VM tests
+        run: dart test -p vm
+
+      - name: Run browser tests
+        run: dart test -p chrome
+
+      - name: Verify pub.dev package
+        run: dart pub publish --dry-run
+
+  example_build:
+    name: Build Example App
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+
+      - name: Install example dependencies
+        working-directory: example
+        run: dart pub get
+
+      - name: Analyze example
+        working-directory: example
+        run: dart analyze
+
+      - name: Build Jaspr example
+        working-directory: example
+        run: |
+          dart pub global activate jaspr_cli
+          jaspr build

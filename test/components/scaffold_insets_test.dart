@@ -1,5 +1,5 @@
 // Scroll views add the Scaffold insets to their padding, so these tests read
-// the rendered styles: dart test -p chrome test/scaffold_insets_test.dart
+// the rendered styles: dart test -p chrome test/components/scaffold_insets_test.dart
 @TestOn('browser')
 library;
 

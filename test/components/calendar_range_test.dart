@@ -1,5 +1,5 @@
 // Calendar relies on browser APIs and only rebuilds on the web, so these tests
-// run in a browser: dart test -p chrome test/calendar_range_test.dart
+// run in a browser: dart test -p chrome test/components/calendar_range_test.dart
 @TestOn('browser')
 library;
 

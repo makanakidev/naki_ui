@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://docs.page/makanakidev/naki_ui
+    about: Browse guides, component references, and theming docs before opening an issue.
+  - name: Live Demo
+    url: https://makanakidev.github.io/naki_ui
+    about: Check component behavior in the live Naki UI showcase.

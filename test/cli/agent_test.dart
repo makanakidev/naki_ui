@@ -1,9 +1,11 @@
+@TestOn('vm')
+library;
+
 import 'dart:io';
 
+import 'package:naki_ui/src/cli/agent.dart';
 import 'package:path/path.dart' as p;
 import 'package:test/test.dart';
-
-import '../../cli/agent.dart';
 
 void main() {
   group('TargetAgent', () {

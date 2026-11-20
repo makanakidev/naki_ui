@@ -2,8 +2,8 @@ import 'package:naki_ui/theme.dart';
 import 'package:test/test.dart';
 
 // Daylight saving changes depend on the time zone, so also run this with:
-// TZ=America/New_York dart test test/date_range_test.dart
-// TZ=Europe/London dart test test/date_range_test.dart
+// TZ=America/New_York dart test test/utilities/date_range_test.dart
+// TZ=Europe/London dart test test/utilities/date_range_test.dart
 void main() {
   group('DateTime.daysThrough', () {
     void expectEveryDayAtMidnight(DateTime start, DateTime end, int count) {

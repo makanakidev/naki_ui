@@ -86,9 +86,9 @@ void main() {
     expect(_tip.getBoundingClientRect().top, closeTo(_target.bottom + 8, 1));
     expect(_var(kTooltipArrowRotateVar), '180deg');
 
-    // up past the whole tip, padding included, and the arrow's own length
+    // up past the whole tip plus arrowLength (8) minus 2 * arrowOverlap (1)
     final height = _tip.getBoundingClientRect().height;
-    expect(_px(kTooltipArrowYVar), closeTo(-(height + 5), 0.5));
+    expect(_px(kTooltipArrowYVar), closeTo(-(height + 6), 0.5));
   });
 
   testClient('flips a left tooltip at the left edge', (tester) async {
@@ -104,7 +104,7 @@ void main() {
     expect(_tip.getBoundingClientRect().left, closeTo(_target.right + 8, 1));
 
     final width = _tip.getBoundingClientRect().width;
-    expect(_px(kTooltipArrowXVar), closeTo(-(width + 5), 0.5));
+    expect(_px(kTooltipArrowXVar), closeTo(-(width + 6), 0.5));
   });
 
   testClient('slides off the left edge with its arrow on the target', (

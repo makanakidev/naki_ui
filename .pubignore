@@ -1,6 +1,10 @@
-# Repository-internal tooling and automation
+# Repository-internal tooling, documentation, and automation
 /.*
-!/.gitignore
+!.gitignore
+/assets/
+/CONTRIBUTING.md
+/docs/
+/docs.json
 /playground/
 /test/
 

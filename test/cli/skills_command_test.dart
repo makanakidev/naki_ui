@@ -1,9 +1,11 @@
+@TestOn('vm')
+library;
+
 import 'dart:io';
 
+import 'package:naki_ui/src/cli/naki_command_runner.dart';
 import 'package:path/path.dart' as p;
 import 'package:test/test.dart';
-
-import '../../cli/naki_command_runner.dart';
 
 void main() {
   group('SkillsCommand integration', () {

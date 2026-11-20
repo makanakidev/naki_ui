@@ -1,0 +1,60 @@
+name: Bug Report
+description: Report a defect in Naki UI components, theming, framework utilities, or the CLI.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      description: Which part of Naki UI is affected?
+      options:
+        - Components (naki_ui.dart)
+        - Theming & Styling (theme.dart)
+        - Framework, Overlays & Controllers (framework.dart)
+        - CLI & Skills (naki_ui / skills)
+        - Documentation / Example App
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A clear summary of what went wrong.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Minimal steps or Dart/Jaspr code snippet to reproduce the issue.
+      placeholder: |
+        1. Render `...` inside `NakiApp`
+        2. Trigger `...`
+        3. Observe `...`
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What should happen instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Versions and runtime context.
+      placeholder: |
+        - naki_ui: 1.0.7
+        - jaspr: 0.23.5
+        - Jaspr mode: static / server / client
+        - Dart SDK:
+        - Browser / OS:
+    validations:
+      required: true

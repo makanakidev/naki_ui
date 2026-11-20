@@ -1,5 +1,5 @@
 // Reads computed styles, so these tests run in a browser:
-// dart test -p chrome test/spinner_test.dart
+// dart test -p chrome test/components/spinner_test.dart
 @TestOn('browser')
 library;
 

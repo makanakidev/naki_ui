@@ -1,9 +1,11 @@
+@TestOn('vm')
+library;
+
 import 'dart:io';
 
+import 'package:naki_ui/src/cli/package_resolver.dart';
 import 'package:path/path.dart' as p;
 import 'package:test/test.dart';
-
-import '../../cli/package_resolver.dart';
 
 void main() {
   group('PackageResolver', () {

@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import '../cli/naki_command_runner.dart';
+import 'package:naki_ui/src/cli/naki_command_runner.dart';
 
 Future<void> main(List<String> args) async {
   final runner = NakiCommandRunner();

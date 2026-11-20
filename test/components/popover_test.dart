@@ -6,7 +6,7 @@ import 'package:jaspr/jaspr.dart' hide Element;
 import 'package:jaspr_test/client_test.dart';
 import 'package:naki_ui/naki_ui.dart';
 import 'package:naki_ui/src/styles/rules.dart';
-import 'package:naki_ui/src/utilities/enums.dart';
+import 'package:naki_ui/src/utilities/enums/index.dart';
 import 'package:universal_web/web.dart' as web;
 
 Future<void> _settle() =>

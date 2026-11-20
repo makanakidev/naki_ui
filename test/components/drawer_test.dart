@@ -4,7 +4,7 @@ library;
 import 'package:jaspr/dom.dart';
 import 'package:jaspr_test/client_test.dart';
 import 'package:naki_ui/naki_ui.dart';
-import 'package:naki_ui/src/models/overlays.dart';
+import 'package:naki_ui/src/models/overlays/index.dart';
 import 'package:universal_web/web.dart' as web;
 
 Future<void> _settle() =>

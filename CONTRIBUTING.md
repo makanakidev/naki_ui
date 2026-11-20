@@ -25,13 +25,13 @@ naki_ui/
 │   ├── theme.dart       # Public theming and styling barrel
 │   └── src/
 │       ├── cli/         # CLI implementation and skill installer
-│       ├── components/  # UI component implementations
-│       ├── framework/   # Lifecycle, inherited scopes, overlay stack
-│       ├── models/      # Data, gesture, animation, scrolling, styling models
+│       ├── components/  # UI components (`app/`, `async/`, `basics/`, `inputs/`, `layout/`, `overlays/`, `painting/`, `responsive/`, `scaffold/`, `scrolling/`, `selection/`, `styling/`) with `index.dart` library roots and one public component per file (except paired `State` / `InheritedComponent` classes)
+│       ├── framework/   # Lifecycle, `framework/index.dart`, `inherited/index.dart`, overlay stack
+│       ├── models/      # Animation, gesture, platform, `naki/index.dart`, `overlays/index.dart`, `scrolling/index.dart`, `styling/index.dart`
 │       ├── stub/        # Platform conditional exports (client vs server)
-│       ├── styles/      # CSS rules, text styles, stylesheet helpers
-│       ├── theme/       # Theme provider, tokens, light/dark theme data
-│       └── utilities/   # Constants, enums, extensions, helpers, storage
+│       ├── styles/      # CSS rules, style registry, text styles, stylesheet helpers
+│       ├── theme/       # Theme provider, tokens, schemes (`schemes/`), light/dark theme data
+│       └── utilities/   # Constants, `enums/index.dart`, `extensions/index.dart`, `helpers/index.dart`, storage
 ├── skills/          # Bundled AI agent skills installed by the CLI
 └── test/            # Tests mirroring `lib/src/`
 ```

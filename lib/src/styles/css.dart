@@ -1,5 +1,5 @@
 import 'package:jaspr/dom.dart';
-import '../models/styling.dart';
+import '../models/styling/index.dart';
 import '../theme/tokens.dart';
 import 'text_style.dart';
 

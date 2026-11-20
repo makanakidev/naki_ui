@@ -2,11 +2,11 @@ import 'dart:async';
 
 import 'package:jaspr/jaspr.dart';
 
-import '../framework/framework.dart' show NakiStatefulMixin;
+import '../framework/framework/index.dart' show NakiStatefulMixin;
 import '../framework/lifecycle.dart';
-import '../models/styling.dart' show Dim;
-import '../utilities/enums.dart' show Orientation;
-import '../utilities/extensions.dart';
+import '../models/styling/index.dart' show Dim;
+import '../utilities/enums/index.dart' show Orientation;
+import '../utilities/extensions/index.dart';
 
 /// {@template MediaQueryProvider}
 /// A Naki component that propagates browser and component width, height, and

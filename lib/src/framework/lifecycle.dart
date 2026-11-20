@@ -4,12 +4,12 @@ import 'package:universal_web/js_interop.dart'
     show FunctionToJSExportedDartFunction, JSArray, JSArrayToList, JSFunction;
 import 'package:universal_web/web.dart';
 
-import '../models/styling.dart';
+import '../models/styling/index.dart';
 import '../utilities/constants.dart';
 import '../utilities/debounce.dart';
-import '../utilities/enums.dart';
-import '../utilities/extensions.dart';
-import '../utilities/helpers.dart';
+import '../utilities/enums/index.dart';
+import '../utilities/extensions/index.dart';
+import '../utilities/helpers/index.dart';
 
 typedef LifecycleCallback = void Function();
 

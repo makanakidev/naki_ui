@@ -4,7 +4,7 @@
 /// and text style utilities.
 library;
 
-export 'src/models/styling.dart';
+export 'src/models/styling/index.dart';
 export 'src/styles/text_style.dart';
 export 'src/theme/theme.dart';
-export 'src/utilities/extensions.dart';
+export 'src/utilities/extensions/index.dart';

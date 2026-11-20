@@ -44,9 +44,9 @@ class AppShell extends StatefulComponent {
 class _AppShellState extends State<AppShell> {
   final _pageController = PageController();
 
-  final List<BottomNavigationBarType> _navbarTypes = const [
+  List<BottomNavigationBarType> get navbarTypes => [
     BottomNavigationBarType.frostedGlass,
-    BottomNavigationBarType.liquidGlass,
+    if (PlatformData.current.isChromium) BottomNavigationBarType.liquidGlass,
     BottomNavigationBarType.floating,
     BottomNavigationBarType.fixed,
   ];
@@ -97,11 +97,11 @@ class _AppShellState extends State<AppShell> {
   }
 
   void _changeNavbar(BuildContext ctx) {
-    final idx = _navbarTypes.indexOf(_currentNavbar);
+    final idx = navbarTypes.indexOf(_currentNavbar);
     setState(
-      () => _currentNavbar = idx >= _navbarTypes.length - 1
-          ? _navbarTypes.first
-          : _navbarTypes[idx + 1],
+      () => _currentNavbar = idx >= navbarTypes.length - 1
+          ? navbarTypes.first
+          : navbarTypes[idx + 1],
     );
     _showMessage(ctx, 'Navbar type: ${_currentNavbar.name}');
   }
@@ -157,6 +157,7 @@ class _AppShellState extends State<AppShell> {
         type: _currentNavbar,
         selectedIndex: _page,
         onTap: _onNavTap,
+        enableFeedback: !PlatformData.current.isDesktop,
         items: _navItems,
       ),
     );

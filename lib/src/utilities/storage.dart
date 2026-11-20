@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:universal_web/web.dart';
 import 'constants.dart';
-import 'helpers.dart';
+import 'helpers/index.dart';
 
 /// Uses localStorage to store and retrieve data.
 class NakiStorage {

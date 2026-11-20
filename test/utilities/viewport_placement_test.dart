@@ -1,5 +1,5 @@
-import 'package:naki_ui/src/utilities/enums.dart';
-import 'package:naki_ui/src/utilities/helpers.dart';
+import 'package:naki_ui/src/utilities/enums/index.dart';
+import 'package:naki_ui/src/utilities/helpers/index.dart';
 import 'package:test/test.dart';
 
 void main() {

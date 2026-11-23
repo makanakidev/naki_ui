@@ -61,7 +61,7 @@ class BackdropFilter extends StatelessComponent {
   @override
   Component build(BuildContext context) {
     return .element(
-      tag: 'naki-backdropfilter',
+      tag: 'naki-backdrop',
       key: key,
       classes: classes,
       styles: Styles(raw: {'display': 'block', ...filter.props}),

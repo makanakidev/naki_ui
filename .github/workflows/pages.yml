@@ -35,8 +35,10 @@ jobs:
         uses: actions/configure-pages@v5
       - name: Setup Dart
         uses: dart-lang/setup-dart@v1
+        # Dart 3.13 until Jaspr supports analyzer 13: jaspr_builder 0.23.5 needs
+        # analyzer ^12, and every build_web_compilers for Dart 3.14 needs >=13.3.
         with:
-          sdk: stable
+          sdk: 3.13.7
       - name: Build Jaspr
         working-directory: example
         run: |

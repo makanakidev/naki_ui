@@ -1375,7 +1375,8 @@ class Css {
     'z-index': _snackbarZindex,
     'display': 'flex',
     'justify-content': 'space-between',
-    'max-width': '600px',
+    'max-width':
+        'min(600px, calc(100dvw - 16px - $safeAreaLeft - $safeAreaRight))',
     'width': 'max-content',
     'gap': '10px',
     'background-color': _var(Tokens.current.snackbarBgColor),
@@ -1445,7 +1446,8 @@ class Css {
       'transition': 'opacity 0.15s ease-in-out, visibility 0.15s ease-in-out',
     },
 
-    // what closing collapses waits for the fade, so it fades out where it was
+    // what closing collapses waits for the fade,
+    // so it fades out where it was
     'popup': {
       'position': 'absolute',
       'z-index': _popoverZindex,
@@ -1456,7 +1458,8 @@ class Css {
       'padding-block': '0',
       'line-height': 'normal',
       'width': 'max-content',
-      'max-width': 'calc(100dvw - 16px - $safeAreaLeft - $safeAreaRight)',
+      'max-width':
+          'min(600px, calc(100dvw - 16px - $safeAreaLeft - $safeAreaRight))',
       'box-sizing': 'border-box',
       'background-color': _var(Tokens.current.popoverBgColor),
       'color': _var(Tokens.current.popoverTextColor),

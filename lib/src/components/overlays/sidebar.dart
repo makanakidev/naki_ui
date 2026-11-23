@@ -24,33 +24,16 @@ part of 'index.dart';
 /// ```
 /// {@endtemplate}
 class Sidebar extends Drawer {
-  /// Width of the sidebar.
-  final Dim? width;
-
-  /// Background color of the sidebar.
-  final Color? backgroundColor;
-
-  /// Background gradient of the sidebar.
-  final Gradient? gradient;
-
-  /// Additional CSS classes applied to the sidebar.
-  final String? classes;
-
   /// {@macro Sidebar}
   const Sidebar({
     super.key,
     required super.child,
-    super.semanticLabel = 'Navigation sidebar',
-    this.width,
-    this.backgroundColor,
-    this.gradient,
-    this.classes,
-  }) : super._sidebar(
-         width: width,
-         backgroundColor: backgroundColor,
-         gradient: gradient,
-         classes: classes,
-       );
+    super.semanticLabel,
+    super.width,
+    super.backgroundColor,
+    super.gradient,
+    super.classes,
+  }) : super._sidebar();
 
   static List<StyleRule> get styles => OverlaysStyles.sidebar;
 }

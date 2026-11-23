@@ -252,7 +252,7 @@ class _ExpansionPanelListState extends State<ExpansionPanelList> {
                 hoverColor: panel.backgroundColor ?? Colors.transparent,
                 disabled: panel.disabled,
                 attributes: {
-                  'aria-expanded': '${isExpanded}',
+                  'aria-expanded': '$isExpanded',
                   'aria-controls': bodyId,
                 },
                 onTap: panel.canTapOnHeader && !panel.disabled

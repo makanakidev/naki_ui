@@ -184,7 +184,7 @@ class _ContentState extends State<Content> {
                       padding: const EdgeInsets.symmetric(vertical: Dim.px(30)),
                       child: Align(
                         child: RichText(
-                          style: const TextStyle(fontSize: const Dim.rem(0.9)),
+                          style: const TextStyle(fontSize: Dim.rem(0.9)),
                           text: TextSpan(
                             text: 'Built with ',
                             style: TextStyle(

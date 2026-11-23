@@ -507,9 +507,6 @@ class LinearGradient extends _LinearGradientBase {
     direction: direction,
     stops: stops,
   );
-
-  @override
-  Map<String, String> get props => super.props;
 }
 
 /// Standalone repeating linear gradient fill.
@@ -533,9 +530,6 @@ class RepeatingLinearGradient extends _LinearGradientBase {
     direction: direction,
     stops: stops,
   );
-
-  @override
-  Map<String, String> get props => super.props;
 }
 
 abstract class _RadialGradientBase extends _SingleGradient {
@@ -604,9 +598,6 @@ class RadialGradient extends _RadialGradientBase {
     position: position,
     stops: stops,
   );
-
-  @override
-  Map<String, String> get props => super.props;
 }
 
 /// Standalone repeating radial gradient fill.
@@ -629,9 +620,6 @@ class RepeatingRadialGradient extends _RadialGradientBase {
     position: position,
     stops: stops,
   );
-
-  @override
-  Map<String, String> get props => super.props;
 }
 
 abstract class _ConicGradientBase extends _SingleGradient {
@@ -701,9 +689,6 @@ class ConicGradient extends _ConicGradientBase {
     position: position,
     stops: stops,
   );
-
-  @override
-  Map<String, String> get props => super.props;
 }
 
 /// Standalone repeating conic gradient fill.
@@ -726,9 +711,6 @@ class RepeatingConicGradient extends _ConicGradientBase {
     position: position,
     stops: stops,
   );
-
-  @override
-  Map<String, String> get props => super.props;
 }
 
 /// Standalone raw CSS gradient fill.
@@ -742,9 +724,6 @@ class RawGradient extends _SingleGradient {
 
   @override
   String get cssText => value;
-
-  @override
-  Map<String, String> get props => super.props;
 
   @override
   bool operator ==(Object other) =>

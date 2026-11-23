@@ -84,7 +84,7 @@ class TodoFilterBar extends StatelessComponent {
                   key: ValueKey('filter-${filter.name}'),
                   padding: const EdgeInsets.symmetric(horizontal: Dim.px(12)),
                   style: const TextStyle(
-                    fontSize: const Dim.rem(0.9),
+                    fontSize: Dim.rem(0.9),
                     lineHeight: Dim.normal,
                   ),
                   onTap: () => onFilterChanged(filter),

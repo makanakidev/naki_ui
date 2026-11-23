@@ -91,7 +91,7 @@ void main() {
             key: ValueKey('g1'),
             [
               div(id: 'a', []),
-              NakiFragment([], key: ValueKey('empty')),
+              NakiFragment(key: ValueKey('empty'), []),
               NakiFragment(
                 key: ValueKey('g1-inner'),
                 [div(id: 'b', [])],
@@ -113,7 +113,7 @@ void main() {
           const NakiFragment(
             key: ValueKey('g1'),
             [
-              NakiFragment([], key: ValueKey('empty')),
+              NakiFragment(key: ValueKey('empty'), []),
               NakiFragment(
                 key: ValueKey('g1-inner'),
                 [div(id: 'b', [])],

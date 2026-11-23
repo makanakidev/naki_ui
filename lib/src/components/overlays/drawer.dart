@@ -98,7 +98,7 @@ class Drawer extends StatefulComponent {
   const Drawer._sidebar({
     super.key,
     required this.child,
-    this.semanticLabel = 'Navigation drawer',
+    this.semanticLabel = 'Navigation sidebar',
     this.width,
     this.backgroundColor,
     this.gradient,

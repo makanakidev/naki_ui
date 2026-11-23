@@ -59,7 +59,8 @@ class Snackbar extends StatefulComponent {
   /// Snackbar(
   ///   content: NakiText('Gradient Snackbar'),
   ///   controller: controller,
-  ///   gradient: Gradient()..applyLinear(colors: [Colors.purple, Colors.indigo]),
+  ///   gradient: Gradient()
+  ///     ..applyLinear(colors: [Colors.purple, Colors.indigo]),
   /// )
   /// ```
   final Gradient? gradient;

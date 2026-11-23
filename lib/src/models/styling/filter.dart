@@ -202,9 +202,6 @@ class BlurFilter extends _SingleFilter<double> {
 
   @override
   String get cssText => BackdropFilterType.blur.cssText(.px(value));
-
-  @override
-  Map<String, String> get props => super.props;
 }
 
 /// Standalone brightness backdrop filter effect.
@@ -216,9 +213,6 @@ class BrightnessFilter extends _SingleFilter<double> {
 
   @override
   String get cssText => BackdropFilterType.brightness.cssText(.percent(value));
-
-  @override
-  Map<String, String> get props => super.props;
 }
 
 /// Standalone contrast backdrop filter effect.
@@ -230,9 +224,6 @@ class ContrastFilter extends _SingleFilter<double> {
 
   @override
   String get cssText => BackdropFilterType.contrast.cssText(.percent(value));
-
-  @override
-  Map<String, String> get props => super.props;
 }
 
 /// Standalone grayscale backdrop filter effect.
@@ -244,9 +235,6 @@ class GrayscaleFilter extends _SingleFilter<double> {
 
   @override
   String get cssText => BackdropFilterType.grayscale.cssText(.percent(value));
-
-  @override
-  Map<String, String> get props => super.props;
 }
 
 /// Standalone hue-rotate backdrop filter effect.
@@ -258,9 +246,6 @@ class HueRotateFilter extends _SingleFilter<double> {
 
   @override
   String get cssText => BackdropFilterType.hueRotate.cssText(.deg(value));
-
-  @override
-  Map<String, String> get props => super.props;
 }
 
 /// Standalone invert backdrop filter effect.
@@ -272,9 +257,6 @@ class InvertFilter extends _SingleFilter<double> {
 
   @override
   String get cssText => BackdropFilterType.invert.cssText(.percent(value));
-
-  @override
-  Map<String, String> get props => super.props;
 }
 
 /// Standalone opacity backdrop filter effect.
@@ -286,9 +268,6 @@ class OpacityFilter extends _SingleFilter<double> {
 
   @override
   String get cssText => BackdropFilterType.opacity.cssText(.percent(value));
-
-  @override
-  Map<String, String> get props => super.props;
 }
 
 /// Standalone saturation backdrop filter effect.
@@ -299,9 +278,6 @@ class SaturationFilter extends _SingleFilter<double> {
 
   @override
   String get cssText => BackdropFilterType.saturate.cssText(.percent(value));
-
-  @override
-  Map<String, String> get props => super.props;
 }
 
 /// Standalone sepia backdrop filter effect.
@@ -313,9 +289,6 @@ class SepiaFilter extends _SingleFilter<double> {
 
   @override
   String get cssText => BackdropFilterType.sepia.cssText(.percent(value));
-
-  @override
-  Map<String, String> get props => super.props;
 }
 
 /// Standalone raw CSS backdrop filter effect.
@@ -326,7 +299,4 @@ class RawFilter extends _SingleFilter<String> {
 
   @override
   String get cssText => value;
-
-  @override
-  Map<String, String> get props => super.props;
 }

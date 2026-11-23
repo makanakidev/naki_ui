@@ -3,11 +3,11 @@
   "name": "Naki UI",
   "description": "Guides and examples for Jaspr's Material-inspired UI components and utilities",
   "logo": {
-    "light": "/docs/assets/icon-light.jpg",
-    "dark": "/docs/assets/icon-dark.jpg"
+    "light": "/assets/icon-light.jpg",
+    "dark": "/assets/icon-dark.jpg"
   },
-  "favicon": "/docs/assets/favicon.png",
-  "socialPreview": "/docs/assets/logo-dark.jpg",
+  "favicon": "/assets/favicon.png",
+  "socialPreview": "/assets/logo-dark.jpg",
   "banner": {},
   "theme": {
     "defaultTheme": "light",
@@ -267,7 +267,7 @@
     "github": "makanakidev/naki_ui"
   },
   "og": {
-    "logo": "/docs/assets/logo-light.jpg",
+    "logo": "/assets/logo-light.jpg",
     "github": true
   }
 }

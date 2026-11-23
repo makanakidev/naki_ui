@@ -23,8 +23,10 @@ jobs:
 
       - name: Setup Dart
         uses: dart-lang/setup-dart@v1
+        # Dart 3.13 until Jaspr supports analyzer 13: `dart pub get` here also
+        # resolves example/, which hits the same conflict as the example build.
         with:
-          sdk: stable
+          sdk: 3.13.7
 
       - name: Install dependencies
         run: dart pub get

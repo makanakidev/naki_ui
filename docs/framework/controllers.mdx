@@ -9,7 +9,7 @@ Controllers provide imperative handles into declarative components, enabling fin
 
 ## `OverlayController`
 
-Controls dialogs, bottom sheets, drawers, snackbars, and popovers:
+Controls dialogs, bottom sheets, drawers, snackbars, and popovers. For one-off modal overlays (`showDialog`, `showCustomDialog`, `showModalBottomSheet`, `showDatePicker`, `showDateRangePicker`, `showTimePicker`), you can omit `OverlayController` and close them with `Navigator.pop(context, [result])` (recommended) or the typed `close*` helpers:
 
 ```dart
 final overlayController = OverlayController();
@@ -26,6 +26,8 @@ final isVisible = overlayController.isOpen;
 // Close overlay
 overlayController.close();
 ```
+
+See [Navigator & Routing](/framework/navigator) for how `Navigator.pop` integrates with active overlays and route stacks.
 
 ---
 

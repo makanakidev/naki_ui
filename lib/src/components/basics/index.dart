@@ -12,7 +12,6 @@ import '../../models/naki/index.dart';
 import '../../models/styling/index.dart';
 import '../../stub/index.dart';
 import '../../styles/css.dart';
-import '../../styles/rules.dart';
 import '../../styles/text_style.dart';
 import '../../theme/tokens.dart';
 import '../../utilities/enums/index.dart';
@@ -24,6 +23,7 @@ import '../inputs/index.dart' show FormBuilder;
 import '../layout/index.dart' show Container;
 import '../scrolling/index.dart' show ScrollBarWrapper;
 
+import 'styles.dart';
 
 part 'banner.dart';
 part 'button.dart';

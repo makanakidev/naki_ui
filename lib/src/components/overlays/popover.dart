@@ -4,9 +4,10 @@ part of 'index.dart';
 /// A component that displays contextual popover overlay content when
 /// interacting with a target [child] component.
 ///
-/// It opens at [position] and stays anchored to [child] inside the safe areas
-/// and the Scaffold's bars: it flips to the opposite side when only that side
-/// fits, and slides along [child] when it would cross an edge.
+/// It opens at [position] and stays anchored to [child]
+/// inside the safe areas and the Scaffold's bars: it flips to the
+/// opposite side when only that side fits, and slides along [child]
+/// when it would cross an edge.
 ///
 /// ### Example
 /// ```dart
@@ -43,13 +44,13 @@ class Popover extends StatefulComponent {
 
   /// Whether the popover content is visible.
   ///
-  /// The parent controls the popover when this is set, and hovering or
-  /// focusing [child] then does nothing. When it's `null`, hovering or
-  /// focusing [child] shows the popover.
+  /// The parent controls the popover when this is set, and hovering
+  /// or focusing [child] then does nothing. When it's `null`, hovering
+  /// or focusing [child] shows the popover.
   final bool? visible;
 
-  /// Callback invoked when clicking anywhere outside the popover content,
-  /// [child] included.
+  /// Callback invoked when clicking anywhere outside the
+  /// popover content, [child] included.
   final VoidCallback? onClose;
 
   /// Background color of the popover content.
@@ -106,9 +107,7 @@ class Popover extends StatefulComponent {
   @override
   State<Popover> createState() => _PopoverState();
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('Popover', Rules.nakiPopoverRules);
+  static List<StyleRule> get styles => OverlaysStyles.popover;
 }
 
 class _PopoverState extends State<Popover> with NakiPlacementMixin {
@@ -117,8 +116,9 @@ class _PopoverState extends State<Popover> with NakiPlacementMixin {
   StreamSubscription<Event>? _pressSubscription;
   StreamSubscription<Event>? _scrollSubscription;
 
-  /// An outside press hid a popover shown by hover or focus. A touch screen
-  /// keeps `:hover` on the last thing tapped, so CSS alone can't hide it.
+  /// An outside press hid a popover shown by hover or focus.
+  /// A touch screen keeps `:hover` on the last thing tapped,
+  /// so CSS alone can't hide it.
   bool _dismissed = false;
 
   bool get _open => component.visible ?? false;

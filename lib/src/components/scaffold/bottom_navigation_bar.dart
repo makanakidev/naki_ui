@@ -149,7 +149,7 @@ class _BottomNavBarTile extends StatelessComponent {
       gestures: Events(
         onClick: (_) {
           if (enableFeedback) {
-            hapticFeedback(duration: const Duration(milliseconds: 30));
+            hapticFeedback(duration: const Duration(milliseconds: 8));
           }
           onTap();
         },
@@ -197,11 +197,12 @@ class _BottomNavBarTile extends StatelessComponent {
 /// ```
 /// {@endtemplate}
 class BottomNavigationBar extends StatefulComponent {
-  /// Navigation items or children displayed in the bottom navigation bar.
+  /// Navigation items or children displayed in the
+  /// bottom navigation bar.
   final List<BottomNavigationBarItem> items;
 
-  /// Which layout to use for the bottom navigation bar when device is in
-  /// landscape orientation.
+  /// Which layout to use for the bottom navigation bar when
+  /// device is in landscape orientation.
   final BottomNavigationBarLandscapeLayout? landscapeLayout;
 
   /// Type of the bottom navigation bar.
@@ -265,7 +266,8 @@ class BottomNavigationBar extends StatefulComponent {
   /// NOTE: Only has effect on non-iOS platforms.
   final bool enableFeedback;
 
-  /// Additional CSS classes applied to the bottom navigation bar component.
+  /// Additional CSS classes applied to the bottom
+  /// navigation bar component.
   final String? classes;
 
   /// Removes bottom navigation bar shadow when `true`.
@@ -307,14 +309,8 @@ class BottomNavigationBar extends StatefulComponent {
   @override
   State<BottomNavigationBar> createState() => _BottomNavigationBarState();
 
-  @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('BottomNavBar', [
-    Rules.nakiBottomNavBarRules,
-  ]);
+  static List<StyleRule> get styles => ScaffoldStyles.bottomNavigationBar;
 }
-
-// Both use a soft gradient that reaches deep into the glass, so the whole bar
-// bends the content behind it, pulling it in from past the edge.
 
 /// Glass of a liquid glass bar. It peaks at a 13px bend.
 const _barGlass = RefractionShape(
@@ -387,14 +383,13 @@ class _BottomNavigationBarState extends State<BottomNavigationBar> {
     super.dispose();
   }
 
-  /// Only Chromium runs an SVG filter inside `backdrop-filter`. Other engines
-  /// ignore the `url()`, so the bar stays frosted there.
+  /// Only Chromium runs an SVG filter inside `backdrop-filter`
   bool get supportsLiquidRefraction => PlatformData.current.isChromium;
 
-  /// Measures the bar for a [BottomNavigationBarType.liquidGlass] filter.
-  ///
-  /// The filter only runs on the client-side, so server-rendered markup and
-  /// browsers that don't support liquid glass keep the frosted glass bar.
+  /// Measures the bar for a [BottomNavigationBarType.liquidGlass]
+  /// filter. The filter only runs on the client-side, so server-rendered
+  /// markup and browsers that don't support liquid glass keep the
+  /// frosted glass bar.
   void _syncRefraction([bool init = false]) {
     if (!kIsWeb) return;
 

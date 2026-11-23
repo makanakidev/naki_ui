@@ -4,7 +4,8 @@ part of 'index.dart';
 /// A component that renders a side panel which slides smoothly from the
 /// left or right edge of the viewport with a backdrop barrier.
 ///
-/// **NOTE**: Use [Sidebar] for a simplified interface for rendering a persistent side panel.
+/// **NOTE**: Use [Sidebar] for a simplified interface for rendering
+/// a persistent side panel.
 ///
 /// ### Example
 /// ```dart
@@ -154,9 +155,7 @@ class Drawer extends StatefulComponent {
   @override
   State<Drawer> createState() => _DrawerState();
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('Drawer', Rules.nakiDrawerRules);
+  static List<StyleRule> get styles => OverlaysStyles.drawer;
 }
 
 class _DrawerState extends State<Drawer>
@@ -211,7 +210,7 @@ class _DrawerState extends State<Drawer>
   Component build(BuildContext context) {
     syncOverlayAccessibility(component.modal && isInteractive, _close);
 
-    if (!isVisible) return const .empty();
+    if (!isVisible) return const SizedBox();
 
     final effectiveStyles = {
       Tokens.current.drawerBgColor.name: ?component.backgroundColor?.value,
@@ -227,7 +226,7 @@ class _DrawerState extends State<Drawer>
         ? 'naki-drawer-content drawer-${component.position.name}'
         : 'naki-sidebar-content';
 
-    return .element(
+    final Component _drawer = .element(
       tag: baseClass,
       key: component.key,
       id: _id,
@@ -255,5 +254,14 @@ class _DrawerState extends State<Drawer>
         ),
       ],
     );
+
+    if (component.modal && OverlayEntryScope.maybeOf(context) == null) {
+      return OverlayEntryScope(
+        controller: OverlayCallbackController(_close),
+        child: _drawer,
+      );
+    }
+
+    return _drawer;
   }
 }

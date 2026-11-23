@@ -1,17 +1,20 @@
 ---
 title: Responsive Components
-description: Declarative CSS-driven responsive rendering with ResponsiveBuilder, BreakPointWrapper, and standard breakpoints in Naki UI.
+description: Declarative CSS-driven responsive rendering with ResponsiveLayout, BreakPointWrapper, and standard breakpoints in Naki UI.
 ---
 
 Naki UI provides declarative, zero-runtime CSS-driven components for building responsive interfaces across mobile, tablet, laptop, and desktop viewports.
 
-Unlike JavaScript-based viewport observation, `ResponsiveBuilder` and `BreakPointWrapper` operate purely via CSS media queries. This guarantees zero layout shift (CLS), instant rendering during SSR/SSG pre-rendering, and seamless hydration without requiring client-side `@client` components.
+Unlike JavaScript-based viewport observation, `ResponsiveLayout` and `BreakPointWrapper` operate purely via CSS media queries. This guarantees zero layout shift (CLS), instant rendering during SSR/SSG pre-rendering, and seamless hydration without requiring client-side `@client` components.
 
 ---
 
-## `ResponsiveBuilder`
+## `ResponsiveLayout`
 
-`ResponsiveBuilder` renders different component hierarchies for discrete screen sizes or conditionally shows a child component at a specific breakpoint.
+`ResponsiveLayout` renders different component hierarchies for discrete screen sizes or conditionally shows a child component at a specific breakpoint.
+
+> [!NOTE]
+> `ResponsiveBuilder` is deprecated and will be removed in `v2.0.0`. Use `ResponsiveLayout` instead.
 
 ### Multi-Breakpoint Composition
 
@@ -21,7 +24,7 @@ Provide one or more breakpoint-specific components (`mobile`, `largerMobile`, `t
 import 'package:jaspr/jaspr.dart';
 import 'package:naki_ui/naki_ui.dart';
 
-ResponsiveBuilder(
+ResponsiveLayout(
   mobile: const MobileNavigationMenu(),
   tablet: const TabletSidebar(),
   desktop: const DesktopHeaderNav(),
@@ -36,7 +39,7 @@ Target a specific `BreakPoint` enum value with `breakpoint` and `child`:
 import 'package:jaspr/jaspr.dart';
 import 'package:naki_ui/naki_ui.dart';
 
-ResponsiveBuilder(
+ResponsiveLayout(
   breakpoint: BreakPoint.mobile,
   child: const MobilePromoBanner(),
 )
@@ -94,7 +97,7 @@ BreakPointWrapper(
 
 ## CSS-Driven vs. Client-Side Observer
 
-| Feature | `ResponsiveBuilder` / `BreakPointWrapper` | `MediaQueryProvider` |
+| Feature | `ResponsiveLayout` / `BreakPointWrapper` | `MediaQueryProvider` |
 | :--- | :--- | :--- |
 | **Mechanism** | Pure CSS Media Queries (`@media`) | Browser `ResizeObserver` / Window Events |
 | **SSR / SSG Compatible** | Yes (Zero layout shift, works with pure static generation) | Requires `@client` hydration |

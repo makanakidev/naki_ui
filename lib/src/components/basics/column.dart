@@ -124,7 +124,5 @@ class Column extends StatelessComponent {
     return FlexScope(scrollable: scrollable, child: child);
   }
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('Column', [Rules.nakiColumnRules]);
+  static List<StyleRule> get styles => BasicsStyles.column;
 }

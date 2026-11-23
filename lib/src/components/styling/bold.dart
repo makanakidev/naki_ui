@@ -1,9 +1,5 @@
 part of 'index.dart';
 
-// /////////////////////////////////////////////////////////////////////////////
-// STYLING COMPONENTS
-// /////////////////////////////////////////////////////////////////////////////
-
 /// {@template Bold}
 /// A component that renders a bold text.
 ///
@@ -51,7 +47,5 @@ class Bold extends StatelessComponent with NakiTextScope {
     );
   }
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('Text', [Rules.nakiTextRules]);
+  static List<StyleRule> get styles => BasicsStyles.text;
 }

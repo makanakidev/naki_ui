@@ -1,5 +1,7 @@
 part of 'index.dart';
 
+final _timeAgoNotifiers = <String, ValueNotifier<String>>{};
+
 /// Extension on [DateTime] providing date and time formatting.
 extension DateTimeExtension on DateTime {
   /// Returns this datetime as an ISO-8601 UTC string.

@@ -1,9 +1,5 @@
 part of 'index.dart';
 
-// /////////////////////////////////////////////////////////////////////////////
-// INPUT COMPONENTS
-// /////////////////////////////////////////////////////////////////////////////
-
 /// {@template Label}
 /// A component that serves as a label for form fields.
 ///
@@ -35,7 +31,5 @@ class Label extends StatelessComponent {
     );
   }
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('Label', [Rules.nakiLabelRules]);
+  static List<StyleRule> get styles => InputsStyles.label;
 }

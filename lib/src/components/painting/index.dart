@@ -3,10 +3,12 @@ import 'package:jaspr/jaspr.dart';
 
 import '../../models/naki/index.dart';
 import '../../models/styling/index.dart';
-import '../../styles/rules.dart';
 import '../../utilities/enums/index.dart';
 import '../../utilities/extensions/index.dart';
-import '../../utilities/helpers/index.dart';
+
+import '../layout/index.dart' show SizedBox;
+
+import 'styles.dart';
 
 part 'backdrop_filter.dart';
 part 'clip_oval.dart';

@@ -4,9 +4,9 @@ part of 'index.dart';
 /// A component that arranges its children in a staggered
 /// grid / masonry layout.
 ///
-/// Supports custom [crossAxisCount], [mainAxisSpacing], [crossAxisSpacing],
-/// customizable scroll physics via [physics], and custom scrollbar styling
-/// via [scrollBarConfiguration].
+/// Supports custom [crossAxisCount], [mainAxisSpacing],
+/// [crossAxisSpacing], customizable scroll physics via [physics],
+/// and custom scrollbar styling via [scrollBarConfiguration].
 ///
 /// ### Example
 /// ```dart
@@ -29,7 +29,8 @@ part of 'index.dart';
 /// ```
 ///
 /// See also:
-/// - [StaggeredView.count] for staggered grid with a fixed number of columns.
+/// - [StaggeredView.count] for staggered grid with a fixed
+///   number of columns.
 /// - [GridView] for a non-staggered grid layout.
 /// - [ListView] for a vertical list layout.
 /// - [SingleChildScrollView] for a simple scrollable component.
@@ -56,8 +57,9 @@ class StaggeredView extends StatefulComponent {
   /// Scroll controller for programmatic scrolling.
   final ScrollController? controller;
 
-  /// Scroll physics for customizing scrolling behavior (e.g. [BouncingScrollPhysics],
-  /// [ClampingScrollPhysics], [NeverScrollableScrollPhysics]).
+  /// Scroll physics for customizing scrolling behavior
+  /// (e.g. [BouncingScrollPhysics], [ClampingScrollPhysics],
+  /// [NeverScrollableScrollPhysics]).
   final ScrollPhysics? physics;
 
   /// Scroll bar configuration. When provided, renders styled scrollbars.
@@ -66,7 +68,8 @@ class StaggeredView extends StatefulComponent {
   /// Additional CSS classes applied to the staggered view component.
   final String? classes;
 
-  /// Whether to automatically span the last item across unfilled columns.
+  /// Whether to automatically span the last item across
+  /// unfilled columns.
   final bool expandLastItem;
 
   /// {@macro StaggeredView}
@@ -107,12 +110,16 @@ class StaggeredView extends StatefulComponent {
   ///   ],
   /// )
   /// ### Parameters
-  /// * [crossAxisCount]: Fixed number of columns in the cross ScrollDirection.
+  /// * [crossAxisCount]: Fixed number of columns in the cross
+  ///   ScrollDirection.
   /// * [children]: List of child components inside the staggered view.
-  /// * [mainAxisSpacing]: Spacing between components along the main ScrollDirection.
-  /// * [crossAxisSpacing]: Spacing between columns along the cross ScrollDirection.
+  /// * [mainAxisSpacing]: Spacing between components along the
+  ///   main ScrollDirection.
+  /// * [crossAxisSpacing]: Spacing between columns along the
+  ///   cross ScrollDirection.
   /// * [direction]: Main scroll axis direction.
-  /// * [expandLastItem]: Whether to expand the last item across unfilled columns.
+  /// * [expandLastItem]: Whether to expand the last item across
+  ///   unfilled columns.
   /// * [padding]: Insets around the staggered grid content.
   /// * [controller]: Controller for programmatic scroll operations.
   /// * [physics]: Scroll physics governing scroll behavior.
@@ -152,9 +159,7 @@ class StaggeredView extends StatefulComponent {
   @override
   State<StaggeredView> createState() => _StaggeredViewState();
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('StaggeredView', [Rules.nakiStaggeredRules]);
+  static List<StyleRule> get styles => ScrollingStyles.staggeredView;
 }
 
 class _StaggeredViewState extends State<StaggeredView> with NakiStatefulMixin {

@@ -2,9 +2,9 @@ part of 'index.dart';
 
 /// Shared open / exit-animation state machine for overlays.
 ///
-/// Exit state is owned by Dart and rendered through attributes, so reopening
-/// during an exit animation cancels it instead of leaving a stale
-/// `data-exiting` attribute on a reused DOM node.
+/// Exit state is owned by Dart and rendered through attributes,
+/// so reopening during an exit animation cancels it instead of
+/// leaving a stale `data-exiting` attribute on a reused DOM node.
 mixin NakiOverlayVisibilityMixin<T extends StatefulComponent> on State<T> {
   bool _visible = false;
   bool _exiting = false;
@@ -24,8 +24,8 @@ mixin NakiOverlayVisibilityMixin<T extends StatefulComponent> on State<T> {
   Map<String, String> get exitAttributes =>
       _exiting ? const {'data-exiting': 'true', 'inert': ''} : const {};
 
-  /// Updates visibility; pass `rebuild: false` from lifecycle methods that
-  /// are already followed by a build.
+  /// Updates visibility; pass `rebuild: false` from lifecycle
+  /// methods that are already followed by a build.
   void syncVisibility(bool open, {bool rebuild = true}) {
     void update(VoidCallback fn) => rebuild ? setState(fn) : fn();
 

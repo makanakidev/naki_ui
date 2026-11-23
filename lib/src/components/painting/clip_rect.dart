@@ -31,21 +31,14 @@ class ClipRect extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
-    const baseClass = 'naki-cliprect';
-    final effectiveClasses = joinClasses([?classes, baseClass]);
-
-    final effectiveStyles = {...?borderRadius?.props};
-
     return .element(
       tag: 'naki-cliprect',
       key: key,
-      classes: effectiveClasses,
-      styles: Styles(raw: effectiveStyles),
+      classes: classes,
+      styles: Styles(raw: {...?borderRadius?.props}),
       children: [child],
     );
   }
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('ClipRect', [Rules.nakiClipRectRules]);
+  static List<StyleRule> get styles => PaintingStyles.clipRect;
 }

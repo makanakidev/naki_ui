@@ -5,8 +5,8 @@ part of 'index.dart';
 /// single scrollable child component can be scrolled.
 ///
 /// Supports customizable scroll physics (such as [BouncingScrollPhysics],
-/// [ClampingScrollPhysics], or [NeverScrollableScrollPhysics]) and
-/// scrollbar styling via [ScrollBarConfiguration].
+/// [ClampingScrollPhysics], or [NeverScrollableScrollPhysics])
+/// and scrollbar styling via [ScrollBarConfiguration].
 ///
 /// ### Example
 /// ```dart
@@ -31,11 +31,13 @@ part of 'index.dart';
 ///   - [StaggeredView] for creating a staggered view
 /// {@endtemplate}
 class SingleChildScrollView extends StatefulComponent {
-  /// This is the component that will be scrolled. If [Row] or [Column] is used as a
-  /// child component, ensure `scrollable: false` to prevent unexpected behavior.
+  /// This is the component that will be scrolled.
+  /// If [Row] or [Column] is used as a child component, ensure
+  /// `scrollable: false` to prevent unexpected behavior.
   final Component child;
 
-  /// The axis along which the scroll view scrolls (default: [ScrollDirection.vertical]).
+  /// The axis along which the scroll view scrolls
+  /// (default: [ScrollDirection.vertical]).
   final ScrollDirection direction;
 
   /// Whether the scroll view scrolls in the reading direction.
@@ -47,8 +49,9 @@ class SingleChildScrollView extends StatefulComponent {
   /// Scroll controller to manage or observe scroll activity.
   final ScrollController? controller;
 
-  /// Scroll physics to control scroll behavior (e.g. [BouncingScrollPhysics],
-  /// [ClampingScrollPhysics], [NeverScrollableScrollPhysics]).
+  /// Scroll physics to control scroll behavior
+  /// (e.g. [BouncingScrollPhysics], [ClampingScrollPhysics],
+  /// [NeverScrollableScrollPhysics]).
   final ScrollPhysics? physics;
 
   /// Scroll bar configuration. When provided, renders styled scrollbars.
@@ -73,11 +76,7 @@ class SingleChildScrollView extends StatefulComponent {
   @override
   State<SingleChildScrollView> createState() => _SingleChildScrollViewState();
 
-  @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once(
-    'SingleChildScrollView',
-    [Rules.nakiSingleChildScrollViewRules],
-  );
+  static List<StyleRule> get styles => ScrollingStyles.singleChildScrollView;
 }
 
 class _SingleChildScrollViewState extends State<SingleChildScrollView>

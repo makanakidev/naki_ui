@@ -33,7 +33,7 @@ class Visibility extends StatelessComponent {
     super.key,
     required this.child,
     this.visible = true,
-    this.replacement = const .empty(),
+    this.replacement = const SizedBox(),
     this.maintainState = false,
     this.classes,
   });
@@ -42,26 +42,17 @@ class Visibility extends StatelessComponent {
   Component build(BuildContext context) {
     if (!visible && !maintainState) return replacement;
 
-    const baseClass = 'naki-visibility';
-    final effectiveClasses = joinClasses([?classes, baseClass]);
-
     final Component effectiveChild = !visible && maintainState
-        ? .wrapElement(
-            classes: 'naki-hide',
-            attributes: const {'hidden': ''},
-            child: child,
-          )
+        ? .wrapElement(classes: 'hide', child: child)
         : child;
 
     return .element(
       tag: 'naki-visibility',
       key: key,
-      classes: effectiveClasses,
+      classes: classes,
       children: [effectiveChild],
     );
   }
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('Visibility', [Rules.nakiHide]);
+  static List<StyleRule> get styles => PaintingStyles.visibility;
 }

@@ -5,6 +5,7 @@ Use this index to load the smallest relevant reference file. Every component exp
 | Component                                                           | Purpose                                                     | Reference                                   |
 | ------------------------------------------------------------------- | ----------------------------------------------------------- | ------------------------------------------- |
 | `NakiApp`, `PageNotFound`                                           | Application root, metadata, theming, routing, fallback page | [application.md](components/application.md) |
+| `Navigator`, `NakiRoute`, `NakiPageRoute`, `NakiRouteSettings`      | Imperative route stack, overlay popping, router bridge      | [application.md](components/application.md) |
 | `MediaQueryProvider`, `MediaQueryData`                              | Viewport or component-size observation                      | [application.md](components/application.md) |
 | `NakiFutureBuilder`, `NakiStreamBuilder`                            | Render futures and streams                                  | [async.md](components/async.md)             |
 | `Column`, `Row`                                                     | Vertical and horizontal flex layout                         | [basics.md](components/basics.md)           |
@@ -32,10 +33,10 @@ Use this index to load the smallest relevant reference file. Every component exp
 | `Wrap`                                                              | Multi-run flex layout                                       | [layout.md](components/layout.md)           |
 | `SafeArea`                                                          | Browser safe-area insets                                    | [layout.md](components/layout.md)           |
 | `Container`, `Card`                                                 | Sized and decorated surfaces                                | [layout.md](components/layout.md)           |
-| `ResponsiveBuilder`, `BreakPointWrapper`                            | Declarative CSS responsive breakpoints                      | [responsive.md](components/responsive.md)   |
+| `ResponsiveLayout`, `BreakPointWrapper`                             | Declarative CSS responsive breakpoints (`ResponsiveBuilder` deprecated) | [responsive.md](components/responsive.md)   |
 | `ExpansionPanel`, `ExpansionPanelList`, `ExpansionTile`             | Disclosure and accordion UI                                 | [layout.md](components/layout.md)           |
-| `FragmentScope`                                                     | Boxless child grouping (`display: contents`)   | [layout.md](components/layout.md)           |
-| `Snackbar`, `Tooltip`, `Dialog`, `Drawer`, `BottomSheet`, `Popover` | Overlay UI                                                  | [overlays.md](components/overlays.md)       |
+| `NakiFragment` (`FragmentScope` deprecated)                         | Wrapperless multi-child fragment                            | [layout.md](components/layout.md)           |
+| `Snackbar`, `Tooltip`, `Dialog`, `Drawer`, `BottomSheet`, `Popover` | Overlay UI (`showDialog`, `showDatePicker`, `showTimePicker`, etc.) | [overlays.md](components/overlays.md)       |
 | `Opacity`, `Visibility`, `ClipRect`, `DecoratedBox`, `ClipOval`     | Paint and clipping                                          | [painting.md](components/painting.md)       |
 | `BackdropFilter`, `ColoredBox`, `RotatedBox`, `Transform`           | Filters, color, rotation, and transforms                    | [painting.md](components/painting.md)       |
 | `AppBar`, `BottomNavigationBar`, `Scaffold`, `Sidebar`              | Application page structure                                  | [scaffold.md](components/scaffold.md)       |

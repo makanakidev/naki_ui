@@ -129,7 +129,5 @@ class AppBar extends StatelessComponent {
     );
   }
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('AppBar', [Rules.nakiAppBarRules]);
+  static List<StyleRule> get styles => ScaffoldStyles.appBar;
 }

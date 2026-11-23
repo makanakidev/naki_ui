@@ -4,8 +4,9 @@ part of 'index.dart';
 /// A component that displays rows, columns, borders, and custom
 /// cell layouts in a tabular view.
 ///
-/// Supports horizontal scrolling when content exceeds the table container,
-/// with custom scrollbar styling via [scrollBarConfiguration].
+/// Supports horizontal scrolling when content exceeds the table
+/// container, with custom scrollbar styling via
+/// [scrollBarConfiguration].
 ///
 /// ### Example
 /// ```dart
@@ -35,8 +36,8 @@ class Table extends StatelessComponent {
   /// List of table rows.
   final List<TableRow> rows;
 
-  /// Border configuration defining both the outer boundaries and interior
-  /// cell dividers of the table.
+  /// Border configuration defining both the outer boundaries
+  /// and interior cell dividers of the table.
   ///
   /// Controls:
   /// * Outer borders around the table container
@@ -67,11 +68,12 @@ class Table extends StatelessComponent {
   /// Available column width options:
   /// * [FixedColumnWidth]: Sets a fixed size
   ///   (e.g. `FixedColumnWidth(Dim.px(150))`).
-  /// * [FlexColumnWidth]: Automatically stretches to fill remaining table space.
-  /// * [FractionColumnWidth]: Sizes the column as a fraction of the table
-  ///   width (e.g. `FractionColumnWidth(0.3)` for 30%).
-  /// * [IntrinsicColumnWidth]: Sizes the column to fit its widest content
-  ///   (`max-content`).
+  /// * [FlexColumnWidth]: Automatically stretches to fill
+  ///   remaining table space.
+  /// * [FractionColumnWidth]: Sizes the column as a fraction
+  ///   of the table widt (e.g. `FractionColumnWidth(0.3)` for 30%).
+  /// * [IntrinsicColumnWidth]: Sizes the column to fit its
+  ///   widest content (`max-content`).
   ///
   /// Any column index omitted from this map defaults to `auto`.
   ///
@@ -102,7 +104,8 @@ class Table extends StatelessComponent {
   final Map<int, TableColumnWidth>? columnWidths;
 
   /// Scroll bar configuration for the table's scrollable container.
-  /// When provided, renders styled scrollbars; when `null`, the scrollbar is hidden.
+  /// When provided, renders styled scrollbars; when `null`,
+  /// the scrollbar is hidden.
   final ScrollBarConfiguration? scrollBarConfiguration;
 
   /// Background color of header cells.
@@ -117,12 +120,12 @@ class Table extends StatelessComponent {
   /// Title text displayed when the table has no rows.
   final String emptyStateTitle;
 
-  /// Subtitle or descriptive text displayed below [emptyStateTitle]
-  /// when the table has no rows.
+  /// Subtitle or descriptive text displayed below
+  /// [emptyStateTitle] when table has no rows.
   final String emptyStateSubtitle;
 
-  /// Custom component displayed when the table has no rows, overriding
-  /// [emptyStateTitle] and [emptyStateSubtitle].
+  /// Custom component displayed when the table has no rows,
+  /// overriding [emptyStateTitle] and [emptyStateSubtitle].
   final Component? emptyStateContent;
 
   /// Additional CSS classes applied to the table component.
@@ -293,7 +296,5 @@ class Table extends StatelessComponent {
     );
   }
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('Table', [Rules.nakiTableRules]);
+  static List<StyleRule> get styles => ScrollingStyles.table;
 }

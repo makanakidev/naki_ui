@@ -444,9 +444,12 @@ class _NakiAppState extends State<NakiApp> {
     }
   }
 
-  /// Wraps the [child] in an [OverlayHost] so that
+  /// Wraps [child] in a [Navigator] so that pushed routes and
   /// overlays share the theme and text style context of the app.
-  Component _withOverlayHost(Component child) => OverlayHost(child: child);
+  Component _withNavigator(Component child) => Navigator(
+    home: child,
+    routerKey: _useRouter ? component.navigatorKey : null,
+  );
 
   Component get _appBody {
     final textStyles = component.textStyle;
@@ -486,7 +489,7 @@ class _NakiAppState extends State<NakiApp> {
                     );
                   }
 
-                  return _withOverlayHost(
+                  return _withNavigator(
                     effectiveChild ??
                         const PageNotFound(
                           errorTitle: 'Unable to apply text style',
@@ -502,7 +505,7 @@ class _NakiAppState extends State<NakiApp> {
             effectiveChild = component.builder!(themeCtx, effectiveChild);
           }
 
-          return _withOverlayHost(
+          return _withNavigator(
             effectiveChild ??
                 const PageNotFound(
                   errorTitle: 'Unable to build application router',
@@ -532,7 +535,7 @@ class _NakiAppState extends State<NakiApp> {
                   );
                 }
 
-                return _withOverlayHost(
+                return _withNavigator(
                   effectiveChild ??
                       const PageNotFound(
                         errorTitle: 'Unable to apply text style',
@@ -548,7 +551,7 @@ class _NakiAppState extends State<NakiApp> {
           effectiveChild = component.pageBuilder!(themeCtx, effectiveChild);
         }
 
-        return _withOverlayHost(
+        return _withNavigator(
           effectiveChild ??
               const PageNotFound(
                 errorTitle: 'Unable to build application page',
@@ -640,7 +643,7 @@ class _NakiAppState extends State<NakiApp> {
     );
 
     return AppScope(
-      child: .fragment([
+      child: NakiFragment([
         Document.head(
           children: [
             .element(

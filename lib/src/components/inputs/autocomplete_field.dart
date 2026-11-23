@@ -100,11 +100,7 @@ class AutoCompleteField extends StatefulComponent {
   @override
   State<AutoCompleteField> createState() => _AutoCompleteFieldState();
 
-  @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once(
-    'AutoCompleteField',
-    Rules.nakiAutoCompleteFieldRules,
-  );
+  static List<StyleRule> get styles => InputsStyles.autoCompleteField;
 }
 
 class _AutoCompleteFieldState extends State<AutoCompleteField>
@@ -279,7 +275,7 @@ class _AutoCompleteFieldState extends State<AutoCompleteField>
 
         // Dropdown container
         _filteredOptions.rebuild((filteredOptions) {
-          if (filteredOptions.isEmpty) return const .empty();
+          if (filteredOptions.isEmpty) return const SizedBox();
 
           return section(
             id: '${_id}_options',

@@ -106,12 +106,14 @@ class PageView extends StatefulComponent {
   ///   a given index.
   /// * [direction]: Direction in which pages scroll.
   /// * [reverse]: Whether pages are rendered in reverse order.
-  /// * [controller]: Controller for page navigation and viewport tracking.
+  /// * [controller]: Controller for page navigation and
+  ///   viewport tracking.
   /// * [physics]: Scroll physics governing swipe behavior.
   /// * [scrollBarConfig]: Scroll bar configuration.
   /// * [pageSnapping]: Whether pages snap to page boundaries.
-  /// * [onPageChanged]: Callback invoked when the active page index changes.
-  /// * [classes]: Additional CSS class names applied to the page view component.
+  /// * [onPageChanged]: Callback invoked when the active
+  ///   page index changes.
+  /// * [classes]: Additional CSS class names applied to the page view.
   factory PageView.builder({
     Key? key,
     required int itemCount,
@@ -143,9 +145,7 @@ class PageView extends StatefulComponent {
   @override
   State<PageView> createState() => _PageViewState();
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('PageView', [Rules.nakiPageViewRules]);
+  static List<StyleRule> get styles => ScrollingStyles.pageView;
 }
 
 class _PageViewState extends State<PageView> with NakiStatefulMixin {

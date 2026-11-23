@@ -60,16 +60,13 @@ class SizedBox extends StatelessComponent {
         height == null &&
         child == null &&
         classes.isNullOrEmpty) {
-      return const .empty();
+      return const NakiFragment._empty();
     }
-
-    const baseClass = 'naki-sizedbox';
-    final effectiveClasses = joinClasses([?classes, baseClass]);
 
     return .element(
       tag: 'naki-sizedbox',
       key: key,
-      classes: effectiveClasses,
+      classes: classes,
       styles: Styles(
         raw: {'width': ?width?.cssText, 'height': ?height?.cssText},
       ),
@@ -77,7 +74,5 @@ class SizedBox extends StatelessComponent {
     );
   }
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('SizedBox', [Rules.nakiSizedBoxRules]);
+  static List<StyleRule> get styles => LayoutStyles.sizedBox;
 }

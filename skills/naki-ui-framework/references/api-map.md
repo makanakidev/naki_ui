@@ -7,8 +7,9 @@ Import every API in this reference from `package:naki_ui/framework.dart`.
 | Platform      | `PlatformData`                                                                                                                                                                                                                                                       |
 | Lifecycle     | `NakiStatelessMixin`, `NakiStatefulMixin<T>`, `BrowserLifecycleListeners` and lifecycle callback typedefs                                                                                                                                                            |
 | Animation     | `Curves` presets with `build(double)`                                                                                                                                                                                                                                |
+| Navigation    | `Navigator`, `NavigatorState`, `NakiRoute<T>`, `NakiPageRoute<T>`, `NakiRouteSettings`, `NakiRoutePredicate`, `NakiRouteFactory`                                                                                                                                     |
 | Events        | `Gestures`, `Events`, `GestureRecognizer`, `InputEvents`                                                                                                                                                                                                             |
-| Overlays      | `OverlayController`, `OverlayState`, `showSnackbar`, `closeSnackbar`, `showDialog`, `closeDialog`, `showModalBottomSheet`, `closeModalBottomSheet`                                                                                                                  |
+| Overlays      | `OverlayController`, `OverlayState`, `showSnackbar`, `closeSnackbar`, `showDialog`, `showCustomDialog`, `closeDialog`, `showModalBottomSheet`, `closeModalBottomSheet`, `showDatePicker`, `closeDatePicker`, `showDateRangePicker`, `closeDateRangePicker`, `showTimePicker`, `closeTimePicker` |
 | Scrolling     | `ScrollController`, `PageController`, `ScrollPhysics` and its concrete variants                                                                                                                                                                                      |
 | Grids         | `SliverGridDelegateWithFixedCrossAxisCount`, `SliverGridDelegateWithMaxCrossAxisExtent`                                                                                                                                                                              |
 | Tables        | `TableBorder`, `TableRow`, `FlexColumnWidth`, `FixedColumnWidth`, `IntrinsicColumnWidth`, `FractionColumnWidth`                                                                                                                                                      |
@@ -33,6 +34,7 @@ Pass values in the normalized animation range expected by the consuming API.
 
 - Platform detection: [platform.md](platform.md)
 - Lifecycle and browser observers: [lifecycle-and-browser.md](lifecycle-and-browser.md)
+- Imperative routing & overlay popping: [navigator.md](navigator.md)
 - Overlay, scroll, page, physics, grid, and table APIs: [controllers.md](controllers.md)
 - Events, data models, enums, and debounce: [events-models-and-utilities.md](events-models-and-utilities.md)
 - Extensions on context, strings, numbers, dates, CSS, and listenables: [extensions.md](extensions.md)

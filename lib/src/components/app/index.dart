@@ -3,8 +3,8 @@ import 'package:jaspr/jaspr.dart';
 import 'package:jaspr_router/jaspr_router.dart';
 
 import '../../framework/inherited/index.dart' show AppScope;
+import '../../framework/navigator/index.dart';
 import '../../models/naki/index.dart';
-import '../../models/overlays/index.dart';
 import '../../models/styling/index.dart';
 import '../../styles/rules.dart';
 import '../../styles/text_style.dart';

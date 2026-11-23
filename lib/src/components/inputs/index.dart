@@ -12,7 +12,6 @@ import '../../models/gesture.dart';
 import '../../models/naki/index.dart';
 import '../../models/scrolling/index.dart' show TableRow;
 import '../../models/styling/index.dart';
-import '../../styles/rules.dart';
 import '../../styles/text_style.dart';
 import '../../theme/tokens.dart' show Tokens;
 import '../../utilities/constants.dart';
@@ -26,6 +25,8 @@ import '../layout/index.dart';
 import '../overlays/index.dart';
 import '../scrolling/index.dart';
 import '../selection/index.dart';
+
+import 'styles.dart';
 
 part 'autocomplete_field.dart';
 part 'calendar/calendar.dart';

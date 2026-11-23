@@ -9,16 +9,17 @@ import '../utilities/enums/index.dart' show Orientation;
 import '../utilities/extensions/index.dart';
 
 /// {@template MediaQueryProvider}
-/// A Naki component that propagates browser and component width, height, and
-/// orientation to its children.
+/// A Naki component that propagates browser and component
+/// width, height, and orientation to its children.
 ///
-/// It observes the browser window size and orientation, and optionally the size
-/// and orientation of a specific component identified by [id]. The observed
-/// values are then made available to descendant components through
-/// [MediaQueryProvider.of].
+/// It observes the browser window size and orientation,
+/// and optionally the size and orientation of a specific component
+/// identified by [id]. The observed values are then made available
+/// to descendant components through [MediaQueryProvider.of].
 ///
 /// > [!IMPORTANT]
-/// > [MediaQueryProvider] must be used inside a `@client` annotated component.
+/// > [MediaQueryProvider] must be used inside a `@client`
+/// > annotated component.
 ///
 /// ### Example
 /// ```dart
@@ -59,19 +60,21 @@ import '../utilities/extensions/index.dart';
 /// ```
 /// {@endtemplate}
 class MediaQueryProvider extends StatefulComponent {
-  /// The builder function that builds the component whose media query data
-  /// can be observed and propagated to its children when [id] is set.
+  /// The builder function that builds the component whose media
+  /// query data can be observed and propagated to its children
+  /// when [id] is set.
   final ComponentBuilder builder;
 
   /// The unique identifier of the component to observe.
   ///
-  /// When [id] is non-empty, [MediaQueryProvider] observes and propagates
-  /// the media query data of the component returned by [builder]. Otherwise,
-  /// it observes and propagates the media query data of the browser viewport.
+  /// When [id] is non-empty, [MediaQueryProvider] observes and
+  /// propagates the media query data of the component returned by
+  /// [builder]. Otherwise, it observes and propagates the media query
+  /// data of the browser viewport.
   ///
   /// > [!IMPORTANT]
-  /// > The component returned by [builder] must not have an `id` different
-  /// > from this [id].
+  /// > The component returned by [builder] must not have an `id`
+  ///   different from this [id].
   /// > It is advisable to not set the component's id.
   ///
   /// ### Example
@@ -100,13 +103,14 @@ class MediaQueryProvider extends StatefulComponent {
     this.id,
   });
 
-  /// Returns the nearest [MediaQueryData] instance in the component
-  /// tree, `null` otherwise.
+  /// Returns the nearest [MediaQueryData] instance in the
+  /// component tree, `null` otherwise.
   static MediaQueryData? _maybeOf(BuildContext context) {
     return context.dependOnInheritedComponentOfExactType<MediaQueryData>();
   }
 
-  /// Returns the nearest [MediaQueryData] ancestor in the component tree.
+  /// Returns the nearest [MediaQueryData] ancestor in the
+  /// component tree.
   ///
   /// It scans the component tree upwards from the parent of [context]
   /// until it finds an instance of [MediaQueryData].
@@ -114,12 +118,14 @@ class MediaQueryProvider extends StatefulComponent {
   /// Returns `null` if no [MediaQueryData] is in the component tree.
   static MediaQueryData? of(BuildContext context) => _maybeOf(context);
 
-  /// Returns width (in px) from the nearest [MediaQueryProvider] ancestor.
+  /// Returns width (in px) from the nearest [MediaQueryProvider]
+  /// ancestor.
   ///
   /// Returns `null` if no [MediaQueryProvider] is in the component tree.
   static double? width(BuildContext context) => _maybeOf(context)?.width?.value;
 
-  /// Returns height (in px) from the nearest [MediaQueryProvider] ancestor.
+  /// Returns height (in px) from the nearest [MediaQueryProvider]
+  /// ancestor.
   ///
   /// Returns `null` if no [MediaQueryProvider] is in the component tree.
   static double? height(BuildContext context) =>
@@ -131,8 +137,8 @@ class MediaQueryProvider extends StatefulComponent {
   static Orientation? orientation(BuildContext context) =>
       _maybeOf(context)?.orientation;
 
-  /// Returns width (in px) of the nearest [MediaQueryProvider] ancestor whose
-  /// child is identified by [MediaQueryProvider.id].
+  /// Returns width (in px) of the nearest [MediaQueryProvider]
+  /// ancestor whose child is identified by [MediaQueryProvider.id].
   ///
   /// Returns `null` if no such [MediaQueryProvider] is found.
   static double? widthOf(BuildContext context) =>
@@ -140,8 +146,8 @@ class MediaQueryProvider extends StatefulComponent {
       ? _maybeOf(context)?.width?.value
       : null;
 
-  /// Returns height (in px) of the nearest [MediaQueryProvider] ancestor whose
-  /// child is identified by [MediaQueryProvider.id].
+  /// Returns height (in px) of the nearest [MediaQueryProvider]
+  /// ancestor whose child is identified by [MediaQueryProvider.id].
   ///
   /// Returns `null` if no such [MediaQueryProvider] is found.
   static double? heightOf(BuildContext context) =>
@@ -149,8 +155,8 @@ class MediaQueryProvider extends StatefulComponent {
       ? _maybeOf(context)?.height?.value
       : null;
 
-  /// Returns orientation of the nearest [MediaQueryProvider] ancestor whose
-  /// child is identified by [MediaQueryProvider.id].
+  /// Returns orientation of the nearest [MediaQueryProvider]
+  /// ancestor whose child is identified by [MediaQueryProvider.id].
   ///
   /// Returns `null` if no such [MediaQueryProvider] is found.
   static Orientation? orientationOf(BuildContext context) =>
@@ -211,10 +217,12 @@ class _MediaQueryState extends State<MediaQueryProvider>
     super.dispose();
   }
 
-  /// Returns width (in px) of the browser viewport or observed component.
+  /// Returns width (in px) of the browser viewport or
+  /// observed component.
   double? get width => _width?.value;
 
-  /// Returns height (in px) of the browser viewport or observed component.
+  /// Returns height (in px) of the browser viewport or
+  /// observed component.
   double? get height => _height?.value;
 
   /// Returns orientation of the browser viewport or observed component.
@@ -239,7 +247,8 @@ class _MediaQueryState extends State<MediaQueryProvider>
   }
 }
 
-/// Used internally by [MediaQueryProvider] to propagate media query values.
+/// Used internally by [MediaQueryProvider] to propagate
+/// media query values.
 class MediaQueryData extends InheritedComponent {
   /// Width of the browser viewport or the observed component.
   final Dim? width;

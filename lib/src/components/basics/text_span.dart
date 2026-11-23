@@ -124,7 +124,5 @@ class TextSpan extends StatelessComponent implements InlineSpan {
     );
   }
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('Text', [Rules.nakiTextRules]);
+  static List<StyleRule> get styles => BasicsStyles.text;
 }

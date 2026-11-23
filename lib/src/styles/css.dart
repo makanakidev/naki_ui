@@ -107,9 +107,8 @@ class Css {
 
   /// The frosted bottom navbar's drop shadow, overridable through
   /// [kNavbarShadowVar].
-  static const _navbarGlassShadow =
-      'var($kNavbarShadowVar, 0 8px 28px rgba(0, 0, 0, 0.14), '
-      '0 1px 3px rgba(0, 0, 0, 0.08))';
+  static String get _navbarGlassShadow =>
+      'var($kNavbarShadowVar, ${_var(Tokens.current.glassShadow)})';
 
   /// Removes the backdrop effect from a glass surface.
   static const _noGlass = {
@@ -306,7 +305,10 @@ class Css {
   );
 
   /// Default styles applied to components in their disabled state.
-  static final nakiDisabledStyle = {'opacity': '0.3', 'pointer-events': 'none'};
+  static final nakiDisabledStyle = {
+    'opacity': _var(Tokens.current.disabledOpacity),
+    'pointer-events': 'none',
+  };
 
   /// Default text style for form validation errors.
   static final nakiErrorTextStyle = TextStyle(
@@ -319,24 +321,24 @@ class Css {
   /// Default border styling rule applied to inputs with validation errors.
   static final nakiErrorBorderStyle = {
     'outline': 'none',
-    'border': '${Tokens.current.errorBorder.value} !important',
+    'border': '${_var(Tokens.current.errorBorder)} !important',
   };
 
   /// Default border styling rule applied to inputs with focus.
   static final nakiFocusBorderStyle = {
     'outline': 'none',
-    'border': '${Tokens.current.focusBorder.value} !important',
+    'border': '${_var(Tokens.current.focusBorder)} !important',
   };
 
   /// Default styling rule applied to input fields on hover.
   static final nakiFieldHoverStyle = {
-    'border': '${Tokens.current.fieldHoverBorder.value} !important',
+    'border': '${_var(Tokens.current.fieldHoverBorder)} !important',
   };
 
   /// Default placeholder text styling rule inside inputs.
   static final nakiPlaceholderStyle = {
     'color': _var(Tokens.current.placeholderColor),
-    'opacity': '0.6',
+    'opacity': _var(Tokens.current.placeholderOpacity),
     'z-index': _baseZindex,
     'position': 'absolute',
   };
@@ -353,8 +355,8 @@ class Css {
     'icon-wrapper': {
       'height': _var(Tokens.current.inputHeight),
       'background-color': _var(Tokens.current.fieldBackgroundColor),
-      'border-radius': '12px',
-      'border': Tokens.current.border.value,
+      'border-radius': _var(Tokens.current.radiusMd),
+      'border': _var(Tokens.current.border),
       'overflow': 'clip',
     },
 
@@ -364,11 +366,11 @@ class Css {
       'color': _var(Tokens.current.inputTextColor),
       'font-size': _var(Tokens.current.fontSizeInput),
       'margin': '0',
-      'border-radius': '12px',
+      'border-radius': _var(Tokens.current.radiusMd),
       'width': 'auto',
       'line-height': 'normal',
       'height': _var(Tokens.current.inputHeight),
-      'border': Tokens.current.border.value,
+      'border': _var(Tokens.current.border),
       'overflow': 'clip',
     },
   };
@@ -378,8 +380,8 @@ class Css {
     'icon-wrapper': {
       'min-height': _var(Tokens.current.inputHeight),
       'background-color': _var(Tokens.current.fieldBackgroundColor),
-      'border-radius': '12px',
-      'border': Tokens.current.border.value,
+      'border-radius': _var(Tokens.current.radiusMd),
+      'border': _var(Tokens.current.border),
       'overflow': 'clip',
     },
 
@@ -388,11 +390,11 @@ class Css {
       'color': _var(Tokens.current.inputTextColor),
       'font-size': _var(Tokens.current.fontSizeInput),
       'background-color': _var(Tokens.current.fieldBackgroundColor),
-      'border': Tokens.current.border.value,
+      'border': _var(Tokens.current.border),
       'max-height': '250px',
       'padding': '10px 15px',
       'line-height': '1.5',
-      'border-radius': '12px',
+      'border-radius': _var(Tokens.current.radiusMd),
       'width': 'auto',
       'margin': '0',
       'overflow': 'clip',
@@ -414,11 +416,11 @@ class Css {
       'height': '45px',
       'text-align': 'center',
       'font-size': _var(Tokens.current.fontSizeInput),
-      'font-weight': '600',
+      'font-weight': _var(Tokens.current.fontWeightSemiBold),
       'color': _var(Tokens.current.inputTextColor),
       'background-color': _var(Tokens.current.fieldBackgroundColor),
-      'border': Tokens.current.border.value,
-      'border-radius': '12px',
+      'border': _var(Tokens.current.border),
+      'border-radius': _var(Tokens.current.radiusMd),
       'outline': 'none',
       'transition': 'border-color 0.2s, box-shadow 0.2s, background 0.2s',
       'box-sizing': 'border-box',
@@ -430,7 +432,7 @@ class Css {
       'border-top': 'none',
       'border-left': 'none',
       'border-right': 'none',
-      'border-bottom': Tokens.current.border.value,
+      'border-bottom': _var(Tokens.current.border),
       'border-radius': '0',
       'background-color': 'transparent',
     },
@@ -465,14 +467,14 @@ class Css {
     },
 
     'input': {
-      'border': Tokens.current.border.value,
+      'border': _var(Tokens.current.border),
       'position': 'relative',
       'display': 'inline-block',
       'flex-shrink': '0',
       'cursor': 'pointer',
       '-webkit-appearance': 'none',
       'appearance': 'none',
-      'border-radius': '4px',
+      'border-radius': _var(Tokens.current.radiusXs),
       'padding': '4px',
       'vertical-align': 'middle',
       'transition': 'background 0.2s, box-shadow 0.2s',
@@ -493,7 +495,7 @@ class Css {
       'transition-delay': '0.1s',
       'clip-path':
           'polygon(20% 100%, 20% 80%, 50% 80%, 50% 80%, 70% 80%, 70% 100%)',
-      'font-size': '15px',
+      'font-size': _var(Tokens.current.fontSizeMd),
       'line-height': '0.75',
     },
 
@@ -518,7 +520,7 @@ class Css {
     },
 
     'input': {
-      'border': Tokens.current.border.value,
+      'border': _var(Tokens.current.border),
       'position': 'relative',
       'display': 'inline-grid',
       'flex-shrink': '0',
@@ -528,7 +530,7 @@ class Css {
       'place-content': 'center',
       'vertical-align': 'middle',
       'grid-template-columns': '0fr 1fr 1fr',
-      'border-radius': '12px',
+      'border-radius': _var(Tokens.current.radiusMd),
       'padding': '5px',
       'transition': 'color 0.3s, grid-template-columns 0.2s',
       'width': '40px',
@@ -545,7 +547,7 @@ class Css {
       'grid-row-start': '1',
       'aspect-ratio': '1 / 1',
       'height': '100%',
-      'border-radius': '12px',
+      'border-radius': _var(Tokens.current.radiusMd),
       'background-color': 'currentcolor',
       'translate': '0',
       'transition':
@@ -581,8 +583,8 @@ class Css {
       'color': _var(Tokens.current.backgroundColor),
       'padding': '7px',
       'pointer-events': 'none',
-      'border-radius': '999px',
-      'font-size': '12px',
+      'border-radius': _var(Tokens.current.radiusFull),
+      'font-size': _var(Tokens.current.fontSizeSm),
       'min-width': '29px',
       'min-height': '29px',
       'text-align': 'center',
@@ -594,7 +596,7 @@ class Css {
       'cursor': 'pointer',
       '-webkit-appearance': 'none',
       'appearance': 'none',
-      'border-radius': '12px',
+      'border-radius': _var(Tokens.current.radiusMd),
       'background-color': 'transparent',
       'vertical-align': 'middle',
       'margin': '0',
@@ -605,7 +607,7 @@ class Css {
     'active-track': {
       'position': 'absolute',
       'height': 'calc(${_var(Tokens.current.sliderThumbSize)} * 0.5)',
-      'border-radius': '12px',
+      'border-radius': _var(Tokens.current.radiusMd),
       'top': '50%',
       'pointer-events': 'none',
       'translate': '0 -50%',
@@ -617,14 +619,14 @@ class Css {
         Tokens.current.sliderTrackColor,
         38,
       ).value,
-      'border-radius': '12px',
+      'border-radius': _var(Tokens.current.radiusMd),
       'height': 'calc(${_var(Tokens.current.sliderThumbSize)} * 0.5)',
     },
 
     'webkit-thumb': {
       'position': 'relative',
       'box-sizing': 'border-box',
-      'border-radius': '999px',
+      'border-radius': _var(Tokens.current.radiusFull),
       'background-color': _var(Tokens.current.sliderThumbColor),
       'height': _var(Tokens.current.sliderThumbSize),
       'width': _var(Tokens.current.sliderThumbSize),
@@ -640,14 +642,14 @@ class Css {
         Tokens.current.sliderTrackColor,
         38,
       ).value,
-      'border-radius': '12px',
+      'border-radius': _var(Tokens.current.radiusMd),
       'height': 'calc(${_var(Tokens.current.sliderThumbSize)} * 0.5)',
     },
 
     'moz-thumb': {
       'position': 'relative',
       'box-sizing': 'border-box',
-      'border-radius': '999px',
+      'border-radius': _var(Tokens.current.radiusFull),
       'background-color': _var(Tokens.current.sliderThumbColor),
       'height': _var(Tokens.current.sliderThumbSize),
       'width': _var(Tokens.current.sliderThumbSize),
@@ -671,10 +673,10 @@ class Css {
       'width': '100%',
       'gap': '12px',
       'justify-content': 'space-between',
-      'padding': '0 20px',
+      'padding': '0 ${_var(Tokens.current.paddingMd)}',
       'height': _var(Tokens.current.appbarHeight),
       'background-color': _var(Tokens.current.appbarBgColor),
-      'box-shadow': '0px 1px 2px rgba(0, 0, 0, 0.1)',
+      'box-shadow': _var(Tokens.current.appbarShadow),
       'line-height': 'normal',
     },
 
@@ -703,7 +705,7 @@ class Css {
       'left': '0',
       'height': _var(Tokens.current.bottomNavbarHeight),
       'background-color': _var(Tokens.current.bottomNavbarBgColor),
-      'box-shadow': '0px -1px 0px rgba(0, 0, 0, 0.06)',
+      'box-shadow': _var(Tokens.current.bottomNavbarShadow),
       'box-sizing': 'border-box',
       'overflow': 'hidden',
       'z-index': _bottomNavBarZindex,
@@ -728,15 +730,14 @@ class Css {
     'floating': {
       'width': 'calc(100% - 32px - $safeAreaLeft - $safeAreaRight)',
       'max-width': '600px',
-      'border-radius': '25px',
-      'box-shadow':
-          '0px 8px 24px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08)',
+      'border-radius': _var(Tokens.current.radiusLg),
+      'box-shadow': _var(Tokens.current.bottomNavbarFloatingShadow),
     },
 
     'frosted-glass': {
       'width': 'calc(100% - 32px - $safeAreaLeft - $safeAreaRight)',
       'max-width': '600px',
-      'border-radius': '999px',
+      'border-radius': _var(Tokens.current.radiusFull),
       'background-color': 'transparent',
       'box-shadow': 'none',
       'overflow': 'visible',
@@ -763,7 +764,7 @@ class Css {
       'flex': '1 1 0',
       'min-width': '0',
       'padding': '0 5px',
-      'border-radius': '999px',
+      'border-radius': _var(Tokens.current.radiusFull),
       'line-height': 'normal',
       'transition':
           'scale 0.45s cubic-bezier(0.2, 1.6, 0.35, 1), color 0.15s ease, '
@@ -784,7 +785,7 @@ class Css {
           'calc(100% * var($kNavbarIndexVar, 0) / var($kNavbarCountVar, 1) '
           '+ 3px)',
       'width': 'calc(100% / var($kNavbarCountVar, 1) - 6px)',
-      'border-radius': '999px',
+      'border-radius': _var(Tokens.current.radiusFull),
       'pointer-events': 'none',
       'background-color':
           'color-mix(in srgb, ${_var(Tokens.current.bottomNavbarBgColor)} '
@@ -881,12 +882,14 @@ class Css {
       'white-space': 'nowrap',
     },
 
-    'frosted-glass-tile-focus': {'border-radius': '999px'},
+    'frosted-glass-tile-focus': {
+      'border-radius': _var(Tokens.current.radiusFull),
+    },
 
     'tile-focus': {
       'outline': '2px solid ${_var(Tokens.current.primaryColor)}',
       'outline-offset': '-2px',
-      'border-radius': '8px',
+      'border-radius': _var(Tokens.current.radiusSm),
     },
 
     'tile-action': {'width': '100%'},
@@ -910,17 +913,17 @@ class Css {
     'width': _var(Tokens.current.buttonWidth),
     'display': 'flex',
     'box-sizing': 'border-box',
-    'padding': '8px',
+    'padding': _var(Tokens.current.paddingXs),
     'border': 'none',
     'cursor': 'pointer',
-    'border-radius': '12px',
+    'border-radius': _var(Tokens.current.radiusMd),
     'background-color': _var(Tokens.current.buttonBackgroundColor),
     'justify-content': 'center',
     'align-items': 'center',
     'color': _var(Tokens.current.buttonForegroundColor),
     'text-wrap-mode': 'nowrap',
     'text-align': 'center',
-    'font-size': '14px',
+    'font-size': _var(Tokens.current.fontSizeMd),
     'transform': 'none',
     'line-height': 'normal',
   };
@@ -1075,8 +1078,8 @@ class Css {
       'color': _var(Tokens.current.inputTextColor),
       'font-size': _var(Tokens.current.fontSizeInput),
       'background-color': _var(Tokens.current.fieldBackgroundColor),
-      'border-radius': '12px',
-      'border': Tokens.current.border.value,
+      'border-radius': _var(Tokens.current.radiusMd),
+      'border': _var(Tokens.current.border),
       'padding': '0 15px',
       'width': '100%',
       'height': _var(Tokens.current.dropdownHeight),
@@ -1154,8 +1157,8 @@ class Css {
       'height': 'fit-content',
       'overscroll-behavior': 'none',
       'background-color': _var(Tokens.current.dropdownMenuBgColor),
-      'border': Tokens.current.border.value,
-      'border-radius': '12px',
+      'border': _var(Tokens.current.border),
+      'border-radius': _var(Tokens.current.radiusMd),
       'line-height': 'normal',
       'max-height': _var(Tokens.current.dropdownMenuHeight),
     },
@@ -1174,8 +1177,8 @@ class Css {
     },
 
     'no-search-result': {
-      'padding': '20px',
-      'font-size': '13px',
+      'padding': _var(Tokens.current.paddingMd),
+      'font-size': _var(Tokens.current.fontSizeSm),
       'text-align': 'center',
       'color': _var(Tokens.current.placeholderColor),
       '-webkit-user-select': 'none',
@@ -1189,8 +1192,8 @@ class Css {
     'default': {
       'width': _var(Tokens.current.spinnerSize),
       'height': _var(Tokens.current.spinnerSize),
-      'border-radius': '999px',
-      'border': Tokens.current.spinnerBorder.value,
+      'border-radius': _var(Tokens.current.radiusFull),
+      'border': _var(Tokens.current.spinnerBorder),
       'border-top-color': _var(Tokens.current.spinnerColor),
       'animation': 'nakiSpin 0.8s linear infinite',
       '-webkit-user-select': 'none',
@@ -1208,10 +1211,10 @@ class Css {
       ..._glassSurface(
         color: _var(Tokens.current.spinnerSurfaceColor),
         tint: '20%',
-        blur: '8px',
+        blur: _var(Tokens.current.spinnerGlassBlur),
         rim: Tokens.current.spinnerGlassRim,
         glow: '8px',
-        shadow: '0 6px 18px rgba(0, 0, 0, 0.14), 0 1px 3px rgba(0, 0, 0, 0.08)',
+        shadow: _var(Tokens.current.glassShadow),
       ),
     },
 
@@ -1220,8 +1223,8 @@ class Css {
       'position': 'absolute',
       'inset': _spinnerGlassInset,
       'box-sizing': 'border-box',
-      'border-radius': '999px',
-      'border': Tokens.current.spinnerBorder.value,
+      'border-radius': _var(Tokens.current.radiusFull),
+      'border': _var(Tokens.current.spinnerBorder),
       'border-top-color': _var(Tokens.current.spinnerColor),
       'animation': 'nakiSpin 0.8s linear infinite',
     },
@@ -1425,7 +1428,7 @@ class Css {
       'height': 'fit-content',
       'overflow': 'visible',
       'text-wrap': 'balance',
-      'box-shadow': Tokens.current.smallShadow.value,
+      'box-shadow': _var(Tokens.current.smallShadow),
     },
   };
 
@@ -1481,8 +1484,8 @@ class Css {
       'width': '100dvw',
       'height': '100dvh',
       'padding': '$safeAreaTop $safeAreaRight $safeAreaBottom $safeAreaLeft',
-      '-webkit-backdrop-filter': 'blur(5px)',
-      'backdrop-filter': 'blur(5px)',
+      '-webkit-backdrop-filter': 'blur(${_var(Tokens.current.barrierBlur)})',
+      'backdrop-filter': 'blur(${_var(Tokens.current.barrierBlur)})',
       'overscroll-behavior': 'none',
       'touch-action': 'none',
       'animation': 'nakiScrimIn 500ms linear both',
@@ -1493,13 +1496,13 @@ class Css {
       'z-index': _modalZindex,
       'display': 'flex',
       'flex-direction': 'column',
-      'margin': '20px',
+      'margin': _var(Tokens.current.marginMd),
       'background-color': _var(Tokens.current.dialogBgColor),
       'border-radius': _var(Tokens.current.dialogBorderRadius),
       'padding': _var(Tokens.current.dialogPadding),
       'width': 'fit-content',
       'height': 'fit-content',
-      'box-shadow': Tokens.current.largeShadow.value,
+      'box-shadow': _var(Tokens.current.largeShadow),
       'box-sizing': 'border-box',
       'line-height': 'normal',
       'animation':
@@ -1521,7 +1524,7 @@ class Css {
       tint: _var(Tokens.current.glassTint),
       blur: _var(Tokens.current.glassBlur),
       rim: Tokens.current.glassRim,
-      shadow: Tokens.current.largeShadow.value,
+      shadow: _var(Tokens.current.largeShadow),
     ),
 
     'glass-solid': _glassSolid(_var(Tokens.current.dialogBgColor)),
@@ -1535,14 +1538,12 @@ class Css {
 
   /// Default CSS styles map for Sidebar.
   static final nakiSidebarStyle = {
-    'content': {
-      'height': '100%',
-      'width': _var(Tokens.current.drawerWidth),
-      'background-color': _var(Tokens.current.drawerBgColor),
-      'box-sizing': 'border-box',
-      'overflow': 'auto',
-      'line-height': 'normal',
-    },
+    'height': '100%',
+    'width': _var(Tokens.current.drawerWidth),
+    'background-color': _var(Tokens.current.drawerBgColor),
+    'box-sizing': 'border-box',
+    'overflow': 'auto',
+    'line-height': 'normal',
   };
 
   /// Default CSS styles map for Drawer.
@@ -1558,8 +1559,8 @@ class Css {
       'height': '100dvh',
       'background-color': _var(Tokens.current.drawerBarrierBg),
       'box-sizing': 'border-box',
-      '-webkit-backdrop-filter': 'blur(5px)',
-      'backdrop-filter': 'blur(5px)',
+      '-webkit-backdrop-filter': 'blur(${_var(Tokens.current.barrierBlur)})',
+      'backdrop-filter': 'blur(${_var(Tokens.current.barrierBlur)})',
       'touch-action': 'none',
       'animation': 'nakiScrimIn 210ms cubic-bezier(0.2, 0.05, 0.25, 1) both',
     },
@@ -1574,7 +1575,7 @@ class Css {
       'padding-bottom': safeAreaBottom,
       'width': _var(Tokens.current.drawerWidth),
       'background-color': _var(Tokens.current.drawerBgColor),
-      'box-shadow': Tokens.current.largeShadow.value,
+      'box-shadow': _var(Tokens.current.largeShadow),
       'box-sizing': 'border-box',
       'line-height': 'normal',
     },
@@ -1594,8 +1595,8 @@ class Css {
       'height': '100dvh',
       'box-sizing': 'border-box',
       'padding': '$safeAreaTop $safeAreaRight 0 $safeAreaLeft',
-      '-webkit-backdrop-filter': 'blur(5px)',
-      'backdrop-filter': 'blur(5px)',
+      '-webkit-backdrop-filter': 'blur(${_var(Tokens.current.barrierBlur)})',
+      'backdrop-filter': 'blur(${_var(Tokens.current.barrierBlur)})',
       'overscroll-behavior': 'none',
       'touch-action': 'none',
       'animation': 'nakiScrimIn 190ms cubic-bezier(0.25, 0.3, 0.15, 1) both',
@@ -1610,7 +1611,7 @@ class Css {
       'padding-bottom': safeAreaBottom,
       'background-color': _var(Tokens.current.bottomSheetBgColor),
       'border-radius': _var(Tokens.current.bottomSheetBorderRadius),
-      'box-shadow': Tokens.current.largeShadow.value,
+      'box-shadow': _var(Tokens.current.largeShadow),
       'box-sizing': 'border-box',
       'display': 'flex',
       'flex-direction': 'column',
@@ -1626,8 +1627,8 @@ class Css {
       'z-index': '1',
       'width': '70px',
       'height': '5px',
-      'border-radius': '12px',
-      'background-color': 'rgba(150, 150, 150, 0.4)',
+      'border-radius': _var(Tokens.current.radiusMd),
+      'background-color': _var(Tokens.current.bottomSheetHandleColor),
       'margin': '10px auto',
     },
   };
@@ -1641,9 +1642,9 @@ class Css {
       'color': _var(Tokens.current.inputTextColor),
       'font-size': _var(Tokens.current.fontSizeInput),
       'background-color': _var(Tokens.current.fieldBackgroundColor),
-      'border-radius': '12px',
+      'border-radius': _var(Tokens.current.radiusMd),
       'padding': '0 15px',
-      'border': Tokens.current.border.value,
+      'border': _var(Tokens.current.border),
       '-webkit-user-select': 'none',
       'user-select': 'none',
       'text-align': 'left',
@@ -1666,8 +1667,8 @@ class Css {
       'overscroll-behavior': 'none',
       'position': 'absolute',
       'background-color': _var(Tokens.current.dropdownMenuBgColor),
-      'border': Tokens.current.border.value,
-      'border-radius': '12px',
+      'border': _var(Tokens.current.border),
+      'border-radius': _var(Tokens.current.radiusMd),
       'padding': '8px 5px 0',
       'box-shadow': _var(Tokens.current.popoverShadow),
     },
@@ -1701,7 +1702,7 @@ class Css {
     },
 
     'disabled': {
-      'opacity': '0.3',
+      'opacity': _var(Tokens.current.disabledOpacity),
       'pointer-events': 'none',
       'background-color': 'transparent',
     },
@@ -1738,10 +1739,7 @@ class Css {
           'box-shadow 200ms ease, transform 200ms ease, border-color 200ms ease',
     },
 
-    'elevated': {
-      'box-shadow':
-          '0 1px 3px 0 ${_var(Tokens.current.shadowColor)}, 0 1px 2px -1px ${_var(Tokens.current.shadowColor)}',
-    },
+    'elevated': {'box-shadow': _var(Tokens.current.cardShadow)},
 
     'outlined': {
       'border': '1px solid ${_var(Tokens.current.borderColor)}',
@@ -1758,12 +1756,12 @@ class Css {
       tint: _var(Tokens.current.glassTint),
       blur: _var(Tokens.current.glassBlur),
       rim: Tokens.current.glassRim,
-      shadow: '0 8px 28px rgba(0, 0, 0, 0.14), 0 1px 3px rgba(0, 0, 0, 0.08)',
+      shadow: _var(Tokens.current.glassShadow),
     ),
 
     'glass-hover': {
       'box-shadow':
-          '0 12px 36px rgba(0, 0, 0, 0.18), 0 2px 6px rgba(0, 0, 0, 0.1), '
+          '${_var(Tokens.current.cardGlassHoverShadow)}, '
           '${_glassEdge(Tokens.current.glassRim)}',
     },
 

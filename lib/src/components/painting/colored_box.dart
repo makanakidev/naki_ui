@@ -1,7 +1,8 @@
 part of 'index.dart';
 
 /// {@template ColoredBox}
-/// A component that paints a background color or gradient behind its child.
+/// A component that paints a background color or gradient
+/// behind its child.
 ///
 /// ### Example: Box with solid red background
 /// ```dart
@@ -46,13 +47,10 @@ class ColoredBox extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
-    const baseClass = 'naki-coloredbox';
-    final effectiveClasses = joinClasses([?classes, baseClass]);
-
     return .element(
       tag: 'naki-coloredbox',
       key: key,
-      classes: effectiveClasses,
+      classes: classes,
       styles: Styles(
         raw: {
           'display': 'block',

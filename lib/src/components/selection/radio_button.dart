@@ -52,8 +52,8 @@ class RadioButton extends StatelessComponent {
   /// The width and height of the radio button in pixels.
   final double? size;
 
-  /// When `true`, the radio button and [label] will be evenly spaced across
-  /// the available horizontal space.
+  /// When `true`, the radio button and [label] will be
+  /// evenly spaced across the available horizontal space.
   final bool expand;
 
   /// {@macro RadioButton}
@@ -128,9 +128,5 @@ class RadioButton extends StatelessComponent {
     );
   }
 
-  @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('RadioButton', [
-    Rules.nakiRadioBtnRules,
-    Rules.nakiHitboxRules,
-  ]);
+  static List<StyleRule> get styles => SelectionStyles.radioButton;
 }

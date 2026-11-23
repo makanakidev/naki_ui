@@ -43,7 +43,8 @@ class CarouselView extends StatefulComponent {
 
   /// Relative flex weights assigned to components in the carousel.
   ///
-  /// When provided, [children] will be sized based on their relative weight.
+  /// When provided, [children] will be sized based on their
+  /// relative weight.
   ///
   /// ### Example
   /// ```dart
@@ -129,19 +130,22 @@ class CarouselView extends StatefulComponent {
   /// ```
   ///
   /// ### Parameters
-  /// * [flexWeights]: Relative flex weights determining item sizing ratios.
-  /// * [itemExtent]: Base extent (width/height) of each component in the
-  ///   carousel based on [direction].
+  /// * [flexWeights]: Relative flex weights determining item
+  ///   sizing ratios.
+  /// * [itemExtent]: Base extent (width/height) of each component in
+  ///   the carousel based on [direction].
   /// * [children]: Components to display in the carousel.
   /// * [direction]: Scroll axis direction.
   /// * [reverse]: Whether components are rendered in reverse order.
-  /// * [itemSnapping]: Whether components snap into alignment on scroll end.
-  /// * [mainAxisSpacing]: Spacing between components along the scroll direction
+  /// * [itemSnapping]: Whether components snap into alignment on
+  ///   scroll end.
+  /// * [mainAxisSpacing]: Spacing between components along the
+  ///   scroll direction
   /// * [controller]: Controller for programmatic scrolling.
   /// * [physics]: Scroll physics governing inertia and snap behavior.
   /// * [scrollBarConfig]: Scroll bar configuration.
   /// * [onTap]: Callback invoked with the index of the tapped component.
-  /// * [classes]: Additional CSS class names applied to the carousel component.
+  /// * [classes]: Additional CSS class names applied to the carousel.
   factory CarouselView.weighted({
     Key? key,
     required List<double> flexWeights,
@@ -177,9 +181,7 @@ class CarouselView extends StatefulComponent {
   @override
   State<CarouselView> createState() => _CarouselViewState();
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('CarouselView', [Rules.nakiCarouselRules]);
+  static List<StyleRule> get styles => ScrollingStyles.carouselView;
 }
 
 class _CarouselViewState extends State<CarouselView> with NakiStatefulMixin {

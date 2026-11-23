@@ -1,6 +1,7 @@
 part of '../index.dart';
 
-class _CalendarHeader extends StatelessComponent {
+/// Internal header bar shared by [Calendar] and dialog date pickers.
+class NakiCalendarHeader extends StatelessComponent {
   final DateTime visibleDate;
   final DateTime minDate;
   final DateTime maxDate;
@@ -11,7 +12,8 @@ class _CalendarHeader extends StatelessComponent {
   final Component yearMonthPopover;
   final VoidCallback onCloseYearPicker;
 
-  const _CalendarHeader({
+  const NakiCalendarHeader({
+    super.key,
     required this.visibleDate,
     required this.minDate,
     required this.maxDate,
@@ -63,7 +65,7 @@ class _CalendarHeader extends StatelessComponent {
             attributes: {'showyear': ?(showYear ? '' : null)},
             onTap: onToggleYearPicker,
           ),
-          content: showYear ? yearMonthPopover : const .empty(),
+          content: showYear ? yearMonthPopover : const SizedBox(),
           onClose: onCloseYearPicker,
           position: PopoverPosition.bottom,
         ),

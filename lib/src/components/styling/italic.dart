@@ -47,7 +47,5 @@ class Italic extends StatelessComponent with NakiTextScope {
     );
   }
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('Text', [Rules.nakiTextRules]);
+  static List<StyleRule> get styles => BasicsStyles.text;
 }

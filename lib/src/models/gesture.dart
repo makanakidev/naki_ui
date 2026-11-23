@@ -1,11 +1,18 @@
 import 'dart:async';
-import 'package:universal_web/web.dart';
 
-/// Alias for [GestureRecognizer].
-typedef Gestures = GestureRecognizer;
+import 'package:universal_web/web.dart'
+    show
+        ClipboardEvent,
+        DragEvent,
+        Event,
+        FocusEvent,
+        KeyboardEvent,
+        MouseEvent,
+        Node,
+        PointerEvent;
 
-/// Alias for [GestureRecognizer].
 typedef Events = GestureRecognizer;
+typedef Gestures = GestureRecognizer;
 
 /// {@template GestureRecognizer}
 /// A helper class that simplifies binding DOM gestures and

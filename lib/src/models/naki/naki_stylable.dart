@@ -1,5 +1,3 @@
-part of 'index.dart';
-
 /// Abstract class that represents a styleable object.
 abstract class NakiStylable {
   /// The style properties map.

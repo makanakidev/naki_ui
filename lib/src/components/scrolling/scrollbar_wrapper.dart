@@ -1,15 +1,12 @@
 part of 'index.dart';
 
-// /////////////////////////////////////////////////////////////////////////////
-// SCROLLING COMPONENTS
-// /////////////////////////////////////////////////////////////////////////////
-
 /// {@template ScrollBarWrapper}
 /// A component that adds scrollbar styling to its child.
 ///
 /// This is used by components like [SingleChildScrollView], [ListView],
-/// [GridView], [PageView], [CarouselView], [Table], [StaggeredView], and other
-/// scrollable components to add scrollbar styling to their children.
+/// [GridView], [PageView], [CarouselView], [Table], [StaggeredView],
+/// and other scrollable components to add scrollbar styling to
+/// their children.
 ///
 /// ### Example
 /// ```dart
@@ -56,7 +53,8 @@ class ScrollBarWrapper extends StatelessComponent {
   Component build(BuildContext context) {
     return configuration == null
         ? child
-        : .fragment([
+        : NakiFragment([
+            child,
             Document.head(
               children: [
                 StyleRules(
@@ -65,7 +63,6 @@ class ScrollBarWrapper extends StatelessComponent {
                 ),
               ],
             ),
-            child,
           ]);
   }
 }

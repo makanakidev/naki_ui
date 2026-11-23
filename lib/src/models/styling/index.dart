@@ -3,10 +3,11 @@ import 'package:jaspr/dom.dart';
 import '../../styles/text_style.dart';
 import '../../theme/tokens.dart';
 import '../../utilities/enums/index.dart';
-import '../../utilities/extensions/index.dart';
-import '../../utilities/helpers/index.dart' show listEquals, mapEquals;
+import '../../utilities/extensions/core_extensions.dart';
+import '../../utilities/helpers/collection_helpers.dart';
 
-import '../naki/index.dart';
+import '../naki/naki_align_props.dart';
+import '../naki/naki_stylable.dart';
 
 part 'border_data.dart';
 part 'border_radius_data.dart';

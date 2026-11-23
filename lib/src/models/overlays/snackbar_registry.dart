@@ -1,21 +1,31 @@
 part of 'index.dart';
 
-// /////////////////////////////////////////////////////////////////////////////
-// OVERLAY CONTROLLER & UTILITIES
-// /////////////////////////////////////////////////////////////////////////////
-
 /// A singleton registry of snackbar controllers used to keep
 /// track of all the snackbars in the application.
 class SnackbarRegistry {
   static OverlayController? _currentController;
 
-  /// Notifies the registry that a snackbar has opened and automatically
-  /// closes any previously active snackbar.
-  static void onOpen(OverlayController controller) {
-    if (_currentController != null && _currentController != controller) {
-      closeCurrent();
-    }
+  /// Notifies the registry that a snackbar has opened and
+  /// automatically closes any previously active snackbar.
+  ///
+  /// Pass `deferClose: true` when called during component
+  /// mount/build (`initState` / `didUpdateComponent`) so
+  /// closing the previous snackbar runs after the current
+  /// build pass finishes.
+  static void onOpen(
+    OverlayController controller, {
+    bool deferClose = false,
+  }) {
+    final previous = _currentController;
     _currentController = controller;
+
+    if (previous != null && previous != controller) {
+      if (deferClose) {
+        Future.microtask(previous.close);
+      } else {
+        previous.close();
+      }
+    }
   }
 
   /// Notifies the registry that a snackbar has closed.

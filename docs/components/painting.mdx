@@ -33,11 +33,10 @@ DecoratedBox(
 
 // 2. Linear gradient background with rounded corners
 DecoratedBox(
-  gradient: Gradient()
-    ..applyLinear(
-      colors: const [Color('#6366f1'), Color('#a855f7')],
-      direction: LinearGradientDirection.toBottomRight,
-    ),
+  gradient: const LinearGradient(
+    colors: [Color('#6366f1'), Color('#a855f7')],
+    direction: LinearGradientDirection.toBottomRight,
+  ),
   borderRadius: const BorderRadiusData.all(Dim.px(12)),
   shadow: Shadow.large,
   child: const Padding(
@@ -96,12 +95,11 @@ ColoredBox(
 Applies CSS filter effects (such as frosted glass blurs, brightness, grayscale, and contrast) to the area behind its child:
 
 ```dart
-// 1. Custom chained filter pipeline
+// 1. Composed standalone filter subclasses (or cascading Filter()..apply*())
 BackdropFilter(
-  filter: Filter()
-    ..applyBlur(12)
-    ..applyContrast(120)
-    ..applyBrightness(95),
+  filter: const BlurFilter(12)
+      .and(const ContrastFilter(100))
+      .and(const BrightnessFilter(95)),
   child: Container(
     decoration: BoxDecoration(
       backgroundColor: const Color('rgba(255, 255, 255, 0.6)'),

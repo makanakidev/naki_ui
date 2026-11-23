@@ -108,5 +108,35 @@ void main() {
       expect(activeTokens, isNotNull);
       expect(activeTokens!.primaryColorValue, '#22d3ee');
     });
+
+    test('new spacing, radius, elevation, and component tokens customize cleanly', () {
+      const light = LightThemeData(
+        spacing: SpacingScheme(paddingXs: Dim.px(6), marginXs: Dim.px(6)),
+        radius: RadiusScheme(radiusXs: Dim.px(3), radiusFull: Dim.px(50)),
+        elevation: ElevationScheme(
+          cardShadow: '0 2px 4px rgba(0,0,0,0.2)',
+          appbarShadow: 'none',
+        ),
+        component: ComponentScheme(
+          disabledOpacity: 0.45,
+          barrierBlur: Dim.px(12),
+          appbarGlassBlur: Dim.px(16),
+          spinnerGlassBlur: Dim.px(10),
+          bottomSheetHandleColor: Color('#334155'),
+        ),
+      );
+
+      expect(light.variables['--naki-padding-xs'], '6px');
+      expect(light.variables['--naki-margin-xs'], '6px');
+      expect(light.variables['--naki-radius-xs'], '3px');
+      expect(light.variables['--naki-radius-full'], '50px');
+      expect(light.variables['--naki-card-shadow'], '0 2px 4px rgba(0,0,0,0.2)');
+      expect(light.variables['--naki-appbar-shadow'], 'none');
+      expect(light.variables['--naki-disabled-opacity'], '0.45');
+      expect(light.variables['--naki-barrier-blur'], '12px');
+      expect(light.variables['--naki-appbar-glass-blur'], '16px');
+      expect(light.variables['--naki-spinner-glass-blur'], '10px');
+      expect(light.variables['--naki-bottom-sheet-handle-color'], '#334155');
+    });
   });
 }

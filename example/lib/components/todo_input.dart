@@ -1,4 +1,4 @@
-import 'package:jaspr/dom.dart' hide Filter;
+import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
 import 'package:naki_ui/naki_ui.dart';
 import 'package:naki_ui/theme.dart';

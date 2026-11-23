@@ -260,5 +260,3 @@ extension ContextExtension on BuildContext {
   /// BottomSheet barrier backdrop color.
   Color get bottomSheetBarrierBg => themeTokens.bottomSheetBarrierBg.color!;
 }
-
-final _timeAgoNotifiers = <String, ValueNotifier<String>>{};

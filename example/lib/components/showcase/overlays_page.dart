@@ -4,7 +4,18 @@ import 'package:naki_ui/framework.dart';
 import 'package:naki_ui/naki_ui.dart';
 import 'package:naki_ui/theme.dart';
 
+import 'navigator_page.dart';
 import 'showcase.dart';
+
+enum _OverlaysTab {
+  overlays('Overlays'),
+  navigator('Navigator')
+  ;
+
+  const _OverlaysTab(this.label);
+
+  final String label;
+}
 
 /// Dialog, BottomSheet, Drawer, Snackbar, Popover and Tooltip.
 class OverlaysPage extends StatefulComponent {
@@ -22,6 +33,12 @@ class _OverlaysPageState extends State<OverlaysPage> {
   final _snackbar = OverlayController();
 
   String? _popoverVisible;
+  _OverlaysTab _activeTab = _OverlaysTab.overlays;
+
+  @override
+  void setState(VoidCallback fn) {
+    if (mounted && kIsWeb) super.setState(fn);
+  }
 
   @override
   void dispose() {
@@ -44,8 +61,6 @@ class _OverlaysPageState extends State<OverlaysPage> {
         Button.text(
           'Close',
           onTap: controller.close,
-          width: const Dim.px(150),
-          height: const Dim.px(40),
           backgroundColor: Colors.red,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(
@@ -59,20 +74,18 @@ class _OverlaysPageState extends State<OverlaysPage> {
   Future<void> _askToDelete() async {
     final deleted = await showDialog<bool>(
       context: context,
-      builder: (context) => Dialog(
-        title: 'Delete item?',
-        subtitle: 'showDialog completes with the button you pick.',
-        barrierDismissible: true,
-        actions: [
-          Button.text('Cancel', onTap: () => closeDialog(context, false)),
-          Button.text(
-            'Delete',
-            backgroundColor: Colors.red,
-            foregroundColor: Colors.white,
-            onTap: () => closeDialog(context, true),
-          ),
-        ],
-      ),
+      title: 'Delete item?',
+      subtitle: 'showDialog completes with the button you pick.',
+      barrierDismissible: true,
+      actions: (context) => [
+        Button.text('Cancel', onTap: () => Navigator.pop(context, false)),
+        Button.text(
+          'Delete',
+          backgroundColor: Colors.red,
+          foregroundColor: Colors.white,
+          onTap: () => Navigator.pop(context, true),
+        ),
+      ],
     );
 
     if (!mounted) return;
@@ -94,10 +107,10 @@ class _OverlaysPageState extends State<OverlaysPage> {
   Future<void> _pickShareTarget() async {
     Component option(BuildContext context, String label) => Button.text(
       label,
-      onTap: () => closeModalBottomSheet(context, label),
+      onTap: () => Navigator.pop(context, label),
       width: const Dim.px(200),
       height: const Dim.px(40),
-      padding: const EdgeInsets.symmetric(horizontal: Dim.px(20)),
+      padding: EdgeInsets.zero,
     );
 
     final target = await showModalBottomSheet<String>(
@@ -128,257 +141,303 @@ class _OverlaysPageState extends State<OverlaysPage> {
     );
   }
 
+  Component _tabBar(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        backgroundColor: context.surfaceVariantColor,
+        borderRadius: BorderRadiusData.all(const Dim.px(10)),
+        padding: const EdgeInsets.all(Dim.px(4)),
+      ),
+      child: Row(
+        spacing: 4,
+        children: [
+          for (final tab in _OverlaysTab.values)
+            Expanded(
+              child: tab == _activeTab
+                  ? Button.filled(
+                      context.primaryColor,
+                      key: ValueKey('overlays-tab-${tab.name}'),
+                      width: const Dim.percent(100),
+                      height: const Dim.px(36),
+                      padding: EdgeInsets.zero,
+                      foregroundColor: Colors.white,
+                      attributes: const {
+                        'role': 'tab',
+                        'aria-selected': 'true',
+                      },
+                      onTap: () => setState(() => _activeTab = tab),
+                      child: NakiText(tab.label),
+                    )
+                  : Button.text(
+                      tab.label,
+                      key: ValueKey('overlays-tab-${tab.name}'),
+                      width: const Dim.percent(100),
+                      height: const Dim.px(36),
+                      padding: EdgeInsets.zero,
+                      backgroundColor: Colors.transparent,
+                      foregroundColor: context.subtitleColor,
+                      attributes: const {
+                        'role': 'tab',
+                        'aria-selected': 'false',
+                      },
+                      onTap: () => setState(() => _activeTab = tab),
+                    ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Component _overlaysGroup(BuildContext context) {
+    return ShowcaseGroup(
+      title: 'Overlays',
+      subtitle: 'Controller driven, with focus and Escape handled for you.',
+      demos: [
+        Demo(
+          name: 'Dialog',
+          child: Row(
+            spacing: 8,
+            children: [
+              Button.text(
+                'Open',
+                onTap: _dialog.open,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: Dim.px(12),
+                ),
+              ),
+              Button.text(
+                'Open glass',
+                onTap: _glassDialog.open,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: Dim.px(20),
+                ),
+              ),
+              Button.text(
+                'showDialog',
+                onTap: _askToDelete,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: Dim.px(12),
+                ),
+              ),
+              _dialogFor(_dialog),
+              _dialogFor(_glassDialog, glass: true),
+            ],
+          ),
+        ),
+        Demo(
+          name: 'BottomSheet',
+          child: Row(
+            spacing: 8,
+            children: [
+              Button.text(
+                'Open',
+                onTap: _sheet.open,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: Dim.px(20),
+                ),
+              ),
+              Button.text(
+                'showModalBottomSheet',
+                onTap: _pickShareTarget,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: Dim.px(12),
+                ),
+              ),
+              BottomSheet(
+                controller: _sheet,
+                child: Padding(
+                  padding: const EdgeInsets.all(Dim.px(24)),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    spacing: 20,
+                    children: [
+                      const Heading('Share', level: 3),
+                      Button.text(
+                        'Copy link',
+                        onTap: _sheet.close,
+                        width: const Dim.px(200),
+                        height: const Dim.px(40),
+                        padding: EdgeInsets.zero,
+                      ),
+                      Button.text(
+                        'Send by email',
+                        onTap: _sheet.close,
+                        width: const Dim.px(200),
+                        height: const Dim.px(40),
+                        padding: EdgeInsets.zero,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Demo(
+          name: 'Drawer',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Button.text(
+                'Open',
+                onTap: _drawer.open,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: Dim.px(20),
+                ),
+              ),
+              Drawer(
+                controller: _drawer,
+                position: DrawerPosition.left,
+                width: const Dim.px(280),
+                child: Padding(
+                  padding: const EdgeInsets.all(Dim.px(16)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 12,
+                    children: [
+                      const Heading('Menu', level: 3),
+                      Button.text(
+                        'Close',
+                        height: const Dim.px(40),
+                        onTap: _drawer.close,
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                        width: const Dim.percent(100),
+                        padding: EdgeInsets.zero,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Demo(
+          name: 'Snackbar',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Button.text(
+                'Show',
+                onTap: _snackbar.open,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: Dim.px(20),
+                ),
+              ),
+              Snackbar(
+                controller: _snackbar,
+                position: SnackbarPosition.top,
+                duration: const Duration(seconds: 3),
+                backgroundColor: Colors.green,
+                content: const NakiText('Changes saved'),
+                foregroundColor: Colors.white,
+                closeIconColor: Colors.white.withOpacity(80),
+                showCloseIcon: true,
+              ),
+            ],
+          ),
+        ),
+        Demo(
+          name: 'Popover',
+          child: Row(
+            mainAxisAlignment: .spaceBetween,
+            children: [
+              Popover(
+                position: PopoverPosition.left,
+                visible: _popoverVisible == 'left',
+                content: const NakiText(
+                  'Opens left, flips when there is no room',
+                ),
+                onClose: () => setState(() => _popoverVisible = null),
+                child: Button.text(
+                  'Left',
+                  onTap: () => setState(() => _popoverVisible = 'left'),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: Dim.px(20),
+                  ),
+                ),
+              ),
+              Popover(
+                position: PopoverPosition.top,
+                content: const NakiText('Shown on hover or focus'),
+                child: Button.text(
+                  'Hover',
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: Dim.px(20),
+                  ),
+                ),
+              ),
+              Popover(
+                position: PopoverPosition.bottom,
+                visible: _popoverVisible == 'bottom',
+                content: const NakiText(
+                  'Anchored to its trigger, inside the safe area',
+                ),
+                onClose: () => setState(() => _popoverVisible = null),
+                child: Button.text(
+                  'Right',
+                  onTap: () => setState(() => _popoverVisible = 'bottom'),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: Dim.px(20),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Demo(
+          name: 'Tooltip',
+          child: Row(
+            mainAxisAlignment: .spaceBetween,
+            children: [
+              Tooltip(
+                text: 'Flips to stay on screen',
+                position: TooltipPosition.left,
+                child: Button.text(
+                  'Left',
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: Dim.px(20),
+                  ),
+                ),
+              ),
+              Tooltip(
+                text: 'Shown on hover or focus',
+                position: TooltipPosition.top,
+                child: Button.text(
+                  'Top',
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: Dim.px(20),
+                  ),
+                ),
+              ),
+              Tooltip(
+                text: 'Slides to stay on screen',
+                position: TooltipPosition.right,
+                child: Button.text(
+                  'Right',
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: Dim.px(20),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Component build(BuildContext context) {
     return ShowcasePage(
+      header: _tabBar(context),
       groups: [
-        ShowcaseGroup(
-          title: 'Overlays',
-          subtitle: 'Controller driven, with focus and Escape handled for you.',
-          demos: [
-            Demo(
-              name: 'Dialog',
-              child: Row(
-                spacing: 8,
-                children: [
-                  Button.text(
-                    'Open',
-                    onTap: _dialog.open,
-                    height: const Dim.px(40),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: Dim.px(12),
-                    ),
-                  ),
-                  Button.text(
-                    'Open glass',
-                    onTap: _glassDialog.open,
-                    height: const Dim.px(40),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: Dim.px(20),
-                    ),
-                  ),
-                  Button.text(
-                    'showDialog',
-                    onTap: _askToDelete,
-                    height: const Dim.px(40),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: Dim.px(12),
-                    ),
-                  ),
-                  _dialogFor(_dialog),
-                  _dialogFor(_glassDialog, glass: true),
-                ],
-              ),
-            ),
-            Demo(
-              name: 'BottomSheet',
-              child: Row(
-                spacing: 8,
-                children: [
-                  Button.text(
-                    'Open',
-                    onTap: _sheet.open,
-                    height: const Dim.px(40),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: Dim.px(20),
-                    ),
-                  ),
-                  Button.text(
-                    'showModalBottomSheet',
-                    onTap: _pickShareTarget,
-                    height: const Dim.px(40),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: Dim.px(12),
-                    ),
-                  ),
-                  BottomSheet(
-                    controller: _sheet,
-                    child: Padding(
-                      padding: const EdgeInsets.all(Dim.px(24)),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        spacing: 20,
-                        children: [
-                          const Heading('Share', level: 3),
-                          Button.text(
-                            'Copy link',
-                            onTap: _sheet.close,
-                            width: const Dim.px(200),
-                            height: const Dim.px(40),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: Dim.px(20),
-                            ),
-                          ),
-                          Button.text(
-                            'Send by email',
-                            onTap: _sheet.close,
-                            width: const Dim.px(200),
-                            height: const Dim.px(40),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: Dim.px(20),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Demo(
-              name: 'Drawer',
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Button.text(
-                    'Open',
-                    onTap: _drawer.open,
-                    height: const Dim.px(40),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: Dim.px(20),
-                    ),
-                  ),
-                  Drawer(
-                    controller: _drawer,
-                    position: DrawerPosition.left,
-                    width: const Dim.px(280),
-                    child: Padding(
-                      padding: const EdgeInsets.all(Dim.px(16)),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        spacing: 12,
-                        children: [
-                          const Heading('Menu', level: 3),
-                          Button.text(
-                            'Close',
-                            height: const Dim.px(40),
-                            onTap: _drawer.close,
-                            backgroundColor: Colors.red,
-                            foregroundColor: Colors.white,
-                            width: const Dim.px(200),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Demo(
-              name: 'Snackbar',
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Button.text(
-                    'Show',
-                    onTap: _snackbar.open,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: Dim.px(20),
-                    ),
-                  ),
-                  Snackbar(
-                    controller: _snackbar,
-                    position: SnackbarPosition.top,
-                    duration: const Duration(seconds: 3),
-                    backgroundColor: Colors.green,
-                    content: const NakiText('Changes saved'),
-                    foregroundColor: Colors.white,
-                    closeIconColor: Colors.white.withOpacity(80),
-                    showCloseIcon: true,
-                  ),
-                ],
-              ),
-            ),
-            Demo(
-              name: 'Popover',
-              child: Row(
-                mainAxisAlignment: .spaceBetween,
-                children: [
-                  Popover(
-                    position: PopoverPosition.left,
-                    visible: _popoverVisible == 'left',
-                    content: const NakiText(
-                      'Opens left, flips when there is no room',
-                    ),
-                    onClose: () => setState(() => _popoverVisible = null),
-                    child: Button.text(
-                      'Left',
-                      onTap: () => setState(() => _popoverVisible = 'left'),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: Dim.px(20),
-                      ),
-                    ),
-                  ),
-                  Popover(
-                    position: PopoverPosition.top,
-                    content: const NakiText('Shown on hover or focus'),
-                    child: Button.text(
-                      'Hover',
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: Dim.px(20),
-                      ),
-                    ),
-                  ),
-                  Popover(
-                    position: PopoverPosition.bottom,
-                    visible: _popoverVisible == 'bottom',
-                    content: const NakiText(
-                      'Anchored to its trigger, inside the safe area',
-                    ),
-                    onClose: () => setState(() => _popoverVisible = null),
-                    child: Button.text(
-                      'Right',
-                      onTap: () => setState(() => _popoverVisible = 'bottom'),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: Dim.px(20),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Demo(
-              name: 'Tooltip',
-              child: Row(
-                mainAxisAlignment: .spaceBetween,
-                children: [
-                  Tooltip(
-                    text: 'Flips to stay on screen',
-                    position: TooltipPosition.left,
-                    child: Button.text(
-                      'Left',
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: Dim.px(20),
-                      ),
-                    ),
-                  ),
-                  Tooltip(
-                    text: 'Shown on hover or focus',
-                    position: TooltipPosition.top,
-                    child: Button.text(
-                      'Top',
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: Dim.px(20),
-                      ),
-                    ),
-                  ),
-                  Tooltip(
-                    text: 'Slides to stay on screen',
-                    position: TooltipPosition.right,
-                    child: Button.text(
-                      'Right',
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: Dim.px(20),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+        if (_activeTab == _OverlaysTab.overlays)
+          _overlaysGroup(context)
+        else
+          const NavigatorTab(),
       ],
     );
   }

@@ -3,8 +3,9 @@ part of 'index.dart';
 /// {@template TextField}
 /// A component for forms which supports single and multi-line input.
 ///
-/// It can be customized with input type, helper text, label, placeholder,
-/// validation pattern, auto-validation, and other useful properties.
+/// It can be customized with input type, helper text, label,
+/// placeholder, validation pattern, auto-validation,
+/// and other useful properties.
 ///
 /// ### Example
 /// ```dart
@@ -70,8 +71,8 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
   /// (e.g., by pressing `Enter` key).
   final ValueChanged<String>? onSubmit;
 
-  /// Function that returns an error message if the text field value is
-  /// invalid, or `null` otherwise.
+  /// Function that returns an error message if the text
+  /// field value is invalid, or `null` otherwise.
   final FieldValidator<String>? validator;
 
   /// When `true`, the text field is not editable.
@@ -101,14 +102,16 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
   /// The pattern used to validate the text field value.
   final ValidationPattern? pattern;
 
-  /// Minimum numeric value allowed (applies to [InputType.number] only).
+  /// Minimum numeric value allowed
+  /// (applies to [InputType.number] only).
   final int? minValueAllowed;
 
   /// Maximum numeric value allowed
   /// (applies to [InputType.number] and [InputType.range] only).
   final int? maxValueAllowed;
 
-  /// When `true`, the text field is required in [FormBuilder] validation.
+  /// When `true`, the text field is required in
+  /// [FormBuilder] validation.
   final bool required;
 
   /// When `true`, the text field will enable multi-line input.
@@ -117,12 +120,13 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
   /// Number of visible text lines when [isMultiline] is true.
   final int? visibleLines;
 
-  /// Autofill type applied to the text field for native auto completion.
+  /// Autofill type applied to the text field for
+  /// native auto completion.
   final Autofill? autofill;
 
-  /// When [autoValidate] is enabled and [validator] returns an error
-  /// message, the text field will display validation message on
-  /// typing, submitting, or when the field loses focus.
+  /// When [autoValidate] is enabled and [validator] returns an
+  /// error message, the text field will display validation message
+  /// on typing, submitting, or when the field loses focus.
   ///
   /// [validator] must be provided when [autoValidate] is true.
   final bool autoValidate;
@@ -130,8 +134,8 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
   /// When `true`, the text field will auto focus.
   final bool autoFocus;
 
-  /// When `true`, the text field will expand to fill the full
-  /// width of its parent container.
+  /// When `true`, the text field will expand to fill the
+  /// full width of its parent container.
   final bool expand;
 
   /// Text field background color.
@@ -516,12 +520,5 @@ class TextField extends StatelessComponent with NakiStatelessMixin {
     );
   }
 
-  @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('TextField', [
-    Rules.nakiInputRules,
-    Rules.nakiFormFieldRules,
-    Rules.nakiTextareaRules,
-    Rules.nakiHelperRules,
-    Rules.nakiErrorRules,
-  ]);
+  static List<StyleRule> get styles => InputsStyles.textField;
 }

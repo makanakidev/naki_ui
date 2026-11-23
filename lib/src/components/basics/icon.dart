@@ -97,7 +97,7 @@ class Icon extends StatelessComponent {
           'margin': '0 $hitBoxMargin',
           'padding': '0',
           'border': 'none',
-          'background': 'none',
+          'background-color': 'transparent',
           'color': 'inherit',
           'font': 'inherit',
         },
@@ -107,9 +107,5 @@ class Icon extends StatelessComponent {
     );
   }
 
-  @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('Icon', [
-    Rules.nakiIconRules,
-    Rules.nakiHitboxRules,
-  ]);
+  static List<StyleRule> get styles => BasicsStyles.icon;
 }

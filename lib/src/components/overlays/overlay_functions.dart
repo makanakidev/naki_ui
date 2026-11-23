@@ -1,7 +1,8 @@
 part of 'index.dart';
 
-/// Invokes [close] only when the barrier itself (not overlay content) was
-/// clicked, so content clicks keep bubbling for outside-click handlers.
+/// Invokes [close] only when the barrier itself
+/// (not overlay content) was clicked, so content clicks keep
+/// bubbling for outside-click handlers.
 void _onBarrierClick(Event event, VoidCallback close) {
   if (identical(event.target, event.currentTarget)) close();
 }
@@ -22,17 +23,19 @@ OverlayHostState _hostOf(BuildContext context, String caller) {
 void showSnackbar(BuildContext context, Snackbar snackbar) {
   if (!kIsWeb) return;
 
-  closeSnackbar();
+  final controller = OverlayController(isOpen: true);
+  SnackbarRegistry.onOpen(controller);
 
-  // The host may sit above the Scaffold (NakiApp's), so hand the snackbar
-  // the caller's Scaffold: it offsets itself past the app bar and navbar.
+  // The host may sit above the Scaffold (NakiApp's),
+  // so hand the snackbar the caller's Scaffold: it offsets
+  // itself past the app bar and navbar.
   final scaffold = Scaffold.maybeOf(context);
 
   _hostOf(context, 'showSnackbar').show(
     scaffold == null
         ? snackbar
         : ScaffoldScope(state: scaffold, child: snackbar),
-    controller: OverlayController(isOpen: true),
+    controller: controller,
     exitDuration: snackbar.duration,
   );
 }
@@ -40,39 +43,119 @@ void showSnackbar(BuildContext context, Snackbar snackbar) {
 /// Closes the snackbar that is currently open, if any.
 void closeSnackbar() => SnackbarRegistry.closeCurrent();
 
-/// Shows the dialog [builder] returns and completes with the result passed
-/// to [closeDialog], or `null` when it is dismissed another way.
+/// Shows a [Dialog] configured with the given properties
+/// and completes with the result passed to [Navigator.pop]
+/// (or [closeDialog]), or `null` when it is dismissed another way.
 ///
-/// Leave [Dialog.controller] out: the dialog is controlled automatically
-/// and removed once it closes.
+/// Use [builder] for custom body content or pass [title] and [subtitle].
+/// Use [actions] to build action buttons with the dialog's own
+/// [BuildContext] so they can call [Navigator.pop] (or [closeDialog]).
+///
+/// For full control over the root dialog component
+/// (for example wrapping or providing a custom dialog subtree
+/// directly), use [showCustomDialog].
 ///
 /// ### Example
 /// ```dart
 /// final confirmed = await showDialog<bool>(
 ///   context: context,
-///   builder: (context) => Dialog(
-///     title: 'Delete item?',
-///     barrierDismissible: true,
-///     actions: [
-///       Button.text('Cancel', onTap: () => closeDialog(context, false)),
-///       Button.text('Delete', onTap: () => closeDialog(context, true)),
-///     ],
-///   ),
+///   title: 'Delete item?',
+///   barrierDismissible: true,
+///   actions: (context) => [
+///     Button.text('Cancel', onTap: () => Navigator.pop(context, false)),
+///     Button.text('Delete', onTap: () => Navigator.pop(context, true)),
+///   ],
 /// );
 /// ```
 Future<T?> showDialog<T>({
   required BuildContext context,
+  Component Function(BuildContext context)? builder,
+  String? title,
+  String? subtitle,
+  List<Component> Function(BuildContext context)? actions,
+  DialogPosition position = DialogPosition.center,
+  bool barrierDismissible = false,
+  bool glass = false,
+  String? semanticLabel,
+  SizeConstraints? sizeConstraints,
+  Color? backgroundColor,
+  Color? barrierColor,
+  Gradient? gradient,
+  BorderRadiusData? borderRadius,
+  EdgeInsets? padding,
+  String? classes,
+  VoidCallback? onClose,
+}) => _showWithResult<T>(
+  context,
+  'showDialog',
+  Builder(
+    builder: (context) => Dialog(
+      position: position,
+      barrierDismissible: barrierDismissible,
+      glass: glass,
+      title: title,
+      semanticLabel: semanticLabel,
+      subtitle: subtitle,
+      actions: actions?.call(context),
+      content: builder?.call(context),
+      sizeConstraints: sizeConstraints,
+      backgroundColor: backgroundColor,
+      barrierColor: barrierColor,
+      gradient: gradient,
+      borderRadius: borderRadius,
+      padding: padding,
+      classes: classes,
+      onClose: onClose,
+    ),
+  ),
+);
+
+/// Shows the custom dialog component [builder] returns and
+/// completes with the result passed to [Navigator.pop] (or
+/// [closeDialog]), or `null` when it is dismissed another way.
+///
+/// Leave [Dialog.controller] out when returning a [Dialog]: it is
+/// controlled automatically and removed once it closes.
+///
+/// ### Example
+/// ```dart
+/// final accepted = await showCustomDialog<bool>(
+///   context: context,
+///   builder: (context) => Card(
+///     padding: const EdgeInsets.all(Dim.px(24)),
+///     child: Column(
+///       mainAxisSize: MainAxisSize.min,
+///       spacing: 12,
+///       children: [
+///         const Heading('Notice', level: 3),
+///         const NakiText('Custom overlay content'),
+///         Button.text('Accept', onTap: () => Navigator.pop(context, true)),
+///       ],
+///     ),
+///   ),
+/// );
+/// ```
+Future<T?> showCustomDialog<T>({
+  required BuildContext context,
   required Component Function(BuildContext context) builder,
-}) => _showWithResult<T>(context, 'showDialog', Builder(builder: builder));
+}) =>
+    _showWithResult<T>(context, 'showCustomDialog', Builder(builder: builder));
 
-/// Closes the dialog [context] belongs to, completing its [showDialog]
-/// future with [result].
-void closeDialog<T>(BuildContext context, [T? result]) =>
-    _closeWithResult(context, result, 'closeDialog', 'showDialog');
+/// Closes the dialog [context] belongs to, completing its [showDialog] or
+/// [showCustomDialog] future with [result].
+///
+/// Use [Navigator.pop] unless you want a dialog-specific helper.
+void closeDialog<T>(BuildContext context, [T? result]) => _closeWithResult(
+  context,
+  result,
+  'closeDialog',
+  'showDialog or showCustomDialog',
+);
 
-/// Shows a modal [BottomSheet] holding the content [builder] returns and
-/// completes with the result passed to [closeModalBottomSheet], or `null`
-/// when it is dismissed another way.
+/// Shows a modal [BottomSheet] holding the content [builder]
+/// returns and completes with the result passed to [Navigator.pop]
+/// (or [closeModalBottomSheet]), or `null` when it is dismissed
+/// another way.
 ///
 /// The other arguments are passed to the [BottomSheet].
 ///
@@ -82,8 +165,8 @@ void closeDialog<T>(BuildContext context, [T? result]) =>
 ///   context: context,
 ///   builder: (context) => Column(
 ///     children: [
-///       Button.text('Share', onTap: () => closeModalBottomSheet(context, 'share')),
-///       Button.text('Delete', onTap: () => closeModalBottomSheet(context, 'delete')),
+///       Button.text('Share', onTap: () => Navigator.pop(context, 'share')),
+///       Button.text('Delete', onTap: () => Navigator.pop(context, 'delete')),
 ///     ],
 ///   ),
 /// );
@@ -121,6 +204,8 @@ Future<T?> showModalBottomSheet<T>({
 
 /// Closes the bottom sheet [context] belongs to, completing its
 /// [showModalBottomSheet] future with [result].
+///
+/// Use [Navigator.pop] unless you want a sheet-specific helper.
 void closeModalBottomSheet<T>(BuildContext context, [T? result]) =>
     _closeWithResult(
       context,
@@ -129,7 +214,164 @@ void closeModalBottomSheet<T>(BuildContext context, [T? result]) =>
       'showModalBottomSheet',
     );
 
-/// Mounts [overlay] in the host and completes with the value it closed with.
+/// Shows a modal dialog containing a calendar date picker and completes
+/// with the selected [DateTime], or `null` if cancelled or dismissed.
+///
+/// The other arguments configure bounds, title, and dialog styling.
+///
+/// ### Example
+/// ```dart
+/// final date = await showDatePicker(
+///   context: context,
+///   initialDate: DateTime.now(),
+///   firstDate: DateTime(2000),
+///   lastDate: DateTime(2100),
+/// );
+/// ```
+Future<DateTime?> showDatePicker({
+  required BuildContext context,
+  DateTime? initialDate,
+  DateTime? firstDate,
+  DateTime? lastDate,
+  String title = 'Select date',
+  bool barrierDismissible = true,
+  Color? backgroundColor,
+  Color? barrierColor,
+  String semanticLabel = 'Date picker',
+}) {
+  final minDate =
+      firstDate ?? DateTime.now().subtract(const Duration(days: 365 * 10));
+  final maxDate = lastDate ?? DateTime.now().add(const Duration(days: 365 * 5));
+  assert(
+    !minDate.isAfter(maxDate),
+    'firstDate ($minDate) must not be after lastDate ($maxDate).',
+  );
+
+  return _showWithResult<DateTime>(
+    context,
+    'showDatePicker',
+    NakiDatePickerDialog(
+      initialDate: initialDate,
+      firstDate: minDate,
+      lastDate: maxDate,
+      isRange: false,
+      title: title,
+      barrierDismissible: barrierDismissible,
+      backgroundColor: backgroundColor,
+      barrierColor: barrierColor,
+      semanticLabel: semanticLabel,
+    ),
+  );
+}
+
+/// Closes the date picker [context] belongs to, completing its
+/// [showDatePicker] future with [result].
+///
+/// Use [Navigator.pop] unless you want a picker-specific helper.
+void closeDatePicker(BuildContext context, [DateTime? result]) =>
+    _closeWithResult(context, result, 'closeDatePicker', 'showDatePicker');
+
+/// Shows a modal dialog containing a calendar date range picker
+/// and completes with the selected dates in chronological order,
+/// or `null` if cancelled or dismissed.
+///
+/// ### Example
+/// ```dart
+/// final range = await showDateRangePicker(
+///   context: context,
+///   firstDate: DateTime(2020),
+///   lastDate: DateTime(2030),
+/// );
+/// ```
+Future<List<DateTime>?> showDateRangePicker({
+  required BuildContext context,
+  List<DateTime>? initialDateRange,
+  DateTime? firstDate,
+  DateTime? lastDate,
+  String title = 'Select date range',
+  bool barrierDismissible = true,
+  Color? backgroundColor,
+  Color? barrierColor,
+  String semanticLabel = 'Date range picker',
+}) {
+  final minDate =
+      firstDate ?? DateTime.now().subtract(const Duration(days: 365 * 10));
+  final maxDate = lastDate ?? DateTime.now().add(const Duration(days: 365 * 5));
+  assert(
+    !minDate.isAfter(maxDate),
+    'firstDate ($minDate) must not be after lastDate ($maxDate).',
+  );
+
+  return _showWithResult<List<DateTime>>(
+    context,
+    'showDateRangePicker',
+    NakiDatePickerDialog(
+      initialDateRange: initialDateRange,
+      firstDate: minDate,
+      lastDate: maxDate,
+      isRange: true,
+      title: title,
+      barrierDismissible: barrierDismissible,
+      backgroundColor: backgroundColor,
+      barrierColor: barrierColor,
+      semanticLabel: semanticLabel,
+    ),
+  );
+}
+
+/// Closes the date range picker [context] belongs to, completing its
+/// [showDateRangePicker] future with [result].
+///
+/// Use [Navigator.pop] unless you want a picker-specific helper.
+void closeDateRangePicker(BuildContext context, [List<DateTime>? result]) =>
+    _closeWithResult(
+      context,
+      result,
+      'closeDateRangePicker',
+      'showDateRangePicker',
+    );
+
+/// Shows a modal dialog containing a time picker and completes with the
+/// selected [DateTime] (using [initialTime] or today's date for year,
+/// month, and day), or `null` if cancelled or dismissed.
+///
+/// ### Example
+/// ```dart
+/// final time = await showTimePicker(
+///   context: context,
+///   initialTime: DateTime.now(),
+/// );
+/// ```
+Future<DateTime?> showTimePicker({
+  required BuildContext context,
+  DateTime? initialTime,
+  String title = 'Select time',
+  bool barrierDismissible = true,
+  Color? backgroundColor,
+  Color? barrierColor,
+  String semanticLabel = 'Time picker',
+}) => _showWithResult<DateTime>(
+  context,
+  'showTimePicker',
+  NakiTimePickerDialog(
+    initialTime: initialTime ?? DateTime.now(),
+    title: title,
+    barrierDismissible: barrierDismissible,
+    backgroundColor: backgroundColor,
+    barrierColor: barrierColor,
+    semanticLabel: semanticLabel,
+  ),
+);
+
+/// Closes the time picker [context] belongs to, completing its
+/// [showTimePicker] future with [result].
+///
+/// Use [Navigator.pop] unless you want a picker-specific helper.
+void closeTimePicker(BuildContext context, [DateTime? result]) =>
+    _closeWithResult(context, result, 'closeTimePicker', 'showTimePicker');
+
+/// Mounts [overlay] in the host and completes with the value
+/// it closed with.
 Future<T?> _showWithResult<T>(
   BuildContext context,
   String caller,
@@ -138,7 +380,7 @@ Future<T?> _showWithResult<T>(
   final completer = Completer<T?>();
   if (!kIsWeb) return completer.future;
 
-  final controller = _ResultController<T>();
+  final controller = OverlayResultController<T>();
 
   _hostOf(context, caller).show(
     overlay,
@@ -158,27 +400,13 @@ void _closeWithResult(
 ) {
   final controller = OverlayEntryScope.maybeOf(context);
   assert(
-    controller is _ResultController,
+    controller is OverlayResultController,
     '$caller needs the context of an overlay shown with $opener',
   );
 
-  if (controller is _ResultController) {
+  if (controller is OverlayResultController) {
     controller.closeWith(result);
   } else {
     controller?.close();
-  }
-}
-
-/// An [OverlayController] that keeps the value its overlay closed with.
-class _ResultController<T> extends OverlayController {
-  _ResultController() : super(isOpen: true);
-
-  /// The value [closeWith] closed the overlay with.
-  T? result;
-
-  /// Closes the overlay with [value], kept when it is a [T].
-  void closeWith(Object? value) {
-    if (value is T) result = value;
-    close();
   }
 }

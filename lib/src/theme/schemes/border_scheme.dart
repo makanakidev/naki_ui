@@ -1,4 +1,4 @@
-part of '../theme.dart';
+part of '../theme_data.dart';
 
 /// Represents customizable global border color and width variables.
 class BorderScheme {

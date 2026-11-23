@@ -96,6 +96,6 @@ Use `fire(tag)` to immediately run pending work and `cancelAll()` only when the 
 - Theme and feedback: `ThemeMode`, `Brightness`, `BannerType`.
 - Overlays: `SnackbarPosition`, `DrawerPosition`, `TooltipPosition`, `PopoverPosition`, `DialogPosition`.
 - Navigation: `BottomNavigationBarType`, `BottomNavigationBarLandscapeLayout`.
-- Painting: `Filter`, `Gradient`, `LinearGradientDirection`, `RadialGradientPosition`, `ConicGradientPosition`.
+- Painting: `Filter` (and standalone subclasses `BlurFilter`, `BrightnessFilter`, `ContrastFilter`, `GrayscaleFilter`, `HueRotateFilter`, `InvertFilter`, `OpacityFilter`, `SaturationFilter`, `SepiaFilter`, `RawFilter`), `Gradient` (and standalone subclasses `LinearGradient`, `RadialGradient`, `ConicGradient`, `RepeatingLinearGradient`, `RepeatingRadialGradient`, `RepeatingConicGradient`, `RawGradient`), `LinearGradientDirection`, `RadialGradientPosition`, `ConicGradientPosition`.
 
 Use enum values instead of hand-written strings so generated code remains aligned with the package API.

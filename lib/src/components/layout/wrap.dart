@@ -1,7 +1,8 @@
 part of 'index.dart';
 
 /// {@template Wrap}
-/// A component that displays its children in multiple horizontal or vertical runs.
+/// A component that displays its children in multiple horizontal
+/// or vertical runs.
 ///
 /// ### Example
 /// ```dart
@@ -77,7 +78,5 @@ class Wrap extends StatelessComponent {
     );
   }
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('Wrap', [Rules.nakiWrapRules]);
+  static List<StyleRule> get styles => LayoutStyles.wrap;
 }

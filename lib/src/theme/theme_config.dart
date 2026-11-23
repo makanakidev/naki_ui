@@ -1,12 +1,12 @@
-part of 'theme.dart';
+part of 'theme_data.dart';
 
 /// {@template ThemeConfig}
 /// Naki Theme Configuration for defining global
 /// light and dark theme customizations.
 ///
 /// Theme configuration should occur once at the top-level root
-/// component (e.g. inside `main()` or in the root [NakiApp] or
-/// [NakiThemeProvider.fromConfig] declaration).
+/// component (e.g. inside `main()` or in the root `NakiApp` or
+/// `NakiThemeProvider.fromConfig` declaration).
 ///
 /// #### Example: Basic Usage
 /// ```dart

@@ -1,6 +1,6 @@
 import 'package:jaspr/dom.dart';
 
-import '../../theme.dart' show LightThemeData, NakiThemeProvider;
+import 'theme_data.dart' show LightThemeData;
 
 /// Represents an individual design token consisting of a fallback CSS value
 /// and its corresponding CSS variable name (e.g. `--naki-green`).
@@ -39,13 +39,13 @@ abstract class Tokens {
   /// Default tokens used for CSS variable names and fallback values.
   ///
   /// Active theme values are request-local and available from
-  /// [NakiThemeProvider.tokensOf] or `context.themeTokens`.
+  /// `NakiThemeProvider.tokensOf` or `context.themeTokens`.
   static const Tokens current = LightThemeData();
 
   /// User-defined style properties applied on top of [current] theme
   /// tokens when [variables] is called.
   ///
-  /// Set by [NakiThemeProvider] when `additionalStyles` is provided.
+  /// Set by `NakiThemeProvider` when `additionalStyles` is provided.
   /// Entries override matching token variables. Set to `null`
   /// to clear custom styles.
   final Map<String, String>? customVariables;
@@ -450,6 +450,22 @@ abstract class Tokens {
     color: const Color('var(--naki-disabled-color)'),
   );
 
+  /// Default value for [disabledOpacity].
+  String get disabledOpacityValue => '0.3';
+
+  /// Opacity for disabled components (default: `0.3`,
+  /// CSS variable: `--naki-disabled-opacity`).
+  Token get disabledOpacity =>
+      Token(value: disabledOpacityValue, name: '--naki-disabled-opacity');
+
+  /// Default value for [placeholderOpacity].
+  String get placeholderOpacityValue => '0.6';
+
+  /// Opacity for input placeholder text (default: `0.6`,
+  /// CSS variable: `--naki-placeholder-opacity`).
+  Token get placeholderOpacity =>
+      Token(value: placeholderOpacityValue, name: '--naki-placeholder-opacity');
+
   // ===========================================================================
   // Border Tokens
   // ===========================================================================
@@ -643,6 +659,11 @@ abstract class Tokens {
     name: '--naki-spinner-border',
   );
 
+  /// Default backdrop blur of a glass spinner
+  /// (default: `8px`, CSS variable: `--naki-spinner-glass-blur`).
+  Token get spinnerGlassBlur =>
+      const Token(value: '8px', name: '--naki-spinner-glass-blur');
+
   /// Default value for [glassTint].
   String get glassTintValue => '15%';
 
@@ -686,6 +707,10 @@ abstract class Tokens {
   // Spacing Tokens
   // ===========================================================================
 
+  /// Extra small padding spacer (default: `8px`,
+  /// CSS variable: `--naki-padding-xs`).
+  Token get paddingXs => const Token(value: '8px', name: '--naki-padding-xs');
+
   /// Small padding/margin spacer (default: `12px`,
   /// CSS variable: `--naki-padding-sm`).
   Token get paddingSm => const Token(value: '12px', name: '--naki-padding-sm');
@@ -697,6 +722,10 @@ abstract class Tokens {
   /// Large padding/margin spacer (default: `40px`,
   /// CSS variable: `--naki-padding-lg`).
   Token get paddingLg => const Token(value: '40px', name: '--naki-padding-lg');
+
+  /// Extra small margin spacer (default: `8px`,
+  /// CSS variable: `--naki-margin-xs`).
+  Token get marginXs => const Token(value: '8px', name: '--naki-margin-xs');
 
   /// Small margin spacer (default: `12px`,
   /// CSS variable: `--naki-margin-sm`).
@@ -747,9 +776,73 @@ abstract class Tokens {
     name: '--naki-large-shadow',
   );
 
+  /// Default value for [cardShadow].
+  String get cardShadowValue =>
+      '0 1px 3px 0 var(${shadowColor.name}, ${shadowColor.value}), '
+      '0 1px 2px -1px var(${shadowColor.name}, ${shadowColor.value})';
+
+  /// Elevated card box-shadow rule
+  /// (CSS variable: `--naki-card-shadow`).
+  Token get cardShadow =>
+      Token(value: cardShadowValue, name: '--naki-card-shadow');
+
+  /// Default value for [appbarShadow].
+  String get appbarShadowValue => '0px 1px 2px rgba(0, 0, 0, 0.1)';
+
+  /// AppBar box-shadow rule (default: `0px 1px 2px rgba(0, 0, 0, 0.1)`,
+  /// CSS variable: `--naki-appbar-shadow`).
+  Token get appbarShadow =>
+      Token(value: appbarShadowValue, name: '--naki-appbar-shadow');
+
+  /// Default value for [bottomNavbarShadow].
+  String get bottomNavbarShadowValue => '0px -1px 0px rgba(0, 0, 0, 0.06)';
+
+  /// Fixed bottom navigation bar box-shadow rule
+  /// (default: `0px -1px 0px rgba(0, 0, 0, 0.06)`,
+  /// CSS variable: `--naki-bottom-navbar-shadow`).
+  Token get bottomNavbarShadow => Token(
+    value: bottomNavbarShadowValue,
+    name: '--naki-bottom-navbar-shadow',
+  );
+
+  /// Default value for [bottomNavbarFloatingShadow].
+  String get bottomNavbarFloatingShadowValue =>
+      '0px 8px 24px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08)';
+
+  /// Floating bottom navigation bar box-shadow rule
+  /// (CSS variable: `--naki-bottom-navbar-floating-shadow`).
+  Token get bottomNavbarFloatingShadow => Token(
+    value: bottomNavbarFloatingShadowValue,
+    name: '--naki-bottom-navbar-floating-shadow',
+  );
+
+  /// Default value for [glassShadow].
+  String get glassShadowValue =>
+      '0 8px 28px rgba(0, 0, 0, 0.14), 0 1px 3px rgba(0, 0, 0, 0.08)';
+
+  /// Glassmorphism surface box-shadow rule
+  /// (CSS variable: `--naki-glass-shadow`).
+  Token get glassShadow =>
+      Token(value: glassShadowValue, name: '--naki-glass-shadow');
+
+  /// Default value for [cardGlassHoverShadow].
+  String get cardGlassHoverShadowValue =>
+      '0 12px 36px rgba(0, 0, 0, 0.18), 0 2px 6px rgba(0, 0, 0, 0.1)';
+
+  /// Hover box-shadow rule for glass cards
+  /// (CSS variable: `--naki-card-glass-hover-shadow`).
+  Token get cardGlassHoverShadow => Token(
+    value: cardGlassHoverShadowValue,
+    name: '--naki-card-glass-hover-shadow',
+  );
+
   // ===========================================================================
   // Border Radius Tokens
   // ===========================================================================
+
+  /// Extra small border radius (default: `4px`,
+  /// CSS variable: `--naki-radius-xs`).
+  Token get radiusXs => const Token(value: '4px', name: '--naki-radius-xs');
 
   /// Small border radius (default: `6px`, CSS variable: `--naki-radius-sm`).
   Token get radiusSm => const Token(value: '6px', name: '--naki-radius-sm');
@@ -759,6 +852,11 @@ abstract class Tokens {
 
   /// Large border radius (default: `24px`, CSS variable: `--naki-radius-lg`).
   Token get radiusLg => const Token(value: '24px', name: '--naki-radius-lg');
+
+  /// Pill / circular border radius (default: `999px`,
+  /// CSS variable: `--naki-radius-full`).
+  Token get radiusFull =>
+      const Token(value: '999px', name: '--naki-radius-full');
 
   // ===========================================================================
   // Component Tokens
@@ -961,6 +1059,11 @@ abstract class Tokens {
   /// (default: `56px`, CSS variable: `--naki-appbar-height`).
   Token get appbarHeight =>
       const Token(value: '56px', name: '--naki-appbar-height');
+
+  /// Backdrop blur of a blurred appbar
+  /// (default: `10px`, CSS variable: `--naki-appbar-glass-blur`).
+  Token get appbarGlassBlur =>
+      const Token(value: '10px', name: '--naki-appbar-glass-blur');
 
   /// Default value for [bottomNavbarBgColor]
   String get bottomNavbarBgColorValue => '#f5f5f5';
@@ -1357,6 +1460,23 @@ abstract class Tokens {
     color: const Color('var(--naki-bottom-sheet-barrier-bg)'),
   );
 
+  /// Default value for [bottomSheetHandleColor].
+  String get bottomSheetHandleColorValue => 'rgba(150, 150, 150, 0.4)';
+
+  /// BottomSheet drag handle color
+  /// (default: `rgba(150, 150, 150, 0.4)`,
+  /// CSS variable: `--naki-bottom-sheet-handle-color`).
+  Token get bottomSheetHandleColor => Token(
+    value: bottomSheetHandleColorValue,
+    name: '--naki-bottom-sheet-handle-color',
+    color: const Color('var(--naki-bottom-sheet-handle-color)'),
+  );
+
+  /// Overlay barrier backdrop blur
+  /// (default: `5px`, CSS variable: `--naki-barrier-blur`).
+  Token get barrierBlur =>
+      const Token(value: '5px', name: '--naki-barrier-blur');
+
   /// Calendar day cell width and height
   /// (default: `42px`, CSS variable: `--naki-calendar-cell-size`).
   Token get calendarCellSize =>
@@ -1550,6 +1670,8 @@ abstract class Tokens {
     fieldHoverColor.name: fieldHoverColor.value,
     disabledBgColor.name: disabledBgColor.value,
     disabledColor.name: disabledColor.value,
+    disabledOpacity.name: disabledOpacity.value,
+    placeholderOpacity.name: placeholderOpacity.value,
 
     // Border tokens
     border.name: border.value,
@@ -1591,12 +1713,15 @@ abstract class Tokens {
     spinnerColor.name: spinnerColor.value,
     spinnerSurfaceColor.name: spinnerSurfaceColor.value,
     spinnerGlassRim.name: spinnerGlassRim.value,
+    spinnerGlassBlur.name: spinnerGlassBlur.value,
     spinnerBladeColor.name: spinnerBladeColor.value,
 
     // Spacing tokens
+    paddingXs.name: paddingXs.value,
     paddingSm.name: paddingSm.value,
     paddingMd.name: paddingMd.value,
     paddingLg.name: paddingLg.value,
+    marginXs.name: marginXs.value,
     marginSm.name: marginSm.value,
     marginMd.name: marginMd.value,
     marginLg.name: marginLg.value,
@@ -1606,11 +1731,19 @@ abstract class Tokens {
     smallShadow.name: smallShadow.value,
     mediumShadow.name: mediumShadow.value,
     largeShadow.name: largeShadow.value,
+    cardShadow.name: cardShadow.value,
+    appbarShadow.name: appbarShadow.value,
+    bottomNavbarShadow.name: bottomNavbarShadow.value,
+    bottomNavbarFloatingShadow.name: bottomNavbarFloatingShadow.value,
+    glassShadow.name: glassShadow.value,
+    cardGlassHoverShadow.name: cardGlassHoverShadow.value,
 
     // Radius tokens
+    radiusXs.name: radiusXs.value,
     radiusSm.name: radiusSm.value,
     radiusMd.name: radiusMd.value,
     radiusLg.name: radiusLg.value,
+    radiusFull.name: radiusFull.value,
 
     // Input tokens
     inputHeight.name: inputHeight.value,
@@ -1651,6 +1784,7 @@ abstract class Tokens {
     // Appbar tokens
     appbarBgColor.name: appbarBgColor.value,
     appbarHeight.name: appbarHeight.value,
+    appbarGlassBlur.name: appbarGlassBlur.value,
 
     // Bottom navbar tokens
     bottomNavbarBgColor.name: bottomNavbarBgColor.value,
@@ -1720,6 +1854,8 @@ abstract class Tokens {
     bottomSheetMaxHeight.name: bottomSheetMaxHeight.value,
     bottomSheetBorderRadius.name: bottomSheetBorderRadius.value,
     bottomSheetBarrierBg.name: bottomSheetBarrierBg.value,
+    bottomSheetHandleColor.name: bottomSheetHandleColor.value,
+    barrierBlur.name: barrierBlur.value,
 
     // ListView tokens
     listViewItemExtentHeight.name: listViewItemExtentHeight.value,

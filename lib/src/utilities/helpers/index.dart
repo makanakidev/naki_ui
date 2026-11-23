@@ -8,7 +8,7 @@ import 'package:universal_web/js_interop.dart';
 import 'package:universal_web/web.dart';
 
 import '../../framework/inherited/index.dart';
-import '../../models/naki/index.dart' show SEO;
+import '../../models/naki/seo.dart';
 import '../../stub/index.dart';
 import '../../styles/css.dart';
 
@@ -16,6 +16,8 @@ import '../constants.dart';
 import '../enums/index.dart';
 import '../extensions/index.dart';
 import '../storage.dart';
+
+export 'collection_helpers.dart';
 
 part 'browser_and_seo_helpers.dart';
 part 'dom_and_collection_helpers.dart';

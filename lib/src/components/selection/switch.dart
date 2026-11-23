@@ -2,7 +2,8 @@ part of 'index.dart';
 
 /// {@template Switch}
 /// A component that displays a toggle switch, with support
-/// for an optional text label placed on either the left or the right side.
+/// for an optional text label placed on either the left
+/// or the right side.
 ///
 /// ### Example
 /// ```dart
@@ -127,9 +128,5 @@ class Switch extends StatelessComponent {
     );
   }
 
-  @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('Switch', [
-    Rules.nakiSwitchRules,
-    Rules.nakiHitboxRules,
-  ]);
+  static List<StyleRule> get styles => SelectionStyles.nakiSwitch;
 }

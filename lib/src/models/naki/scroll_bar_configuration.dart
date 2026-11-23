@@ -1,4 +1,4 @@
-part of 'index.dart';
+import 'package:jaspr/dom.dart' show Color;
 
 /// Scroll bar configuration.
 class ScrollBarConfiguration {

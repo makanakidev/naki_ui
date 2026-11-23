@@ -111,9 +111,7 @@ class ExpansionTile extends StatefulComponent {
   @override
   State<ExpansionTile> createState() => _ExpansionTileState();
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('ExpansionTile', Rules.nakiExpansionPanelRules);
+  static List<StyleRule> get styles => LayoutStyles.expansionTile;
 }
 
 class _ExpansionTileState extends State<ExpansionTile> {

@@ -1,8 +1,8 @@
 part of 'index.dart';
 
-/// Mixin on `State` for modal overlays: moves focus into the overlay, traps
-/// `Tab`, closes on `Escape` while top-most in [NakiOverlayStack], and hands
-/// focus back when it closes.
+/// Mixin on `State` for modal overlays: moves focus into the
+/// overlay, traps `Tab`, closes on `Escape` while top-most in
+/// [NakiOverlayStack], and hands focus back when it closes.
 ///
 /// Attach [overlaySurfaceKey] to the overlay's surface and call
 /// [syncOverlayAccessibility] from `build` with its open state.
@@ -11,17 +11,19 @@ mixin NakiAccessibleOverlayMixin<T extends StatefulComponent> on State<T> {
   HTMLElement? _previousFocus;
   bool _requestedOpen = false;
 
-  /// Key for the overlay's surface, which holds focus and the `Tab` trap.
+  /// Key for the overlay's surface, which holds focus
+  /// and the `Tab` trap.
   final overlaySurfaceKey = GlobalNodeKey<HTMLElement>();
 
-  /// Starts or stops managing focus as [open] changes; [close] runs on
-  /// `Escape`.
+  /// Starts or stops managing focus as [open] changes;
+  /// [close] runs on `Escape`.
   void syncOverlayAccessibility(bool open, VoidCallback close) {
     if (_requestedOpen == open) return;
 
     _requestedOpen = open;
 
-    // capture the trigger before the overlay renders and autofocus moves focus
+    // capture the trigger before the overlay renders and
+    // autofocus moves focus
     if (open && kIsWeb) _previousFocus = document.activeElement as HTMLElement?;
 
     onComponentRendered(() {

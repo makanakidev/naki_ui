@@ -4,16 +4,15 @@ part of 'index.dart';
 /// A component that applies a backdrop filter to the area
 /// behind its child.
 ///
-/// This component is useful for creating frosted glass effects and
-/// other cool visual effects.
+/// This component is useful for creating frosted glass
+/// effects and other cool visual effects.
 ///
 /// ### Example
 /// ```dart
 /// BackdropFilter(
-///   filter: Filter()
-///     ..applyBlur(8)
-///     ..applyContrast(250)
-///     ..applyGrayscale(100),
+///   filter: const BlurFilter(8)
+///       .and(const ContrastFilter(100))
+///       .and(const GrayscaleFilter(100)),
 ///   child: Container(
 ///     size: SizeConstraints(
 ///       width: Dim.px(100),
@@ -31,17 +30,18 @@ class BackdropFilter extends StatelessComponent {
   final Component child;
 
   /// Filters to apply to the backdrop.
-  /// This is used to create effects like blur, contrast, grayscale, etc.
+  /// This is used to create effects like blur, contrast,
+  /// grayscale, etc.
   ///
-  /// See [Filter] for available filter methods.
+  /// Accepts a cascading [Filter], a standalone filter
+  /// (e.g., [BlurFilter], [BrightnessFilter],
+  /// [ContrastFilter]), or filters composed
+  /// via [Filter.and].
   ///
   /// ### Example
   /// ```dart
   /// BackdropFilter(
-  ///   filter: Filter()
-  ///     ..applyBlur(8)
-  ///     ..applyContrast(250)
-  ///     ..applyGrayscale(100),
+  ///   filter: const BlurFilter(8).and(const ContrastFilter(100)),
   ///   ...,
   /// )
   /// ```
@@ -60,13 +60,10 @@ class BackdropFilter extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
-    const baseClass = 'naki-backdropfilter';
-    final effectiveClasses = joinClasses([?classes, baseClass]);
-
     return .element(
       tag: 'naki-backdropfilter',
       key: key,
-      classes: effectiveClasses,
+      classes: classes,
       styles: Styles(raw: {'display': 'block', ...filter.props}),
       children: [child],
     );

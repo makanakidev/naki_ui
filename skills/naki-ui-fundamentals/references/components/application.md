@@ -66,6 +66,24 @@ NakiApp.router(
 
 The `basePath` must start with `/`. Include the router returned to `builder` when supplying a custom router wrapper. Client-side SPA navigation requires a hydrated boundary; server-driven multipage routing can render without client navigation.
 
+## Navigator & imperative routes
+
+`NakiApp` and `NakiApp.router` mount `Navigator` above the app's `OverlayHost`. Push typed routes with `Navigator.push`, named routes with `Navigator.pushNamed`, or pop overlays and routes uniformly with `Navigator.pop(context, [result])`:
+
+```dart
+final saved = await Navigator.push<bool>(
+  context,
+  NakiPageRoute(
+    settings: const NakiRouteSettings(name: '/edit', arguments: 'item-1'),
+    builder: (context) => EditPage(
+      onSave: () => Navigator.pop(context, true),
+    ),
+  ),
+);
+```
+
+When called inside an active overlay (`showDialog`, `showModalBottomSheet`, `showDatePicker`, `showDateRangePicker`, `showTimePicker`, or declarative `Dialog`, `BottomSheet`, and modal `Drawer`), `Navigator.pop` closes that overlay first before popping imperative routes or delegating to `RouterState.back()`.
+
 ## PageNotFound
 
 Use the default fallback directly or customize its text.

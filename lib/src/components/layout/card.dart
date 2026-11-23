@@ -6,8 +6,8 @@ part of 'index.dart';
 /// a settings panel.
 ///
 /// By default, a [Card] uses an elevated surface with subtle box shadow
-/// and rounded corners. Use [Card.outlined] for a card bounded by a border,
-/// or [Card.filled] for a solid surface-variant card.
+/// and rounded corners. Use [Card.outlined] for a card bounded by a
+/// border, or [Card.filled] for a solid surface-variant card.
 ///
 /// ### Example
 /// ```dart
@@ -27,7 +27,8 @@ class Card extends StatelessComponent {
   final Component child;
 
   /// Background color of the card.
-  /// This will override [BoxDecoration.backgroundColor] if both are provided.
+  /// This will override [BoxDecoration.backgroundColor] if
+  /// both are provided.
   final Color? color;
 
   /// Decoration applied to the card.
@@ -51,7 +52,8 @@ class Card extends StatelessComponent {
   final double? elevation;
 
   /// Border radius of the card corners.
-  /// This will override [BoxDecoration.borderRadius] if both are provided.
+  /// This will override [BoxDecoration.borderRadius] if
+  /// both are provided.
   final BorderRadiusData? borderRadius;
 
   /// Inner padding inside the card.
@@ -75,8 +77,8 @@ class Card extends StatelessComponent {
 
   /// Optional callback invoked when the card is clicked.
   ///
-  /// When provided, the card renders with an interactive pointer cursor
-  /// and hover feedback.
+  /// When provided, the card renders with an interactive
+  /// pointer cursor and hover feedback.
   final FutureOr<void> Function()? onTap;
 
   final CardVariant _variant;
@@ -147,11 +149,10 @@ class Card extends StatelessComponent {
 
   /// Creates a glass card.
   ///
-  /// Glass cards tint and blur the content behind them, so they need something
-  /// to sit on such as an image or a gradient. [color] sets the tint.
-  /// `--naki-glass-tint`, `--naki-glass-rim` and `--naki-glass-blur` tune the
-  /// surface, and the card turns opaque for users who ask for less
-  /// transparency or more contrast.
+  /// Glass cards tint and blur the content behind them, so they
+  /// need something to sit on such as an image or a gradient.
+  /// [color] sets the tint, and the card turns opaque for
+  /// users who ask for less transparency or more contrast.
   ///
   /// A glass surface inside this card only sees the card, not the page.
   const Card.glass({
@@ -177,7 +178,8 @@ class Card extends StatelessComponent {
     if (elevation <= 0) return 'none';
 
     final col =
-        shadowColor?.value ?? 'var(--naki-shadow-color, rgba(0, 0, 0, 0.1))';
+        shadowColor?.value ??
+        'var(${Tokens.current.shadowColor.name}, ${Tokens.current.shadowColor.value})';
     final y = (elevation * 2).clamp(1, 24).toInt();
     final blur = (elevation * 4).clamp(2, 48).toInt();
     final spread = (elevation * 0.5).clamp(0, 8).toInt();
@@ -193,7 +195,7 @@ class Card extends StatelessComponent {
 
     final effectiveClasses = joinClasses([
       ?classes,
-      if (interactiveClass.isNotEmpty) interactiveClass,
+      interactiveClass,
       variantClass,
       'naki-card',
     ]);
@@ -248,7 +250,5 @@ class Card extends StatelessComponent {
     );
   }
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('Card', [Rules.nakiCardRules]);
+  static List<StyleRule> get styles => LayoutStyles.card;
 }

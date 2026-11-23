@@ -6,9 +6,10 @@ import 'package:naki_ui/theme.dart';
 
 /// Scrollable page of [ShowcaseGroup]s inside the app's [PageView].
 class ShowcasePage extends StatelessComponent {
-  const ShowcasePage({super.key, required this.groups});
+  const ShowcasePage({super.key, this.header, required this.groups});
 
-  final List<ShowcaseGroup> groups;
+  final Component? header;
+  final List<Component> groups;
 
   @override
   Component build(BuildContext context) {
@@ -25,8 +26,11 @@ class ShowcasePage extends StatelessComponent {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
-            spacing: 32,
-            children: groups,
+            spacing: 24,
+            children: [
+              ?header,
+              ...groups,
+            ],
           ),
         ),
       ),

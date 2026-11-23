@@ -1,7 +1,8 @@
 part of 'index.dart';
 
 /// {@template RotatedBox}
-/// A component that rotates its child by integral numbers of quarter turns.
+/// A component that rotates its child by integral numbers
+/// of quarter turns.
 ///
 /// ### Example
 /// ```dart
@@ -31,15 +32,12 @@ class RotatedBox extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
-    const baseClass = 'naki-rotatedbox';
-    final effectiveClasses = joinClasses([?classes, baseClass]);
-
     final degrees = (quarterTurns % 4) * 90;
 
     return .element(
       tag: 'naki-rotatedbox',
       key: key,
-      classes: effectiveClasses,
+      classes: classes,
       styles: Styles(
         raw: {'display': 'inline-block', 'transform': 'rotate(${degrees}deg)'},
       ),

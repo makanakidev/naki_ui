@@ -6,11 +6,11 @@
 | --- | --- | --- |
 | Brand and semantic palette | `ColorSeed` | primary, background, text, surfaces, focus, error, success, warning, info |
 | Type scale | `TypographyScheme` | font family, size scale, label and validation sizes, weights |
-| Global spacing scale | `SpacingScheme` | small, medium, and large padding and margin |
+| Global spacing scale | `SpacingScheme` | `xs`, `sm`, `md`, `lg` padding and margin |
 | Borders | `BorderScheme` | color and normal, hover, focus, error widths |
-| Shadows | `ElevationScheme` | default, small, medium, and large shadow colors |
-| Shape | `RadiusScheme` | small, medium, large, and general shape radii |
-| Individual component defaults | `ComponentScheme` | inputs, buttons, overlays, navigation, tables, scrolling |
+| Shadows | `ElevationScheme` | shadow colors plus `cardShadow`, `appbarShadow`, `bottomNavbarShadow`, `bottomNavbarFloatingShadow`, `glassShadow`, and `cardGlassHoverShadow` |
+| Shape | `RadiusScheme` | `xs`, `sm`, `md`, `lg`, `full`, and general shape radii |
+| Individual component defaults | `ComponentScheme` | inputs, buttons, overlays (including `barrierBlur`, `bottomSheetHandleColor`), navigation (`appbarGlassBlur`), `spinnerGlassBlur`, `disabledOpacity`, tables, scrolling |
 
 Each seed supports `copyWith` for deriving a closely related configuration. Prefer constructing immutable data once instead of rebuilding large theme objects inside component `build` methods.
 

@@ -1,4 +1,4 @@
-part of '../theme.dart';
+part of '../theme_data.dart';
 
 /// Represents customizable sizes for the `Calendar` picker.
 ///

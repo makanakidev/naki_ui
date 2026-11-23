@@ -61,9 +61,6 @@ class ComponentSpan extends StatelessComponent implements InlineSpan {
     final defaultStyle = DefaultTextStyle.of(context);
     final mergedStyle = defaultStyle.combineWith(style).props;
 
-    const baseClass = 'naki-component-span';
-    final effectiveClasses = joinClasses([?classes, baseClass]);
-
     final effectiveStyles = {
       ...mergedStyle,
       'display': 'inline-block',
@@ -78,14 +75,12 @@ class ComponentSpan extends StatelessComponent implements InlineSpan {
     return .element(
       key: key,
       tag: 'naki-componentspan',
-      classes: effectiveClasses,
+      classes: classes,
       styles: Styles(raw: effectiveStyles),
       attributes: {'aria-label': ?semanticsLabel},
       children: [child],
     );
   }
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('Text', [Rules.nakiTextRules]);
+  static List<StyleRule> get styles => BasicsStyles.text;
 }

@@ -62,3 +62,48 @@ class OverlayController {
     _listeners.clear();
   }
 }
+
+/// An [OverlayController] that captures a typed [result] before closing.
+///
+/// Used by imperative overlay functions (`showDialog`,
+/// `showModalBottomSheet`, `showDatePicker`, `showTimePicker`, etc.)
+/// and resolved by `Navigator.pop(context, result)`.
+class OverlayResultController<T> extends OverlayController {
+  /// Result passed when closing this overlay.
+  T? result;
+
+  /// Creates a new [OverlayResultController].
+  OverlayResultController({super.isOpen = true});
+
+  /// Records [value] (when compatible with [T]) and closes the overlay.
+  void closeWith([Object? value]) {
+    if (value == null) {
+      result = null;
+    } else if (value is T) {
+      result = value as T?;
+    } else {
+      throw ArgumentError.value(
+        value,
+        'result',
+        'Expected $T? when popping overlay',
+      );
+    }
+    close();
+  }
+}
+
+/// An [OverlayController] bound to a custom close callback for declarative
+/// overlays (`Dialog`, `BottomSheet`, modal `Drawer`) so `Navigator.pop`
+/// triggers the overlay's own close handler.
+class OverlayCallbackController extends OverlayController {
+  final VoidCallback _onClose;
+
+  /// Creates an [OverlayCallbackController] delegating
+  /// [close] to [_onClose].
+  OverlayCallbackController(this._onClose, {super.isOpen = true});
+
+  @override
+  void close() {
+    _onClose();
+  }
+}

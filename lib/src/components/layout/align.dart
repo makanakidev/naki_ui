@@ -1,13 +1,9 @@
 part of 'index.dart';
 
-// /////////////////////////////////////////////////////////////////////////////
-// LAYOUT COMPONENTS
-// /////////////////////////////////////////////////////////////////////////////
-
 /// {@template Align}
-/// A component that positions its child within itself using an alignment
-/// value. Optionally, [widthFactor] and [heightFactor] shrink the component
-/// to a fraction of the child's intrinsic size.
+/// A component that positions its child within itself using an
+/// alignment value. Optionally, [widthFactor] and [heightFactor]
+/// shrink the component to a fraction of the child's intrinsic size.
 ///
 /// ### Example
 /// ```dart
@@ -30,16 +26,20 @@ class Align extends StatefulComponent {
   /// How to align the child.
   final Alignment alignment;
 
-  /// If non-null, shrinks the align component to its child's intrinsic width
-  /// multiplied by this factor (e.g. `0.5` → half the child's natural width).
+  /// If non-null, shrinks the align component to its child's
+  /// intrinsic width multiplied by this factor
+  /// (e.g. `0.5` → half the child's natural width).
   ///
-  /// Note: Must be non-negative. Values greater than 1 expand the component.
+  /// Note: Must be non-negative. Values greater than 1 expand
+  /// the component.
   final double? widthFactor;
 
-  /// If non-null, shrinks the align component to its child's intrinsic height
-  /// multiplied by this factor (e.g. `0.5` → half the child's natural height).
+  /// If non-null, shrinks the align component to its child's
+  /// intrinsic height multiplied by this factor
+  /// (e.g. `0.5` → half the child's natural height).
   ///
-  /// Note: Must be non-negative. Values greater than 1 expand the component.
+  /// Note: Must be non-negative. Values greater than 1 expand
+  /// the component.
   final double? heightFactor;
 
   /// Additional CSS classes applied to the align component.
@@ -65,9 +65,7 @@ class Align extends StatefulComponent {
   @override
   State<Align> createState() => _AlignState();
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('Align', [Rules.nakiAlignRules]);
+  static List<StyleRule> get styles => LayoutStyles.align;
 }
 
 class _AlignState extends State<Align> with NakiStatefulMixin {

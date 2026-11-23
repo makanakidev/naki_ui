@@ -22,18 +22,13 @@ class ClipOval extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
-    const baseClass = 'naki-clip-oval';
-    final effectiveClasses = joinClasses([?classes, baseClass]);
-
     return .element(
       tag: 'naki-clipoval',
       key: key,
-      classes: effectiveClasses,
+      classes: classes,
       children: [child],
     );
   }
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('ClipOval', [Rules.nakiClipOvalRules]);
+  static List<StyleRule> get styles => PaintingStyles.clipOval;
 }

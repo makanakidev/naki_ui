@@ -1,10 +1,12 @@
 part of 'index.dart';
 
 /// {@template Sidebar}
-/// A component that renders a persistent side navigation alongside main content.
+/// A component that renders a persistent side navigation alongside
+/// main content.
 ///
-/// Unlike [Drawer], [Sidebar] remains permanently visible, does not render a
-/// backdrop barrier, and does not require an [OverlayController].
+/// Unlike [Drawer], [Sidebar] remains permanently visible, does
+/// not render a backdrop barrier, and does not require an
+/// [OverlayController].
 ///
 /// ### Example
 /// ```dart
@@ -50,7 +52,5 @@ class Sidebar extends Drawer {
          classes: classes,
        );
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('Sidebar', Rules.nakiSidebarRules);
+  static List<StyleRule> get styles => OverlaysStyles.sidebar;
 }

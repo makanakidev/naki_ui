@@ -1,8 +1,9 @@
 part of '../index.dart';
 
 /// {@template Calendar}
-/// A component that enables selection of date, time, both, or a date range
-/// with built-in validation, customization and styling options.
+/// A component that enables selection of date, time, both,
+/// or a date range with built-in validation, customization
+/// and styling options.
 ///
 /// ### Example
 /// ```dart
@@ -34,21 +35,22 @@ class Calendar extends StatefulComponent {
   final CalendarType type;
 
   /// Initial value of the calendar based on [type].
-  /// - If [type] is [CalendarType.time], [initialValue] will be used to
-  /// initialize the time picker.
-  /// - If [type] is [CalendarType.date], [initialValue] will be used to
-  /// initialize the date picker.
-  /// - If [type] is [CalendarType.both], [initialValue] will be used to
-  /// initialize both the date and time pickers.
+  /// - If [type] is [CalendarType.time], [initialValue]
+  /// will be used to initialize the time picker.
+  /// - If [type] is [CalendarType.date], [initialValue]
+  /// will be used to initialize the date picker.
+  /// - If [type] is [CalendarType.both], [initialValue]
+  /// will be used to initialize both the date and time pickers.
   final DateTime? initialValue;
 
   /// Initial date range values of the calendar.
-  /// When [type] is [CalendarType.range], [initialRange] will be used to
-  /// initialize the date picker.
+  /// When [type] is [CalendarType.range], [initialRange]
+  /// will be used to initialize the date picker.
   ///
-  /// Dates can be in any order and their time is ignored. The earliest and
-  /// latest dates set the range, so a `[start, end]` list and the list emitted
-  /// by [onSelectedRange] are both accepted. A single date is a one-day range.
+  /// Dates can be in any order and their time is ignored.
+  /// The earliest and latest dates set the range, so a
+  /// `[start, end]` list and the list emitted by [onSelectedRange]
+  /// are both accepted. A single date is a one-day range.
   final List<DateTime> initialRange;
 
   /// Text displayed in the header of the date or time picker.
@@ -65,28 +67,29 @@ class Calendar extends StatefulComponent {
   /// This is not called when [type] is [CalendarType.range].
   final ValueChanged<DateTime>? onSelected;
 
-  /// Callback invoked when a range of date is selected, with every day from
-  /// the start date through the end date in ascending order.
+  /// Callback invoked when a range of date is selected, with
+  /// every day from the start date through the end date
+  /// in ascending order.
   final ValueChanged<List<DateTime>>? onSelectedRange;
 
   /// Callback that returns an error message if the selected
   /// date or time is invalid, or `null` otherwise.
   ///
-  /// **NOTE:** Use [rangeValidator] to validate the whole range when [type]
-  /// is [CalendarType.range].
+  /// **NOTE:** Use [rangeValidator] to validate the whole
+  /// range when [type] is [CalendarType.range].
   final FieldValidator<DateTime?>? validator;
 
-  /// Callback that returns an error message if the selected date range is
-  /// invalid, or `null` otherwise.
+  /// Callback that returns an error message if the selected date
+  /// range is invalid, or `null` otherwise.
   ///
-  /// This receives every day in the range, or `null` if nothing is selected.
-  /// It runs only when [type] is [CalendarType.range].
+  /// This receives every day in the range, or `null` if nothing
+  /// is selected. It runs only when [type] is [CalendarType.range].
   final FieldValidator<List<DateTime>?>? rangeValidator;
 
   /// Whether the calendar component is read-only (default: `false`).
   ///
-  /// When `true`, the calendar date or time pickers will be displayed
-  /// and not interactive.
+  /// When `true`, the calendar date or time pickers will
+  /// be displayed and not interactive.
   final bool readOnly;
 
   /// Custom component such as text or icon, which opens and closes
@@ -103,8 +106,8 @@ class Calendar extends StatefulComponent {
   /// Whether the calendar component automatically gains focus
   /// after it is rendered in the client-side.
   ///
-  /// When [child] is not provided and [autoFocus] is enabled, the default
-  /// trigger component will be focused.
+  /// When [child] is not provided and [autoFocus] is enabled,
+  /// the default trigger component will be focused.
   ///
   /// This will not work if the calendar is inside a hidden
   /// component such as a dialog.
@@ -117,17 +120,19 @@ class Calendar extends StatefulComponent {
   /// error message, the validation message will be displayed
   /// when a selection occurs or when the form is submitted.
   ///
-  /// Note: [validator] or [rangeValidator] must be provided when
-  /// [autoValidate] is true.
+  /// Note: [validator] or [rangeValidator] must be provided
+  /// when [autoValidate] is true.
   final bool autoValidate;
 
   /// Calendar background color.
   final Color? backgroundColor;
 
-  /// Width of the calendar [child]. Ignored when [child] is provided.
+  /// Width of the calendar [child].
+  /// Ignored when [child] is provided.
   final Dim? width;
 
-  /// Height of the calendar [child]. Ignored when [child] is provided.
+  /// Height of the calendar [child].
+  /// Ignored when [child] is provided.
   final Dim? height;
 
   /// Decoration configuration for placeholder, label, helper text,
@@ -197,13 +202,7 @@ class Calendar extends StatefulComponent {
   @override
   State<Calendar> createState() => _CalendarState();
 
-  @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('Calendar', [
-    ...Rules.nakiCalendarRules,
-    Rules.nakiFormFieldRules,
-    Rules.nakiHelperRules,
-    Rules.nakiErrorRules,
-  ]);
+  static List<StyleRule> get styles => InputsStyles.calendar;
 }
 
 class _CalendarState extends State<Calendar>
@@ -287,7 +286,7 @@ class _CalendarState extends State<Calendar>
     _selectedDates = initialDates;
 
     if (type == CalendarType.time) {
-      _selectedDates = [now];
+      _selectedDates = [_visibleDate];
       _selectedTime = Duration(
         hours: _visibleDate.hour,
         minutes: _visibleDate.minute,
@@ -344,64 +343,36 @@ class _CalendarState extends State<Calendar>
   List<DateTime> get _initialDates {
     if (!_isRange) return [?component.initialValue];
 
-    final dates = [for (final date in component.initialRange) _dateOnly(date)]
-      ..sort();
+    final dates = [
+      for (final date in component.initialRange)
+        NakiCalendarGrid.dateOnly(date),
+    ]..sort();
 
     return dates.isEmpty ? [] : [dates.first, dates.last];
   }
 
   /// Every day in the selected range, in ascending order
   List<DateTime> get _rangeDays =>
-      _selectedDates.first.daysThrough(_selectedDates.last);
+      _selectedDates.firstOrNull?.daysThrough(_selectedDates.last) ?? [];
 
   /// Whether to validate the input (when autoValidate or required is true)
   bool get _shouldValidate => component.autoValidate || component.required;
 
   void _updateTriggerText() {
-    if (currentValue != null && component.child == null) {
-      _triggerText = _displayedValue(currentValue!);
+    if (component.child == null) {
+      _triggerText = _displayedValue(currentValue);
     }
   }
 
   /// Builds the calendar month component
-  CalendarMonth _buildCalendarMonth(DateTime date) {
-    final first = DateTime(date.year, date.month, 1);
-    final days = DateTime(date.year, date.month + 1, 0).day;
-
-    final daysInMonth = [
-      // leading nulls to align with the first day of the week, Monday
-      for (var i = 1; i < first.weekday; i++) null,
-
-      // days of the month
-      for (var day = 1; day <= days; day++)
-        CalendarDay(
-          date: DateTime(date.year, date.month, day),
-          isSelected: _isSelected(DateTime(date.year, date.month, day)),
-          isToday: DateTime(date.year, date.month, day).isToday,
-          isDisabled: _isOutsideBounds(DateTime(date.year, date.month, day)),
-        ),
-    ];
-
-    return CalendarMonth(date: date, days: daysInMonth);
-  }
-
-  bool _isSelected(DateTime date) {
-    if (!_isRange || _selectedDates.length < 2) {
-      return _selectedDates.map(_dateOnly).contains(date);
-    }
-
-    return !date.isBefore(_selectedDates.first) &&
-        !date.isAfter(_selectedDates.last);
-  }
-
-  DateTime _dateOnly(DateTime value) =>
-      DateTime(value.year, value.month, value.day);
-
-  bool _isOutsideBounds(DateTime value) {
-    final date = _dateOnly(value);
-    return date.isBefore(_dateOnly(_minDate)) ||
-        date.isAfter(_dateOnly(_maxDate));
-  }
+  CalendarMonth _buildCalendarMonth(DateTime date) =>
+      NakiCalendarGrid.buildMonth(
+        visibleDate: date,
+        minDate: _minDate,
+        maxDate: _maxDate,
+        selectedDates: _selectedDates,
+        isRange: _isRange,
+      );
 
   void _togglePicker() {
     if (component.disable) return;
@@ -665,15 +636,19 @@ class _CalendarState extends State<Calendar>
   }
 
   /// String representation of date/time based on picker type
-  String _displayedValue(DateTime value) => switch (component.type) {
-    CalendarType.date => value.toDdMmmYyyy,
-    CalendarType.time => value.toFullTimeAmPm,
-    CalendarType.range => value.asRange(_selectedDates.last),
-    CalendarType.both => value.toDateAndTimeWithSlashes,
-  };
+  String _displayedValue(DateTime? value) => value == null
+      ? ''
+      : switch (component.type) {
+          CalendarType.date => value.toDdMmmYyyy,
+          CalendarType.time => value.toFullTimeAmPm,
+          CalendarType.range => value.asRange(_selectedDates.last),
+          CalendarType.both => value.toDateAndTimeWithSlashes,
+        };
 
   /// Native HTML value format for the configured calendar type
-  String _inputValue(DateTime value) {
+  String _inputValue(DateTime? value) {
+    if (value == null) return '';
+
     String twoDigits(int part) => part.toString().padLeft(2, '0');
 
     final date =
@@ -696,11 +671,8 @@ class _CalendarState extends State<Calendar>
   void _updateValue({bool close = false}) {
     if (component.disable || component.readOnly) return;
 
-    final date = currentValue;
-    if (date == null) return;
-
     final inputElem = document.getElementById(_calendarId) as HTMLInputElement?;
-    inputElem?.value = _inputValue(date);
+    inputElem?.value = _inputValue(currentValue);
 
     if (close) {
       _committedDates = [..._selectedDates];
@@ -708,10 +680,12 @@ class _CalendarState extends State<Calendar>
 
       _showError();
 
-      if (_isRange) {
-        component.onSelectedRange?.call(_rangeDays);
-      } else {
-        component.onSelected?.call(date);
+      if (currentValue != null) {
+        if (_isRange) {
+          component.onSelectedRange?.call(_rangeDays);
+        } else {
+          component.onSelected?.call(currentValue!);
+        }
       }
 
       setState(() {
@@ -800,15 +774,12 @@ class _CalendarState extends State<Calendar>
     if (component.readOnly || component.disable) return;
 
     final extendsRange =
-        _isRangePending && !date.isBefore(_selectedDates.first);
+        _isRangePending && !date.isBeforeOrSameAs(_selectedDates.first);
 
     setState(() {
       _selectedDates = extendsRange ? [_selectedDates.first, date] : [date];
     });
   }
-
-  /// Resets selected dates to initial value
-  void _resetSelection() => _selectedDates = _initialDates;
 
   @override
   void dispose() {
@@ -844,7 +815,7 @@ class _CalendarState extends State<Calendar>
     final showBoth = inputType == InputType.dateTimeLocal;
     final pickerOpen = _pickDate || _pickTime;
 
-    final triggerContent = _triggerText != null
+    final triggerContent = _triggerText.isNotNullAndEmpty
         ? _triggerText!
         : placeholderText.isNotEmpty
         ? placeholderText
@@ -887,7 +858,12 @@ class _CalendarState extends State<Calendar>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             mainAxisSize: MainAxisSize.max,
             width: component.width,
-            height: component.height ?? const Dim.px(48),
+            height:
+                component.height ??
+                Dim.variable(
+                  Tokens.current.inputHeight.name,
+                  defaultValue: Tokens.current.inputHeight.value,
+                ),
             border: decoration?.border,
             padding: decoration?.padding,
             textStyle: decoration?.inputStyle,
@@ -924,6 +900,12 @@ class _CalendarState extends State<Calendar>
         // Label
         if (labelText.isNotEmpty)
           Label(labelText, fieldId: _calendarId, style: labelStyle),
+
+        // Helper
+        if (helperText.isNotEmpty)
+          p(classes: 'naki-helper', styles: Styles(raw: helperStyle?.props), [
+            .text(helperText),
+          ]),
 
         // Main
         span(
@@ -1023,17 +1005,23 @@ class _CalendarState extends State<Calendar>
 
                               if (currentValue != null)
                                 NakiText(
-                                  _displayedValue(currentValue!),
+                                  _displayedValue(currentValue),
                                   classes: 'naki-calendar-picker-preview',
                                   style: _isRange
                                       ? null
-                                      : const TextStyle(fontSize: Dim.px(14)),
+                                      : TextStyle(
+                                          fontSize: Dim.variable(
+                                            Tokens.current.fontSizeMd.name,
+                                            defaultValue:
+                                                Tokens.current.fontSizeMd.value,
+                                          ),
+                                        ),
                                 ),
                             ],
                           ),
 
                           // header
-                          _CalendarHeader(
+                          NakiCalendarHeader(
                             visibleDate: _visibleDate,
                             minDate: _minDate,
                             maxDate: _maxDate,
@@ -1042,7 +1030,7 @@ class _CalendarState extends State<Calendar>
                             onNextMonth: () => _toggleMonth(true),
                             onToggleYearPicker: () =>
                                 setState(() => _showYear = !_showYear),
-                            yearMonthPopover: _CalendarYearMonthPicker(
+                            yearMonthPopover: NakiCalendarYearMonthPicker(
                               visibleDate: _visibleDate,
                               minDate: _minDate,
                               maxDate: _maxDate,
@@ -1067,7 +1055,7 @@ class _CalendarState extends State<Calendar>
                           ),
 
                           // days in the month
-                          _CalendarGrid(
+                          NakiCalendarGrid(
                             calendarId: _calendarId,
                             daysInMonth: daysInMonth,
                             isMultiDayRange: _isMultiDayRange,
@@ -1091,7 +1079,11 @@ class _CalendarState extends State<Calendar>
                                       border: BorderData(
                                         color: context.primaryColor,
                                         radius: BorderRadiusData.all(
-                                          const Dim.px(8),
+                                          Dim.variable(
+                                            Tokens.current.paddingXs.name,
+                                            defaultValue:
+                                                Tokens.current.paddingXs.value,
+                                          ),
                                         ),
                                       ),
                                       onTap: () {
@@ -1104,7 +1096,7 @@ class _CalendarState extends State<Calendar>
                                       },
                                     )
                                   : Button.text(
-                                      'Reset',
+                                      'Clear',
                                       classes: 'naki-calendar-action',
                                       backgroundColor: Colors.transparent,
                                       foregroundColor: context.subtitleColor,
@@ -1114,19 +1106,12 @@ class _CalendarState extends State<Calendar>
                                           return;
                                         }
 
-                                        _resetSelection();
+                                        setState(() {
+                                          _committedDates = [];
+                                          _selectedDates = [];
+                                          _visibleDate = DateTime.now();
+                                        });
 
-                                        _visibleDate =
-                                            currentValue ?? DateTime.now();
-
-                                        if (currentValue != null && showBoth) {
-                                          _selectedTime = Duration(
-                                            hours: currentValue!.hour,
-                                            minutes: currentValue!.minute,
-                                          );
-                                        }
-
-                                        setState(() {});
                                         _updateValue();
                                       },
                                     ),
@@ -1154,7 +1139,7 @@ class _CalendarState extends State<Calendar>
 
                                   // submit date
                                   Button.text(
-                                    'Ok',
+                                    'Submit',
                                     classes: 'naki-calendar-action',
                                     disabled:
                                         _selectedDates.isEmpty ||
@@ -1176,7 +1161,7 @@ class _CalendarState extends State<Calendar>
 
                     // Time picker
                     if (_pickTime)
-                      _CalendarTimePicker(
+                      NakiCalendarTimePicker(
                         calendarId: _calendarId,
                         titleText: titleText,
                         timePreview: _timePreview(),
@@ -1184,18 +1169,11 @@ class _CalendarState extends State<Calendar>
                         disabled: component.disable || component.readOnly,
                         onTimeChanged: (time) =>
                             setState(() => _selectedTime = time),
-                        onReset: () {
-                          if (component.disable || component.readOnly) {
-                            return;
-                          }
-
-                          final date = currentValue ?? DateTime.now();
-                          _selectedTime = Duration(
-                            hours: date.hour,
-                            minutes: date.minute,
-                          );
-
-                          setState(() {});
+                        onClear: () {
+                          setState(() {
+                            _committedTime = Duration.zero;
+                            _selectedTime = Duration.zero;
+                          });
                           _updateValue();
                         },
                         onCancel: () {
@@ -1216,12 +1194,6 @@ class _CalendarState extends State<Calendar>
               ),
           ],
         ),
-
-        // Helper
-        if (helperText.isNotEmpty)
-          p(classes: 'naki-helper', styles: Styles(raw: helperStyle?.props), [
-            .text(helperText),
-          ]),
       ],
     );
   }

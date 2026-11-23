@@ -252,7 +252,7 @@ class Button extends StatefulComponent {
     this.id,
   }) : child = Icon(
          icon,
-         color: foregroundColor ?? Tokens.current.buttonForegroundColor.color,
+         color: Color.inherit,
          size: size,
        ),
        // icon-only buttons need an accessible name
@@ -319,34 +319,26 @@ class Button extends StatefulComponent {
              ? [
                  Icon(
                    icon,
-                   color:
-                       foregroundColor ??
-                       Tokens.current.buttonForegroundColor.color,
+                   color: Color.inherit,
                    size: iconSize,
                  ),
                  NakiText(
                    text,
-                   style: TextStyle(
-                     color:
-                         foregroundColor ??
-                         Tokens.current.buttonForegroundColor.color,
+                   style: const TextStyle(
+                     color: Color.inherit,
                    ).combineWith(textStyle),
                  ),
                ]
              : [
                  NakiText(
                    text,
-                   style: TextStyle(
-                     color:
-                         foregroundColor ??
-                         Tokens.current.buttonForegroundColor.color,
+                   style: const TextStyle(
+                     color: Color.inherit,
                    ).combineWith(textStyle),
                  ),
                  Icon(
                    icon,
-                   color:
-                       foregroundColor ??
-                       Tokens.current.buttonForegroundColor.color,
+                   color: Color.inherit,
                    size: iconSize,
                  ),
                ],
@@ -392,9 +384,7 @@ class Button extends StatefulComponent {
     this.id,
   }) : child = NakiText(
          text,
-         style: TextStyle(
-           color: foregroundColor ?? Tokens.current.buttonForegroundColor.color,
-         ).combineWith(style),
+         style: const TextStyle(color: Color.inherit).combineWith(style),
        ),
        assert(
          !(validateForm && resetForm),
@@ -404,9 +394,7 @@ class Button extends StatefulComponent {
   @override
   State<Button> createState() => _ButtonState();
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('Button', [Rules.nakiButtonRules]);
+  static List<StyleRule> get styles => BasicsStyles.button;
 }
 
 class _ButtonState extends State<Button> {

@@ -1,4 +1,4 @@
-part of 'theme.dart';
+part of 'theme_data.dart';
 
 // /////////////////////////////////////////////////////////////////////////////
 // NAKI THEME MODE TOKENS
@@ -344,4 +344,8 @@ class _DarkModeTokens extends Tokens {
   /// BottomSheet barrier backdrop color (dark: `rgba(0, 0, 0, 0.7)`).
   @override
   String get bottomSheetBarrierBgValue => 'rgba(0, 0, 0, 0.7)';
+
+  /// BottomSheet drag handle color (dark: `rgba(148, 163, 184, 0.4)`).
+  @override
+  String get bottomSheetHandleColorValue => 'rgba(148, 163, 184, 0.4)';
 }

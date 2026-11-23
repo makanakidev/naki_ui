@@ -24,6 +24,9 @@ class _FormsPageState extends State<FormsPage> {
   bool _notifications = false;
   String _shipping = 'standard';
   double _volume = 40;
+  DateTime? _pickedDate;
+  List<DateTime>? _pickedRange;
+  DateTime? _pickedTime;
 
   @override
   void setState(VoidCallback fn) {
@@ -31,6 +34,69 @@ class _FormsPageState extends State<FormsPage> {
   }
 
   void _showMessage(String message) => component.onMessage(context, message);
+
+  Component _pickerDemo({
+    required String name,
+    required String buttonLabel,
+    required VoidCallback onTap,
+    String? selectedText,
+  }) {
+    return Demo(
+      name: name,
+      child: Row(
+        spacing: 12,
+        children: [
+          Button.text(
+            buttonLabel,
+            onTap: onTap,
+            padding: const EdgeInsets.symmetric(horizontal: Dim.px(12)),
+          ),
+
+          if (selectedText != null)
+            NakiText(
+              selectedText,
+              style: TextStyle(color: context.subtitleColor),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _pickDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _pickedDate ?? DateTime.now(),
+    );
+
+    if (picked != null) {
+      setState(() => _pickedDate = picked);
+      _showMessage('Date: ${picked.toDdMmmYyyy}');
+    }
+  }
+
+  Future<void> _pickDateRange() async {
+    final picked = await showDateRangePicker(
+      context: context,
+      initialDateRange: _pickedRange,
+    );
+
+    if (picked != null && picked.isNotEmpty) {
+      setState(() => _pickedRange = picked);
+      _showMessage('Range: ${picked.first.asRange(picked.last)}');
+    }
+  }
+
+  Future<void> _pickTime() async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: _pickedTime ?? DateTime.now(),
+    );
+
+    if (picked != null) {
+      setState(() => _pickedTime = picked);
+      _showMessage('Time: ${picked.toTimeAmPm}');
+    }
+  }
 
   RadioButton _shippingOption(String value, String label) {
     return RadioButton(
@@ -135,6 +201,20 @@ class _FormsPageState extends State<FormsPage> {
                     _showMessage('Booked ${date.toDdMmmYyyy}'),
               ),
             ),
+            Demo(
+              name: 'Appointment booking',
+              child: Calendar(
+                id: 'appointment-booking',
+                type: CalendarType.both,
+                minimum: DateTime.now(),
+                maximum: DateTime.now().add(const Duration(days: 30)),
+                decoration: const InputDecoration(
+                  labelText: 'Book appointment',
+                ),
+                onSelected: (date) =>
+                    _showMessage('Appointment booked for ${date.toDateTime}'),
+              ),
+            ),
           ],
         ),
         ShowcaseGroup(
@@ -198,6 +278,36 @@ class _FormsPageState extends State<FormsPage> {
                 ],
                 onSelected: (item) => _showMessage('Priority: ${item.label}'),
               ),
+            ),
+          ],
+        ),
+        ShowcaseGroup(
+          title: 'Pickers',
+          subtitle:
+              'Imperative show* dialogs for picking dates, ranges, and times.',
+          demos: [
+            _pickerDemo(
+              name: 'showDatePicker',
+              buttonLabel: 'Pick date',
+              onTap: _pickDate,
+              selectedText: _pickedDate?.toDdMmmYyyy,
+            ),
+            _pickerDemo(
+              name: 'showDateRangePicker',
+              buttonLabel: 'Pick date range',
+              onTap: _pickDateRange,
+              selectedText: switch (_pickedRange) {
+                final range? when range.isNotEmpty => range.first.asRange(
+                  range.last,
+                ),
+                _ => null,
+              },
+            ),
+            _pickerDemo(
+              name: 'showTimePicker',
+              buttonLabel: 'Pick time',
+              onTap: _pickTime,
+              selectedText: _pickedTime?.toTimeAmPm,
             ),
           ],
         ),

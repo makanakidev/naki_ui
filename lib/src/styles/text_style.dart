@@ -9,12 +9,13 @@ import 'package:jaspr/dom.dart'
         TextOverflow;
 import 'package:jaspr/jaspr.dart';
 
-import '../models/naki/index.dart' show NakiStylable;
+import '../models/naki/naki_stylable.dart';
 import '../models/styling/index.dart' show Dim, EdgeInsets, Gradient;
 import '../styles/css.dart' show Css;
 import '../theme/tokens.dart' show Tokens;
 import '../utilities/enums/index.dart' show FontStyle, TextDecorationStyle;
-import '../utilities/extensions/index.dart' show CssPropsExtension, NumExtension;
+import '../utilities/extensions/core_extensions.dart'
+    show CssPropsExtension, NumExtension;
 
 /// A styling class for text that mimics Flutter's [TextStyle]
 /// and converts to CSS styles.

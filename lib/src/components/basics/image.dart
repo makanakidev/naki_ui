@@ -19,13 +19,15 @@ part of 'index.dart';
 /// ```
 /// {@endtemplate}
 class Image extends StatelessComponent with NakiStatelessMixin {
-  /// Image source can be a remote url, base64 encoded string or an asset path.
+  /// Image source can be a remote url, base64 encoded string
+  /// or an asset path.
   final String src;
 
   /// Semantic description of the image for accessibility.
   ///
-  /// When omitted, the image is rendered with an empty `alt` attribute and is
-  /// treated as decorative by assistive technologies.
+  /// When omitted, the image is rendered with an empty `alt`
+  /// attribute and is treated as decorative by assistive
+  /// technologies.
   final String? alt;
 
   /// Image size.
@@ -37,17 +39,17 @@ class Image extends StatelessComponent with NakiStatelessMixin {
   final bool cache;
 
   /// How to inscribe the image into the space allocated.
-  final ObjectFit? fit;
+  final ImageFit? fit;
 
   /// Defines the alignment of the image within its container.
   ///
   /// When provided, it controls how the image is positioned when its
-  /// dimensions do not match the container's dimensions (and `object-fit`
-  /// is set to a value other than `fill`).
+  /// dimensions do not match the container's dimensions
+  /// (and `object-fit` is set to a value other than `fill`).
   ///
-  /// Defaults to `ObjectPosition.center`, ensuring the image is centered
-  /// within its container.
-  final ObjectPosition position;
+  /// Defaults to `ImagePosition.center`, ensuring the image is
+  /// centered within its container.
+  final ImagePosition position;
 
   /// Additional CSS classes applied to the image.
   final String? classes;
@@ -69,10 +71,12 @@ class Image extends StatelessComponent with NakiStatelessMixin {
   /// ```
   final Gradient? gradient;
 
-  /// When `true`, image loading will be deferred until it is scrolled into view.
+  /// When `true`, image loading will be deferred until
+  /// it is scrolled into view.
   final bool lazyLoad;
 
-  /// Padding applied to the image container when [backgroundColor] or [gradient] is set.
+  /// Padding applied to the image container when
+  /// [backgroundColor] or [gradient] is set.
   final EdgeInsets? padding;
 
   /// {@macro Image}
@@ -81,7 +85,7 @@ class Image extends StatelessComponent with NakiStatelessMixin {
     super.key,
     this.lazyLoad = false,
     this.cache = false,
-    this.position = ObjectPosition.center,
+    this.position = ImagePosition.center,
     this.fit,
     this.size,
     this.alt,

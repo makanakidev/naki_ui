@@ -328,13 +328,14 @@ const ExpansionTile(
 
 Use `initiallyExpanded` only for initial state. Observe changes with `onExpansionChanged`. Use `ExpansionPanelList` when coordinating several related panels.
 
-## FragmentScope
+## NakiFragment
 
-Group multiple child components under `<naki-fragment>` without generating an intermediate layout box, avoiding SSR and hydration complexities of raw fragments.
+> `FragmentScope` is deprecated and will be removed in `v2.0.0`. Use `NakiFragment` instead.
+
+Group multiple child components directly under the parent without inserting any HTML or custom wrapper element, while safely supporting nesting, reordering, removal, and replacement.
 
 ```dart
-const FragmentScope(
-  inherit: false,
+const NakiFragment(
   [
     NakiText('Hello'),
     Container(
@@ -348,4 +349,4 @@ const FragmentScope(
 )
 ```
 
-Pass the child list positionally (`FragmentScope([...])`). By default (`inherit: false`), `<naki-fragment>` uses `display: contents` so children participate directly in the parent's flex or grid layout. Set `inherit: true` (`display: inherit`) when the fragment scope should inherit the parent's display mode for nested layout consistency.
+Pass the child list positionally (`NakiFragment([...])`). Use `const SizedBox()` when you need an empty placeholder. Children attach straight into the parent DOM node, so flex and grid layouts apply natively.

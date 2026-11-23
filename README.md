@@ -7,9 +7,9 @@ friends work the way you expect, rendered as plain HTML and CSS.
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/makanakidev/naki_ui/main/assets/logo-dark.jpg">
-    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/makanakidev/naki_ui/main/assets/logo-light.jpg">
-    <img alt="Naki UI Logo" src="https://raw.githubusercontent.com/makanakidev/naki_ui/main/assets/logo-dark.jpg" width="400">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/makanakidev/naki_ui/main/docs/assets/logo-dark.jpg">
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/makanakidev/naki_ui/main/docs/assets/logo-light.jpg">
+    <img alt="Naki UI Logo" src="https://raw.githubusercontent.com/makanakidev/naki_ui/main/docs/assets/logo-dark.jpg" width="400">
   </picture>
 </p>
 
@@ -23,9 +23,13 @@ friends work the way you expect, rendered as plain HTML and CSS.
 - 🧱 **Flutter-style API:** Compose `Scaffold`, `Column`, `Row`, `Stack`,
   `ListView`, `Card` and 80+ more components with the names and arguments you
   already know.
-- 💬 **Overlays without boilerplate:** `showDialog`, `showModalBottomSheet` and
-  `showSnackbar` return results like Flutter's, with Flutter-matched
-  transitions.
+- 💬 **Overlays without boilerplate:** `showDialog`, `showCustomDialog`,
+  `showDatePicker`, `showDateRangePicker`, `showTimePicker`,
+  `showModalBottomSheet`, and `showSnackbar` return results like Flutter's,
+  closing with `Navigator.pop(context, result)`.
+- 🧭 **Imperative & URL navigation:** Push and pop `NakiPageRoute`s or named
+  routes with `Navigator`, seamlessly integrated with `NakiApp.router` and
+  modal overlays.
 - 🎨 **Theming:** Light, dark and system modes, color seeds, design tokens as
   CSS variables, and a smooth theme switch.
 - 🪟 **Glass surfaces:** Frosted and liquid glass navigation bars, glass cards
@@ -42,7 +46,7 @@ friends work the way you expect, rendered as plain HTML and CSS.
 ```yaml
 dependencies:
   jaspr: ^0.23.5
-  naki_ui: ^1.0.7
+  naki_ui: ^1.0.8
 ```
 
 ```shell
@@ -124,17 +128,15 @@ Show an overlay from any `BuildContext` below a `NakiApp` or `Scaffold`. No
 controller, no state, and the future completes with the value it closed with:
 
 ```dart
-// A dialog that returns the button the user picked.
+// A dialog configured with Dialog arguments directly; use showCustomDialog(context, builder) for a custom root component.
 final delete = await showDialog<bool>(
   context: context,
-  builder: (context) => Dialog(
-    title: 'Delete item?',
-    barrierDismissible: true,
-    actions: [
-      Button.text('Cancel', onTap: () => closeDialog(context, false)),
-      Button.text('Delete', onTap: () => closeDialog(context, true)),
-    ],
-  ),
+  title: 'Delete item?',
+  barrierDismissible: true,
+  actions: (context) => [
+    Button.text('Cancel', onTap: () => Navigator.pop(context, false)),
+    Button.text('Delete', onTap: () => Navigator.pop(context, true)),
+  ],
 );
 
 // A modal bottom sheet: the builder returns its content.
@@ -142,19 +144,28 @@ final target = await showModalBottomSheet<String>(
   context: context,
   builder: (context) => Column(
     children: [
-      Button.text('Messages', onTap: () => closeModalBottomSheet(context, 'messages')),
-      Button.text('Mail', onTap: () => closeModalBottomSheet(context, 'mail')),
+      Button.text('Messages', onTap: () => Navigator.pop(context, 'messages')),
+      Button.text('Mail', onTap: () => Navigator.pop(context, 'mail')),
     ],
   ),
 );
 
 // A snackbar. Showing another replaces it; closeSnackbar() closes it early.
 showSnackbar(context, const Snackbar(content: NakiText('Saved')));
+
+// Modal date, date-range, and time pickers.
+final date = await showDatePicker(
+  context: context,
+  initialDate: DateTime.now(),
+);
+final range = await showDateRangePicker(context: context);
+final time = await showTimePicker(context: context);
 ```
 
 Both futures complete with `null` when the barrier or `Escape` dismisses the
-overlay. Pass the builder's `context` to `closeDialog` and
-`closeModalBottomSheet`, not the page's.
+overlay. Pass the builder's `context` to `Navigator.pop(context, result)` (or
+the typed `closeDialog`, `closeModalBottomSheet`, `closeDatePicker`,
+`closeDateRangePicker`, and `closeTimePicker` helpers), not the page's.
 
 For an overlay that lives in your component tree, pass an `OverlayController`
 instead:
@@ -172,6 +183,29 @@ Column(
 
 `Drawer`, `Popover` and `Tooltip` complete the overlay set. Popovers and
 tooltips flip and slide to stay on screen and clear of the app bars.
+
+---
+
+## Navigation
+
+`NakiApp` mounts a Flutter-style `Navigator` above your app, so you can push
+and pop imperative `NakiPageRoute`s or named routes alongside `NakiApp.router`:
+
+```dart
+final saved = await Navigator.push<bool>(
+  context,
+  NakiPageRoute(
+    settings: const NakiRouteSettings(name: '/edit', arguments: itemId),
+    builder: (context) => EditPage(
+      onSave: () => Navigator.pop(context, true),
+    ),
+  ),
+);
+```
+
+Calling `Navigator.pop(context, [result])` closes the nearest active overlay
+first when inside one, otherwise pops the top imperative route, or delegates to
+`RouterState.back()` when inside `NakiApp.router`.
 
 ---
 
@@ -267,11 +301,11 @@ Calendar(
 
 ## Responsive layouts
 
-`ResponsiveBuilder` swaps layouts with CSS media queries, so it renders on the
-server with no layout shift:
+`ResponsiveLayout` swaps layouts with CSS media queries, so it renders on the
+server with no layout shift (`ResponsiveBuilder` is deprecated and will be removed in `v2.0.0`):
 
 ```dart
-ResponsiveBuilder(
+ResponsiveLayout(
   mobile: const MobileNav(),
   tablet: const TabletNav(),
   desktop: const DesktopNav(),

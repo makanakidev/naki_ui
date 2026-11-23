@@ -1,7 +1,8 @@
 part of 'index.dart';
 
 /// {@template DecoratedBox}
-/// A component that paints a decoration before or after its child.
+/// A component that paints a decoration behind or around
+/// its child.
 ///
 /// ### Example
 /// ```dart
@@ -23,7 +24,7 @@ class DecoratedBox extends StatelessComponent {
   /// ### Example
   /// ```dart
   /// DecoratedBox(
-  ///   gradient: Gradient()..applyLinear(colors: [Colors.orange, Colors.red]),
+  ///   gradient: LinearGradient(colors: [Colors.orange, Colors.red]),
   ///   child: NakiText('Gradient Box'),
   /// )
   /// ```
@@ -38,7 +39,7 @@ class DecoratedBox extends StatelessComponent {
   /// Border radius.
   final BorderRadiusData? borderRadius;
 
-  /// Optional CSS classes applied to the decorated box component.
+  /// Optional CSS classes applied to the decorated box.
   final String? classes;
 
   /// {@macro DecoratedBox}
@@ -55,9 +56,6 @@ class DecoratedBox extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
-    const baseClass = 'naki-decoratedbox';
-    final effectiveClasses = joinClasses([?classes, baseClass]);
-
     final effectiveStyles = {
       'display': 'block',
       'background-color': ?color?.value,
@@ -70,7 +68,7 @@ class DecoratedBox extends StatelessComponent {
     return .element(
       tag: 'naki-decoratedbox',
       key: key,
-      classes: effectiveClasses,
+      classes: classes,
       styles: Styles(raw: effectiveStyles),
       children: [child],
     );

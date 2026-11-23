@@ -2,7 +2,7 @@
 
 Create each `OverlayController` once in state, pass it to the overlay, and dispose it from the same owner. Overlay behavior requires client execution.
 
-For a one-off snackbar, dialog or sheet, use `showSnackbar`, `showDialog` or `showModalBottomSheet` instead. They need no controller, only a `NakiApp` or `Scaffold` above `context`.
+For a one-off snackbar, dialog, sheet, or date/time picker, use `showSnackbar`, `showDialog`, `showCustomDialog`, `showModalBottomSheet`, `showDatePicker`, `showDateRangePicker`, or `showTimePicker` instead. They need no controller, only a `NakiApp`, `Navigator`, or `Scaffold` above `context`.
 
 ```dart
 class _OverlayPageState extends State<OverlayPage> {
@@ -94,25 +94,23 @@ Column(
 )
 ```
 
-Or show one without a controller. `showDialog` completes with the value passed to `closeDialog`, or `null` when the barrier dismisses it:
+Or show one without a controller with `showDialog` (accepting `Dialog` options directly) or `showCustomDialog` (taking `context` and `builder`). Prefer `Navigator.pop(context, result)` to close (`closeDialog` also works); both complete with that value or `null` when the barrier dismisses it:
 
 ```dart
 final confirmed = await showDialog<bool>(
   context: context,
-  builder: (context) => Dialog(
-    title: 'Delete account?',
-    barrierDismissible: true,
-    actions: [
-      Button.text('Cancel', onTap: () => closeDialog(context, false)),
-      Button.text('Delete', onTap: () => closeDialog(context, true)),
-    ],
-  ),
+  title: 'Delete account?',
+  barrierDismissible: true,
+  actions: (context) => [
+    Button.text('Cancel', onTap: () => Navigator.pop(context, false)),
+    Button.text('Delete', onTap: () => Navigator.pop(context, true)),
+  ],
 );
 ```
 
 Use `content` to replace the title/subtitle presentation and provide `semanticLabel` when custom content has no suitable textual name. Test focus entry, trapping, Escape, close callbacks, and focus restoration.
 
-Set `glass: true` for a translucent dialog. `backgroundColor` sets the tint, and the barrier stops blurring so the glass can see the page. See `Card.glass` for the `glassTint`, `glassRim` and `glassBlur` theme values and the accessibility fallbacks.
+Set `glass: true` for a translucent dialog. `backgroundColor` sets the tint, and the barrier stops blurring so the glass can see the page. See `Card.glass` for the `glassTint`, `glassRim` and `glassBlur` theme values and the accessibility fallbacks. Set `blurBarrier: false` (defaults to `true`) to disable backdrop barrier blur on a standard dialog.
 
 ## Drawer
 
@@ -165,7 +163,7 @@ BottomSheet(
 )
 ```
 
-Or show one without a controller. `builder` returns the content, the sheet options are arguments (`isDismissible` maps to `barrierDismissible`), and the future completes with the value passed to `closeModalBottomSheet`, or `null` when dismissed:
+Or show one without a controller. `builder` returns the content, the sheet options are arguments (`isDismissible` maps to `barrierDismissible`), and the future completes with the value passed to `Navigator.pop` (or `closeModalBottomSheet`), or `null` when dismissed:
 
 ```dart
 final target = await showModalBottomSheet<String>(
@@ -174,14 +172,40 @@ final target = await showModalBottomSheet<String>(
   maxWidth: const Dim.px(640),
   builder: (context) => Column(
     children: [
-      Button.text('Copy link', onTap: () => closeModalBottomSheet(context, 'link')),
-      Button.text('Mail', onTap: () => closeModalBottomSheet(context, 'mail')),
+      Button.text('Copy link', onTap: () => Navigator.pop(context, 'link')),
+      Button.text('Mail', onTap: () => Navigator.pop(context, 'mail')),
     ],
   ),
 );
 ```
 
-Pass the builder's `context` to `closeDialog` and `closeModalBottomSheet`, not the page's.
+Prefer `Navigator.pop(context, result)` over `closeDialog`, `closeModalBottomSheet`, `closeDatePicker`, `closeDateRangePicker`, and `closeTimePicker`, using the builder's `context`, not the page's.
+
+## Date & Time Pickers
+
+Show modal calendar pickers without an inline `Calendar` trigger using `showDatePicker`, `showDateRangePicker`, and `showTimePicker`:
+
+```dart
+final pickedDate = await showDatePicker(
+  context: context,
+  initialDate: DateTime.now(),
+  firstDate: DateTime(2000),
+  lastDate: DateTime(2100),
+);
+
+final pickedRange = await showDateRangePicker(
+  context: context,
+  firstDate: DateTime(2020),
+  lastDate: DateTime(2030),
+);
+
+final pickedTime = await showTimePicker(
+  context: context,
+  initialTime: DateTime.now(),
+);
+```
+
+Close programmatically via `Navigator.pop(context, result)` (preferred) or `closeDatePicker(context, date)`, `closeDateRangePicker(context, days)`, and `closeTimePicker(context, time)`.
 
 `Dialog`, `BottomSheet` and `Drawer` animate with Material 3 motion: a dialog grows in over 500ms and closes in 150ms, and sheets and drawers slide in over 210ms and out over 120ms. Don't add your own open or close animations to them.
 

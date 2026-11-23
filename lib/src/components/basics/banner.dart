@@ -150,7 +150,5 @@ class Banner extends StatelessComponent {
     );
   }
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('Banner', [Rules.nakiBannerRules]);
+  static List<StyleRule> get styles => BasicsStyles.banner;
 }

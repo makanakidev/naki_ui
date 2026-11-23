@@ -5,9 +5,10 @@ part of 'index.dart';
 /// or [Column] flexes.
 ///
 /// Using a [Flexible] component gives a child of a [Row]
-/// or [Column] the flexibility to expand to fill the available space
-/// in the main axis, but unlike [Expanded], [Flexible] with
-/// [FlexFit.loose] does not require the child to fill the available space.
+/// or [Column] the flexibility to expand to fill the available
+/// space in the main axis, but unlike [Expanded], [Flexible] with
+/// [FlexFit.loose] does not require the child to fill the
+/// available space.
 ///
 /// ### Example
 /// ```dart
@@ -29,7 +30,8 @@ class Flexible extends StatelessComponent {
   /// Flex factor applied to the child.
   final int flex;
 
-  /// How a flexible child component sizes itself along the main axis.
+  /// How a flexible child component sizes itself
+  /// along the main axis.
   final FlexFit fit;
 
   /// Additional CSS classes applied to the flexible component.
@@ -77,7 +79,5 @@ class Flexible extends StatelessComponent {
     );
   }
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('Flexible', Rules.nakiFlexibleRules);
+  static List<StyleRule> get styles => LayoutStyles.flexible;
 }

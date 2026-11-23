@@ -42,8 +42,8 @@ class Slider extends StatelessComponent {
   /// The current value of the slider.
   final double value;
 
-  /// Whether to display a floating value indicator tooltip when the
-  /// user interacts with the slider.
+  /// Whether to display a floating value indicator tooltip
+  /// when the user interacts with the slider.
   final bool showValueIndicator;
 
   /// The minimum selectable value for the slider.
@@ -52,11 +52,11 @@ class Slider extends StatelessComponent {
   /// The maximum selectable value for the slider.
   final double maxValue;
 
-  /// The number of discrete intervals between [minValue] and [maxValue]
-  /// to snap the value to.
+  /// The number of discrete intervals between [minValue]
+  /// and [maxValue] to snap the value to.
   ///
-  /// When `null`, the slider is continuous otherwise it snaps
-  /// to the nearest division.
+  /// When `null`, the slider is continuous otherwise it
+  /// snaps to the nearest division.
   final int? divisions;
 
   /// Callback invoked when the slider value changes.
@@ -176,7 +176,5 @@ class Slider extends StatelessComponent {
     );
   }
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('Slider', [Rules.nakiSliderRules]);
+  static List<StyleRule> get styles => SelectionStyles.slider;
 }

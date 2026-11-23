@@ -275,11 +275,11 @@ String normaliseLink(String link, [String? siteUrl]) {
   return cleanedLink;
 }
 
-/// Joins non-empty CSS classes in reverse order.
+/// Joins CSS classes in reverse order.
 String joinClasses(List<String> classes) {
-  classes = List.from(classes.reversed);
-  classes.removeWhere((c) => c.trim().isEmpty);
-  return classes.join(' ');
+  final c = classes.reversed.toList();
+  c.removeWhere((e) => e.trim().isEmpty);
+  return c.join(' ');
 }
 
 /// Builds a list of SEO meta and link components for `<head>`.

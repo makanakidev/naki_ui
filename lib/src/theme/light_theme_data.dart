@@ -1,4 +1,4 @@
-part of 'theme.dart';
+part of 'theme_data.dart';
 
 /// Theme data for light mode used in [ThemeConfig].
 ///
@@ -165,6 +165,30 @@ class LightThemeData extends _LightModeTokens {
   @override
   String get largeShadowColorValue =>
       elevation?.largeShadowColor?.value ?? super.largeShadowColorValue;
+
+  @override
+  String get cardShadowValue => elevation?.cardShadow ?? super.cardShadowValue;
+
+  @override
+  String get appbarShadowValue =>
+      elevation?.appbarShadow ?? super.appbarShadowValue;
+
+  @override
+  String get bottomNavbarShadowValue =>
+      elevation?.bottomNavbarShadow ?? super.bottomNavbarShadowValue;
+
+  @override
+  String get bottomNavbarFloatingShadowValue =>
+      elevation?.bottomNavbarFloatingShadow ??
+      super.bottomNavbarFloatingShadowValue;
+
+  @override
+  String get glassShadowValue =>
+      elevation?.glassShadow ?? super.glassShadowValue;
+
+  @override
+  String get cardGlassHoverShadowValue =>
+      elevation?.cardGlassHoverShadow ?? super.cardGlassHoverShadowValue;
 
   @override
   String get focusBorderColorValue =>
@@ -377,6 +401,11 @@ class LightThemeData extends _LightModeTokens {
   // ===========================================================================
 
   @override
+  Token get paddingXs => spacing?.paddingXs != null
+      ? Token(value: spacing!.paddingXs!.cssText, name: super.paddingXs.name)
+      : super.paddingXs;
+
+  @override
   Token get paddingSm => spacing?.paddingSm != null
       ? Token(value: spacing!.paddingSm!.cssText, name: super.paddingSm.name)
       : super.paddingSm;
@@ -390,6 +419,11 @@ class LightThemeData extends _LightModeTokens {
   Token get paddingLg => spacing?.paddingLg != null
       ? Token(value: spacing!.paddingLg!.cssText, name: super.paddingLg.name)
       : super.paddingLg;
+
+  @override
+  Token get marginXs => spacing?.marginXs != null
+      ? Token(value: spacing!.marginXs!.cssText, name: super.marginXs.name)
+      : super.marginXs;
 
   @override
   Token get marginSm => spacing?.marginSm != null
@@ -411,6 +445,11 @@ class LightThemeData extends _LightModeTokens {
   // ===========================================================================
 
   @override
+  Token get radiusXs => radius?.radiusXs != null
+      ? Token(value: radius!.radiusXs!.cssText, name: super.radiusXs.name)
+      : super.radiusXs;
+
+  @override
   Token get radiusSm => radius?.radiusSm != null
       ? Token(value: radius!.radiusSm!.cssText, name: super.radiusSm.name)
       : super.radiusSm;
@@ -424,6 +463,11 @@ class LightThemeData extends _LightModeTokens {
   Token get radiusLg => radius?.radiusLg != null
       ? Token(value: radius!.radiusLg!.cssText, name: super.radiusLg.name)
       : super.radiusLg;
+
+  @override
+  Token get radiusFull => radius?.radiusFull != null
+      ? Token(value: radius!.radiusFull!.cssText, name: super.radiusFull.name)
+      : super.radiusFull;
 
   // ===========================================================================
   // Component Tokens Overrides
@@ -572,6 +616,14 @@ class LightThemeData extends _LightModeTokens {
       component?.spinnerGlassRim?.toPct ?? super.spinnerGlassRimValue;
 
   @override
+  Token get spinnerGlassBlur => component?.spinnerGlassBlur != null
+      ? Token(
+          value: component!.spinnerGlassBlur!.cssText,
+          name: super.spinnerGlassBlur.name,
+        )
+      : super.spinnerGlassBlur;
+
+  @override
   String get sliderThumbColorValue =>
       component?.sliderThumbColor?.value ?? super.sliderThumbColorValue;
 
@@ -614,6 +666,14 @@ class LightThemeData extends _LightModeTokens {
           name: super.appbarHeight.name,
         )
       : super.appbarHeight;
+
+  @override
+  Token get appbarGlassBlur => component?.appbarGlassBlur != null
+      ? Token(
+          value: component!.appbarGlassBlur!.cssText,
+          name: super.appbarGlassBlur.name,
+        )
+      : super.appbarGlassBlur;
 
   @override
   String get bottomNavbarBgColorValue =>
@@ -832,6 +892,23 @@ class LightThemeData extends _LightModeTokens {
   String get bottomSheetBarrierBgValue =>
       component?.bottomSheetBarrierBackgroundColor?.value ??
       super.bottomSheetBarrierBgValue;
+
+  @override
+  String get bottomSheetHandleColorValue =>
+      component?.bottomSheetHandleColor?.value ??
+      super.bottomSheetHandleColorValue;
+
+  @override
+  Token get barrierBlur => component?.barrierBlur != null
+      ? Token(
+          value: component!.barrierBlur!.cssText,
+          name: super.barrierBlur.name,
+        )
+      : super.barrierBlur;
+
+  @override
+  String get disabledOpacityValue =>
+      component?.disabledOpacity?.toString() ?? super.disabledOpacityValue;
 
   @override
   Token get calendarCellSize => component?.calendar?.cellSize != null

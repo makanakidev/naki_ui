@@ -2,7 +2,7 @@
 name: naki-ui-framework
 description: Use when implementing, reviewing, or troubleshooting Naki UI behavior with package:naki_ui/framework.dart, including platform detection, lifecycle mixins, browser listeners, gestures, input events, overlay and scroll controllers, animation curves, scrolling models, shared data models, enums, and debounce utilities.
 metadata:
-  version: "1.0.7"
+  version: "1.0.8"
   author: "makanakidev"
 ---
 
@@ -44,10 +44,10 @@ Read [lifecycle-and-browser.md](references/lifecycle-and-browser.md) for complet
 - Let Naki scrolling components attach and detach supplied `ScrollController` and `PageController` instances.
 - Dispose controllers created by the current state. Do not dispose controllers supplied by an ancestor.
 - Use `OverlayController` for dialog, drawer, sheet, snackbar, and related open state. `OverlayState` is only a static convenience wrapper around a controller.
-- For a one-off snackbar, dialog or sheet, prefer `showSnackbar(context, Snackbar(...))`, `await showDialog<T>(context: context, builder: ...)` with `closeDialog(context, result)`, and `await showModalBottomSheet<T>(context: context, builder: ...)` with `closeModalBottomSheet(context, result)`. They need no controller and need a `NakiApp` or `Scaffold` above `context`.
+- For a one-off snackbar, dialog, sheet, or date/time picker, prefer `showSnackbar(context, Snackbar(...))`, `await showDialog<T>(context: context, ...)`, `await showCustomDialog<T>(context: context, builder: ...)`, `await showModalBottomSheet<T>(context: context, builder: ...)`, `await showDatePicker(context: context, ...)`, `await showDateRangePicker(context: context, ...)`, and `await showTimePicker(context: context, ...)`. Close them with `Navigator.pop(context, result)` (preferred over the typed `closeDialog` / `closeModalBottomSheet` / `closeDatePicker` / `closeDateRangePicker` / `closeTimePicker` helpers). They need no controller and require a `NakiApp`, `Navigator`, or `Scaffold` above `context`.
 - Remove listeners from shared controllers when the listening component is disposed.
 
-Read [controllers.md](references/controllers.md) for overlay, scrolling, paging, physics, grid, and table examples.
+Read [controllers.md](references/controllers.md) for overlay, scrolling, paging, physics, grid, and table examples, and [navigator.md](references/navigator.md) for imperative routing and overlay popping with `Navigator`.
 
 ## Prefer typed events and models
 

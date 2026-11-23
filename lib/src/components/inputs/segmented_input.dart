@@ -4,9 +4,10 @@ part of 'index.dart';
 /// A component designed for OTP (One-Time Password) and PIN
 /// entry with configurable segment count, spacing, shapes, and styles.
 ///
-/// Each segment accepts input (single character or digit), auto-advances focus
-/// upon typing, handles backspace/delete navigation, supports multi-character
-/// pasting, and allows optional text obscuring.
+/// Each segment accepts input (single character or digit),
+/// auto-advances focus upon typing, handles backspace/delete
+/// navigation, supports multi-character pasting, and allows
+/// optional text obscuring.
 ///
 /// ### Example
 /// ```dart
@@ -45,11 +46,11 @@ class SegmentedInput extends StatefulComponent {
   /// [value] instead.
   final String? initialValue;
 
-  /// The character sequence explicitly controlling the displayed value
-  /// of the segmented input.
+  /// The character sequence explicitly controlling the displayed
+  /// value of the segmented input.
   ///
-  /// Whenever [value] changes on component rebuild, the displayed input
-  /// updates to mirror the new value (ideal for resetting or
+  /// Whenever [value] changes on component rebuild, the displayed
+  /// input updates to mirror the new value (ideal for resetting or
   /// programmatically updating the field).
   final String? value;
 
@@ -59,11 +60,12 @@ class SegmentedInput extends StatefulComponent {
   /// Callback fired when all segments have been filled.
   final ValueChanged<String>? onCompleted;
 
-  /// Callback fired when the user submits the input (e.g., via Enter key).
+  /// Callback fired when the user submits the input
+  /// (e.g., via Enter key).
   final ValueChanged<String>? onSubmit;
 
-  /// Callback that returns an error message if input value is invalid,
-  /// or `null` otherwise.
+  /// Callback that returns an error message if input value
+  /// is invalid, or `null` otherwise.
   final FieldValidator<String>? validator;
 
   /// Whether the segmented input is read-only.
@@ -126,14 +128,7 @@ class SegmentedInput extends StatefulComponent {
   @override
   State<SegmentedInput> createState() => _SegmentedInputState();
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('SegmentedInput', [
-        ...Rules.nakiSegmentedInputRules,
-        Rules.nakiFormFieldRules,
-        Rules.nakiHelperRules,
-        Rules.nakiErrorRules,
-      ]);
+  static List<StyleRule> get styles => InputsStyles.segmentedInput;
 }
 
 class _SegmentedInputState extends State<SegmentedInput>
@@ -496,6 +491,12 @@ class _SegmentedInputState extends State<SegmentedInput>
         if (labelText.isNotEmpty)
           Label(labelText, fieldId: '${_fieldId}_0', style: labelStyle),
 
+        // Helper
+        if (helperText.isNotEmpty)
+          p(classes: 'naki-helper', styles: Styles(raw: helperStyle?.props), [
+            .text(helperText),
+          ]),
+
         // Segments
         div(
           key: component.key,
@@ -551,12 +552,6 @@ class _SegmentedInputState extends State<SegmentedInput>
             );
           }),
         ),
-
-        // Helper / Hint
-        if (helperText.isNotEmpty)
-          p(classes: 'naki-helper', styles: Styles(raw: helperStyle?.props), [
-            .text(helperText),
-          ]),
       ],
     );
   }

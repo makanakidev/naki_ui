@@ -1,4 +1,4 @@
-part of 'index.dart';
+part of 'core_extensions.dart';
 
 /// Extension on [Map] providing CSS property manipulation utilities.
 extension CssPropsExtension on Map<String, String> {

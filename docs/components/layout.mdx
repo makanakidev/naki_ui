@@ -266,13 +266,17 @@ ExpansionPanelList.radio(
 
 ---
 
-## `FragmentScope`
+## `NakiFragment`
 
-Group multiple components without introducing an intermediate layout box, avoiding the SSR and hydration complexities of raw fragments:
+<Note>
+  `FragmentScope` is deprecated and will be removed in `v2.0.0`. Use
+  `NakiFragment` instead.
+</Note>
+
+Group multiple components directly under the parent without inserting any HTML wrapper element, avoiding Jaspr's built-in fragment nesting, reordering, and removal assertions:
 
 ```dart
-FragmentScope(
-  inherit: false,
+NakiFragment(
   const [
     NakiText('Hello'),
     Container(
@@ -286,10 +290,9 @@ FragmentScope(
 )
 ```
 
-### `FragmentScope` Properties
+### `NakiFragment` Properties
 
-- **`children`** (`List<Component>`): Positional list of child components to render inside `<naki-fragment>`.
-- **`inherit`** (`bool`): When `false` _(default)_, uses `display: contents` so children act as direct layout children of the parent container. Set to `true` (`display: inherit`) to inherit the parent container's `display` context instead.
+- **`children`** (`List<Component>`): Positional list of child components rendered directly into the parent container without a wrapper node.
 
 ---
 
@@ -301,4 +304,4 @@ FragmentScope(
 - **`Expanded` & `Flexible`**: Flex grow/shrink weighting in `Row` and `Column`.
 - **`Wrap`**: Flowing row/column that wraps across lines when space is constrained.
 - **`SafeArea`**: Inset padding avoiding device notches and status bars.
-- **`FragmentScope`**: Boxless component grouping (`display: contents`) with optional `inherit` display behavior.
+- **`NakiFragment`**: Wrapperless component grouping supporting nesting, reordering, removal, and replacement (replaces deprecated `FragmentScope`).

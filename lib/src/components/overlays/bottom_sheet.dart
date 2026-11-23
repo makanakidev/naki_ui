@@ -95,9 +95,7 @@ class BottomSheet extends StatefulComponent {
   @override
   State<BottomSheet> createState() => _BottomSheetState();
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('BottomSheet', Rules.nakiBottomSheetRules);
+  static List<StyleRule> get styles => OverlaysStyles.bottomSheet;
 }
 
 class _BottomSheetState extends State<BottomSheet>
@@ -160,7 +158,7 @@ class _BottomSheetState extends State<BottomSheet>
   Component build(BuildContext context) {
     syncOverlayAccessibility(isInteractive, _close);
 
-    if (!isVisible) return const .empty();
+    if (!isVisible) return const SizedBox();
 
     final effectiveStyles = {
       Tokens.current.bottomSheetBgColor.name: ?component.backgroundColor?.value,
@@ -212,6 +210,9 @@ class _BottomSheetState extends State<BottomSheet>
 
     return OverlayEntryScope.maybeOf(context) != null
         ? _bottomSheet
-        : OverlayScope(id: _id, child: _bottomSheet);
+        : OverlayEntryScope(
+            controller: OverlayCallbackController(_close),
+            child: OverlayScope(id: _id, child: _bottomSheet),
+          );
   }
 }

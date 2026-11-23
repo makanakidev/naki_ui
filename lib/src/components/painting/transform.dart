@@ -83,8 +83,8 @@ class Transform extends StatelessComponent {
   /// Creates a translation transformation.
   ///
   /// - [offsetX] (horizontal displacement) and
-  /// - [offsetY] (vertical displacement) can be specified in pixels, percentage
-  /// or any other valid CSS unit.
+  /// - [offsetY] (vertical displacement) can be specified in pixels,
+  ///   percentage or any other valid CSS unit.
   ///
   /// ### Example
   /// ```dart
@@ -111,21 +111,20 @@ class Transform extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
-    const baseClass = 'naki-transform';
-    final effectiveClasses = joinClasses([?classes, baseClass]);
+    final transformOriginValue = alignment != null
+        ? NakiAlignProps.mapTransformOrigin(alignment!)
+        : null;
 
     final effectiveStyles = {
       'display': 'inline-block',
       'transform': transform,
-      'transform-origin': ?(alignment != null
-          ? NakiAlignProps.mapTransformOrigin(alignment!)
-          : null),
+      'transform-origin': ?transformOriginValue,
     };
 
     return .element(
       tag: 'naki-transform',
       key: key,
-      classes: effectiveClasses,
+      classes: classes,
       styles: Styles(raw: effectiveStyles),
       children: [child],
     );

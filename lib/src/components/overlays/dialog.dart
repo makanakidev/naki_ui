@@ -105,11 +105,13 @@ class Dialog extends StatefulComponent {
 
   /// Whether the dialog is a translucent glass surface.
   ///
-  /// [backgroundColor] sets the tint. `--naki-glass-tint`, `--naki-glass-rim`
-  /// and `--naki-glass-blur` tune the surface. The barrier stops blurring so
-  /// the glass can see the page, and the dialog turns opaque when less transparency
-  /// or more contrast is required.
+  /// [backgroundColor] sets the tint. The barrier stops blurring so
+  /// the glass can see the page, and the dialog turns opaque when less
+  /// transparency or more contrast is required.
   final bool glass;
+
+  /// Whether to enable blur effect on the backdrop barrier.
+  final bool blurBarrier;
 
   /// Optional CSS classes applied to the dialog.
   final String? classes;
@@ -119,6 +121,7 @@ class Dialog extends StatefulComponent {
     super.key,
     this.position = DialogPosition.center,
     this.barrierDismissible = false,
+    this.blurBarrier = true,
     this.glass = false,
     this.controller,
     this.title,
@@ -139,9 +142,7 @@ class Dialog extends StatefulComponent {
   @override
   State<Dialog> createState() => _DialogState();
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('Dialog', Rules.nakiDialogRules);
+  static List<StyleRule> get styles => OverlaysStyles.dialog;
 }
 
 class _DialogState extends State<Dialog>
@@ -193,7 +194,8 @@ class _DialogState extends State<Dialog>
     super.dispose();
   }
 
-  void _onControllerChanged() => syncVisibility(_controller.isOpen);
+  void _onControllerChanged() =>
+      syncVisibility(_controller.isOpen, rebuild: mounted);
 
   void _onClose() {
     component.onClose?.call();
@@ -204,13 +206,14 @@ class _DialogState extends State<Dialog>
   Component build(BuildContext context) {
     syncOverlayAccessibility(isInteractive, _onClose);
 
-    if (!isVisible) return const .empty();
+    if (!isVisible) return const SizedBox();
 
     final effectiveStyles = {
       Tokens.current.dialogBarrierBg.name: ?component.barrierColor?.value,
       Tokens.current.dialogBgColor.name: ?component.backgroundColor?.value,
       Tokens.current.dialogBorderRadius.name: ?component.borderRadius?.value,
       Tokens.current.dialogPadding.name: ?component.padding?.value,
+      Tokens.current.barrierBlur.name: ?(!component.blurBarrier ? '0' : null),
     };
 
     final baseClass = 'naki-dialog dialog-${component.position.name}';
@@ -232,10 +235,18 @@ class _DialogState extends State<Dialog>
         if (component.title.isNotNullAndEmpty)
           NakiText(
             component.title!,
-            style: const TextStyle(
-              fontSize: Dim.px(18),
+            style: TextStyle(
+              fontSize: Dim.variable(
+                Tokens.current.fontSizeXl.name,
+                defaultValue: Tokens.current.fontSizeXl.value,
+              ),
               fontWeight: FontWeight.w600,
-              padding: EdgeInsets.only(bottom: Dim.px(8)),
+              padding: EdgeInsets.only(
+                bottom: Dim.variable(
+                  Tokens.current.paddingXs.name,
+                  defaultValue: Tokens.current.paddingXs.value,
+                ),
+              ),
             ),
           ),
 
@@ -243,8 +254,13 @@ class _DialogState extends State<Dialog>
         if (component.subtitle.isNotNullAndEmpty)
           SubHeading(
             component.subtitle!,
-            style: const TextStyle(
-              padding: EdgeInsets.only(bottom: Dim.px(16)),
+            style: TextStyle(
+              padding: EdgeInsets.only(
+                bottom: Dim.variable(
+                  Tokens.current.paddingSm.name,
+                  defaultValue: Tokens.current.paddingSm.value,
+                ),
+              ),
             ),
           ),
       ],
@@ -294,6 +310,9 @@ class _DialogState extends State<Dialog>
 
     return OverlayEntryScope.maybeOf(context) != null
         ? _dialog
-        : OverlayScope(id: _id, child: _dialog);
+        : OverlayEntryScope(
+            controller: OverlayCallbackController(_onClose),
+            child: OverlayScope(id: _id, child: _dialog),
+          );
   }
 }

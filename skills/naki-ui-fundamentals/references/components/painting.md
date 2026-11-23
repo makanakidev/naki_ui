@@ -25,15 +25,14 @@ DecoratedBox(
 ```
 
 ```dart
-// 2. Multi-color gradient decoration
-DecoratedBox(
-  gradient: Gradient()
-    ..applyLinear(
-      colors: const [Color('#3b82f6'), Color('#8b5cf6')],
-      direction: LinearGradientDirection.toBottomRight,
-    ),
-  borderRadius: const BorderRadiusData.all(Dim.px(12)),
-  child: const Padding(
+// 2. Multi-color gradient decoration (or Gradient()..applyLinear(...))
+const DecoratedBox(
+  gradient: LinearGradient(
+    colors: [Color('#3b82f6'), Color('#8b5cf6')],
+    direction: LinearGradientDirection.toBottomRight,
+  ),
+  borderRadius: BorderRadiusData.all(Dim.px(12)),
+  child: Padding(
     padding: EdgeInsets.all(Dim.px(16)),
     child: NakiText(
       'Gradient card',
@@ -86,9 +85,7 @@ Apply CSS filter effects (such as frosted glass blurs, brightness, grayscale, co
 
 ```dart
 BackdropFilter(
-  filter: Filter()
-    ..applyBlur(8)
-    ..applyContrast(120),
+  filter: const BlurFilter(8).and(const ContrastFilter(100)),
   child: const Padding(
     padding: EdgeInsets.all(Dim.px(16)),
     child: NakiText('Frosted overlay'),
@@ -96,7 +93,7 @@ BackdropFilter(
 )
 ```
 
-You can also use the built-in preset `Filter.frostedGlass`:
+You can also use the cascading `Filter()..apply*()` builder or the built-in preset `Filter.frostedGlass`:
 
 ```dart
 BackdropFilter(

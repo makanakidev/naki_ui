@@ -231,7 +231,5 @@ class Positioned extends StatelessComponent {
     );
   }
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('Positioned', [Rules.nakiPositionedRules]);
+  static List<StyleRule> get styles => LayoutStyles.positioned;
 }

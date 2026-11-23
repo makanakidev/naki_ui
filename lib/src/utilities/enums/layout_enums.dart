@@ -1,7 +1,9 @@
 part of 'index.dart';
 
-/// Alias for [Placement].
 typedef Position = Placement;
+typedef ImagePosition = ObjectPosition;
+typedef ImageFit = ObjectFit;
+typedef Ratio = AspectRatioType;
 
 /// Represents placement/position of a component relative to another.
 enum Placement {
@@ -223,7 +225,8 @@ enum ObjectFit {
   const ObjectFit(this.css);
 }
 
-/// How a media content (like an image) should be positioned within its bounds.
+/// How a media content (like an image) should be positioned
+/// within its bounds.
 enum ObjectPosition {
   /// Positions the media content at its center point.
   center('center'),

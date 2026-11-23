@@ -1,6 +1,8 @@
 part of '../index.dart';
 
-class _CalendarYearMonthPicker extends StatelessComponent {
+/// Internal year/month popover content shared by [Calendar]
+/// and dialog pickers.
+class NakiCalendarYearMonthPicker extends StatelessComponent {
   final DateTime visibleDate;
   final DateTime minDate;
   final DateTime maxDate;
@@ -8,7 +10,8 @@ class _CalendarYearMonthPicker extends StatelessComponent {
   final ValueChanged<int> onYearChanged;
   final ValueChanged<DateTime> onJumpToMonth;
 
-  const _CalendarYearMonthPicker({
+  const NakiCalendarYearMonthPicker({
+    super.key,
     required this.visibleDate,
     required this.minDate,
     required this.maxDate,
@@ -84,7 +87,12 @@ class _CalendarYearMonthPicker extends StatelessComponent {
                   disabled: isDisabled,
                   border: BorderData(
                     color: context.popoverBorderColor,
-                    radius: BorderRadiusData.all(const Dim.px(6)),
+                    radius: BorderRadiusData.all(
+                      Dim.variable(
+                        Tokens.current.radiusSm.name,
+                        defaultValue: Tokens.current.radiusSm.value,
+                      ),
+                    ),
                   ),
                   attributes: {
                     'aria-label': '$month $selectedYear',

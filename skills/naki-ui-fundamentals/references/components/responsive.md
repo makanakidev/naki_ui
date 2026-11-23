@@ -2,12 +2,12 @@
 
 Assume the public imports from `references/imports-and-conventions.md`.
 
-## ResponsiveBuilder
+## ResponsiveLayout
 
-Render different component hierarchies across discrete standard breakpoints, or conditionally show a component at a single breakpoint tier.
+Render different component hierarchies across discrete standard breakpoints, or conditionally show a component at a single breakpoint tier (`ResponsiveBuilder` is deprecated and will be removed in `v2.0.0`).
 
 ```dart
-ResponsiveBuilder(
+ResponsiveLayout(
   mobile: const Banner(
     severity: BannerType.info,
     primary: NakiText('Download our native mobile application for a faster experience.'),
@@ -18,7 +18,7 @@ ResponsiveBuilder(
 Alternatively, supply `breakpoint` together with `child` to conditionally render only at a specific tier:
 
 ```dart
-ResponsiveBuilder(
+ResponsiveLayout(
   breakpoint: BreakPoint.md,
   child: const Banner(
     severity: BannerType.info,
@@ -37,7 +37,7 @@ Usage notes:
   - `laptop` / `BreakPoint.lg` / `BreakPoint.laptop`: `768.02px` to `1024px` (`.br-lg`)
   - `desktop` / `BreakPoint.xl` / `BreakPoint.desktop`: `>= 1024.02px` (`.br-xl`)
 - Styles are registered in the `head` of the document. No client-side JavaScript execution or hydration is required for visibility toggling.
-- ResponsiveBuilder wraps elements directly with CSS classes using `.wrapElement()`, avoiding superfluous wrapper DOM nodes.
+- `ResponsiveLayout` wraps elements directly with CSS classes using `span.naki-breakpoint`, keeping layout intact without an extra box (`display: contents`).
 
 ## BreakPointWrapper
 
@@ -75,7 +75,7 @@ Use `BreakPoint.from(double width)` to programmatically resolve a width value in
 
 ## CSS-Driven vs. Client-Side Observer
 
-| Feature                  | `ResponsiveBuilder` / `BreakPointWrapper`                   | `MediaQueryProvider`                                           |
+| Feature                  | `ResponsiveLayout` / `BreakPointWrapper`                    | `MediaQueryProvider`                                           |
 | :----------------------- | :---------------------------------------------------------- | :------------------------------------------------------------- |
 | **Mechanism**            | Pure CSS Media Queries (`@media`)                           | Browser `ResizeObserver` / Window Events                       |
 | **SSR / SSG Compatible** | Yes (Zero layout shift, works with pure static generation)  | Requires `@client` hydration                                   |

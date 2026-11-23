@@ -27,13 +27,21 @@ class PageNotFound extends StatelessComponent {
 
           SubHeading(
             errorText ?? 'The page you are looking for does not exist.',
-            style: const TextStyle(
-              fontSize: Dim.px(20),
+            style: TextStyle(
+              fontSize: Dim.variable(
+                Tokens.current.fontSize2xl.name,
+                defaultValue: Tokens.current.fontSize2xl.value,
+              ),
               textAlign: TextAlign.center,
             ),
           ),
 
-          const SizedBox.height(Dim.px(40)),
+          SizedBox.height(
+            Dim.variable(
+              Tokens.current.paddingLg.name,
+              defaultValue: Tokens.current.paddingLg.value,
+            ),
+          ),
         ],
       ),
     );

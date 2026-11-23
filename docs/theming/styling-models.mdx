@@ -85,33 +85,29 @@ const textStyle = TextStyle(
 
 ## `Gradient`
 
-Builds multi-stop linear, radial, conic, and repeating CSS gradients with typed color stops and directions:
+Builds multi-stop linear, radial, conic, and repeating CSS gradients with typed color stops and directions. You can either use the cascading `Gradient()` builder or instantiate `const` standalone subclasses (`LinearGradient`, `RadialGradient`, `ConicGradient`, `RepeatingLinearGradient`, `RepeatingRadialGradient`, `RepeatingConicGradient`, `RawGradient`) and compose multiple layers with `.and()`:
 
 ```dart
-// 1. Linear gradient with direction
-final linearGradient = Gradient()
-  ..applyLinear(
-    colors: const [Color('#3b82f6'), Color('#8b5cf6')],
-    direction: LinearGradientDirection.toBottomRight,
-  );
+// 1. Standalone const linear gradient with direction
+const linearGradient = LinearGradient(
+  colors: [Color('#3b82f6'), Color('#8b5cf6')],
+  direction: LinearGradientDirection.toBottomRight,
+);
 
-// 2. Linear gradient with angle and custom stops
-final customAngleGradient = Gradient()
-  ..applyLinear(
-    colors: const [Color('#0f766e'), Color('#14b8a6'), Color('#2dd4bf')],
-    angle: 135,
-    stops: const [Dim.percent(0), Dim.percent(50), Dim.percent(100)],
-  );
-
-// 3. Radial gradient with center positioning and shape
-final radialGradient = Gradient()
-  ..applyRadial(
-    colors: const [Color('#f59e0b'), Color('#ef4444')],
+// 2. Composing multiple gradient layers with .and()
+final layeredGradient = const LinearGradient(
+  colors: [Color('#0f766e'), Color('#14b8a6'), Color('#2dd4bf')],
+  angle: 135,
+  stops: [Dim.percent(0), Dim.percent(50), Dim.percent(100)],
+).and(
+  const RadialGradient(
+    colors: [Color('rgba(255, 255, 255, 0.25)'), Colors.transparent],
     shape: Shape.circle,
-    position: RadialGradientPosition.center,
-  );
+    position: RadialGradientPosition.topLeft,
+  ),
+);
 
-// 4. Conic gradient with starting angle
+// 3. Cascading Gradient() builder
 final conicGradient = Gradient()
   ..applyConic(
     colors: const [Color('#ff0000'), Color('#00ff00'), Color('#0000ff')],
@@ -147,17 +143,23 @@ const customShadow = Shadow(
 
 ## `Filter`
 
-Constructs composable CSS visual filters and backdrop effects (blurs, contrast, brightness, grayscale, etc.):
+Constructs composable CSS visual filters and backdrop effects. Use either the cascading `Filter()` builder or `const` standalone subclasses (`BlurFilter`, `BrightnessFilter`, `ContrastFilter`, `GrayscaleFilter`, `HueRotateFilter`, `InvertFilter`, `OpacityFilter`, `SaturationFilter`, `SepiaFilter`, `RawFilter`) composed with `.and()`:
 
 ```dart
-// 1. Chained custom filter pipeline
+// 1. Standalone subclasses composed with .and()
+final composedFilter = const BlurFilter(12)
+    .and(const BrightnessFilter(95))
+    .and(const ContrastFilter(100))
+    .and(const GrayscaleFilter(10));
+
+// 2. Cascading custom filter pipeline
 final customFilter = Filter()
   ..applyBlur(12)
   ..applyBrightness(95)
-  ..applyContrast(120)
+  ..applyContrast(100)
   ..applyGrayscale(10);
 
-// 2. Pre-configured frosted glass preset
+// 3. Pre-configured frosted glass preset
 final frostedGlassFilter = Filter.frostedGlass;
 ```
 

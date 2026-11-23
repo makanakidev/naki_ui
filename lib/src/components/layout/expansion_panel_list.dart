@@ -103,11 +103,7 @@ class ExpansionPanelList extends StatefulComponent {
   @override
   State<ExpansionPanelList> createState() => _ExpansionPanelListState();
 
-  @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once(
-    'ExpansionPanelList',
-    Rules.nakiExpansionPanelRules,
-  );
+  static List<StyleRule> get styles => LayoutStyles.expansionPanelList;
 }
 
 class _ExpansionPanelListState extends State<ExpansionPanelList> {
@@ -194,7 +190,8 @@ class _ExpansionPanelListState extends State<ExpansionPanelList> {
       ...?component.margin?.mProps,
       if (component.elevation != null && component.elevation! > 0)
         'box-shadow':
-            '0 ${component.elevation! * 2}px ${component.elevation! * 4}px rgba(0,0,0,0.1)',
+            '0 ${component.elevation! * 2}px ${component.elevation! * 4}px '
+            'var(${Tokens.current.shadowColor.name}, ${Tokens.current.shadowColor.value})',
     };
 
     for (int i = 0; i < component.children.length; i++) {

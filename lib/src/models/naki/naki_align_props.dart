@@ -1,4 +1,4 @@
-part of 'index.dart';
+import '../../utilities/enums/index.dart';
 
 /// Used internally by Naki components to map alignment
 /// properties to CSS values.

@@ -15,7 +15,7 @@ class OverlayRegion extends StatelessComponent {
   @override
   Component build(BuildContext context) {
     return _OverlayScopeRegistry.notifier.rebuild((map) {
-      return .fragment([
+      return NakiFragment([
         for (final entry in map.entries)
           .wrapElement(key: ValueKey(entry.key), child: entry.value),
       ]);

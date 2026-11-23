@@ -62,18 +62,29 @@ Use `BorderSideData.none` for an absent side. Prefer semantic colors from contex
 
 ## Gradients and filters
 
-Use `Gradient` and `Filter` builders to define composable background fills and visual effects:
+Use `Gradient` and `Filter` cascading builders, or `const` standalone subclasses composed with `.and()`:
+
+- Standalone `Gradient` subclasses (`stops` accept length/percentage `Dim` units for linear/radial gradients, and angle/percentage `Dim` units for conic gradients): `LinearGradient`, `RadialGradient`, `ConicGradient`, `RepeatingLinearGradient`, `RepeatingRadialGradient`, `RepeatingConicGradient`, `RawGradient`.
+- Standalone `Filter` subclasses (numeric `double` values — px for `BlurFilter`, degrees for `HueRotateFilter`, percent for the rest — or raw CSS string for `RawFilter`): `BlurFilter`, `BrightnessFilter`, `ContrastFilter`, `GrayscaleFilter`, `HueRotateFilter`, `InvertFilter`, `OpacityFilter`, `SaturationFilter`, `SepiaFilter`, `RawFilter`.
 
 ```dart
-final gradient = Gradient()
-  ..applyLinear(
-    colors: [context.primaryColor, context.secondaryColor],
-    direction: LinearGradientDirection.toBottomRight,
-  );
+final gradient = LinearGradient(
+  colors: [context.primaryColor, context.secondaryColor],
+  direction: LinearGradientDirection.toBottomRight,
+);
 
-final filter = Filter()
+final layered = gradient.and(
+  const RadialGradient(
+    colors: [Color('rgba(255, 255, 255, 0.2)'), Colors.transparent],
+    shape: Shape.circle,
+  ),
+);
+
+final filter = const BlurFilter(8).and(const ContrastFilter(100));
+
+final cascadedFilter = Filter()
   ..applyBlur(8)
-  ..applyContrast(120);
+  ..applyContrast(100);
 ```
 
 ## Input decoration and labels

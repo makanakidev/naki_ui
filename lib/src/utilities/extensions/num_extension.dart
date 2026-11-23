@@ -1,4 +1,4 @@
-part of 'index.dart';
+part of 'core_extensions.dart';
 
 /// Extension on [num] providing currency formatting,
 /// rounding, and type check utilities.

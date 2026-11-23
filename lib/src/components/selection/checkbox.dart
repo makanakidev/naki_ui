@@ -1,9 +1,5 @@
 part of 'index.dart';
 
-// /////////////////////////////////////////////////////////////////////////////
-// SELECTION COMPONENTS
-// /////////////////////////////////////////////////////////////////////////////
-
 /// {@template Checkbox}
 /// A component that displays a standard checkbox with an optional
 /// text label placed on either the left or right side.
@@ -146,9 +142,5 @@ class Checkbox extends StatelessComponent {
     );
   }
 
-  @css
-  static List<StyleRule> get styles => NakiStyleRegistry.once('Checkbox', [
-    Rules.nakiCheckboxRules,
-    Rules.nakiHitboxRules,
-  ]);
+  static List<StyleRule> get styles => SelectionStyles.checkbox;
 }

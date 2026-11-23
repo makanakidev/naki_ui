@@ -2,7 +2,7 @@
 name: naki-ui-fundamentals
 description: Use when building, editing, reviewing, or troubleshooting Jaspr interfaces with Naki UI components, including application setup, layout, text, inputs, selection, overlays, scrolling, painting, responsive behavior, and async rendering through package:naki_ui/naki_ui.dart.
 metadata:
-  version: "1.0.7"
+  version: "1.0.8"
   author: "makanakidev"
 ---
 
@@ -82,7 +82,7 @@ class MyComponent extends StatelessComponent {
 
 ## Understand the application boundary
 
-Use `NakiApp` for theme configuration, metadata, default text style, safe-area handling, and an optional application home. Use `NakiApp.router` for router-managed applications. Interactive routing, theme persistence, responsive observation, overlays, and browser lifecycle behavior require client execution.
+Use `NakiApp` for theme configuration, metadata, default text style, safe-area handling, imperative navigation (`Navigator`), and an optional application home. Use `NakiApp.router` for router-managed applications. Interactive routing, theme persistence, responsive observation, overlays, and browser lifecycle behavior require client execution.
 
 Read [imports-and-conventions.md](references/imports-and-conventions.md) for complete application, component, hydration, form, styling, and verification examples.
 

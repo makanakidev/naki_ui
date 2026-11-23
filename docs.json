@@ -3,11 +3,11 @@
   "name": "Naki UI",
   "description": "Guides and examples for Jaspr's Material-inspired UI components and utilities",
   "logo": {
-    "light": "https://raw.githubusercontent.com/makanakidev/naki_ui/main/assets/icon-light.jpg",
-    "dark": "https://raw.githubusercontent.com/makanakidev/naki_ui/main/assets/icon-dark.jpg"
+    "light": "/docs/assets/icon-light.jpg",
+    "dark": "/docs/assets/icon-dark.jpg"
   },
-  "favicon": "https://raw.githubusercontent.com/makanakidev/naki_ui/main/assets/favicon.png",
-  "socialPreview": "https://raw.githubusercontent.com/makanakidev/naki_ui/main/assets/logo-dark.jpg",
+  "favicon": "/docs/assets/favicon.png",
+  "socialPreview": "/docs/assets/logo-dark.jpg",
   "banner": {},
   "theme": {
     "defaultTheme": "light",
@@ -46,6 +46,11 @@
       "id": "cli",
       "title": "CLI",
       "href": "/cli"
+    },
+    {
+      "id": "changelog",
+      "title": "Changelog",
+      "href": "/changelog"
     }
   ],
   "anchors": [
@@ -81,6 +86,10 @@
         {
           "title": "💧 SSR & Hydration",
           "href": "/hydration"
+        },
+        {
+          "title": "📰 Changelog",
+          "href": "/changelog"
         }
       ]
     },
@@ -187,6 +196,10 @@
           "href": "/framework"
         },
         {
+          "title": "🗺️ Navigator & Routing",
+          "href": "/framework/navigator"
+        },
+        {
           "title": "🖥️ Layout & Viewport",
           "href": "/framework/viewport"
         },
@@ -217,6 +230,16 @@
           "href": "/cli"
         }
       ]
+    },
+    {
+      "tab": "changelog",
+      "group": "Releases",
+      "pages": [
+        {
+          "title": "📋 Release Notes",
+          "href": "/changelog"
+        }
+      ]
     }
   ],
   "content": {
@@ -236,13 +259,15 @@
     "/theming/overview": "/theming",
     "/cli/overview": "/cli",
     "/tooling": "/cli",
-    "/skills": "/cli"
+    "/skills": "/cli",
+    "/changelog/overview": "/changelog",
+    "/changelogs": "/changelog"
   },
   "social": {
     "github": "makanakidev/naki_ui"
   },
   "og": {
-    "logo": "https://raw.githubusercontent.com/makanakidev/naki_ui/main/assets/logo-light.jpg",
+    "logo": "/docs/assets/logo-light.jpg",
     "github": true
   }
 }

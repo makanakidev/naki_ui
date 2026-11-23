@@ -135,7 +135,5 @@ class Spinner extends StatelessComponent {
     );
   }
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('Spinner', Rules.nakiSpinnerRules);
+  static List<StyleRule> get styles => BasicsStyles.spinner;
 }

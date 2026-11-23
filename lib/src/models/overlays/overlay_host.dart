@@ -1,9 +1,5 @@
 part of 'index.dart';
 
-// /////////////////////////////////////////////////////////////////////////////
-// OVERLAY HOST
-// /////////////////////////////////////////////////////////////////////////////
-
 /// Renders the overlays shown with `showSnackbar` and `showDialog` next to
 /// its [child], so they keep the theme and `Scaffold` context of the place
 /// they are shown from.
@@ -23,17 +19,15 @@ class OverlayHost extends StatefulComponent {
   @override
   State<OverlayHost> createState() => OverlayHostState();
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('Fragment', [Rules.nakiFragmentRules]);
+  static List<StyleRule> get styles => OverlayModelStyles.overlayHost;
 }
 
 class OverlayHostState extends State<OverlayHost> {
   final _entries = <int, Component>{};
   int _nextId = 0;
 
-  /// Shows [overlay] until [controller] closes, then removes it once its
-  /// [exitDuration] exit animation has played.
+  /// Shows [overlay] until [controller] closes, then removes it
+  /// once its [exitDuration] exit animation has played.
   ///
   /// [onClosed] runs once, as soon as [controller] closes.
   void show(
@@ -46,10 +40,8 @@ class OverlayHostState extends State<OverlayHost> {
 
     void listener() {
       if (controller.isOpen) return;
-
       controller.removeListener(listener);
       onClosed?.call();
-
       Future.delayed(exitDuration, () {
         if (mounted) setState(() => _entries.remove(id));
       });
@@ -61,7 +53,7 @@ class OverlayHostState extends State<OverlayHost> {
       _entries[id] = OverlayEntryScope(
         key: ValueKey('naki-overlay-$id'),
         controller: controller,
-        child: overlay,
+        child: Builder(builder: (_) => overlay),
       );
     });
   }
@@ -70,17 +62,18 @@ class OverlayHostState extends State<OverlayHost> {
   Component build(BuildContext context) {
     return _OverlayHostScope(
       state: this,
-      child: .fragment([
+      child: NakiFragment([
         component.child,
 
         // portal for overlays injected via OverlayScope
         const OverlayRegion(),
 
         // portal for overlays injected via show* functions
-        .element(
-          tag: 'naki-overlay-host',
-          children: _entries.values.toList(),
-        ),
+        if (_entries.isNotEmpty)
+          .element(
+            tag: 'naki-overlayhost',
+            children: _entries.values.toList(),
+          ),
       ]),
     );
   }

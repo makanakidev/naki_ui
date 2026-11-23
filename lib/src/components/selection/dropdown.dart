@@ -27,8 +27,9 @@ class Dropdown<T> extends StatefulComponent {
   /// Custom component that opens/closes the dropdown.
   ///
   /// ### Important notes
-  /// - No `click` event listeners should be attached to the [child] component,
-  ///   as the dropdown states are managed internally.
+  /// - No `click` event listeners should be attached to
+  ///   the [child] component, as the dropdown states are
+  ///   managed internally.
   /// - When `null`, the default trigger component is rendered.
   final Component? child;
 
@@ -66,8 +67,8 @@ class Dropdown<T> extends StatefulComponent {
   /// When `true`, the dropdown menu will include a search box.
   final bool enableSearch;
 
-  /// When [enableSearch] is `true`, this will be the text displayed in the
-  /// search field before the user starts typing.
+  /// When [enableSearch] is `true`, this will be the text
+  /// displayed in the search field before the user starts typing.
   final String searchPlaceholder;
 
   /// Additional CSS classes applied to the dropdown menu.
@@ -81,7 +82,8 @@ class Dropdown<T> extends StatefulComponent {
   final Dim? menuHeight;
 
   /// Decoration of the dropdown default trigger component
-  /// (**supported properties**: `backgroundColor`, `border`, `padding`, `margin`).
+  /// (**supported properties**: `backgroundColor`, `border`,
+  /// `padding`, `margin`).
   final BoxDecoration? decoration;
 
   /// Style applied to the text in dropdown trigger component
@@ -137,9 +139,7 @@ class Dropdown<T> extends StatefulComponent {
   @override
   State<Dropdown<T>> createState() => _DropdownState<T>();
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('Dropdown', [...Rules.nakiDropdownRules]);
+  static List<StyleRule> get styles => SelectionStyles.dropdown;
 }
 
 class _DropdownState<T> extends State<Dropdown<T>> with NakiStatefulMixin {
@@ -532,7 +532,12 @@ class _DropdownState<T> extends State<Dropdown<T>> with NakiStatefulMixin {
       width: const Dim.percent(100),
       decoration: InputDecoration(
         placeholderText: component.searchPlaceholder,
-        inputStyle: const TextStyle(fontSize: Dim.px(13)),
+        inputStyle: TextStyle(
+          fontSize: Dim.variable(
+            Tokens.current.dropdownOptionFontSize.name,
+            defaultValue: Tokens.current.dropdownOptionFontSize.value,
+          ),
+        ),
         border: BorderData.only(
           bottom: BorderSideData(color: context.borderColor),
           left: BorderSideData.none,
@@ -540,7 +545,12 @@ class _DropdownState<T> extends State<Dropdown<T>> with NakiStatefulMixin {
           top: BorderSideData.none,
           radius: BorderRadiusData.zero,
         ),
-        padding: const EdgeInsets.symmetric(horizontal: Dim.px(12)),
+        padding: EdgeInsets.symmetric(
+          horizontal: Dim.variable(
+            Tokens.current.paddingSm.name,
+            defaultValue: Tokens.current.paddingSm.value,
+          ),
+        ),
       ),
       onTyping: (query) {
         NakiDebounce.run('search_$_id', const Duration(milliseconds: 150), () {

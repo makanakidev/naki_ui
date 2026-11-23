@@ -27,7 +27,8 @@ part of 'index.dart';
 /// ```
 /// {@endtemplate}
 class FormBuilder extends StatelessComponent {
-  /// Unique name of the form. No other form should have the same name.
+  /// Unique name of the form. No other form should have
+  /// the same name.
   final String? name;
 
   /// Children of the form (e.g., [TextField], [Button], etc).
@@ -45,36 +46,40 @@ class FormBuilder extends StatelessComponent {
   /// Space in pixels between [children] components.
   final double? spacing;
 
-  /// If `true`, the native browser form validation is disabled when a descendant
-  /// button with type `submit` is clicked allowing for more explicit control
-  /// over the validation process.
+  /// If `true`, the native browser form validation is
+  /// disabled when a descendant button with type `submit`
+  /// is clicked allowing for more explicit control over the
+  /// validation process.
   ///
-  /// Otherwise, the browser blocks form submission and shows validation
-  /// errors when a descendant button with type `submit` is clicked and form
-  /// fields are not valid.
+  /// Otherwise, the browser blocks form submission and shows
+  /// validation errors when a descendant button with type
+  /// `submit` is clicked and form fields are not valid.
   final bool bypassValidation;
 
   /// Key used to identify and control the form.
   final GlobalNodeKey<HTMLFormElement> formKey;
 
-  /// Called when the form is submitted (e.g. by a `submit` button or by
-  /// pressing `Enter` in a field) and all fields pass validation.
+  /// Called when the form is submitted (e.g. by a `submit`
+  /// button or by pressing `Enter` in a field) and all fields
+  /// pass validation.
   ///
-  /// Unless [action] is set, the native submission is always prevented, so
-  /// field values (including passwords) never end up in the page URL.
+  /// Unless [action] is set, the native submission is always
+  /// prevented, so field values (including passwords) never
+  /// end up in the page URL.
   final FutureOr<void> Function()? onSubmit;
 
   /// URL that processes a native form submission.
   ///
-  /// When `null` (default) the form never navigates and only [onSubmit] runs.
+  /// When `null` (default) the form never navigates
+  /// and only [onSubmit] runs.
   final String? action;
 
   /// HTTP method used for a native submission to [action]
   /// (default: [FormMethod.post]).
   final FormMethod method;
 
-  /// Whether native validation is skipped (also honours the deprecated
-  /// `autoValidate` flag).
+  /// Whether native validation is skipped (also honours
+  /// the deprecated `autoValidate` flag).
   final bool _skipValidation;
 
   /// {@macro FormBuilder}
@@ -84,7 +89,7 @@ class FormBuilder extends StatelessComponent {
     this.direction = Direction.vertical,
     this.bypassValidation = false,
     @Deprecated(
-      'Use bypassValidation instead. autoValidate will be removed in 1.1.',
+      'This will be removed in v2.0.0, use bypassValidation instead.',
     )
     bool autoValidate = false,
     this.method = FormMethod.post,
@@ -140,7 +145,5 @@ class FormBuilder extends StatelessComponent {
     );
   }
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('FormBuilder', [Rules.nakiFormRules]);
+  static List<StyleRule> get styles => InputsStyles.formBuilder;
 }

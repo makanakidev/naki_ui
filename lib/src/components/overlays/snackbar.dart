@@ -1,9 +1,5 @@
 part of 'index.dart';
 
-// /////////////////////////////////////////////////////////////////////////////
-// OVERLAY COMPONENTS
-// /////////////////////////////////////////////////////////////////////////////
-
 /// {@template Snackbar}
 /// A component that displays a snackbar / toast notification
 /// positioned dynamically on the screen.
@@ -108,9 +104,7 @@ class Snackbar extends StatefulComponent {
   @override
   State<Snackbar> createState() => _SnackbarState();
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('Snackbar', [Rules.nakiSnackbarRules]);
+  static List<StyleRule> get styles => OverlaysStyles.snackbar;
 }
 
 class _SnackbarState extends State<Snackbar>
@@ -144,7 +138,7 @@ class _SnackbarState extends State<Snackbar>
     final isOpen = _controller.isOpen;
     syncVisibility(isOpen, rebuild: false);
 
-    if (isOpen) SnackbarRegistry.onOpen(_controller);
+    if (isOpen) SnackbarRegistry.onOpen(_controller, deferClose: true);
     _controller.addListener(_onControllerChanged);
 
     _scheduleAutoDismiss();
@@ -157,8 +151,15 @@ class _SnackbarState extends State<Snackbar>
     final controller = _resolveController();
     if (controller != _controller) {
       _controller.removeListener(_onControllerChanged);
+      SnackbarRegistry.onClose(_controller);
+
       _controller = controller..addListener(_onControllerChanged);
       syncVisibility(controller.isOpen, rebuild: false);
+
+      if (controller.isOpen) {
+        SnackbarRegistry.onOpen(controller, deferClose: true);
+        _scheduleAutoDismiss();
+      }
     }
   }
 
@@ -166,6 +167,7 @@ class _SnackbarState extends State<Snackbar>
   void dispose() {
     _timer?.cancel();
     _controller.removeListener(_onControllerChanged);
+    SnackbarRegistry.onClose(_controller);
     super.dispose();
   }
 
@@ -248,7 +250,7 @@ class _SnackbarState extends State<Snackbar>
 
   @override
   Component build(BuildContext context) {
-    if (!isVisible) return const .empty();
+    if (!isVisible) return const SizedBox();
 
     final effectiveStyles = {
       Tokens.current.snackbarBgColor.name: ?component.backgroundColor?.value,

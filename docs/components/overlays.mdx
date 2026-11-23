@@ -72,18 +72,32 @@ Dialog(
 )
 ```
 
-Or show one without a controller with `showDialog`, which completes with the value passed to `closeDialog`, or `null` when the barrier dismisses it:
+Or show one without a controller with `showDialog` (accepting `Dialog` arguments directly, or `builder` for custom `Dialog.content`) or `showCustomDialog` (for returning any custom root dialog component). Prefer `Navigator.pop(context, result)` inside the dialog's actions or builder (`closeDialog` also works), completing the returned `Future` or resolving with `null` when the barrier dismisses it:
 
 ```dart
 final confirmed = await showDialog<bool>(
   context: context,
-  builder: (context) => Dialog(
-    title: 'Confirm Deletion',
-    barrierDismissible: true,
-    actions: [
-      Button.text('Cancel', onTap: () => closeDialog(context, false)),
-      Button.text('Delete', onTap: () => closeDialog(context, true)),
-    ],
+  title: 'Confirm Deletion',
+  barrierDismissible: true,
+  actions: (context) => [
+    Button.text('Cancel', onTap: () => Navigator.pop(context, false)),
+    Button.text('Delete', onTap: () => Navigator.pop(context, true)),
+  ],
+);
+
+// Or return a custom dialog component directly:
+final customResult = await showCustomDialog<bool>(
+  context: context,
+  builder: (context) => Card(
+    padding: const EdgeInsets.all(Dim.px(24)),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      spacing: 12,
+      children: [
+        const Heading('Custom Surface', level: 3),
+        Button.text('Close', onTap: () => Navigator.pop(context, true)),
+      ],
+    ),
   ),
 );
 ```
@@ -91,6 +105,16 @@ final confirmed = await showDialog<bool>(
 Both need a `NakiApp` or `Scaffold` above `context`; the overlay keeps that context, so it sits clear of the app bar and bottom navigation bar.
 
 Set `glass: true` for a translucent dialog. `backgroundColor` sets the tint, and the barrier stops blurring so the glass can see the page. See `Card.glass` for the `glassTint`, `glassRim` and `glassBlur` theme values and the accessibility fallbacks.
+
+By default `blurBarrier` is `true`, applying the theme's backdrop barrier blur. Set `blurBarrier: false` to keep the background sharp behind the dialog:
+
+```dart
+Dialog(
+  controller: dialogController,
+  title: 'Alert',
+  blurBarrier: false,
+)
+```
 
 ---
 
@@ -119,7 +143,7 @@ BottomSheet(
 )
 ```
 
-Or show one without a controller with `showModalBottomSheet`. `builder` returns the sheet's content, and the future completes with the value passed to `closeModalBottomSheet`, or `null` when the barrier dismisses it:
+Or show one without a controller with `showModalBottomSheet`. `builder` returns the sheet's content, and the future completes with the value passed to `Navigator.pop` (or `closeModalBottomSheet`), or `null` when the barrier dismisses it:
 
 ```dart
 final target = await showModalBottomSheet<String>(
@@ -127,12 +151,40 @@ final target = await showModalBottomSheet<String>(
   builder: (context) => Column(
     mainAxisSize: MainAxisSize.min,
     children: [
-      Button.text('Messages', onTap: () => closeModalBottomSheet(context, 'messages')),
-      Button.text('Mail', onTap: () => closeModalBottomSheet(context, 'mail')),
+      Button.text('Messages', onTap: () => Navigator.pop(context, 'messages')),
+      Button.text('Mail', onTap: () => Navigator.pop(context, 'mail')),
     ],
   ),
 );
 ```
+
+---
+
+## Date & Time Pickers
+
+Show modal calendar pickers without mounting an inline `Calendar` field using `showDatePicker`, `showDateRangePicker`, and `showTimePicker`:
+
+```dart
+final pickedDate = await showDatePicker(
+  context: context,
+  initialDate: DateTime.now(),
+  firstDate: DateTime(2000),
+  lastDate: DateTime(2100),
+);
+
+final pickedRange = await showDateRangePicker(
+  context: context,
+  firstDate: DateTime(2020),
+  lastDate: DateTime(2030),
+);
+
+final pickedTime = await showTimePicker(
+  context: context,
+  initialTime: DateTime.now(),
+);
+```
+
+Each function returns a `Future` that completes with the confirmed selection (`DateTime?` or `List<DateTime>?`) or `null` when cancelled or dismissed. Prefer `Navigator.pop(context, result)` to dismiss with a result programmatically (`closeDatePicker`, `closeDateRangePicker`, and `closeTimePicker` are also available).
 
 ---
 
@@ -215,10 +267,10 @@ Drawer(
 
 `Dialog`, `BottomSheet` and `Drawer` follow Material 3 motion:
 
-| Overlay       | Opening                                                                                     | Closing                                       |
-| :------------ | :------------------------------------------------------------------------------------------ | :-------------------------------------------- |
+| Overlay       | Opening                                                                                    | Closing                                              |
+| :------------ | :----------------------------------------------------------------------------------------- | :--------------------------------------------------- |
 | `Dialog`      | Grows from 35% of its height over 500ms on the emphasized curve, then its content fades in | Shrinks and fades over 150ms (emphasized accelerate) |
-| `BottomSheet` | Slides up over 210ms                                                                        | Slides down over 120ms                        |
-| `Drawer`      | Slides in over 210ms                                                                        | Slides out over 120ms                         |
+| `BottomSheet` | Slides up over 210ms                                                                       | Slides down over 120ms                               |
+| `Drawer`      | Slides in over 210ms                                                                       | Slides out over 120ms                                |
 
 The scrim fades its own color and blur, so the overlay above it is never see-through. Under `prefers-reduced-motion`, overlays appear and disappear without animating.

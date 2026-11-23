@@ -39,16 +39,29 @@ For a one-off overlay, skip the controller. These functions mount the overlay in
 showSnackbar(context, const Snackbar(content: NakiText('Saved')));
 closeSnackbar();
 
-// Dialog: builder returns the Dialog. Completes with the closeDialog value,
-// or null when dismissed another way.
+// Dialog: takes Dialog arguments directly (or use showCustomDialog for a custom root component).
+// Completes with Navigator.pop (preferred) or closeDialog, or null when dismissed another way.
 final confirmed = await showDialog<bool>(
   context: context,
-  builder: (context) => Dialog(
-    title: 'Delete item?',
-    actions: [
-      Button.text('Cancel', onTap: () => closeDialog(context, false)),
-      Button.text('Delete', onTap: () => closeDialog(context, true)),
-    ],
+  title: 'Delete item?',
+  actions: (context) => [
+    Button.text('Cancel', onTap: () => Navigator.pop(context, false)),
+    Button.text('Delete', onTap: () => Navigator.pop(context, true)),
+  ],
+);
+
+final customAccepted = await showCustomDialog<bool>(
+  context: context,
+  builder: (context) => Card(
+    padding: const EdgeInsets.all(Dim.px(24)),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      spacing: 12,
+      children: [
+        const Heading('Notice', level: 3),
+        Button.text('Accept', onTap: () => Navigator.pop(context, true)),
+      ],
+    ),
   ),
 );
 
@@ -58,13 +71,21 @@ final target = await showModalBottomSheet<String>(
   isDismissible: true,
   builder: (context) => Column(
     children: [
-      Button.text('Mail', onTap: () => closeModalBottomSheet(context, 'mail')),
+      Button.text('Mail', onTap: () => Navigator.pop(context, 'mail')),
     ],
   ),
 );
+
+// Modal date, date-range, and time pickers (prefer Navigator.pop; closeDatePicker/closeDateRangePicker/closeTimePicker also work).
+final pickedDate = await showDatePicker(
+  context: context,
+  initialDate: DateTime.now(),
+);
+final pickedRange = await showDateRangePicker(context: context);
+final pickedTime = await showTimePicker(context: context);
 ```
 
-- Call `closeDialog` and `closeModalBottomSheet` with the `context` the builder receives, not the page's context. They assert otherwise.
+- Prefer `Navigator.pop(context, result)` over `closeDialog`, `closeModalBottomSheet`, `closeDatePicker`, `closeDateRangePicker`, and `closeTimePicker`, passing the `context` the builder receives (not the page's context).
 - Leave `controller` out of a `Snackbar` or `Dialog` passed to these functions.
 - Check `mounted` after `await` before using the page's `context` again.
 

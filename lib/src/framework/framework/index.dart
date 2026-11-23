@@ -15,6 +15,9 @@ import '../../utilities/helpers/index.dart'
 
 import '../overlay_stack.dart';
 
+export 'naki_fragment_stub.dart'
+    if (dart.library.js_interop) 'naki_fragment_web.dart';
+
 part 'naki_accessible_overlay_mixin.dart';
 part 'naki_overlay_visibility_mixin.dart';
 part 'naki_placement_mixin.dart';

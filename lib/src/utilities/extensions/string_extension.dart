@@ -1,4 +1,4 @@
-part of 'index.dart';
+part of 'core_extensions.dart';
 
 /// Extension on [String] providing text formatting,
 /// validation, and parsing utilities.

@@ -4,10 +4,10 @@ part of 'index.dart';
 /// A component that displays contextual tooltip text or content when
 /// hovering or focusing over the [child] component.
 ///
-/// It opens at [position] and stays anchored to [child] inside the safe areas
-/// and the Scaffold's bars: it flips to the opposite side when only that side
-/// fits, and slides along [child] when it would cross an edge, its arrow still
-/// pointing at [child].
+/// It opens at [position] and stays anchored to [child]
+/// inside the safe areas and the Scaffold's bars: it flips to the
+/// opposite side when only that side fits, and slides along [child]
+/// when it would cross an edge, its arrow still pointing at [child].
 ///
 /// ### Example
 /// ```dart
@@ -61,7 +61,8 @@ class Tooltip extends StatefulComponent {
   /// Optional CSS classes applied to the tooltip content.
   final String? classes;
 
-  /// Unique identifier used to connect the target and tooltip content.
+  /// Unique identifier used to connect the target
+  /// and tooltip content.
   final String? id;
 
   /// {@macro Tooltip}
@@ -87,9 +88,7 @@ class Tooltip extends StatefulComponent {
   @override
   State<Tooltip> createState() => _TooltipState();
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('Tooltip', [Rules.nakiTooltipRules]);
+  static List<StyleRule> get styles => OverlaysStyles.tooltip;
 }
 
 class _TooltipState extends State<Tooltip>

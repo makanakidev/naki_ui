@@ -10,6 +10,7 @@ description: Architecture of the Naki UI framework, lifecycle mixins, animation 
 ## What's Included
 
 - 📱 **Viewport Engine**: `MediaQueryProvider` with viewport width, height, and orientation query utilities.
+- 🧭 **Navigation**: Flutter-style `Navigator`, `NakiRoute`, and `NakiPageRoute` supporting imperative stacks, overlay popping, and `jaspr_router` integration.
 - 🎮 **Controllers**: `OverlayController` (for dialogs, sheets, drawers, and snackbars), `ScrollController`, and `PageController`.
 - 🌐 **Lifecycle & Browser**: `NakiStatefulMixin` (`afterRender`) and `BrowserLifecycleListeners` (visibility, resize, and component size observation).
 - 👆 **Gestures & Animation**: `GestureDetector`, `Gestures`, `Events`, `GestureRecognizer`, and easing `Curves`.
@@ -20,6 +21,9 @@ description: Architecture of the Naki UI framework, lifecycle mixins, animation 
 ## Explore Framework Topics
 
 <CardGroup cols={2}>
+  <Card title="Navigator & Routing" icon="route" href="/framework/navigator">
+    Imperative route stacks, Navigator.pop, and jaspr_router integration.
+  </Card>
   <Card title="Layout & Viewport" icon="mobile-screen" href="/framework/viewport">
     MediaQueryProvider and layout utilities.
   </Card>

@@ -1,0 +1,81 @@
+---
+title: Navigator & Routing
+description: Flutter-style imperative route navigation and overlay popping with Navigator, NakiRoute, and NakiPageRoute.
+---
+
+Naki UI provides a Flutter-inspired imperative `Navigator` exported from both `package:naki_ui/naki_ui.dart` and `package:naki_ui/framework.dart`.
+
+`NakiApp` and `NakiApp.router` mount `Navigator` automatically above your app's `OverlayHost`, sharing theme, text styles, and overlays across pushed routes.
+
+---
+
+## Pushing & Popping Routes
+
+Push a `NakiPageRoute<T>` and `await` its typed pop result:
+
+```dart
+import 'package:jaspr/jaspr.dart';
+import 'package:naki_ui/naki_ui.dart';
+
+final saved = await Navigator.push<bool>(
+  context,
+  NakiPageRoute(
+    settings: const NakiRouteSettings(name: '/profile/edit', arguments: 'user-42'),
+    builder: (context) => EditProfilePage(
+      onCancel: () => Navigator.pop(context, false),
+      onSave: () => Navigator.pop(context, true),
+    ),
+  ),
+);
+```
+
+Inside any built page, read the active route metadata with `NakiRoute.of<T>(context)` or `NakiRoute.maybeOf(context)`:
+
+```dart
+final route = NakiRoute.maybeOf(context);
+final userId = route?.settings.arguments as String?;
+```
+
+---
+
+## Named Routes & Replacement
+
+Stand-alone `Navigator` instances accept `initialRoute`, `routes`, `onGenerateRoute`, and `onUnknownRoute`:
+
+```dart
+Navigator(
+  home: const DashboardPage(),
+  routes: {
+    '/details': (context) => const DetailsPage(),
+    '/settings': (context) => const SettingsPage(),
+  },
+  onGenerateRoute: (settings) {
+    if (settings.name == '/item') {
+      return NakiPageRoute<void>(
+        settings: settings,
+        builder: (context) => const ItemPage(),
+      );
+    }
+    return null;
+  },
+)
+```
+
+Supported imperative operations on both `Navigator` (static context helpers) and `NavigatorState`:
+
+- `push` / `pushNamed`
+- `pushReplacement` / `pushReplacementNamed`
+- `pushAndRemoveUntil` / `pushNamedAndRemoveUntil`
+- `pop` / `maybePop` / `canPop` / `popUntil`
+- `Navigator.withName('/route')` predicate helper
+- `Navigator.of(context, rootNavigator: true)` / `Navigator.maybeOf(...)`
+
+---
+
+## Integration with Overlays & `NakiApp.router`
+
+`Navigator.pop(context, [result])`, `Navigator.maybePop`, and `Navigator.canPop` follow a unified precedence chain:
+
+1. **Active overlay**: If `context` sits inside an active modal overlay (`showDialog`, `showModalBottomSheet`, `showDatePicker`, `showDateRangePicker`, `showTimePicker`, or declarative `Dialog`, `BottomSheet`, and modal `Drawer`), `Navigator.pop(context, result)` closes that overlay and completes its `Future<T?>` with `result`.
+2. **Imperative route stack**: Otherwise, if the enclosing `Navigator` has pushed `NakiRoute` entries, it pops the top route and completes its `Future<T?>` with `result`.
+3. **`jaspr_router` fallback**: Otherwise, when used inside `NakiApp.router`, `Navigator.pop` delegates to `RouterState.back()` (and unmatched `pushNamed` / `pushReplacementNamed` delegate to `RouterState.push` / `RouterState.replace`).

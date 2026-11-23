@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:jaspr/dom.dart';
 import 'package:jaspr/jaspr.dart';
 
-import '../models/naki/index.dart' show ScrollBarConfiguration;
+import '../models/naki/scroll_bar_configuration.dart';
 import '../theme/tokens.dart';
 import '../utilities/constants.dart';
-import '../utilities/extensions/index.dart';
+import '../utilities/extensions/core_extensions.dart';
 
 import 'css.dart';
 
@@ -162,7 +162,8 @@ class Rules {
   ];
 
   /// Default foundation rules.
-  static List<StyleRule> get nakiFoundationRules => [
+  /// Core foundation rules applied once per application root.
+  static final List<StyleRule> nakiFoundationRules = [
     css.media(const MediaQuery.raw('(prefers-reduced-motion: reduce)'), [
       css('*, *::before, *::after').styles(
         raw: {
@@ -472,8 +473,8 @@ class Rules {
         // header title
         css('.naki-calendar-title').styles(
           raw: {
-            'font-size': '14px',
-            'font-weight': '600',
+            'font-size': _var(Tokens.current.fontSizeMd),
+            'font-weight': _var(Tokens.current.fontWeightSemiBold),
             'letter-spacing': '0.04em',
             'text-transform': 'capitalize',
             'color': _var(Tokens.current.mutedColor),
@@ -483,8 +484,8 @@ class Rules {
         // preview
         css('.naki-calendar-picker-preview').styles(
           raw: {
-            'font-size': '12px',
-            'font-weight': '500',
+            'font-size': _var(Tokens.current.fontSizeSm),
+            'font-weight': _var(Tokens.current.fontWeightMedium),
             'font-variant-numeric': 'tabular-nums',
             'color': _var(Tokens.current.primaryColor),
           },
@@ -493,7 +494,7 @@ class Rules {
         // footer area
         css('.naki-calendar-footer').styles(
           raw: {
-            'padding': '8px 0',
+            'padding': '${_var(Tokens.current.paddingXs)} 0',
             'position': 'sticky',
             'bottom': '-1px',
             'background-color': _var(Tokens.current.dropdownMenuBgColor),
@@ -506,9 +507,9 @@ class Rules {
         // action buttons
         css('.naki-calendar-action').styles(
           raw: {
-            'font-weight': '500',
-            'font-size': '14px',
-            'border-radius': '24px',
+            'font-weight': _var(Tokens.current.fontWeightMedium),
+            'font-size': _var(Tokens.current.fontSizeMd),
+            'border-radius': _var(Tokens.current.radiusLg),
             'padding': '8px 12px',
             'height': 'auto',
             'white-space': 'nowrap',
@@ -520,16 +521,19 @@ class Rules {
           css('&').styles(raw: {'width': '100%', 'padding': '6px 4px 0'}),
 
           // header button
-          css(
-            '.naki-calendar-header-action',
-          ).styles(raw: {'border-radius': '999px', 'padding': '0'}),
+          css('.naki-calendar-header-action').styles(
+            raw: {
+              'border-radius': _var(Tokens.current.radiusFull),
+              'padding': '0',
+            },
+          ),
 
           // header title
           css('.naki-calendar-header-title', [
             css('&').styles(
               raw: {
                 'font-size': _var(Tokens.current.calendarTitleFontSize),
-                'font-weight': '500',
+                'font-weight': _var(Tokens.current.fontWeightMedium),
                 'cursor': 'pointer',
                 '-webkit-user-select': 'none',
                 'user-select': 'none',
@@ -583,7 +587,7 @@ class Rules {
               raw: {
                 'padding': 'min(0.5dvw, 4px)',
                 'text-align': 'center',
-                'font-weight': '400',
+                'font-weight': _var(Tokens.current.fontWeightNormal),
                 'font-size': _var(Tokens.current.calendarWeekdayFontSize),
                 'border':
                     '${_var(Tokens.current.calendarWeekdayGap)} '
@@ -610,7 +614,7 @@ class Rules {
                   'text-align': 'center',
                   'width': _var(Tokens.current.calendarCellSize),
                   'height': _var(Tokens.current.calendarCellSize),
-                  'border-radius': '999px',
+                  'border-radius': _var(Tokens.current.radiusFull),
                   'padding': '0',
                   'margin': '0 auto',
                   'border': 'none',
@@ -627,14 +631,22 @@ class Rules {
               ),
 
               // range start
-              css(
-                '&[data-range-start]',
-              ).styles(raw: {'border-radius': '999px 0 0 999px'}),
+              css('&[data-range-start]').styles(
+                raw: {
+                  'border-radius':
+                      '${_var(Tokens.current.radiusFull)} 0 0 '
+                      '${_var(Tokens.current.radiusFull)}',
+                },
+              ),
 
               // range end
-              css(
-                '&[data-range-end]',
-              ).styles(raw: {'border-radius': '0 999px 999px 0'}),
+              css('&[data-range-end]').styles(
+                raw: {
+                  'border-radius':
+                      '0 ${_var(Tokens.current.radiusFull)} '
+                      '${_var(Tokens.current.radiusFull)} 0',
+                },
+              ),
 
               // today
               css(
@@ -674,7 +686,7 @@ class Rules {
           css('.naki-time-separator').styles(
             raw: {
               'font-size': _var(Tokens.current.calendarStepperFontSize),
-              'font-weight': '600',
+              'font-weight': _var(Tokens.current.fontWeightSemiBold),
               'padding-bottom': '2px',
               'color': _var(Tokens.current.mutedColor),
             },
@@ -714,14 +726,14 @@ class Rules {
               raw: {
                 'width': '100%',
                 'height': _var(Tokens.current.calendarStepperHeight),
-                'font-weight': '600',
+                'font-weight': _var(Tokens.current.fontWeightSemiBold),
                 'font-size': _var(Tokens.current.calendarStepperFontSize),
                 'font-variant-numeric': 'tabular-nums',
                 'text-align': 'center',
                 'padding': '0',
                 'margin': '0',
                 'border': 'none',
-                'border-radius': '10px',
+                'border-radius': _var(Tokens.current.radiusSm),
                 'color': _var(Tokens.current.inputTextColor),
                 'background-color': _var(Tokens.current.dropdownMenuBgColor),
                 'box-shadow': '0 1px 2px rgb(0 0 0 / 0.06)',
@@ -740,7 +752,7 @@ class Rules {
                   'height': '28px',
                   'width': '100%',
                   'border': 'none',
-                  'border-radius': '8px',
+                  'border-radius': _var(Tokens.current.radiusSm),
                   'padding': '0',
                   'background-color': 'transparent',
                   'cursor': 'pointer',
@@ -808,7 +820,9 @@ class Rules {
         ).styles(raw: Css.nakiSegmentedInputStyle['underline']),
 
         // circle shape
-        css('&.shape-circle').styles(raw: {'border-radius': '999px'}),
+        css(
+          '&.shape-circle',
+        ).styles(raw: {'border-radius': _var(Tokens.current.radiusFull)}),
 
         // hover state
         css('&[hvr]:hover').styles(raw: Css.nakiFieldHoverStyle),
@@ -819,9 +833,12 @@ class Rules {
         ).styles(raw: Css.nakiFocusBorderStyle),
 
         // disabled state
-        css(
-          '&:disabled',
-        ).styles(raw: {'opacity': '30%', 'cursor': 'not-allowed'}),
+        css('&:disabled').styles(
+          raw: {
+            'opacity': _var(Tokens.current.disabledOpacity),
+            'cursor': 'not-allowed',
+          },
+        ),
       ]),
     ]),
   ];
@@ -846,7 +863,9 @@ class Rules {
       css('&').styles(raw: Css.nakiCheckboxStyle['input']),
 
       // round shape
-      css('&[shape="round"]').styles(raw: {'border-radius': '999px'}),
+      css(
+        '&[shape="round"]',
+      ).styles(raw: {'border-radius': _var(Tokens.current.radiusFull)}),
 
       css('&[fcs]:is(:focus)').styles(raw: Css.nakiFocusBorderStyle),
 
@@ -945,8 +964,9 @@ class Rules {
       // backdrop filter for frosted glass effect
       css('&[blur="true"]').styles(
         raw: {
-          '-webkit-backdrop-filter': 'blur(10px)',
-          'backdrop-filter': 'blur(10px)',
+          '-webkit-backdrop-filter':
+              'blur(${_var(Tokens.current.appbarGlassBlur)})',
+          'backdrop-filter': 'blur(${_var(Tokens.current.appbarGlassBlur)})',
           'background-color': Css.applyOpacity(
             Tokens.current.appbarBgColor,
             65,
@@ -1161,9 +1181,9 @@ class Rules {
   /// Icon rules
   static final nakiIconRules = css('.naki-icon').styles(raw: Css.nakiIconStyle);
 
-  /// Fragment rules
-  static final nakiFragmentRules = css(
-    'naki-fragment, naki-overlay-host',
+  /// Content Box rules (Overlay Host)
+  static final nakiContentBoxRules = css(
+    'naki-overlayhost',
   ).styles(raw: {'display': 'contents'});
 
   /// Scaffold rules
@@ -1265,12 +1285,12 @@ class Rules {
 
   /// Cliprect rules
   static final nakiClipRectRules = css(
-    '.naki-cliprect',
+    'naki-cliprect',
   ).styles(raw: {'display': 'inline-block', 'overflow': 'hidden'});
 
   /// SizedBox rules
   static final nakiSizedBoxRules = css(
-    '.naki-sizedbox',
+    'naki-sizedbox',
   ).styles(raw: Css.nakiSizedBoxStyle);
 
   /// Container rules
@@ -1386,12 +1406,9 @@ class Rules {
   ).styles(raw: {'display': 'flex', 'flex-wrap': 'wrap'});
 
   /// ClipOval rules
-  static final nakiClipOvalRules =
-      css(
-        '.naki-clip-oval',
-      ).styles(
-        raw: {'display': 'block', 'border-radius': '999px', 'overflow': 'clip'},
-      );
+  static final nakiClipOvalRules = css('naki-clipoval').styles(
+    raw: {'display': 'block', 'border-radius': '999px', 'overflow': 'clip'},
+  );
 
   /// Radio button rules
   static final nakiRadioBtnRules = css('naki-radiobtn', [
@@ -1775,7 +1792,7 @@ class Rules {
       raw: {
         'background-color': _var(Tokens.current.tableHeaderBg),
         'padding': '12px 16px',
-        'font-weight': '600',
+        'font-weight': _var(Tokens.current.fontWeightSemiBold),
         'border': 'none',
       },
     ),
@@ -1811,8 +1828,8 @@ class Rules {
   ];
 
   /// Hide rules
-  static final nakiHide = css(
-    '.naki-hide',
+  static final nakiHideRules = css(
+    '.hide',
   ).styles(raw: {'display': 'none !important'});
 
   /// StaggeredView rules
@@ -2531,7 +2548,7 @@ class Rules {
   /// Sidebar rules
   static final nakiSidebarRules = [
     css('.naki-sidebar', [
-      css('.naki-sidebar-content').styles(raw: Css.nakiSidebarStyle['content']),
+      css('.naki-sidebar-content').styles(raw: Css.nakiSidebarStyle),
     ]),
   ];
 

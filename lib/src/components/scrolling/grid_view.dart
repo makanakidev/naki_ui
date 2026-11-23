@@ -5,7 +5,8 @@ part of 'index.dart';
 /// in a grid layout.
 ///
 /// Supports customizable scroll physics (e.g. [BouncingScrollPhysics],
-/// [ClampingScrollPhysics]) and custom scrollbar styling via [ScrollBarConfiguration].
+/// [ClampingScrollPhysics]) and custom scrollbar styling via
+/// [ScrollBarConfiguration].
 ///
 /// ### Example
 /// ```dart
@@ -64,15 +65,16 @@ class GridView extends StatefulComponent {
   /// Additional CSS classes applied to the grid component.
   final String? classes;
 
-  /// Whether to automatically expand the last component across unfilled columns
-  /// (noticable when the number of [children] is not a multiple of the
-  /// cross axis count defined in [gridDelegate]).
+  /// Whether to automatically expand the last component across
+  /// unfilled columns (noticable when the number of [children]
+  /// is not a multiple of the cross axis count defined in
+  /// [gridDelegate]).
   ///
   /// For example:
-  /// - 2 columns and 1 component: the component will expand across the
-  ///   unfilled column to fill the row.
-  /// - 3 columns and 2 components: the last component will expand across the
-  ///   unfilled column to fill the row.
+  /// - 2 columns and 1 component: the component will expand across
+  ///   the unfilled column to fill the row.
+  /// - 3 columns and 2 components: the last component will expand across
+  ///   the unfilled column to fill the row.
   /// - 3 columns and 3 components: the last component will not expand.
   final bool expandLastItem;
 
@@ -94,7 +96,8 @@ class GridView extends StatefulComponent {
 
   /// Creates a grid layout with a fixed column count.
   ///
-  /// Supports scroll physics via [physics] and scrollbar configuration via [scrollBarConfig].
+  /// Supports scroll physics via [physics] and scrollbar
+  /// configuration via [scrollBarConfig].
   ///
   /// ### Example
   /// ```dart
@@ -115,12 +118,16 @@ class GridView extends StatefulComponent {
   /// ```
   ///
   /// ### Parameters
-  /// * [crossAxisCount]: Fixed number of columns in the cross ScrollDirection.
-  /// * [mainAxisSpacing]: Spacing between components along the scroll ScrollDirection.
-  /// * [crossAxisSpacing]: Spacing between components along the cross ScrollDirection.
-  /// * [childAspectRatio]: Aspect ratio of each of the grid's [children].
-  /// * [mainAxisExtent]: Optional fixed main-axis height/width, based on
-  ///   [direction], overriding [childAspectRatio].
+  /// * [crossAxisCount]: Fixed number of columns in the cross
+  ///   ScrollDirection.
+  /// * [mainAxisSpacing]: Spacing between components along
+  ///   the scroll ScrollDirection.
+  /// * [crossAxisSpacing]: Spacing between components along
+  ///   the cross ScrollDirection.
+  /// * [childAspectRatio]: Aspect ratio of each of the
+  ///   grid's [children].
+  /// * [mainAxisExtent]: Optional fixed main-axis height/width,
+  ///   based on [direction], overriding [childAspectRatio].
   /// * [children]: List of components in the grid.
   /// * [direction]: Main scroll axis direction.
   /// * [reverse]: Whether components are rendered in reverse order.
@@ -131,7 +138,7 @@ class GridView extends StatefulComponent {
   /// * [physics]: Scroll physics governing bounce and deceleration.
   /// * [scrollBarConfig]: Scroll bar configuration.
   /// * [padding]: Insets around the grid content.
-  /// * [classes]: Additional CSS class names applied to the grid component.
+  /// * [classes]: Additional CSS class names applied to the grid.
   factory GridView.count(
     int crossAxisCount, {
     Key? key,
@@ -174,7 +181,8 @@ class GridView extends StatefulComponent {
 
   /// Creates a grid layout with maximum cross-axis extent.
   ///
-  /// Supports scroll physics via [physics] and scrollbar configuration via [scrollBarConfig].
+  /// Supports scroll physics via [physics] and scrollbar
+  /// configuration via [scrollBarConfig].
   ///
   /// ### Example
   /// ```dart
@@ -192,13 +200,17 @@ class GridView extends StatefulComponent {
   /// ```
   ///
   /// ### Parameters
-  /// * [maxCrossAxisExtent]: Maximum height/width of each component in the
+  /// * [maxCrossAxisExtent]: Maximum height/width of each
+  ///   component in the
   ///   cross axis relative to [direction].
-  /// * [mainAxisSpacing]: Spacing between components along the scroll ScrollDirection.
-  /// * [crossAxisSpacing]: Spacing between components along the cross ScrollDirection.
-  /// * [childAspectRatio]: Aspect ratio of each of the grid's [children].
-  /// * [mainAxisExtent]: Optional fixed main-axis height/width, based on
-  ///   [direction], overriding [childAspectRatio].
+  /// * [mainAxisSpacing]: Spacing between components along
+  ///   the scroll ScrollDirection.
+  /// * [crossAxisSpacing]: Spacing between components along
+  ///   the cross ScrollDirection.
+  /// * [childAspectRatio]: Aspect ratio of each of the
+  ///   grid's [children].
+  /// * [mainAxisExtent]: Optional fixed main-axis height/width,
+  ///   based on [direction], overriding [childAspectRatio].
   /// * [children]: List of components in the grid.
   /// * [direction]: Main scroll axis direction.
   /// * [reverse]: Whether components are rendered in reverse order.
@@ -209,7 +221,7 @@ class GridView extends StatefulComponent {
   /// * [physics]: Scroll physics governing bounce and deceleration.
   /// * [scrollBarConfig]: Scroll bar configuration.
   /// * [padding]: Insets around the grid content.
-  /// * [classes]: Additional CSS class names applied to the grid component.
+  /// * [classes]: Additional CSS class names applied to the grid.
   factory GridView.extent(
     Dim maxCrossAxisExtent, {
     Key? key,
@@ -252,7 +264,8 @@ class GridView extends StatefulComponent {
 
   /// Creates a grid layout dynamically built with a builder.
   ///
-  /// Supports scroll physics via [physics] and scrollbar configuration via [scrollBarConfig].
+  /// Supports scroll physics via [physics] and scrollbar
+  /// configuration via [scrollBarConfig].
   ///
   /// ### Example
   /// ```dart
@@ -284,7 +297,7 @@ class GridView extends StatefulComponent {
   /// * [physics]: Scroll physics governing bounce and deceleration.
   /// * [scrollBarConfig]: Scroll bar configuration.
   /// * [padding]: Insets around the grid content.
-  /// * [classes]: Additional CSS class names applied to the grid component.
+  /// * [classes]: Additional CSS class names applied to the grid.
   /// * [initialItemCount]: Initial batch size rendered for lazy loading.
   /// * [loadMoreItemCount]: Number of items appended per lazy batch.
   /// * [loadMoreThreshold]: Scroll distance in pixels from the edge
@@ -330,9 +343,7 @@ class GridView extends StatefulComponent {
   @override
   State<GridView> createState() => _GridViewState();
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('GridView', [Rules.nakiGridViewRules]);
+  static List<StyleRule> get styles => ScrollingStyles.gridView;
 }
 
 class _GridViewState extends State<GridView> with NakiStatefulMixin {
@@ -509,12 +520,13 @@ class _GridViewBuilder extends GridView {
   /// Number of items to load at a time when loading more.
   final int loadMoreItemCount;
 
-  /// Scroll distance or offset (in pixels) from the end of the grid container
-  /// that triggers loading the next batch of [loadMoreItemCount] items.
+  /// Scroll distance or offset (in pixels) from the end of the
+  /// grid container  that triggers loading the next batch of
+  /// [loadMoreItemCount] items.
   ///
-  /// For example, a threshold of `200` means that when the user scrolls to
-  /// within `200` pixels of the grid container's edge, additional items will
-  /// be built and rendered automatically.
+  /// For example, a threshold of `200` means that when the user
+  /// scrolls to within `200` pixels of the grid container's edge,
+  /// additional items will be built and rendered automatically.
   final double loadMoreThreshold;
 
   const _GridViewBuilder({

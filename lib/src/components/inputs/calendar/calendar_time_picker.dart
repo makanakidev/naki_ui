@@ -1,24 +1,27 @@
 part of '../index.dart';
 
-class _CalendarTimePicker extends StatelessComponent {
+/// Internal time picker content shared by [Calendar]
+/// and [showTimePicker].
+class NakiCalendarTimePicker extends StatelessComponent {
   final String calendarId;
   final String titleText;
   final String timePreview;
   final Duration? selectedTime;
   final bool disabled;
   final ValueChanged<Duration> onTimeChanged;
-  final VoidCallback onReset;
+  final VoidCallback onClear;
   final VoidCallback onCancel;
   final VoidCallback onConfirm;
 
-  const _CalendarTimePicker({
+  const NakiCalendarTimePicker({
+    super.key,
     required this.calendarId,
     required this.titleText,
     required this.timePreview,
     required this.selectedTime,
     required this.disabled,
     required this.onTimeChanged,
-    required this.onReset,
+    required this.onClear,
     required this.onCancel,
     required this.onConfirm,
   });
@@ -46,7 +49,12 @@ class _CalendarTimePicker extends StatelessComponent {
             NakiText(
               timePreview,
               classes: 'naki-calendar-picker-preview',
-              style: const TextStyle(fontSize: Dim.px(14)),
+              style: TextStyle(
+                fontSize: Dim.variable(
+                  Tokens.current.fontSizeMd.name,
+                  defaultValue: Tokens.current.fontSizeMd.value,
+                ),
+              ),
             ),
           ],
         ),
@@ -85,13 +93,18 @@ class _CalendarTimePicker extends StatelessComponent {
           spacing: 10,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // reset to initial time
+            // clear time (reset to zero)
             Button.text(
-              'Reset',
+              'Clear',
               classes: 'naki-calendar-action',
               backgroundColor: Colors.transparent,
               foregroundColor: context.subtitleColor,
-              onTap: onReset,
+              disabledBackgroundColor: Colors.transparent,
+              disabled:
+                  disabled ||
+                  selectedTime == Duration.zero ||
+                  selectedTime == null,
+              onTap: onClear,
             ),
 
             Row(
@@ -108,9 +121,9 @@ class _CalendarTimePicker extends StatelessComponent {
 
                 // submit time
                 Button.text(
-                  'Ok',
+                  'Submit',
                   classes: 'naki-calendar-action',
-                  disabled: selectedTime == null,
+                  disabled: disabled || selectedTime == null,
                   backgroundColor: Colors.transparent,
                   disabledBackgroundColor: Colors.transparent,
                   foregroundColor: context.primaryColor,
@@ -245,6 +258,7 @@ class _CalendarTimeStepper extends StatelessComponent {
           size: 18,
           semanticLabel: hour ? 'Increase hour' : 'Increase minutes',
           disabled: disabled,
+          disabledBackgroundColor: Colors.transparent,
           onTap: _increase,
           classes: 'naki-time-stepper-button',
         ),
@@ -270,6 +284,7 @@ class _CalendarTimeStepper extends StatelessComponent {
           LucideIcons.icon_chevron_down,
           size: 18,
           semanticLabel: hour ? 'Decrease hour' : 'Decrease minutes',
+          disabledBackgroundColor: Colors.transparent,
           disabled: disabled,
           onTap: _decrease,
           classes: 'naki-time-stepper-button',

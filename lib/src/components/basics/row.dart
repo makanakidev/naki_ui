@@ -114,7 +114,5 @@ class Row extends StatelessComponent {
     return FlexScope(scrollable: scrollable, child: child);
   }
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('Row', [Rules.nakiRowRules]);
+  static List<StyleRule> get styles => BasicsStyles.row;
 }

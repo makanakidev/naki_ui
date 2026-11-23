@@ -4,8 +4,8 @@ part of 'index.dart';
 /// A component that displays a scrollable, linear list of components.
 ///
 /// Supports customizable scroll physics (e.g. [BouncingScrollPhysics],
-/// [ClampingScrollPhysics], [NeverScrollableScrollPhysics]) and scrollbar
-/// styling via [ScrollBarConfiguration].
+/// [ClampingScrollPhysics], [NeverScrollableScrollPhysics])
+/// and scrollbar styling via [ScrollBarConfiguration].
 ///
 /// ### Example
 /// ```dart
@@ -51,10 +51,11 @@ class ListView extends StatefulComponent {
   final ScrollBarConfiguration? scrollBarConfiguration;
 
   /// By default, the list view will try to fill the entire available
-  /// space and might not scroll if the content is smaller than the viewport.
+  /// space and might not scroll if the content is smaller
+  /// than the viewport.
   ///
-  /// When [shrinkWrap] is `true`, the list view will only take the space
-  /// required to display its content.
+  /// When [shrinkWrap] is `true`, the list view will only take
+  /// the space required to display its content.
   ///
   /// This can be useful for performance optimization in some cases.
   final bool shrinkWrap;
@@ -68,8 +69,9 @@ class ListView extends StatefulComponent {
   /// each component. If [direction] is `horizontal`, [itemExtent] is
   /// the fixed width of each component.
   ///
-  /// When provided, the list view will calculate the scroll position more
-  /// efficiently and, in some cases, improve rendering performance.
+  /// When provided, the list view will calculate the scroll
+  /// position more efficiently and, in some cases, improve
+  /// rendering performance.
   final Dim? itemExtent;
 
   /// Additional CSS classes applied to the list view component.
@@ -92,8 +94,8 @@ class ListView extends StatefulComponent {
 
   /// Creates a list view whose items are generated on demand.
   ///
-  /// Supports scroll physics (e.g. [BouncingScrollPhysics]) and scrollbar
-  /// styling via [scrollBarConfig].
+  /// Supports scroll physics (e.g. [BouncingScrollPhysics])
+  /// and scrollbar styling via [scrollBarConfig].
   ///
   /// ### Example
   /// ```dart
@@ -122,12 +124,12 @@ class ListView extends StatefulComponent {
   /// * [controller]: Controller for programmatic scroll operations.
   /// * [physics]: Scroll physics governing bounce and deceleration.
   /// * [scrollBarConfig]: Scroll bar configuration.
-  /// * [classes]: Additional CSS class names applied to the list view
-  ///   component.
+  /// * [classes]: Additional CSS class names applied to the list view.
   /// * [initialItemCount]: Initial batch size rendered for lazy loading.
-  /// * [loadMoreItemCount]: Number of components appended per lazy batch.
-  /// * [loadMoreThreshold]: Scroll distance in pixels from the edge
-  ///   triggering the next batch.
+  /// * [loadMoreItemCount]: Number of components appended per
+  ///   lazy batch.
+  /// * [loadMoreThreshold]: Scroll distance in pixels from the
+  ///   edge triggering the next batch.
   factory ListView.builder({
     Key? key,
     required int itemCount,
@@ -166,8 +168,8 @@ class ListView extends StatefulComponent {
 
   /// Creates a list view whose items are separated by custom components.
   ///
-  /// Supports scroll physics (e.g. [BouncingScrollPhysics]) and scrollbar
-  /// styling via [scrollBarConfig].
+  /// Supports scroll physics (e.g. [BouncingScrollPhysics]) and
+  /// scrollbar styling via [scrollBarConfig].
   ///
   /// ### Example
   /// ```dart
@@ -187,10 +189,10 @@ class ListView extends StatefulComponent {
   ///
   /// ### Parameters
   /// * [itemCount]: Total number of components in the list.
-  /// * [itemBuilder]: Builder function returning the component for a
-  ///   given index.
-  /// * [separatorBuilder]: Builder function returning the separator after
-  ///   each component except the last.
+  /// * [itemBuilder]: Builder function returning the component
+  ///   for a given index.
+  /// * [separatorBuilder]: Builder function returning the
+  ///   separator after each component except the last.
   /// * [direction]: Main scroll axis direction.
   /// * [reverse]: Whether items are rendered in reverse order.
   /// * [shrinkWrap]: Whether the list sizes itself to its contents.
@@ -198,10 +200,10 @@ class ListView extends StatefulComponent {
   /// * [controller]: Controller for programmatic scroll operations.
   /// * [physics]: Scroll physics governing bounce and deceleration.
   /// * [scrollBarConfig]: Scroll bar configuration.
-  /// * [classes]: Additional CSS class names applied to the list view
-  ///   component.
+  /// * [classes]: Additional CSS class names applied to the list view.
   /// * [initialItemCount]: Initial batch size rendered for lazy loading.
-  /// * [loadMoreItemCount]: Number of components appended per lazy batch.
+  /// * [loadMoreItemCount]: Number of components appended per
+  ///   lazy batch.
   /// * [loadMoreThreshold]: Scroll distance in pixels from the edge
   ///   triggering the next batch.
   factory ListView.separated({
@@ -244,9 +246,7 @@ class ListView extends StatefulComponent {
   @override
   State<ListView> createState() => _ListViewState();
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('ListView', [Rules.nakiListViewRules]);
+  static List<StyleRule> get styles => ScrollingStyles.listView;
 }
 
 class _ListViewState extends State<ListView> with NakiStatefulMixin {
@@ -350,12 +350,13 @@ class _ListViewBuilder extends ListView {
   /// Number of additional items appended near the scroll boundary.
   final int loadMoreItemCount;
 
-  /// Scroll distance or offset (in pixels) from the end of the scroll container
-  /// that triggers loading the next batch of [loadMoreItemCount] items.
+  /// Scroll distance or offset (in pixels) from the end of the
+  /// scroll container that triggers loading the next batch of
+  /// [loadMoreItemCount] items.
   ///
-  /// For example, a threshold of `200` means that when the user scrolls to
-  /// within `200` pixels of the scroll container's edge, additional items will
-  /// be built and rendered automatically.
+  /// For example, a threshold of `200` means that when the user
+  /// scrolls to within `200` pixels of the scroll container's edge,
+  /// additional items will be built and rendered automatically.
   final double loadMoreThreshold;
 
   const _ListViewBuilder({
@@ -610,12 +611,14 @@ class _ListViewSeparated extends ListView {
   /// Number of additional items appended near the scroll boundary.
   final int loadMoreItemCount;
 
-  /// Scroll distance or offset (in pixels) from the end of the scroll container
-  /// that triggers loading the next batch of [loadMoreItemCount] items.
+  /// Scroll distance or offset (in pixels) from the end of the
+  /// scroll container that triggers loading the next batch of
+  /// [loadMoreItemCount] items.
   ///
-  /// For example, a threshold of `200` means that when the user scrolls to
-  /// within `200` pixels of the scroll container's edge, additional items will
-  /// be built and rendered automatically.
+  /// For example, a threshold of `200` means that when the
+  /// user scrolls to within `200` pixels of the scroll
+  /// container's edge, additional items will be built and
+  /// rendered automatically.
   final double loadMoreThreshold;
 
   const _ListViewSeparated({

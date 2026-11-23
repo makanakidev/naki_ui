@@ -142,9 +142,7 @@ class NakiThemeProvider extends StatefulComponent {
   @override
   State<NakiThemeProvider> createState() => _NakiThemeProviderState();
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('NakiFoundationRules', Rules.nakiFoundationRules);
+  static List<StyleRule> get styles => ThemeStyles.foundation;
 }
 
 class _NakiThemeProviderState extends State<NakiThemeProvider>
@@ -186,8 +184,8 @@ class _NakiThemeProviderState extends State<NakiThemeProvider>
           _brightness = _systemBrightness!;
 
           _tokens = _brightness == Brightness.dark
-              ? (_config?.darkThemeData ?? const _DarkModeTokens())
-              : (_config?.lightThemeData ?? const _LightModeTokens());
+              ? (_config?.darkThemeData ?? const DarkThemeData())
+              : (_config?.lightThemeData ?? const LightThemeData());
         }
 
         setState(() {});
@@ -281,8 +279,8 @@ class _NakiThemeProviderState extends State<NakiThemeProvider>
         : (_systemBrightness ?? Brightness.light);
 
     // update tokens
-    final lmTokens = _config?.lightThemeData ?? const _LightModeTokens();
-    final dmTokens = _config?.darkThemeData ?? const _DarkModeTokens();
+    final lmTokens = _config?.lightThemeData ?? const LightThemeData();
+    final dmTokens = _config?.darkThemeData ?? const DarkThemeData();
 
     _tokens = switch (_mode) {
       ThemeMode.dark => dmTokens,
@@ -496,7 +494,7 @@ class _ThemeBuilder extends StatelessComponent {
 
     return styles.isEmpty
         ? child
-        : .fragment([
+        : NakiFragment([
             Document.head(children: [StyleRules(styles, id: 'tokens')]),
             child,
           ]);

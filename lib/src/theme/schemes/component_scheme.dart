@@ -1,4 +1,4 @@
-part of '../theme.dart';
+part of '../theme_data.dart';
 
 /// Represents customizable variables for Naki components.
 class ComponentScheme {
@@ -227,6 +227,21 @@ class ComponentScheme {
   /// Bottom sheet barrier backdrop color.
   final Color? bottomSheetBarrierBackgroundColor;
 
+  /// Bottom sheet drag handle color.
+  final Color? bottomSheetHandleColor;
+
+  /// Backdrop blur for dialog, drawer, and bottom-sheet barriers.
+  final Dim? barrierBlur;
+
+  /// Backdrop blur for blurred app bars.
+  final Dim? appbarGlassBlur;
+
+  /// Backdrop blur for glass spinners.
+  final Dim? spinnerGlassBlur;
+
+  /// Opacity for disabled components.
+  final double? disabledOpacity;
+
   /// Calendar picker sizes.
   final CalendarScheme? calendar;
 
@@ -255,6 +270,7 @@ class ComponentScheme {
     this.spinnerBladeColor,
     this.spinnerSurfaceColor,
     this.spinnerGlassRim,
+    this.spinnerGlassBlur,
     this.sliderThumbColor,
     this.sliderTrackColor,
     this.sliderThumbSize,
@@ -263,6 +279,7 @@ class ComponentScheme {
     this.radioButtonColor,
     this.appbarBackgroundColor,
     this.appbarHeight,
+    this.appbarGlassBlur,
     this.bottomNavbarBackgroundColor,
     this.bottomNavbarHeight,
     this.bottomNavbarGlassTint,
@@ -303,6 +320,9 @@ class ComponentScheme {
     this.bottomSheetBackgroundColor,
     this.bottomSheetMaxHeight,
     this.bottomSheetBarrierBackgroundColor,
+    this.bottomSheetHandleColor,
+    this.barrierBlur,
+    this.disabledOpacity,
     this.buttonHoverBgColor,
     this.calendar,
   });
@@ -381,6 +401,11 @@ class ComponentScheme {
     Color? bottomSheetBackgroundColor,
     Dim? bottomSheetMaxHeight,
     Color? bottomSheetBarrierBackgroundColor,
+    Color? bottomSheetHandleColor,
+    Dim? barrierBlur,
+    Dim? appbarGlassBlur,
+    Dim? spinnerGlassBlur,
+    double? disabledOpacity,
     CalendarScheme? calendar,
   }) => ComponentScheme(
     textMaxLines: textMaxLines ?? this.textMaxLines,
@@ -472,6 +497,12 @@ class ComponentScheme {
     bottomSheetBarrierBackgroundColor:
         bottomSheetBarrierBackgroundColor ??
         this.bottomSheetBarrierBackgroundColor,
+    bottomSheetHandleColor:
+        bottomSheetHandleColor ?? this.bottomSheetHandleColor,
+    barrierBlur: barrierBlur ?? this.barrierBlur,
+    appbarGlassBlur: appbarGlassBlur ?? this.appbarGlassBlur,
+    spinnerGlassBlur: spinnerGlassBlur ?? this.spinnerGlassBlur,
+    disabledOpacity: disabledOpacity ?? this.disabledOpacity,
     calendar: calendar ?? this.calendar,
   );
 
@@ -553,6 +584,11 @@ class ComponentScheme {
         other.bottomSheetMaxHeight == bottomSheetMaxHeight &&
         other.bottomSheetBarrierBackgroundColor ==
             bottomSheetBarrierBackgroundColor &&
+        other.bottomSheetHandleColor == bottomSheetHandleColor &&
+        other.barrierBlur == barrierBlur &&
+        other.appbarGlassBlur == appbarGlassBlur &&
+        other.spinnerGlassBlur == spinnerGlassBlur &&
+        other.disabledOpacity == disabledOpacity &&
         other.calendar == calendar;
   }
 
@@ -631,6 +667,11 @@ class ComponentScheme {
     bottomSheetBackgroundColor,
     bottomSheetMaxHeight,
     bottomSheetBarrierBackgroundColor,
+    bottomSheetHandleColor,
+    barrierBlur,
+    appbarGlassBlur,
+    spinnerGlassBlur,
+    disabledOpacity,
     calendar,
   ]);
 }

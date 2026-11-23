@@ -46,7 +46,7 @@ class _AppShellState extends State<AppShell> {
 
   List<BottomNavigationBarType> get navbarTypes => [
     BottomNavigationBarType.frostedGlass,
-    if (PlatformData.current.isChromium) BottomNavigationBarType.liquidGlass,
+    if (!PlatformData.current.isWebKit) BottomNavigationBarType.liquidGlass,
     BottomNavigationBarType.floating,
     BottomNavigationBarType.fixed,
   ];

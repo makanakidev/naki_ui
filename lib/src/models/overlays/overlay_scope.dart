@@ -1,9 +1,5 @@
 part of 'index.dart';
 
-// /////////////////////////////////////////////////////////////////////////////
-// OVERLAY SCOPE & REGION
-// /////////////////////////////////////////////////////////////////////////////
-
 /// A singleton registry for managing overlay scopes.
 class _OverlayScopeRegistry {
   /// A notifier that holds all active overlay scopes.
@@ -112,6 +108,6 @@ class _OverlayScopeState extends State<OverlayScope> {
 
   @override
   Component build(BuildContext context) {
-    return !_canRegister ? component.child : const .empty();
+    return !_canRegister ? component.child : const SizedBox();
   }
 }

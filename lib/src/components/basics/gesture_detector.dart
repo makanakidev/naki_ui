@@ -45,17 +45,13 @@ class GestureDetector extends StatelessComponent {
 
   @override
   Component build(BuildContext context) {
-    const baseClass = 'naki-gesture-detector';
-    final effectiveClasses = joinClasses([?classes, baseClass]);
-
     final isClickable = gestures.onClick != null;
     final handlers = {...gestures.toMap};
-    final existingKeyDown = handlers['keydown'];
 
     // enable keyboard clicks for web accessibility
     if (isClickable) {
       handlers['keydown'] = (event) {
-        existingKeyDown?.call(event);
+        handlers['keydown']?.call(event);
         final key = (event as KeyboardEvent).key;
         if (key == 'Enter' || key == ' ') {
           event.preventDefault();
@@ -65,15 +61,17 @@ class GestureDetector extends StatelessComponent {
     }
 
     return .element(
-      tag: 'naki-gesturedetector',
-      classes: effectiveClasses,
+      tag: 'naki-gesture',
+      classes: classes,
       attributes: {
         if (isClickable) ...{'role': semanticRole ?? 'button', 'tabindex': '0'},
         'aria-label': ?semanticLabel,
         ...?attributes,
       },
+      styles: Styles(
+        raw: {'display': 'inline-block', if (isClickable) 'cursor': 'pointer'},
+      ),
       events: handlers,
-      styles: isClickable ? const Styles(raw: {'cursor': 'pointer'}) : null,
       children: [child],
     );
   }

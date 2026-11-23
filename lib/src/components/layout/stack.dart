@@ -74,7 +74,5 @@ class Stack extends StatelessComponent {
     );
   }
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('Stack', [Rules.nakiStackRules]);
+  static List<StyleRule> get styles => LayoutStyles.stack;
 }

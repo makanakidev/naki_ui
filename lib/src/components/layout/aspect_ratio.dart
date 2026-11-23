@@ -1,12 +1,13 @@
 part of 'index.dart';
 
 /// {@template AspectRatio}
-/// A component that attempts to size its child to a specific aspect ratio.
+/// A component that attempts to size its child to a specific
+/// aspect ratio.
 ///
 /// ### Example
 /// ```dart
 /// AspectRatio(
-///   aspectRatio: AspectRatioType.stories,
+///   ratio: Ratio.stories,
 ///   child: Image(
 ///     'https://images.pexels.com/photos/2280571/pexels-photo-2280571.jpeg',
 ///     fit: ObjectFit.fill,
@@ -18,8 +19,11 @@ class AspectRatio extends StatelessComponent {
   /// Component to apply aspect ratio to.
   final Component child;
 
+  @Deprecated('This will be removed in v2.0.0. Use ratio instead.')
+  final AspectRatioType? aspectRatio;
+
   /// Aspect ratio applied to [child].
-  final AspectRatioType aspectRatio;
+  final Ratio ratio;
 
   /// Additional CSS classes applied to aspect ratio component.
   final String? classes;
@@ -28,7 +32,8 @@ class AspectRatio extends StatelessComponent {
   const AspectRatio({
     super.key,
     required this.child,
-    required this.aspectRatio,
+    this.aspectRatio,
+    this.ratio = Ratio.ratio1_1,
     this.classes,
   });
 
@@ -41,12 +46,10 @@ class AspectRatio extends StatelessComponent {
       key: key,
       tag: 'naki-aspectratio',
       classes: effectiveClasses,
-      styles: Styles(raw: {'aspect-ratio': aspectRatio.css}),
+      styles: Styles(raw: {'aspect-ratio': (aspectRatio ?? ratio).css}),
       children: [child],
     );
   }
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('AspectRatio', [Rules.nakiAspectRatioRules]);
+  static List<StyleRule> get styles => LayoutStyles.aspectRatio;
 }

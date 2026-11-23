@@ -2,12 +2,14 @@ part of 'index.dart';
 
 /// {@template Scaffold}
 /// A component that provides a standard page layout structure with
-/// an app bar, seo tags, body, modal drawer, persistent sidebar/navigation
-/// rail, bottom navigation bar, and floating action button.
+/// an app bar, seo tags, body, modal drawer, persistent
+/// sidebar/navigation rail, bottom navigation bar,
+/// and floating action button.
 ///
-/// > **NOTE**: Scaffold is wrapped in a [MediaQueryProvider]. This allows the
-/// > use of `MediaQueryProvider.of(context)` when a [Builder] component is used
-/// > inside [Scaffold.body] or its descendants.
+/// **NOTE**: Scaffold is wrapped in a [MediaQueryProvider].
+/// This allows the use of `MediaQueryProvider.of(context)` when a
+/// [Builder] component is used inside [Scaffold.body] or its
+/// descendants.
 ///
 /// ### Example
 /// ```dart
@@ -69,7 +71,8 @@ class Scaffold extends StatefulComponent {
   /// Typically a [BottomNavigationBar], but accepts any [Component].
   final Component? bottomNavigationBar;
 
-  /// Button displayed floating above the body in the bottom-right corner.
+  /// Button displayed floating above the body in the
+  /// bottom-right corner.
   final Component? floatingActionButton;
 
   /// Additional CSS classes applied to the scaffold component.
@@ -77,12 +80,12 @@ class Scaffold extends StatefulComponent {
 
   /// Whether the [body] extends behind the [bottomNavigationBar].
   ///
-  /// When `false` (the default) the body ends above the bar, so no content
-  /// is ever hidden behind it.
+  /// When `false` (the default) the body ends above the bar,
+  /// so no content is ever hidden behind it.
   ///
-  /// When `true` the body is laid out to the bottom of the scaffold and
-  /// content scrolls behind the bar (useful with a floating or frosted-glass
-  /// bar).
+  /// When `true` the body is laid out to the bottom of the scaffold
+  /// and content scrolls behind the bar (useful with a floating or
+  /// frosted-glass bar).
   final bool extendBody;
 
   /// {@macro Scaffold}
@@ -109,9 +112,7 @@ class Scaffold extends StatefulComponent {
   @override
   State<Scaffold> createState() => ScaffoldState();
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('Scaffold', [Rules.nakiScaffoldRules]);
+  static List<StyleRule> get styles => ScaffoldStyles.scaffold;
 }
 
 /// State for a [Scaffold].
@@ -215,8 +216,9 @@ class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
           )
           as HTMLElement?;
 
-  /// Moves the page content out from under Safari's status bar and address
-  /// pill, and the bars off its home indicator, while its toolbar is hidden.
+  /// Moves the page content out from under Safari's status bar and
+  /// address pill, and the bars off its home indicator, while its
+  /// toolbar is hidden.
   void _syncViewportInset() {
     final viewport = window.visualViewport;
     final scaffold = getVisibleElement('.naki-scaffold');
@@ -412,7 +414,7 @@ class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
                       styles: bodyStyles,
                       [component.body!],
                     )
-                  : const .empty());
+                  : const SizedBox());
 
         return .element(
           key: component.key,
@@ -459,7 +461,7 @@ class ScaffoldState extends State<Scaffold> with NakiStatefulMixin {
     return ScaffoldScope(
       state: this,
       child: isStandalone
-          ? OverlayHost(child: scaffoldComponent)
+          ? Navigator(home: scaffoldComponent)
           : scaffoldComponent,
     );
   }

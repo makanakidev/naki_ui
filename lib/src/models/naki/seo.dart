@@ -1,5 +1,3 @@
-part of 'index.dart';
-
 /// A helper class to represent SEO tags for a page.
 class SEO {
   /// Page description.

@@ -6,7 +6,7 @@ import 'package:jaspr/jaspr.dart';
 import 'package:universal_web/web.dart' hide Document;
 
 import '../../framework/framework/index.dart';
-import '../../models/naki/index.dart' show ScrollBarConfiguration;
+import '../../models/naki/scroll_bar_configuration.dart';
 import '../../models/scrolling/index.dart';
 import '../../models/styling/index.dart';
 import '../../styles/css.dart';
@@ -17,8 +17,10 @@ import '../../utilities/extensions/index.dart';
 import '../../utilities/helpers/index.dart';
 
 import '../basics/index.dart' show Column, Row;
-import '../layout/index.dart' show AspectRatio;
+import '../layout/index.dart' show AspectRatio, NakiFragment;
 import '../styling/index.dart' show Heading, SubHeading;
+
+import 'styles.dart';
 
 part 'carousel_view.dart';
 part 'grid_tile.dart';

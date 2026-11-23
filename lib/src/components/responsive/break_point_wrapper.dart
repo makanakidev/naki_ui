@@ -64,7 +64,7 @@ class BreakPointWrapper extends StatelessComponent {
       ]),
     ];
 
-    return .fragment([
+    return NakiFragment([
       span(classes: 'naki-breakpoint br-$id', [child]),
       Document.head(children: [StyleRules(styles, id: id)]),
     ]);

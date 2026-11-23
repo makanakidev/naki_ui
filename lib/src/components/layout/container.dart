@@ -75,7 +75,5 @@ class Container extends StatelessComponent {
     );
   }
 
-  @css
-  static List<StyleRule> get styles =>
-      NakiStyleRegistry.once('Container', [Rules.nakiContainerRules]);
+  static List<StyleRule> get styles => LayoutStyles.container;
 }

@@ -10,7 +10,15 @@ class NavigatorState extends State<Navigator> {
   NakiRoute<dynamic>? get _currentRoute =>
       _history.isEmpty ? null : _history.last;
 
-  int get _minRouteCount => component.home != null ? 0 : 1;
+  /// The currently active top-most route on this navigator, if any.
+  NakiRoute<dynamic>? get currentRoute => _currentRoute;
+
+  /// Minimum number of routes that must remain in [_history].
+  ///
+  /// When [Navigator.home] is absent, the bottom-most route acts
+  /// as the root screen and cannot be popped (`1`); otherwise all
+  /// pushed routes can be popped back to `home` (`0`).
+  int get _minRouteCount => component.home == null ? 1 : 0;
 
   RouterState? get _router =>
       component.routerKey?.currentState ??
@@ -46,8 +54,8 @@ class NavigatorState extends State<Navigator> {
     super.dispose();
   }
 
-  /// Whether there is at least one route that can be popped
-  /// off this navigator.
+  /// Whether there is at least one route that can
+  /// be popped off this navigator.
   bool canPop() => _history.length > _minRouteCount;
 
   /// Pushes [route] onto this navigator's stack.

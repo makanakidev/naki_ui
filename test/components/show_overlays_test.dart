@@ -1,6 +1,8 @@
 @TestOn('browser')
 library;
 
+import 'dart:async';
+
 import 'package:jaspr/jaspr.dart' hide Element;
 import 'package:jaspr_test/client_test.dart';
 import 'package:naki_ui/framework.dart';
@@ -193,6 +195,194 @@ void main() {
         contains('appbar'),
       );
     });
+
+    testClient(
+      'clears the app bar when called with a scoped Navigator route context',
+      (tester) async {
+        late BuildContext routeContext;
+        tester.pumpComponent(
+          NakiApp(
+            home: Navigator(
+              initialRoute: '/flow',
+              onGenerateRoute: (settings) => NakiPageRoute<void>(
+                settings: settings,
+                builder: (ctx) {
+                  routeContext = ctx;
+                  return const Scaffold(
+                    appBar: AppBar(title: NakiText('Flow')),
+                    body: NakiText('flow body'),
+                  );
+                },
+              ),
+            ),
+          ),
+        );
+        await _settle();
+
+        showSnackbar(
+          routeContext,
+          const Snackbar(
+            position: SnackbarPosition.top,
+            content: NakiText('From route ctx'),
+          ),
+        );
+        await _settle();
+
+        final snackbar = _query('naki-snackbar')! as web.HTMLElement;
+        expect(
+          snackbar.style.getPropertyValue('--naki-snackbar-offset-y'),
+          contains('appbar'),
+        );
+
+        closeSnackbar();
+        await _settle(400);
+      },
+    );
+
+    testClient(
+      'resolves active route Scaffold when called above multi-route Navigator',
+      (tester) async {
+        late BuildContext navParent;
+        late BuildContext firstRouteCtx;
+        tester.pumpComponent(
+          NakiApp(
+            home: Builder(
+              builder: (ctx) {
+                navParent = ctx;
+                return Navigator(
+                  initialRoute: '/first',
+                  onGenerateRoute: (settings) => switch (settings.name) {
+                    '/first' => NakiPageRoute<void>(
+                      settings: settings,
+                      builder: (routeCtx) {
+                        firstRouteCtx = routeCtx;
+                        return Scaffold(
+                          bottomNavigationBar: BottomNavigationBar(
+                            items: const [
+                              BottomNavigationBarItem(
+                                icon: MaterialIcons.icon_round_home,
+                                label: 'Home',
+                              ),
+                              BottomNavigationBarItem(
+                                icon: MaterialIcons.icon_round_settings,
+                                label: 'Settings',
+                              ),
+                            ],
+                          ),
+                          body: const NakiText('first'),
+                        );
+                      },
+                    ),
+                    '/second' => NakiPageRoute<void>(
+                      settings: settings,
+                      builder: (_) => const Scaffold(
+                        appBar: AppBar(title: NakiText('Second')),
+                        body: NakiText('second'),
+                      ),
+                    ),
+                    _ => null,
+                  },
+                );
+              },
+            ),
+          ),
+        );
+        await _settle();
+
+        unawaited(Navigator.pushNamed<void>(firstRouteCtx, '/second'));
+        await _settle();
+
+        showSnackbar(
+          navParent,
+          const Snackbar(
+            position: SnackbarPosition.top,
+            content: NakiText('Top snackbar'),
+          ),
+        );
+        await _settle();
+
+        final topSnackbar = _query('naki-snackbar')! as web.HTMLElement;
+        expect(
+          topSnackbar.style.getPropertyValue('--naki-snackbar-offset-y'),
+          contains('appbar'),
+        );
+
+        showSnackbar(
+          navParent,
+          const Snackbar(
+            position: SnackbarPosition.bottom,
+            content: NakiText('Bottom snackbar'),
+          ),
+        );
+        await _settle(400);
+
+        final bottomSnackbar = _query('naki-snackbar')! as web.HTMLElement;
+        expect(
+          bottomSnackbar.style.getPropertyValue('--naki-snackbar-offset-y'),
+          isEmpty,
+        );
+
+        closeSnackbar();
+        await _settle(400);
+      },
+    );
+
+    testClient(
+      'prefers inner route Scaffold over outer Scaffold for scoped route ctx',
+      (tester) async {
+        late BuildContext innerRouteCtx;
+        tester.pumpComponent(
+          NakiApp(
+            home: Scaffold(
+              bottomNavigationBar: BottomNavigationBar(
+                items: const [
+                  BottomNavigationBarItem(
+                    icon: MaterialIcons.icon_round_home,
+                    label: 'Home',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: MaterialIcons.icon_round_settings,
+                    label: 'Settings',
+                  ),
+                ],
+              ),
+              body: Navigator(
+                initialRoute: '/inner',
+                onGenerateRoute: (settings) => NakiPageRoute<void>(
+                  settings: settings,
+                  builder: (ctx) {
+                    innerRouteCtx = ctx;
+                    return const Scaffold(
+                      appBar: AppBar(title: NakiText('Inner')),
+                      body: NakiText('inner'),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ),
+        );
+        await _settle();
+
+        showSnackbar(
+          innerRouteCtx,
+          const Snackbar(
+            position: SnackbarPosition.top,
+            content: NakiText('Inner top'),
+          ),
+        );
+        await _settle();
+
+        final snackbar = _query('naki-snackbar')! as web.HTMLElement;
+        expect(
+          snackbar.style.getPropertyValue('--naki-snackbar-offset-y'),
+          contains('appbar'),
+        );
+
+        closeSnackbar();
+        await _settle(400);
+      },
+    );
 
     testClient('replaces the snackbar already open', (tester) async {
       late BuildContext shell;

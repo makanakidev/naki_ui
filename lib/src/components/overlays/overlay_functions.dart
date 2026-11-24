@@ -14,6 +14,60 @@ OverlayHostState _hostOf(BuildContext context, String caller) {
   return host!;
 }
 
+/// Finds the active [ScaffoldState] below [context] when
+/// [context] sits above a [Scaffold] (for example, a
+/// [NakiPageRoute] builder context or a scoped [Navigator] wrapper).
+ScaffoldState? _descendantScaffoldOf(
+  BuildContext context, {
+  bool stopAtNavigator = false,
+}) {
+  ScaffoldState? found;
+
+  void visit(jaspr.Element element) {
+    if (found != null) return;
+
+    final key = element.component.key;
+
+    if (key case final ValueKey<NakiRoute<dynamic>> routeKey
+        when !routeKey.value.isCurrent) {
+      return;
+    }
+
+    if (key case final ValueKey<NavigatorState> navKey
+        when navKey.value.currentRoute != null) {
+      return;
+    }
+
+    if (element is StatefulElement && element.state is ScaffoldState) {
+      found = element.state as ScaffoldState;
+      return;
+    }
+
+    if (stopAtNavigator &&
+        element is StatefulElement &&
+        element.state is NavigatorState) {
+      return;
+    }
+
+    element.visitChildElements(visit);
+  }
+
+  context.visitChildElements(visit);
+  return found;
+}
+
+ScaffoldState? _resolveScaffold(BuildContext context) {
+  final ancestor = Scaffold.maybeOf(context);
+  if (ancestor == null) return _descendantScaffoldOf(context);
+
+  final route = NakiRoute.maybeOf(context);
+  if (route != null && NakiRoute.maybeOf(ancestor.context) != route) {
+    return _descendantScaffoldOf(context, stopAtNavigator: true) ?? ancestor;
+  }
+
+  return ancestor;
+}
+
 /// Shows [snackbar] above the page, closing any snackbar already open.
 ///
 /// ### Example
@@ -26,11 +80,7 @@ void showSnackbar(BuildContext context, Snackbar snackbar) {
   final controller = OverlayController(isOpen: true);
   SnackbarRegistry.onOpen(controller);
 
-  // The host may sit above the Scaffold (NakiApp's),
-  // so hand the snackbar the caller's Scaffold: it offsets
-  // itself past the app bar and navbar.
-  final scaffold = Scaffold.maybeOf(context);
-
+  final scaffold = _resolveScaffold(context);
   _hostOf(context, 'showSnackbar').show(
     scaffold == null
         ? snackbar

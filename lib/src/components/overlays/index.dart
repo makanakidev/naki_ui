@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' show max;
 
 import 'package:jaspr/dom.dart';
+import 'package:jaspr/jaspr.dart' as jaspr show Element;
 import 'package:jaspr/jaspr.dart' hide Element;
 import 'package:jaspr_icons_pack/jaspr_icons_pack.dart';
 import 'package:universal_web/js_interop.dart';

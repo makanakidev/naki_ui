@@ -1,7 +1,8 @@
 part of 'index.dart';
 
-/// Manages an imperative stack of [NakiRoute]s alongside `jaspr_router` and
-/// overlay scopes (`showDialog`, `showModalBottomSheet`, `showDatePicker`,
+/// Manages an imperative stack of [NakiRoute]s alongside
+/// `jaspr_router` and overlay scopes (`showDialog`,
+/// `showModalBottomSheet`, `showDatePicker`,
 /// `showTimePicker`, etc.).
 ///
 /// Mounted automatically by `NakiApp` and also usable standalone.
@@ -15,15 +16,17 @@ class Navigator extends StatefulComponent {
   /// Named route builders used by [pushNamed] and [initialRoute].
   final Map<String, ComponentBuilder>? routes;
 
-  /// Fallback route factory invoked when [routes] does not contain a name.
+  /// Fallback route factory invoked when [routes]
+  /// does not contain a name.
   final NakiRouteFactory? onGenerateRoute;
 
-  /// Fallback route factory invoked when [onGenerateRoute] returns `null`.
+  /// Fallback route factory invoked when
+  /// [onGenerateRoute] returns `null`.
   final NakiRouteFactory? onUnknownRoute;
 
-  /// Optional key pointing to a descendant `jaspr_router` [RouterState] so
-  /// [Navigator.pushNamed] and [Navigator.pop] bridge cleanly with
-  /// URL routing.
+  /// Optional key pointing to a descendant `jaspr_router`
+  /// [RouterState] so [Navigator.pushNamed] and
+  /// [Navigator.pop] bridge cleanly with URL routing.
   final GlobalStateKey<RouterState>? routerKey;
 
   /// Creates a [Navigator].
@@ -37,12 +40,13 @@ class Navigator extends StatefulComponent {
     this.routerKey,
   });
 
-  /// Returns a [NakiRoutePredicate] that stops at a route named [name].
+  /// Returns a [NakiRoutePredicate] that stops
+  /// at a route named [name].
   static NakiRoutePredicate withName(String name) =>
       (route) => route.settings.name == name;
 
   /// Returns the [NavigatorState] enclosing [context],
-  /// throwing a [StateError] if no [Navigator] exists in scope.
+  /// throwing a [StateError] if no [Navigator] exists.
   static NavigatorState of(
     BuildContext context, {
     bool rootNavigator = false,
@@ -59,7 +63,8 @@ class Navigator extends StatefulComponent {
     return state;
   }
 
-  /// Returns the nearest enclosing [NavigatorState], or `null` if none.
+  /// Returns the nearest enclosing [NavigatorState],
+  /// or `null` if none.
   static NavigatorState? maybeOf(
     BuildContext context, {
     bool rootNavigator = false,

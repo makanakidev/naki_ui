@@ -80,7 +80,9 @@ void main() {
       (tester) async {
         late _FragmentHarnessState harness;
 
-        tester.pumpComponent(_FragmentHarness(onReady: (s) => harness = s));
+        tester.pumpComponent(
+          _FragmentHarness(onReady: (state) => harness = state),
+        );
         await _settle();
         expect(_childIds('frag-host'), ['before', 'after']);
 

@@ -1,3 +1,13 @@
+## Unreleased
+
+### Added
+
+- Added `NavigatorState.currentRoute` to inspect the active top-most route on a `Navigator`.
+
+### Fixed
+
+- Fixed `showSnackbar` missing the active `ScaffoldState` (and `AppBar` / `BottomNavigationBar` offsets) when called with a scoped `Navigator` / `NakiPageRoute` context or any `BuildContext` positioned above `Scaffold`.
+
 ## 1.0.8
 
 ### Added

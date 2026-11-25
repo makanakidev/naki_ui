@@ -75,46 +75,11 @@ class NakiApp extends StatefulComponent {
   /// path is "/".
   final String? basePath;
 
-  /// The [pageBuilder] callback has two arguments, the [BuildContext] (as
-  /// `context`) and the [home] component (as `child`) if any.
+  /// Deprecated builder for the [home] page.
   ///
-  /// ### When to use [pageBuilder] vs [home]
-  /// - Use [pageBuilder] when the root page itself needs direct access to the
-  ///   [BuildContext] established by [NakiApp] (such as reading `context.themeTokens`,
-  ///   calling `context.toggleTheme()` in the top-level app bar, or accessing
-  ///   [NakiThemeProvider.of]), or when wrapping the page tree in custom inherited
-  ///   widgets, providers, or router logic.
-  /// - Use [home] when the root component is static or self-contained (e.g. `const Scaffold(...)`)
-  ///   and does not need [BuildContext] from [NakiApp] during instantiation.
-  ///
-  /// If [home] is null, then `child` will be `null`, and it is the
-  /// responsibility of the [pageBuilder] to provide the application's
-  /// base component that will be rendered.
-  ///
-  /// Place [NakiApp] inside a `@client` annotated component in order to enable
-  /// client-side features like theme toggling and browser APIs.
-  ///
-  /// ### Example
-  /// ```dart
-  /// NakiApp(
-  ///   pageBuilder: (context, child) {
-  ///     return Scaffold(
-  ///       appBar: AppBar(
-  ///         titleText: 'My App',
-  ///         actions: [
-  ///           Button.icon(
-  ///             context.themeMode == ThemeMode.dark
-  ///                 ? MaterialIcons.light_mode
-  ///                 : MaterialIcons.dark_mode,
-  ///             onTap: context.toggleTheme,
-  ///           ),
-  ///         ],
-  ///       ),
-  ///       body: child ?? const NakiText('Hello'),
-  ///     );
-  ///   },
-  /// )
-  /// ```
+  /// Use [home] for the root component and [builder] to wrap
+  /// the root [Navigator] instead.
+  @Deprecated('This will be removed in v2.0.0. Use builder instead.')
   final NakiPageBuilder<Component>? pageBuilder;
 
   /// This configures the application's charset (default: 'utf-8').
@@ -134,20 +99,20 @@ class NakiApp extends StatefulComponent {
   /// analytics, etc. that are to be added to the application's head.
   final List<Component> head;
 
-  /// The [builder] callback has two arguments, the [BuildContext] (as
-  /// `context`) and the [Router] (as `child`) if any.
+  /// The [builder] callback has two arguments: the [BuildContext] (as
+  /// `context`) and the application [Navigator] wrapping [home] or [Router]
+  /// (or an empty [SizedBox] when neither [home] nor [routes] is provided
+  /// on [NakiApp] and [NakiApp.router] constructors respectively).
   ///
-  /// For example, from the [BuildContext] passed to this method;
-  /// [NakiThemeProvider.of], [DefaultTextStyle.of], etc, works in both
+  /// Any [InheritedComponent] or provider returned by [builder] becomes an
+  /// ancestor of [home], [routes], pushed [NakiRoute]s, and overlay portals.
+  ///
+  /// For example, from the [BuildContext] passed to this method,
+  /// [NakiThemeProvider.of] and [DefaultTextStyle.of] work in both
   /// server and client environments.
   ///
-  /// If no routes are provided, the `child` will be `null`, and it is the
-  /// responsibility of the [builder] to provide the application's routing
-  /// machinery.
-  ///
-  /// If [routes] is provided, then `child` is not null, and the returned value
-  /// must be included as a child of the component tree below the builder as in
-  /// the example below.
+  /// `child` is non-null and must be included in the returned subtree to
+  /// preserve navigation and overlays.
   ///
   /// ### Example
   /// ```dart
@@ -159,25 +124,11 @@ class NakiApp extends StatefulComponent {
   ///       builder: (context, state) => const HomePage(),
   ///     ),
   ///   ],
-  ///   builder: (context, router) {
-  ///     if (router != null) {
-  ///       return router;
-  ///       // NOTE: router must be included to enable routing.
-  ///       // router can be returned directly, or wrapped in a component
-  ///       // such as providers, builders, etc.
-  ///     } else {
-  ///       return Container();
-  ///     }
+  ///   builder: (context, child) {
+  ///     return MyAuthScope(child: child!);
   ///   },
   /// );
   /// ```
-  ///
-  /// If [routes] is null, [NakiApp] will have no [Router] and the routing
-  /// related properties (i.e. [navigatorKey], [routes]) are ignored.
-  ///
-  /// Unless [routes] is provided, either implicitly from [builder] being
-  /// `null` or by [builder] explicitly including the [Router] component,
-  /// navigation will not work.
   final NakiPageBuilder<Component>? builder;
 
   /// Component displayed when a route is not found in [routes].
@@ -193,38 +144,37 @@ class NakiApp extends StatefulComponent {
   ///
   /// From [navigatorKey], use the [GlobalStateKey.currentState] getter.
   ///
-  /// If this is changed, a new [Router] will be created, losing all the
-  /// application state in the process.
+  /// If this is changed, a new [Router] will be created, losing all
+  /// the application state in the process.
   ///
-  /// The [Router] is only built if [routes] is not null; if it is
-  /// null or empty, [navigatorKey] will be ignored.
+  /// The [Router] is only built if [routes] is not `null`; if
+  /// it is `null` or empty, [navigatorKey] will be ignored.
   final GlobalStateKey<RouterState>? navigatorKey;
 
   /// The component displayed first when the application is loaded.
   ///
-  /// ### When to use [home] vs [pageBuilder]
+  /// ### When to use [home] vs [builder]
   /// - Use [home] when your root view is a pre-instantiated or `const` component
   ///   (e.g., `home: const MyHomeScreen()`) that does not need direct access
   ///   to [NakiApp]'s internal [BuildContext] during instantiation. Descendant
-  ///   components inside [home] will still have full access to `context.themeTokens`
-  ///   and theme methods in their own `build` methods.
-  /// - Use [pageBuilder] when the root view itself needs immediate access to
-  ///   [NakiApp]'s [BuildContext] (such as calling `context.toggleTheme()` in
-  ///   a root app bar, reading `context.themeTokens`, or wrapping the application
-  ///   in custom inherited components or providers).
+  ///   components inside [home] will still have full access to
+  ///   `context.themeTokens` and theme methods in their own `build` methods.
+  /// - Use [builder] to wrap the root [Navigator] with providers or inherited
+  ///   components above [home]. When [home] is omitted, [builder] receives a
+  ///   [Navigator] wrapping an empty [SizedBox].
   final Component? home;
 
   /// The application's top-level routing configuration.
   ///
-  /// If the application only has one page, you can specify it using
-  /// [builder] and ignore this property totally.
+  /// If the application only has one page, you can use the default
+  /// [NakiApp] constructor with [home] instead.
   ///
   /// If a route is requested that is not specified in this property,
   /// then [errorPage] will be shown (if any), otherwise the default
   /// [PageNotFound] will be rendered.
   ///
-  /// The [Router] component is only built if routes are provided; if they
-  /// are not, then [builder] must be provided.
+  /// The [Router] component is only built if [routes] is provided; if `null`
+  /// or empty, [builder] receives a [Navigator] wrapping an empty [SizedBox].
   final List<RouteBase>? routes;
 
   /// Application theme mode (default is [ThemeMode.system]).
@@ -276,6 +226,8 @@ class NakiApp extends StatefulComponent {
   /// If `null`, scroll bar will be disabled.
   final ScrollBarConfiguration? scrollBarConfiguration;
 
+  final bool _isRouter;
+
   /// {@macro NakiApp}
   NakiApp({
     super.key,
@@ -288,7 +240,9 @@ class NakiApp extends StatefulComponent {
     this.viewport,
     this.locale,
     this.home,
+    @Deprecated('This will be removed in v2.0.0. Use builder instead.')
     this.pageBuilder,
+    this.builder,
     this.fontFamily,
     this.favicon,
     this.seo,
@@ -298,8 +252,9 @@ class NakiApp extends StatefulComponent {
     this.darkTheme,
     this.scrollBarConfiguration,
   }) : assert(
-         home != null || pageBuilder != null,
-         'Either home or pageBuilder must be provided',
+         // ignore: deprecated_member_use_from_same_package
+         home != null || builder != null || pageBuilder != null,
+         'Either home, builder, or pageBuilder must be provided',
        ),
        assert(
          basePath == null || basePath.startsWith('/'),
@@ -307,8 +262,8 @@ class NakiApp extends StatefulComponent {
        ),
        routes = null,
        navigatorKey = null,
-       builder = null,
-       errorPage = null;
+       errorPage = null,
+       _isRouter = false;
 
   /// Creates a [NakiApp] that uses [Router] component to configure the
   /// application's navigation system with support for two routing types:
@@ -402,7 +357,8 @@ class NakiApp extends StatefulComponent {
          'Either routes or builder must be provided',
        ),
        home = null,
-       pageBuilder = null;
+       pageBuilder = null,
+       _isRouter = true;
 
   @override
   State<NakiApp> createState() => _NakiAppState();
@@ -411,8 +367,7 @@ class NakiApp extends StatefulComponent {
 class _NakiAppState extends State<NakiApp> {
   late ThemeConfig _themeConfig;
 
-  bool get _useRouter =>
-      (component.routes ?? []).isNotEmpty || component.builder != null;
+  bool get _useRouter => component._isRouter;
 
   @override
   void initState() {
@@ -444,125 +399,94 @@ class _NakiAppState extends State<NakiApp> {
     }
   }
 
-  /// Wraps [child] in a [Navigator] so that pushed routes and
-  /// overlays share the theme and text style context of the app.
+  /// Wraps [child] in a [Navigator] so that pushed routes
+  /// and overlays share the theme and text style
+  /// context of the application.
   Component _withNavigator(Component child) => Navigator(
     home: child,
     routerKey: _useRouter ? component.navigatorKey : null,
   );
 
-  Component get _appBody {
-    final textStyles = component.textStyle;
-    final homeChild = component.home;
-
-    Component? base;
-    Router? router;
-
-    // build router app
-    if (_useRouter) {
-      final _routes = component.routes ?? [];
-
-      if (_routes.isNotEmpty) {
-        router = Router(
-          routes: _routes,
-          key: component.navigatorKey,
-          errorBuilder: (_, state) =>
-              component.errorPage ??
-              PageNotFound(errorText: state.error?.toString()),
-        );
-      }
-
-      base = NakiThemeProvider.fromConfig(
-        configuration: _themeConfig,
-        builder: (themeCtx) {
-          Component? effectiveChild = router;
-
-          if (textStyles != null) {
-            return DefaultTextStyle(
-              style: textStyles,
-              child: Builder(
-                builder: (styleCtx) {
-                  if (component.builder != null) {
-                    effectiveChild = component.builder!(
-                      styleCtx,
-                      effectiveChild,
-                    );
-                  }
-
-                  return _withNavigator(
-                    effectiveChild ??
-                        const PageNotFound(
-                          errorTitle: 'Unable to apply text style',
-                          errorText: 'No routes or builder provided',
-                        ),
-                  );
-                },
-              ),
-            );
-          }
-
-          if (component.builder != null) {
-            effectiveChild = component.builder!(themeCtx, effectiveChild);
-          }
-
-          return _withNavigator(
-            effectiveChild ??
-                const PageNotFound(
-                  errorTitle: 'Unable to build application router',
-                  errorText: 'No routes or builder provided',
-                ),
-          );
-        },
-      );
-
-      return base;
-    }
-
-    // build regular app
-    base = NakiThemeProvider.fromConfig(
+  /// Wraps [buildChild] in a [NakiThemeProvider] and
+  /// [DefaultTextStyle] so that the application has
+  /// a theme and text style context.
+  Component _withThemeAndTextStyle(
+    ComponentBuilder buildChild,
+  ) {
+    return NakiThemeProvider.fromConfig(
+      configuration: _themeConfig,
       builder: (themeCtx) {
-        Component? effectiveChild = homeChild;
+        final textStyles = component.textStyle;
+        if (textStyles == null) return buildChild(themeCtx);
 
-        if (textStyles != null) {
-          return DefaultTextStyle(
-            style: textStyles,
-            child: Builder(
-              builder: (styleCtx) {
-                if (component.pageBuilder != null) {
-                  effectiveChild = component.pageBuilder!(
-                    styleCtx,
-                    effectiveChild,
-                  );
-                }
-
-                return _withNavigator(
-                  effectiveChild ??
-                      const PageNotFound(
-                        errorTitle: 'Unable to apply text style',
-                        errorText: 'No home component or builder provided',
-                      ),
-                );
-              },
-            ),
-          );
-        }
-
-        if (component.pageBuilder != null) {
-          effectiveChild = component.pageBuilder!(themeCtx, effectiveChild);
-        }
-
-        return _withNavigator(
-          effectiveChild ??
-              const PageNotFound(
-                errorTitle: 'Unable to build application page',
-                errorText: 'No home component or builder provided',
-              ),
+        return DefaultTextStyle(
+          style: textStyles,
+          child: Builder(builder: buildChild),
         );
       },
-      configuration: _themeConfig,
+    );
+  }
+
+  /// Builds the application's body, wrapping the content
+  /// in a [Navigator] and [NakiThemeProvider]. If [NakiApp.builder]
+  /// is provided, it is called with the [context] and [Navigator]
+  /// and its result is used as the application's body.
+  Component _wrapWithBuilder(
+    BuildContext context,
+    Component? content, {
+    required Component missingFallback,
+  }) {
+    final navigator = _withNavigator(
+      content ??
+          (component.builder != null ? const SizedBox() : missingFallback),
     );
 
-    return base;
+    return component.builder?.call(context, navigator) ?? navigator;
+  }
+
+  Component get _appBody {
+    // When NakiApp.router() is used
+    if (_useRouter) {
+      final _routes = component.routes ?? [];
+      final router = _routes.isNotEmpty
+          ? Router(
+              routes: _routes,
+              key: component.navigatorKey,
+              errorBuilder: (_, state) =>
+                  component.errorPage ??
+                  PageNotFound(errorText: state.error?.toString()),
+            )
+          : null;
+
+      return _withThemeAndTextStyle(
+        (ctx) => _wrapWithBuilder(
+          ctx,
+          router,
+          missingFallback: const PageNotFound(
+            errorTitle: 'Unable to build application home',
+            errorText: 'No routes or builder provided',
+          ),
+        ),
+      );
+    }
+
+    // When NakiApp() is used
+    return _withThemeAndTextStyle((ctx) {
+      // ignore: deprecated_member_use_from_same_package
+      final legacyPageBuilder = component.pageBuilder;
+      final page = legacyPageBuilder != null
+          ? legacyPageBuilder(ctx, component.home)
+          : component.home;
+
+      return _wrapWithBuilder(
+        ctx,
+        page,
+        missingFallback: const PageNotFound(
+          errorTitle: 'Unable to build application page',
+          errorText: 'No home component or builder provided',
+        ),
+      );
+    });
   }
 
   String? get fontFamily {

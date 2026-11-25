@@ -3,13 +3,15 @@ title: Lifecycle & Browser Events
 description: Lifecycle mixins, afterRender hooks, and browser resize/visibility listeners in Naki UI.
 ---
 
-`package:naki_ui/framework.dart` provides mixins and browser listeners that integrate safely across server and client environments.
+`package:naki_ui/framework.dart` provides mixins and browser listeners that
+integrate safely across server and client environments.
 
 ---
 
 ## `NakiStatefulMixin`
 
-Provides an `afterRender` lifecycle hook executed after client-side hydration and DOM rendering:
+Provides an `afterRender` lifecycle hook executed after client-side hydration
+and DOM rendering:
 
 ```dart
 import 'dart:async';
@@ -46,7 +48,8 @@ class _MyComponentState extends State<MyComponent> with NakiStatefulMixin {
 
 ## `BrowserLifecycleListeners`
 
-Listens to window resize, visibility state, and element dimensions with safe lifecycle registration in client-side only:
+Listens to window resize, visibility state, and element dimensions with safe
+lifecycle registration in client-side only:
 
 ```dart
 // optional: add `@client` if the root component is not client annotated

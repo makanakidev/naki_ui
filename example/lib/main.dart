@@ -48,7 +48,7 @@ class TodoApp extends StatelessComponent {
         url: PlatformData.current.baseUrl,
         logo: 'https://makanakidev.github.io/naki_ui/assets/icon-dark.jpg',
       ),
-      pageBuilder: (context, child) => const AppShell(),
+      home: const AppShell(),
     );
   }
 }

@@ -3,13 +3,16 @@ title: Utilities & Extensions
 description: Platform detection, debouncing, and extensions on BuildContext, String, num, DateTime, ValueListenable, and CSS maps in Naki UI.
 ---
 
-`package:naki_ui/framework.dart` and `package:naki_ui/theme.dart` provide developer ergonomics through platform data inspection, debounce helpers, and comprehensive typed extensions.
+`package:naki_ui/framework.dart` and `package:naki_ui/theme.dart` provide
+developer ergonomics through platform data inspection, debounce helpers, and
+comprehensive typed extensions.
 
 ---
 
 ## `PlatformData`
 
-Access device, browser environment, operating system, and viewport information safely across both client and server (SSR / SSG) environments:
+Access device, browser environment, operating system, and viewport information
+safely across both client and server (SSR / SSG) environments:
 
 ```dart
 import 'package:naki_ui/framework.dart';
@@ -43,9 +46,13 @@ final currentPath = platform.currentPath; // e.g. '/dashboard'
 final baseOrigin = platform.baseUrl; // e.g. 'https://example.com'
 ```
 
-`PlatformData` automatically resolves to the client-side implementation on web browsers and the server-side implementation during SSR/SSG pre-rendering or testing.
+`PlatformData` automatically resolves to the client-side implementation on web
+browsers and the server-side implementation during SSR/SSG pre-rendering or
+testing.
 
-`PlatformData.init()` method accepts optional override parameters, which is particularly useful for server-side rendering, testing, or custom URL resolution. The method should be called before accessing `PlatformData.current`.
+`PlatformData.init()` method accepts optional override parameters, which is
+particularly useful for server-side rendering, testing, or custom URL
+resolution. The method should be called before accessing `PlatformData.current`.
 
 ```dart
 PlatformData.init(
@@ -121,7 +128,8 @@ class PwaPromotionBanner extends StatelessComponent {
 
 ## `NakiDebounce`
 
-Rate-limit high-frequency operations such as search text input, auto-save requests, and window resizing:
+Rate-limit high-frequency operations such as search text input, auto-save
+requests, and window resizing:
 
 ```dart
 import 'package:naki_ui/framework.dart';

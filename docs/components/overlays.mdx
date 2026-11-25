@@ -3,7 +3,9 @@ title: Overlays & Feedback
 description: Modals, bottom sheets, alert dialogs, toast snackbars, popovers, drawers, and tooltips in Naki UI.
 ---
 
-Overlay components present contextual dialogs, notifications, flyout sheets, and tooltips. All overlays integrate with typed `OverlayController` instances for smooth animations and focus management.
+Overlay components present contextual dialogs, notifications, flyout sheets, and
+tooltips. All overlays integrate with typed `OverlayController` instances for
+smooth animations and focus management.
 
 ---
 
@@ -33,7 +35,8 @@ Snackbar(
 )
 ```
 
-Or show one without a controller, as in Flutter. `showSnackbar` closes any snackbar already open, and `closeSnackbar()` closes the current one early:
+Or show one without a controller, as in Flutter. `showSnackbar` closes any
+snackbar already open, and `closeSnackbar()` closes the current one early:
 
 ```dart
 showSnackbar(
@@ -72,7 +75,12 @@ Dialog(
 )
 ```
 
-Or show one without a controller with `showDialog` (accepting `Dialog` arguments directly, or `builder` for custom `Dialog.content`) or `showCustomDialog` (for returning any custom root dialog component). Prefer `Navigator.pop(context, result)` inside the dialog's actions or builder (`closeDialog` also works), completing the returned `Future` or resolving with `null` when the barrier dismisses it:
+Or show one without a controller with `showDialog` (accepting `Dialog` arguments
+directly, or `builder` for custom `Dialog.content`) or `showCustomDialog` (for
+returning any custom root dialog component). Prefer
+`Navigator.pop(context, result)` inside the dialog's actions or builder
+(`closeDialog` also works), completing the returned `Future` or resolving with
+`null` when the barrier dismisses it:
 
 ```dart
 final confirmed = await showDialog<bool>(
@@ -102,11 +110,16 @@ final customResult = await showCustomDialog<bool>(
 );
 ```
 
-Both need a `NakiApp` or `Scaffold` above `context`; the overlay keeps that context, so it sits clear of the app bar and bottom navigation bar.
+Both need a `NakiApp` or `Scaffold` above `context`; the overlay keeps that
+context, so it sits clear of the app bar and bottom navigation bar.
 
-Set `glass: true` for a translucent dialog. `backgroundColor` sets the tint, and the barrier stops blurring so the glass can see the page. See `Card.glass` for the `glassTint`, `glassRim` and `glassBlur` theme values and the accessibility fallbacks.
+Set `glass: true` for a translucent dialog. `backgroundColor` sets the tint, and
+the barrier stops blurring so the glass can see the page. See `Card.glass` for
+the `glassTint`, `glassRim` and `glassBlur` theme values and the accessibility
+fallbacks.
 
-By default `blurBarrier` is `true`, applying the theme's backdrop barrier blur. Set `blurBarrier: false` to keep the background sharp behind the dialog:
+By default `blurBarrier` is `true`, applying the theme's backdrop barrier blur.
+Set `blurBarrier: false` to keep the background sharp behind the dialog:
 
 ```dart
 Dialog(
@@ -143,7 +156,10 @@ BottomSheet(
 )
 ```
 
-Or show one without a controller with `showModalBottomSheet`. `builder` returns the sheet's content, and the future completes with the value passed to `Navigator.pop` (or `closeModalBottomSheet`), or `null` when the barrier dismisses it:
+Or show one without a controller with `showModalBottomSheet`. `builder` returns
+the sheet's content, and the future completes with the value passed to
+`Navigator.pop` (or `closeModalBottomSheet`), or `null` when the barrier
+dismisses it:
 
 ```dart
 final target = await showModalBottomSheet<String>(
@@ -162,7 +178,8 @@ final target = await showModalBottomSheet<String>(
 
 ## Date & Time Pickers
 
-Show modal calendar pickers without mounting an inline `Calendar` field using `showDatePicker`, `showDateRangePicker`, and `showTimePicker`:
+Show modal calendar pickers without mounting an inline `Calendar` field using
+`showDatePicker`, `showDateRangePicker`, and `showTimePicker`:
 
 ```dart
 final pickedDate = await showDatePicker(
@@ -184,7 +201,11 @@ final pickedTime = await showTimePicker(
 );
 ```
 
-Each function returns a `Future` that completes with the confirmed selection (`DateTime?` or `List<DateTime>?`) or `null` when cancelled or dismissed. Prefer `Navigator.pop(context, result)` to dismiss with a result programmatically (`closeDatePicker`, `closeDateRangePicker`, and `closeTimePicker` are also available).
+Each function returns a `Future` that completes with the confirmed selection
+(`DateTime?` or `List<DateTime>?`) or `null` when cancelled or dismissed. Prefer
+`Navigator.pop(context, result)` to dismiss with a result programmatically
+(`closeDatePicker`, `closeDateRangePicker`, and `closeTimePicker` are also
+available).
 
 ---
 
@@ -223,13 +244,18 @@ Tooltip(
 )
 ```
 
-`Popover` and `Tooltip` open at `position` and stay anchored to their trigger inside the safe areas and the Scaffold's bars: they flip to the opposite side when only that side fits, and slide along the trigger when they would cross an edge. A tooltip's arrow keeps pointing at the trigger. Once placed, they scroll with the trigger and are only placed again when the viewport's width changes.
+`Popover` and `Tooltip` open at `position` and stay anchored to their trigger
+inside the safe areas and the Scaffold's bars: they flip to the opposite side
+when only that side fits, and slide along the trigger when they would cross an
+edge. A tooltip's arrow keeps pointing at the trigger. Once placed, they scroll
+with the trigger and are only placed again when the viewport's width changes.
 
 ---
 
 ## `Drawer`
 
-Modal navigation drawer that slides in from the left or right edge over a darkened backdrop:
+Modal navigation drawer that slides in from the left or right edge over a
+darkened backdrop:
 
 ```dart
 final drawerController = OverlayController();
@@ -273,4 +299,6 @@ Drawer(
 | `BottomSheet` | Slides up over 210ms                                                                       | Slides down over 120ms                               |
 | `Drawer`      | Slides in over 210ms                                                                       | Slides out over 120ms                                |
 
-The scrim fades its own color and blur, so the overlay above it is never see-through. Under `prefers-reduced-motion`, overlays appear and disappear without animating.
+The scrim fades its own color and blur, so the overlay above it is never
+see-through. Under `prefers-reduced-motion`, overlays appear and disappear
+without animating.

@@ -172,7 +172,7 @@ class _BottomSheetState extends State<BottomSheet>
 
     final effectiveChildren = [
       if (component.showHandle)
-        const span(classes: 'naki-bottomsheet-handle', []),
+        const span(classes: 'naki-bottomsheet-handle', [div([])]),
       component.child,
     ];
 

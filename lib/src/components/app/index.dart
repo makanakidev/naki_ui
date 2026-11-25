@@ -29,6 +29,7 @@ const String _defaultLocale = 'en';
 const String _defaultBasePath = '/';
 
 /// A builder that builds a component given a child.
-/// The child should typically be part of the returned component tree.
+/// The child should typically be part of the returned
+/// component tree.
 typedef NakiPageBuilder<T extends Component> =
     T Function(BuildContext context, T? child);

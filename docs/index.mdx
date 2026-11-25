@@ -4,7 +4,10 @@ description: Build fast, beautiful, and responsive web applications with Naki UI
 image: /assets/logo-dark.jpg
 ---
 
-**Naki UI** is an open-source, Material-inspired component library and design system purpose-built for [Jaspr](https://jaspr.site) — bringing Flutter-like declarative UI paradigms to Dart on the modern web with full SSR support and type-safe CSS-in-Dart.
+**Naki UI** is an open-source, Material-inspired component library and design
+system purpose-built for [Jaspr](https://jaspr.site) — bringing Flutter-like
+declarative UI paradigms to Dart on the modern web with full SSR support and
+type-safe CSS-in-Dart.
 
 ---
 
@@ -76,50 +79,45 @@ class App extends StatelessComponent {
       darkTheme: const DarkThemeData(
         colorSeed: ColorSeed(primary: Color('#14b8a6')),
       ),
-      pageBuilder: (context, child) {
-        return Scaffold(
-          appBar: AppBar(
-            titleText: 'Naki UI App',
-            actions: [
-              Button.icon(
-                context.themeMode == ThemeMode.dark
-                    ? MaterialIcons.light_mode
-                    : MaterialIcons.dark_mode,
-                semanticLabel: 'Toggle theme',
-                onTap: context.toggleTheme,
-              ),
-            ],
-          ),
-          body: Align(
-            alignment: Alignment.center,
-            child: Card(
-              padding: const EdgeInsets.all(Dim.px(24)),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Heading('Welcome to Naki UI', level: 2),
-                  const SizedBox(height: Dim.px(16)),
-                  Button.filled(
-                    const Color('#0f766e'),
-                    child: const NakiText('Get Started'),
-                  ),
-                ],
+      home: Builder(
+        builder: (context) {
+          return Scaffold(
+            appBar: AppBar(
+              titleText: 'Naki UI App',
+              actions: [
+                Button.icon(
+                  context.themeMode == ThemeMode.dark
+                      ? MaterialIcons.light_mode
+                      : MaterialIcons.dark_mode,
+                  semanticLabel: 'Toggle theme',
+                  onTap: context.toggleTheme,
+                ),
+              ],
+            ),
+            body: Align(
+              alignment: Alignment.center,
+              child: Card(
+                padding: const EdgeInsets.all(Dim.px(24)),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Heading('Welcome to Naki UI', level: 2),
+                    const SizedBox(height: Dim.px(16)),
+                    Button.filled(
+                      const Color('#0f766e'),
+                      child: const NakiText('Get Started'),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }
 ```
-
-<Info>
-  **`home` vs `pageBuilder`**: Use `pageBuilder` when the root page needs
-  immediate access to `BuildContext` (e.g. `context.toggleTheme`,
-  `context.themeTokens`, or custom providers). Use `home` for static or
-  self-contained root components where `context` is only needed by descendants.
-</Info>
 
 ---
 

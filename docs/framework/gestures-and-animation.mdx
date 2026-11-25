@@ -3,13 +3,15 @@ title: Gestures & Animation
 description: Handling clicks, taps, pointer events, and standardizing animation curves in Naki UI.
 ---
 
-Handle user pointer interactions and standardize motion with built-in gesture recognizers and animation curves exported from `package:naki_ui/framework.dart`.
+Handle user pointer interactions and standardize motion with built-in gesture
+recognizers and animation curves exported from `package:naki_ui/framework.dart`.
 
 ---
 
 ## `GestureDetector` & `Events`
 
-`GestureDetector` captures user clicks, double clicks, hover states, and pointer events:
+`GestureDetector` captures user clicks, double clicks, hover states, and pointer
+events:
 
 ```dart
 import 'package:jaspr/jaspr.dart';
@@ -40,7 +42,8 @@ GestureDetector(
 
 `Curves` provides standard CSS easing transitions:
 
-- `Curves.easeInOut`: Balanced acceleration and deceleration for smooth interface transitions.
+- `Curves.easeInOut`: Balanced acceleration and deceleration for smooth
+  interface transitions.
 - `Curves.easeOut`: Snappy deceleration for incoming overlays and dropdowns.
 - `Curves.easeIn`: Accelerated exit transitions.
 - `Curves.easeInOutBack`: Smooth transition with overshoot at both ends.

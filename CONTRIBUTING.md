@@ -1,11 +1,13 @@
 # Contributing to Naki UI
 
-Thank you for contributing to **Naki UI**! This guide covers the repository layout, local setup, and quality checks expected on pull requests.
+Thank you for contributing to **Naki UI**! This guide covers the repository
+layout, local setup, and quality checks expected on pull requests.
 
 ## Prerequisites
 
 - **Dart SDK** `>=3.10.0 <4.0.0`
-- **Google Chrome** (for `@TestOn('browser')` tests run via `dart test -p chrome`)
+- **Google Chrome** (for `@TestOn('browser')` tests run via
+  `dart test -p chrome`)
 - **`jaspr_cli`** (optional, for building or serving `example/`):
   ```shell
   dart pub global activate jaspr_cli
@@ -37,8 +39,10 @@ naki_ui/
 
 ### Public API Boundaries
 
-- Consumer imports should only require `package:naki_ui/naki_ui.dart`, `package:naki_ui/theme.dart`, and `package:naki_ui/framework.dart`.
-- Internal implementation belongs under `lib/src/`. Avoid breaking public barrel exports without updating `CHANGELOG.md`, `docs/`, and `skills/`.
+- Consumer imports should only require `package:naki_ui/naki_ui.dart`,
+  `package:naki_ui/theme.dart`, and `package:naki_ui/framework.dart`.
+- Internal implementation belongs under `lib/src/`. Avoid breaking public barrel
+  exports without updating `CHANGELOG.md`, `docs/`, and `skills/`.
 
 ## Development & Verification
 
@@ -70,11 +74,16 @@ jaspr build
 
 Rules are enforced via `analysis_options.yaml` (`lints` + `jaspr_lints`):
 
-- Use **relative imports** inside `lib/` (`prefer_relative_imports`) and `package:naki_ui/...` imports inside `bin/` and `test/`.
-- Keep directives ordered (`dart:` -> `package:` -> relative) and alphabetically sorted.
-- Use single quotes, trailing commas, `const` constructors where possible, and explicit return types.
-- Keep tests in `test/` under the subfolder mirroring the corresponding `lib/src/` module.
-- Keep `docs/` and `skills/` in sync when adding or changing public components, theme tokens, or framework APIs.
+- Use **relative imports** inside `lib/` (`prefer_relative_imports`) and
+  `package:naki_ui/...` imports inside `bin/` and `test/`.
+- Keep directives ordered (`dart:` -> `package:` -> relative) and alphabetically
+  sorted.
+- Use single quotes, trailing commas, `const` constructors where possible, and
+  explicit return types.
+- Keep tests in `test/` under the subfolder mirroring the corresponding
+  `lib/src/` module.
+- Keep `docs/` and `skills/` in sync when adding or changing public components,
+  theme tokens, or framework APIs.
 
 ## Submitting a Pull Request
 

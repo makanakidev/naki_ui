@@ -3,9 +3,11 @@ title: Navigator & Routing
 description: Flutter-style imperative route navigation and overlay popping with Navigator, NakiRoute, and NakiPageRoute.
 ---
 
-Naki UI provides a Flutter-inspired imperative `Navigator` exported from both `package:naki_ui/naki_ui.dart` and `package:naki_ui/framework.dart`.
+Naki UI provides a Flutter-inspired imperative `Navigator` exported from both
+`package:naki_ui/naki_ui.dart` and `package:naki_ui/framework.dart`.
 
-`NakiApp` and `NakiApp.router` mount `Navigator` automatically above your app's `OverlayHost`, sharing theme, text styles, and overlays across pushed routes.
+`NakiApp` and `NakiApp.router` mount `Navigator` automatically above your app's
+`OverlayHost`, sharing theme, text styles, and overlays across pushed routes.
 
 ---
 
@@ -29,7 +31,8 @@ final saved = await Navigator.push<bool>(
 );
 ```
 
-Inside any built page, read the active route metadata with `NakiRoute.of<T>(context)` or `NakiRoute.maybeOf(context)`:
+Inside any built page, read the active route metadata with
+`NakiRoute.of<T>(context)` or `NakiRoute.maybeOf(context)`:
 
 ```dart
 final route = NakiRoute.maybeOf(context);
@@ -40,7 +43,8 @@ final userId = route?.settings.arguments as String?;
 
 ## Named Routes & Replacement
 
-Stand-alone `Navigator` instances accept `initialRoute`, `routes`, `onGenerateRoute`, and `onUnknownRoute`:
+Stand-alone `Navigator` instances accept `initialRoute`, `routes`,
+`onGenerateRoute`, and `onUnknownRoute`:
 
 ```dart
 Navigator(
@@ -61,7 +65,8 @@ Navigator(
 )
 ```
 
-Supported imperative operations on both `Navigator` (static context helpers) and `NavigatorState`:
+Supported imperative operations on both `Navigator` (static context helpers) and
+`NavigatorState`:
 
 - `push` / `pushNamed`
 - `pushReplacement` / `pushReplacementNamed`
@@ -74,8 +79,18 @@ Supported imperative operations on both `Navigator` (static context helpers) and
 
 ## Integration with Overlays & `NakiApp.router`
 
-`Navigator.pop(context, [result])`, `Navigator.maybePop`, and `Navigator.canPop` follow a unified precedence chain:
+`Navigator.pop(context, [result])`, `Navigator.maybePop`, and `Navigator.canPop`
+follow a unified precedence chain:
 
-1. **Active overlay**: If `context` sits inside an active modal overlay (`showDialog`, `showModalBottomSheet`, `showDatePicker`, `showDateRangePicker`, `showTimePicker`, or declarative `Dialog`, `BottomSheet`, and modal `Drawer`), `Navigator.pop(context, result)` closes that overlay and completes its `Future<T?>` with `result`.
-2. **Imperative route stack**: Otherwise, if the enclosing `Navigator` has pushed `NakiRoute` entries, it pops the top route and completes its `Future<T?>` with `result`.
-3. **`jaspr_router` fallback**: Otherwise, when used inside `NakiApp.router`, `Navigator.pop` delegates to `RouterState.back()` (and unmatched `pushNamed` / `pushReplacementNamed` delegate to `RouterState.push` / `RouterState.replace`).
+1. **Active overlay**: If `context` sits inside an active modal overlay
+   (`showDialog`, `showModalBottomSheet`, `showDatePicker`,
+   `showDateRangePicker`, `showTimePicker`, or declarative `Dialog`,
+   `BottomSheet`, and modal `Drawer`), `Navigator.pop(context, result)` closes
+   that overlay and completes its `Future<T?>` with `result`.
+2. **Imperative route stack**: Otherwise, if the enclosing `Navigator` has
+   pushed `NakiRoute` entries, it pops the top route and completes its
+   `Future<T?>` with `result`.
+3. **`jaspr_router` fallback**: Otherwise, when used inside `NakiApp.router`,
+   `Navigator.pop` delegates to `RouterState.back()` (and unmatched `pushNamed`
+   / `pushReplacementNamed` delegate to `RouterState.push` /
+   `RouterState.replace`).

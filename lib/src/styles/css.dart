@@ -1618,21 +1618,30 @@ class Css {
       'box-sizing': 'border-box',
       'display': 'flex',
       'flex-direction': 'column',
+      'overflow': 'auto',
       'line-height': 'normal',
       'animation':
           'nakiBottomSheetSlideUp 210ms cubic-bezier(0.2, 0.05, 0.25, 1) both',
     },
 
-    'handle': {
-      'display': 'block',
+    'handle-wrapper': {
+      'display': 'flex',
+      'justify-content': 'center',
+      'align-items': 'center',
       'position': 'sticky',
-      'top': '0',
+      'top': '-1px',
       'z-index': '1',
-      'width': '70px',
-      'height': '5px',
+      'width': '100%',
+      'min-height': '18px',
+      'background-color': _var(Tokens.current.bottomSheetBgColor),
+      'box-shadow': '0 0 14px 10px ${_var(Tokens.current.bottomSheetBgColor)}',
+    },
+
+    'handle-track': {
+      'width': '60px',
+      'height': '4px',
       'border-radius': _var(Tokens.current.radiusMd),
       'background-color': _var(Tokens.current.bottomSheetHandleColor),
-      'margin': '10px auto',
     },
   };
 

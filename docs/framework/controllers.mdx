@@ -3,13 +3,18 @@ title: Controllers & State
 description: Managing overlay states, scroll positions, and page navigation programmatically using typed controllers in Naki UI.
 ---
 
-Controllers provide imperative handles into declarative components, enabling fine-grained control over overlays, scroll positions, and page views.
+Controllers provide imperative handles into declarative components, enabling
+fine-grained control over overlays, scroll positions, and page views.
 
 ---
 
 ## `OverlayController`
 
-Controls dialogs, bottom sheets, drawers, snackbars, and popovers. For one-off modal overlays (`showDialog`, `showCustomDialog`, `showModalBottomSheet`, `showDatePicker`, `showDateRangePicker`, `showTimePicker`), you can omit `OverlayController` and close them with `Navigator.pop(context, [result])` (recommended) or the typed `close*` helpers:
+Controls dialogs, bottom sheets, drawers, snackbars, and popovers. For one-off
+modal overlays (`showDialog`, `showCustomDialog`, `showModalBottomSheet`,
+`showDatePicker`, `showDateRangePicker`, `showTimePicker`), you can omit
+`OverlayController` and close them with `Navigator.pop(context, [result])`
+(recommended) or the typed `close*` helpers:
 
 ```dart
 final overlayController = OverlayController();
@@ -27,7 +32,8 @@ final isVisible = overlayController.isOpen;
 overlayController.close();
 ```
 
-See [Navigator & Routing](/framework/navigator) for how `Navigator.pop` integrates with active overlays and route stacks.
+See [Navigator & Routing](/framework/navigator) for how `Navigator.pop`
+integrates with active overlays and route stacks.
 
 ---
 

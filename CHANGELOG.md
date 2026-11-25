@@ -3,6 +3,11 @@
 ### Added
 
 - Added `NavigatorState.currentRoute` to inspect the active top-most route on a `Navigator`.
+- Added `builder` to the default `NakiApp` constructor and updated `NakiApp.router(builder: ...)` to wrap the root `Navigator`, so inherited components returned from `builder` are accessible across routes, pushed `NakiRoute`s, and overlays (e.g. `Dialog`, `BottomSheet`).
+
+### Deprecated
+
+- Deprecated `NakiApp.pageBuilder` (to be removed in `v2.0.0`). Use `NakiApp.builder` instead.
 
 ### Fixed
 

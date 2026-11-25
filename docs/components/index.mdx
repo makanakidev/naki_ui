@@ -3,18 +3,36 @@ title: Naki UI Component Catalog
 description: Index and architectural overview of all UI components exported from package:naki_ui/naki_ui.dart.
 ---
 
-Naki UI provides 80+ modular, accessible UI components. All components, and the `show*` overlay functions, are exported directly from `package:naki_ui/naki_ui.dart`.
+Naki UI provides 80+ modular, accessible UI components. All components, and the
+`show*` overlay functions, are exported directly from
+`package:naki_ui/naki_ui.dart`.
 
 ---
 
 <Info>
 **New in 1.0.8:**
 
-- **[`Navigator`](/framework/navigator)**: Imperative route stack (`push`, `pushNamed`, `pushReplacement`, `pop`, `maybePop`, `canPop`, `popUntil`, `withName`), integrated with `NakiApp`, `Scaffold`, `jaspr_router`, and overlay dismissal.
-- **[`ResponsiveLayout`](/components/responsive#responsivelayout)**: CSS-driven breakpoint layout component replacing `ResponsiveBuilder` (deprecated, to be removed in `v2.0.0`).
-- **[`NakiFragment`](/components/layout#nakifragment)**: Wrapperless multi-child grouping supporting nesting, reordering, removal, and replacement, replacing `FragmentScope` (deprecated, to be removed in `v2.0.0`).
-- **[`showDialog`](/components/overlays#dialog)**, **[`showCustomDialog`](/components/overlays#dialog)**, **[`showDatePicker`](/components/overlays#date-time-pickers)**, **[`showDateRangePicker`](/components/overlays#date-time-pickers)**, and **[`showTimePicker`](/components/overlays#date-time-pickers)**: Controller-free modal dialogs (`showDialog` now accepts `Dialog` arguments directly; `showCustomDialog` builds any custom root component) and calendar/time pickers that complete with `Navigator.pop(context, result)` (or the typed `close*` helpers).
-- **[`Dialog`](/components/overlays#dialog)**: New `blurBarrier` property (default `true`) to enable or disable backdrop barrier blur.
+- **[`Navigator`](/framework/navigator)**: Imperative route stack (`push`,
+  `pushNamed`, `pushReplacement`, `pop`, `maybePop`, `canPop`, `popUntil`,
+  `withName`), integrated with `NakiApp`, `Scaffold`, `jaspr_router`, and
+  overlay dismissal.
+- **[`ResponsiveLayout`](/components/responsive#responsivelayout)**: CSS-driven
+  breakpoint layout component replacing `ResponsiveBuilder` (deprecated, to be
+  removed in `v2.0.0`).
+- **[`NakiFragment`](/components/layout#nakifragment)**: Wrapperless multi-child
+  grouping supporting nesting, reordering, removal, and replacement, replacing
+  `FragmentScope` (deprecated, to be removed in `v2.0.0`).
+- **[`showDialog`](/components/overlays#dialog)**,
+  **[`showCustomDialog`](/components/overlays#dialog)**,
+  **[`showDatePicker`](/components/overlays#date-time-pickers)**,
+  **[`showDateRangePicker`](/components/overlays#date-time-pickers)**, and
+  **[`showTimePicker`](/components/overlays#date-time-pickers)**:
+  Controller-free modal dialogs (`showDialog` now accepts `Dialog` arguments
+  directly; `showCustomDialog` builds any custom root component) and
+  calendar/time pickers that complete with `Navigator.pop(context, result)` (or
+  the typed `close*` helpers).
+- **[`Dialog`](/components/overlays#dialog)**: New `blurBarrier` property
+  (default `true`) to enable or disable backdrop barrier blur.
   </Info>
 
 ## Component Categories

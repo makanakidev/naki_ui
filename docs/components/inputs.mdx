@@ -3,13 +3,15 @@ title: Form & Input Controls
 description: Accessible text fields, auto-complete inputs, OTP segmented inputs, calendars, and validated declarative FormBuilder workflows.
 ---
 
-Input components provide accessible form controls with built-in validation, floating labels, helper text, and icon slots.
+Input components provide accessible form controls with built-in validation,
+floating labels, helper text, and icon slots.
 
 ---
 
 ## `TextField`
 
-The standard text field supporting password masking, validation callbacks, helper text, and multi-line modes:
+The standard text field supporting password masking, validation callbacks,
+helper text, and multi-line modes:
 
 ```dart
 import 'package:jaspr/dom.dart';
@@ -40,7 +42,9 @@ TextField(
 
 ## `FormBuilder`
 
-`FormBuilder` manages declarative HTML form validation and submission. It features built-in `direction` (`Direction.vertical` or `Direction.horizontal`) and `spacing` parameters:
+`FormBuilder` manages declarative HTML form validation and submission. It
+features built-in `direction` (`Direction.vertical` or `Direction.horizontal`)
+and `spacing` parameters:
 
 ```dart
 final formKey = GlobalNodeKey<HTMLFormElement>();
@@ -106,7 +110,8 @@ AutoCompleteField(
 
 ## `SegmentedInput` (OTP / PIN Verification)
 
-Specialized multi-character segmented input for OTP codes, PINs, and verification sequences:
+Specialized multi-character segmented input for OTP codes, PINs, and
+verification sequences:
 
 ```dart
 SegmentedInput(
@@ -138,11 +143,15 @@ Calendar(
 )
 ```
 
-The picker closes only from `Ok`, `Cancel`, `Escape` key press or its trigger, so a stray tap outside doesn't lose a selection in progress. Opening one calendar closes any other.
+The picker closes only from `Ok`, `Cancel`, `Escape` key press or its trigger,
+so a stray tap outside doesn't lose a selection in progress. Opening one
+calendar closes any other.
 
 ### Date ranges
 
-Use `CalendarType.range` to select a start and end date. Range calendars use `initialRange`, `onSelectedRange`, and `rangeValidator`; `onSelected` is not called.
+Use `CalendarType.range` to select a start and end date. Range calendars use
+`initialRange`, `onSelectedRange`, and `rangeValidator`; `onSelected` is not
+called.
 
 ```dart
 Calendar(
@@ -163,8 +172,17 @@ Calendar(
 )
 ```
 
-- **`initialRange`**: dates can be in any order and their time is ignored. The earliest and latest dates set the range, and a single date is a one-day range. All dates must be within `minimum` and `maximum`.
-- **`onSelectedRange`**: receives every day from the start date through the end date in ascending order, so a list it emits can be passed back as `initialRange`.
-- **`rangeValidator`**: receives the same list, or `null` when nothing is selected. It runs before `validator`, which receives only the start date.
-- **Selecting**: the first click sets the start date and the next click sets the end date. Clicking an earlier date starts a new range, and clicking the start date again selects one day.
-- **Confirming**: `Ok` stays disabled until the range has an end date. Pressing `Escape`, pressing `Cancel`, or clicking the trigger discards an unconfirmed selection. A tap outside the picker leaves it open.
+- **`initialRange`**: dates can be in any order and their time is ignored. The
+  earliest and latest dates set the range, and a single date is a one-day range.
+  All dates must be within `minimum` and `maximum`.
+- **`onSelectedRange`**: receives every day from the start date through the end
+  date in ascending order, so a list it emits can be passed back as
+  `initialRange`.
+- **`rangeValidator`**: receives the same list, or `null` when nothing is
+  selected. It runs before `validator`, which receives only the start date.
+- **Selecting**: the first click sets the start date and the next click sets the
+  end date. Clicking an earlier date starts a new range, and clicking the start
+  date again selects one day.
+- **Confirming**: `Ok` stays disabled until the range has an end date. Pressing
+  `Escape`, pressing `Cancel`, or clicking the trigger discards an unconfirmed
+  selection. A tap outside the picker leaves it open.

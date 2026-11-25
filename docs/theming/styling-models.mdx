@@ -3,7 +3,8 @@ title: Styling Models
 description: Type-safe BoxDecoration, Filter, Gradient, BorderRadiusData, EdgeInsets, Shadow, and TextStyle models in Naki UI.
 ---
 
-Naki UI provides declarative, type-safe Dart styling models exported from `package:naki_ui/theme.dart` and `package:naki_ui/naki_ui.dart`.
+Naki UI provides declarative, type-safe Dart styling models exported from
+`package:naki_ui/theme.dart` and `package:naki_ui/naki_ui.dart`.
 
 ---
 
@@ -30,7 +31,9 @@ const decoration = BoxDecoration(
 
 ## `Dim`
 
-Represents a CSS dimension such as `Dim.px(16)`, `Dim.percent(50)`, `Dim.rem(1)`, or `Dim.auto()`. Use `.important` to add the `!important` declaration:
+Represents a CSS dimension such as `Dim.px(16)`, `Dim.percent(50)`,
+`Dim.rem(1)`, or `Dim.auto()`. Use `.important` to add the `!important`
+declaration:
 
 ```dart
 final width = Dim.px(500).important; // '500px !important'
@@ -68,7 +71,8 @@ const paddingZero = EdgeInsets.zero;
 
 ## `TextStyle`
 
-Encapsulates font family, size, weight, line height, letter spacing, and text color:
+Encapsulates font family, size, weight, line height, letter spacing, and text
+color:
 
 ```dart
 const textStyle = TextStyle(
@@ -85,7 +89,12 @@ const textStyle = TextStyle(
 
 ## `Gradient`
 
-Builds multi-stop linear, radial, conic, and repeating CSS gradients with typed color stops and directions. You can either use the cascading `Gradient()` builder or instantiate `const` standalone subclasses (`LinearGradient`, `RadialGradient`, `ConicGradient`, `RepeatingLinearGradient`, `RepeatingRadialGradient`, `RepeatingConicGradient`, `RawGradient`) and compose multiple layers with `.and()`:
+Builds multi-stop linear, radial, conic, and repeating CSS gradients with typed
+color stops and directions. You can either use the cascading `Gradient()`
+builder or instantiate `const` standalone subclasses (`LinearGradient`,
+`RadialGradient`, `ConicGradient`, `RepeatingLinearGradient`,
+`RepeatingRadialGradient`, `RepeatingConicGradient`, `RawGradient`) and compose
+multiple layers with `.and()`:
 
 ```dart
 // 1. Standalone const linear gradient with direction
@@ -120,7 +129,8 @@ final conicGradient = Gradient()
 
 ## `Shadow`
 
-Defines CSS elevation and drop shadow offsets, blur radius, spread radius, and colors:
+Defines CSS elevation and drop shadow offsets, blur radius, spread radius, and
+colors:
 
 ```dart
 // 1. Predefined standard shadow constants
@@ -143,7 +153,11 @@ const customShadow = Shadow(
 
 ## `Filter`
 
-Constructs composable CSS visual filters and backdrop effects. Use either the cascading `Filter()` builder or `const` standalone subclasses (`BlurFilter`, `BrightnessFilter`, `ContrastFilter`, `GrayscaleFilter`, `HueRotateFilter`, `InvertFilter`, `OpacityFilter`, `SaturationFilter`, `SepiaFilter`, `RawFilter`) composed with `.and()`:
+Constructs composable CSS visual filters and backdrop effects. Use either the
+cascading `Filter()` builder or `const` standalone subclasses (`BlurFilter`,
+`BrightnessFilter`, `ContrastFilter`, `GrayscaleFilter`, `HueRotateFilter`,
+`InvertFilter`, `OpacityFilter`, `SaturationFilter`, `SepiaFilter`, `RawFilter`)
+composed with `.and()`:
 
 ```dart
 // 1. Standalone subclasses composed with .and()
@@ -167,7 +181,8 @@ final frostedGlassFilter = Filter.frostedGlass;
 
 ## Composing Models in a Component
 
-Here is a complete example composing `BoxDecoration`, `Gradient`, `Shadow`, `Filter`, `EdgeInsets`, and `TextStyle` together inside a modern UI component:
+Here is a complete example composing `BoxDecoration`, `Gradient`, `Shadow`,
+`Filter`, `EdgeInsets`, and `TextStyle` together inside a modern UI component:
 
 ```dart
 import 'package:jaspr/dom.dart' hide Filter;

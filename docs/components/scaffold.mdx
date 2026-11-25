@@ -3,13 +3,16 @@ title: Scaffolding & Navigation
 description: Core application layout structure, top app bars, navigation drawers, persistent sidebars, and bottom navigation in Naki UI.
 ---
 
-Scaffolding components provide the foundational structure of standard web application layouts exported from `package:naki_ui/naki_ui.dart`.
+Scaffolding components provide the foundational structure of standard web
+application layouts exported from `package:naki_ui/naki_ui.dart`.
 
 ---
 
 ## `Scaffold`
 
-`Scaffold` implements the top-level visual layout structure for a page, integrating an app bar, modal drawer, persistent sidebar, main body, bottom navigation, and floating action button.
+`Scaffold` implements the top-level visual layout structure for a page,
+integrating an app bar, modal drawer, persistent sidebar, main body, bottom
+navigation, and floating action button.
 
 ### Use Case: Complete Application Layout
 
@@ -77,10 +80,14 @@ class DashboardLayout extends StatelessComponent {
 
 ## `Drawer` & `Sidebar` Navigation
 
-`Scaffold` provides dedicated slots for both modal drawer navigation and persistent desktop sidebar navigation:
+`Scaffold` provides dedicated slots for both modal drawer navigation and
+persistent desktop sidebar navigation:
 
-- **`drawer` (`Drawer`)**: Modal slide-in navigation overlay with a darkened barrier backdrop. Can be opened programmatically using `Scaffold.maybeOf(context)?.openDrawer()`.
-- **`sideBar` (`Sidebar`)**: Persistent side navigation panel docked alongside the page body without an overlay backdrop barrier.
+- **`drawer` (`Drawer`)**: Modal slide-in navigation overlay with a darkened
+  barrier backdrop. Can be opened programmatically using
+  `Scaffold.maybeOf(context)?.openDrawer()`.
+- **`sideBar` (`Sidebar`)**: Persistent side navigation panel docked alongside
+  the page body without an overlay backdrop barrier.
 
 ```dart
 Scaffold(
@@ -122,7 +129,8 @@ Scaffold(
 
 ## `AppBar`
 
-`AppBar` renders a theme-aware top navigation header with elevation, leading component slot, title text/component, and action items:
+`AppBar` renders a theme-aware top navigation header with elevation, leading
+component slot, title text/component, and action items:
 
 ```dart
 AppBar(
@@ -144,7 +152,9 @@ AppBar(
 
 ### Pinned or scrolling (`fixed`, `blurBackground`)
 
-Inside `Scaffold.appBar`, the app bar is pinned to the top by default and the body starts below it. `blurBackground` makes a pinned bar translucent with a frosted blur, so content shows through as it scrolls underneath:
+Inside `Scaffold.appBar`, the app bar is pinned to the top by default and the
+body starts below it. `blurBackground` makes a pinned bar translucent with a
+frosted blur, so content shows through as it scrolls underneath:
 
 ```dart
 Scaffold(
@@ -157,7 +167,8 @@ Scaffold(
 )
 ```
 
-Set `fixed: false` for a header that scrolls away with the page, like a page title:
+Set `fixed: false` for a header that scrolls away with the page, like a page
+title:
 
 ```dart
 const AppBar(titleText: 'Article', fixed: false)
@@ -168,7 +179,8 @@ const AppBar(titleText: 'Article', fixed: false)
 | `fixed`          | `true`  | Pins the app bar to the top of the `Scaffold` and starts the body below it. Ignored outside `Scaffold.appBar`.        |
 | `blurBackground` | `true`  | Gives a pinned app bar a translucent background (65% of `appbarBgColor`) with a 10px backdrop blur. Ignored when `fixed` is `false`. |
 
-Both keep the app bar clear of the status bar and notch, and snackbars shown in the `Scaffold` sit below a pinned bar.
+Both keep the app bar clear of the status bar and notch, and snackbars shown in
+the `Scaffold` sit below a pinned bar.
 
 ---
 
@@ -190,7 +202,9 @@ BottomNavigationBar(
 
 ### Content behind the bar (`extendBody`)
 
-By default the `Scaffold` body ends above the bottom navigation bar, so nothing is hidden behind a floating or frosted-glass bar. Set `extendBody: true` to let content scroll behind the bar instead, like Flutter's `Scaffold.extendBody`:
+By default the `Scaffold` body ends above the bottom navigation bar, so nothing
+is hidden behind a floating or frosted-glass bar. Set `extendBody: true` to let
+content scroll behind the bar instead, like Flutter's `Scaffold.extendBody`:
 
 ```dart
 Scaffold(
@@ -205,7 +219,9 @@ Scaffold(
 
 ### Frosted glass
 
-`BottomNavigationBarType.frostedGlass` blurs the content behind a pill-shaped bar, adds a light rim and depth, and slides a glass droplet between its equally wide tiles. Scroll content behind it with `extendBody: true` to see the effect.
+`BottomNavigationBarType.frostedGlass` blurs the content behind a pill-shaped
+bar, adds a light rim and depth, and slides a glass droplet between its equally
+wide tiles. Scroll content behind it with `extendBody: true` to see the effect.
 
 Tune the material with these `ComponentScheme` fields or their CSS variables:
 
@@ -216,11 +232,13 @@ Tune the material with these `ComponentScheme` fields or their CSS variables:
 | `bottomNavbarGlassDroplet` | `--naki-bottom-navbar-glass-droplet` | `0%` (`50%` in dark)   |
 | `bottomNavbarGlassBlur`    | `--naki-bottom-navbar-glass-blur`    | `5px`                  |
 
-The bar falls back to a solid or near-opaque surface for `prefers-reduced-transparency`, `prefers-contrast: more` and `forced-colors`.
+The bar falls back to a solid or near-opaque surface for
+`prefers-reduced-transparency`, `prefers-contrast: more` and `forced-colors`.
 
 ### Liquid glass
 
-`BottomNavigationBarType.liquidGlass` is a frosted glass bar that bends the content behind its edges and selection droplet in Chromium browsers.
+`BottomNavigationBarType.liquidGlass` is a frosted glass bar that bends the
+content behind its edges and selection droplet in Chromium browsers.
 
 ```dart
 BottomNavigationBar(
@@ -229,7 +247,9 @@ BottomNavigationBar(
 )
 ```
 
-`bottomNavbarGlassRefraction` on `ComponentScheme` scales the displacement in percent. The default is `100`, and `0` leaves the bar frosted. It is a theme value rather than a CSS variable because an SVG filter cannot read one.
+`bottomNavbarGlassRefraction` on `ComponentScheme` scales the displacement in
+percent. The default is `100`, and `0` leaves the bar frosted. It is a theme
+value rather than a CSS variable because an SVG filter cannot read one.
 
 ## `BottomNavigationBarType` Enum Variants
 

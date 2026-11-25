@@ -3,13 +3,17 @@ title: Scrolling Views
 description: Efficient scrolling lists, grids, carousels, page views, tables, scroll physics, and custom scrollbar styling in Naki UI.
 ---
 
-Naki UI provides a full suite of responsive scrolling components, typed controllers, physics models, and scrollbar configurations exported from `package:naki_ui/naki_ui.dart` and `package:naki_ui/framework.dart`.
+Naki UI provides a full suite of responsive scrolling components, typed
+controllers, physics models, and scrollbar configurations exported from
+`package:naki_ui/naki_ui.dart` and `package:naki_ui/framework.dart`.
 
 ---
 
 ## `SingleChildScrollView` & `ScrollController`
 
-Scrolls a single child along a horizontal or vertical axis. Supports programmatic controllers, custom scroll physics, and container-level scrollbar styling:
+Scrolls a single child along a horizontal or vertical axis. Supports
+programmatic controllers, custom scroll physics, and container-level scrollbar
+styling:
 
 ```dart
 import 'package:jaspr/jaspr.dart';
@@ -42,7 +46,8 @@ SingleChildScrollView(
 
 ## `ListView`
 
-Renders linear scrollable item collections with direct children, dynamic lazy loading builders, or custom separators:
+Renders linear scrollable item collections with direct children, dynamic lazy
+loading builders, or custom separators:
 
 ```dart
 // Standard list with custom physics and styled scrollbar
@@ -87,7 +92,8 @@ ListView.builder(
 
 ## `GridView` & `GridTile`
 
-Two-dimensional grid layouts with configurable cross-axis columns, spacing, scroll physics, and custom scrollbars:
+Two-dimensional grid layouts with configurable cross-axis columns, spacing,
+scroll physics, and custom scrollbars:
 
 ```dart
 GridView.count(
@@ -118,7 +124,8 @@ GridView.count(
 
 ## `PageView` & `CarouselView`
 
-Swipeable page slideshows and multi-item carousels with snapping and scrollbar styling:
+Swipeable page slideshows and multi-item carousels with snapping and scrollbar
+styling:
 
 ```dart
 // Full-page slideshow with snapping and custom scrollbar
@@ -162,7 +169,8 @@ CarouselView(
 
 ## `Table` & `TableRow`
 
-Data tables with column widths, cell borders, and built-in horizontal scrollbar configuration:
+Data tables with column widths, cell borders, and built-in horizontal scrollbar
+configuration:
 
 ```dart
 Table(
@@ -200,7 +208,8 @@ Table(
 
 ## `StaggeredView` & `StaggeredTile`
 
-Masonry-like staggered layouts across columns or rows with customizable scroll physics:
+Masonry-like staggered layouts across columns or rows with customizable scroll
+physics:
 
 ```dart
 StaggeredView.count(
@@ -222,7 +231,8 @@ StaggeredView.count(
 
 ## Scroll Physics (`ScrollPhysics`)
 
-Naki UI provides declarative scroll physics to customize kinetic deceleration, bounce, and touch interactions:
+Naki UI provides declarative scroll physics to customize kinetic deceleration,
+bounce, and touch interactions:
 
 | Physics Class | Behavior |
 | :--- | :--- |
@@ -245,7 +255,9 @@ ListView(
 
 ## Scrollbar Styling (`ScrollBarConfiguration` & `ScrollBarWrapper`)
 
-Naki UI provides flexible scrollbar styling supporting both modern standard CSS (`scrollbar-color`, `scrollbar-width`) and WebKit pseudo-elements (`::-webkit-scrollbar*`).
+Naki UI provides flexible scrollbar styling supporting both modern standard CSS
+(`scrollbar-color`, `scrollbar-width`) and WebKit pseudo-elements
+(`::-webkit-scrollbar*`).
 
 ### Configuration Options
 
@@ -259,9 +271,13 @@ Naki UI provides flexible scrollbar styling supporting both modern standard CSS 
 
 ### Component-Level vs. Page-Level
 
-- **Page-Level:** Provide `scrollBarConfiguration` to `NakiApp` or `ThemeConfig` to style the root `html` viewport scrollbar.
-- **Component-Level:** Pass `scrollBarConfiguration` (or `scrollBarConfig`) directly to any scrollable component (`ListView`, `SingleChildScrollView`, `Table`, `GridView`, etc.) to style that container's scrollbar independently.
-- **Custom Selectors (`ScrollBarWrapper`):** Use `ScrollBarWrapper` to apply scrollbar styles to any custom container or CSS selector:
+- **Page-Level:** Provide `scrollBarConfiguration` to `NakiApp` or `ThemeConfig`
+  to style the root `html` viewport scrollbar.
+- **Component-Level:** Pass `scrollBarConfiguration` (or `scrollBarConfig`)
+  directly to any scrollable component (`ListView`, `SingleChildScrollView`,
+  `Table`, `GridView`, etc.) to style that container's scrollbar independently.
+- **Custom Selectors (`ScrollBarWrapper`):** Use `ScrollBarWrapper` to apply
+  scrollbar styles to any custom container or CSS selector:
 
 ```dart
 ScrollBarWrapper(

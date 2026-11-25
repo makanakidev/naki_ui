@@ -3,7 +3,8 @@ title: Layout & Containers
 description: Flexbox containers, positioned stacks, cards, expandable panels, spacing helpers, and sizing widgets in Naki UI.
 ---
 
-Layout components provide declarative primitives for building responsive interfaces that compile cleanly to CSS Flexbox and Grid.
+Layout components provide declarative primitives for building responsive
+interfaces that compile cleanly to CSS Flexbox and Grid.
 
 ---
 
@@ -49,7 +50,8 @@ Row(
 
 ## `Container` & `Card`
 
-Surfaces and box containers with backgrounds, borders, shadows, padding, and constraints:
+Surfaces and box containers with backgrounds, borders, shadows, padding, and
+constraints:
 
 ```dart
 // Custom Container styled via BoxDecoration
@@ -80,7 +82,8 @@ Card(
 )
 ```
 
-`Card.glass` tints and blurs what is behind it, so place it over an image or a gradient. `color` sets the tint:
+`Card.glass` tints and blurs what is behind it, so place it over an image or a
+gradient. `color` sets the tint:
 
 ```dart
 Card.glass(
@@ -89,7 +92,9 @@ Card.glass(
 )
 ```
 
-A glass surface nested inside the card only sees the card, not the page. `Dialog(glass: true)` uses the same surface, and both read these `ComponentScheme` fields:
+A glass surface nested inside the card only sees the card, not the page.
+`Dialog(glass: true)` uses the same surface, and both read these
+`ComponentScheme` fields:
 
 | `ComponentScheme` field | CSS variable        | Default                |
 | ----------------------- | ------------------- | ---------------------- |
@@ -97,13 +102,15 @@ A glass surface nested inside the card only sees the card, not the page. `Dialog
 | `glassRim`              | `--naki-glass-rim`  | `100%` (`40%` in dark) |
 | `glassBlur`             | `--naki-glass-blur` | `16px`                 |
 
-Both turn opaque for `prefers-reduced-transparency` and `prefers-contrast: more`, and fall back to an outline for `forced-colors`.
+Both turn opaque for `prefers-reduced-transparency` and
+`prefers-contrast: more`, and fall back to an outline for `forced-colors`.
 
 ---
 
 ## `Stack` & `Positioned`
 
-Layer components with grid-based stacking, alignment, and coordinate or pinned positioning:
+Layer components with grid-based stacking, alignment, and coordinate or pinned
+positioning:
 
 ```dart
 Stack(
@@ -144,25 +151,38 @@ Stack(
 
 ### `Stack` Properties
 
-- **`alignment`** (`Alignment`): Controls how non-positioned children are aligned in the stack (e.g. `Alignment.center`, `Alignment.topRight`). Defaults to `Alignment.topLeft`.
+- **`alignment`** (`Alignment`): Controls how non-positioned children are
+  aligned in the stack (e.g. `Alignment.center`, `Alignment.topRight`). Defaults
+  to `Alignment.topLeft`.
 - **`fit`** (`StackFit`): Controls child sizing constraints:
-  - `StackFit.loose` _(default)_: Non-positioned children retain their intrinsic size.
-  - `StackFit.expand`: Non-positioned children stretch to fill 100% width and height.
+  - `StackFit.loose` _(default)_: Non-positioned children retain their intrinsic
+    size.
+  - `StackFit.expand`: Non-positioned children stretch to fill 100% width and
+    height.
   - `StackFit.passthrough`: Passes parent sizing constraints unmodified.
-- **`width` / `height`** (`Dim?`): Optional explicit dimensions for the stack canvas.
+- **`width` / `height`** (`Dim?`): Optional explicit dimensions for the stack
+  canvas.
 
 ### `Positioned` Constructors & Properties
 
-In addition to standard insets (`top`, `left`, `right`, `bottom`, `width`, `height`, `transform`), `Positioned` provides convenient named constructors:
+In addition to standard insets (`top`, `left`, `right`, `bottom`, `width`,
+`height`, `transform`), `Positioned` provides convenient named constructors:
 
 - `Positioned.fill(...)`: Insets all 4 edges to `Dim.zero()`.
-- `Positioned.center(...)`: Centers child horizontally and vertically via `translate(-50%, -50%)`.
-- `Positioned.centerHorizontal(...)`: Centers child along the horizontal axis via `translateX(-50%)`.
-- `Positioned.centerVertical(...)`: Centers child along the vertical axis via `translateY(-50%)`.
-- `Positioned.badge(...)`: Anchors at `top: 0, right: 0` with `translate(50%, -50%)` for corner badges/dots.
-- `Positioned.topLeft(...)` / `Positioned.topRight(...)`: Anchors to top corners.
-- `Positioned.bottomLeft(...)` / `Positioned.bottomRight(...)`: Anchors to bottom corners.
-- `Positioned.top(...)` / `Positioned.bottom(...)`: Stretches horizontally across the top or bottom edge.
+- `Positioned.center(...)`: Centers child horizontally and vertically via
+  `translate(-50%, -50%)`.
+- `Positioned.centerHorizontal(...)`: Centers child along the horizontal axis
+  via `translateX(-50%)`.
+- `Positioned.centerVertical(...)`: Centers child along the vertical axis via
+  `translateY(-50%)`.
+- `Positioned.badge(...)`: Anchors at `top: 0, right: 0` with
+  `translate(50%, -50%)` for corner badges/dots.
+- `Positioned.topLeft(...)` / `Positioned.topRight(...)`: Anchors to top
+  corners.
+- `Positioned.bottomLeft(...)` / `Positioned.bottomRight(...)`: Anchors to
+  bottom corners.
+- `Positioned.top(...)` / `Positioned.bottom(...)`: Stretches horizontally
+  across the top or bottom edge.
 
 ---
 
@@ -273,7 +293,9 @@ ExpansionPanelList.radio(
   `NakiFragment` instead.
 </Info>
 
-Group multiple components directly under the parent without inserting any HTML wrapper element, avoiding Jaspr's built-in fragment nesting, reordering, and removal assertions:
+Group multiple components directly under the parent without inserting any HTML
+wrapper element, avoiding Jaspr's built-in fragment nesting, reordering, and
+removal assertions:
 
 ```dart
 NakiFragment(
@@ -292,7 +314,8 @@ NakiFragment(
 
 ### `NakiFragment` Properties
 
-- **`children`** (`List<Component>`): Positional list of child components rendered directly into the parent container without a wrapper node.
+- **`children`** (`List<Component>`): Positional list of child components
+  rendered directly into the parent container without a wrapper node.
 
 ---
 
@@ -302,6 +325,8 @@ NakiFragment(
 - **`Padding` & `Margin`**: Insets via type-safe `EdgeInsets` with `Dim` units.
 - **`Align`**: Child alignment (`Alignment.center`, `Alignment.topRight`, etc.).
 - **`Expanded` & `Flexible`**: Flex grow/shrink weighting in `Row` and `Column`.
-- **`Wrap`**: Flowing row/column that wraps across lines when space is constrained.
+- **`Wrap`**: Flowing row/column that wraps across lines when space is
+  constrained.
 - **`SafeArea`**: Inset padding avoiding device notches and status bars.
-- **`NakiFragment`**: Wrapperless component grouping supporting nesting, reordering, removal, and replacement (replaces deprecated `FragmentScope`).
+- **`NakiFragment`**: Wrapperless component grouping supporting nesting,
+  reordering, removal, and replacement (replaces deprecated `FragmentScope`).

@@ -28,10 +28,10 @@ friends work the way you expect, rendered as plain HTML and CSS.
   `showModalBottomSheet`, and `showSnackbar` return results like Flutter's,
   closing with `Navigator.pop(context, result)`.
 - 🧭 **Imperative & URL navigation:** Push and pop `NakiPageRoute`s or named
-  routes with `Navigator`, seamlessly integrated with `NakiApp.router` and
-  modal overlays.
-- 🎨 **Theming:** Light, dark and system modes, color seeds, design tokens as
-  CSS variables, and a smooth theme switch.
+  routes with `Navigator`, seamlessly integrated with `NakiApp.router` and modal
+  overlays.
+- 🎨 **Theming:** Light, dark and system modes, color seeds, design tokens as CSS
+  variables, and a smooth theme switch.
 - 🪟 **Glass surfaces:** Frosted and liquid glass navigation bars, glass cards
   and dialogs, with fallbacks for reduced transparency and higher contrast.
 - 📱 **Mobile-first:** Every component respects safe areas and Safari's
@@ -66,8 +66,8 @@ Naki UI has three entry points:
 ## Quick start
 
 Wrap your app in `NakiApp` (or `NakiApp.router` for multiple routes). It sets up
-the theme, document metadata and the overlay layer that `showDialog` and
-friends render into.
+the theme, document metadata and the overlay layer that `showDialog` and friends
+render into.
 
 ```dart
 import 'package:jaspr/dom.dart'; // Color
@@ -113,6 +113,28 @@ NakiApp.router(
   ],
 )
 ```
+
+### When to use `home` vs. `builder`
+
+- **Use `home`** (or `routes` on `NakiApp.router`) to supply your app's page
+  content. Wrap the page in a `Builder` component if it needs `NakiApp`'s
+  `BuildContext` (e.g. `context.toggleTheme`) directly in its constructor.
+- **Use `builder`** (`(context, child)`) to wrap the root `Navigator` and
+  overlays with app-wide `InheritedComponent`s or providers so they stay
+  accessible across routes, pushed `NakiRoute`s, and overlay portals
+  (`showDialog`, `showModalBottomSheet`, `showSnackbar`):
+
+```dart
+NakiApp(
+  home: const HomePage(),
+  builder: (context, child) {
+    return MyAppScope(child: child!);
+  },
+)
+```
+
+Always return `child!` inside `builder`. When `home` and `routes` are omitted,
+`child` is a `Navigator` wrapping an empty `SizedBox`.
 
 > [!IMPORTANT]
 > In Jaspr `static` or `server` mode, mark the top of each interactive subtree
@@ -162,7 +184,7 @@ final range = await showDateRangePicker(context: context);
 final time = await showTimePicker(context: context);
 ```
 
-Both futures complete with `null` when the barrier or `Escape` dismisses the
+Both futures complete with `null` when the barrier or `Escape` key dismisses the
 overlay. Pass the builder's `context` to `Navigator.pop(context, result)` (or
 the typed `closeDialog`, `closeModalBottomSheet`, `closeDatePicker`,
 `closeDateRangePicker`, and `closeTimePicker` helpers), not the page's.
@@ -188,8 +210,8 @@ tooltips flip and slide to stay on screen and clear of the app bars.
 
 ## Navigation
 
-`NakiApp` mounts a Flutter-style `Navigator` above your app, so you can push
-and pop imperative `NakiPageRoute`s or named routes alongside `NakiApp.router`:
+`NakiApp` mounts a Flutter-style `Navigator` above your app, so you can push and
+pop imperative `NakiPageRoute`s or named routes alongside `NakiApp.router`:
 
 ```dart
 final saved = await Navigator.push<bool>(
@@ -246,9 +268,9 @@ BottomNavigationBar(
 )
 ```
 
-Tune them with the `glassTint`, `glassRim`, `glassBlur` and
-`bottomNavbarGlass*` theme properties. Liquid glass bends the content behind
-it in Chromium and falls back to frosted glass elsewhere.
+Tune them with the `glassTint`, `glassRim`, `glassBlur` and `bottomNavbarGlass*`
+theme properties. Liquid glass bends the content behind it in Chromium and falls
+back to frosted glass elsewhere.
 
 ---
 
@@ -302,7 +324,8 @@ Calendar(
 ## Responsive layouts
 
 `ResponsiveLayout` swaps layouts with CSS media queries, so it renders on the
-server with no layout shift (`ResponsiveBuilder` is deprecated and will be removed in `v2.0.0`):
+server with no layout shift (`ResponsiveBuilder` is deprecated and will be
+removed in `v2.0.0`):
 
 ```dart
 ResponsiveLayout(
@@ -313,8 +336,8 @@ ResponsiveLayout(
 ```
 
 Use `BreakPointWrapper(minWidth: 640, maxWidth: 1024, child: ...)` for custom
-ranges, `MediaQueryProvider` to measure an element, and `PlatformData()` for
-the OS, browser and form factor.
+ranges, `MediaQueryProvider` to measure an element, and `PlatformData()` for the
+OS, browser and form factor.
 
 ---
 

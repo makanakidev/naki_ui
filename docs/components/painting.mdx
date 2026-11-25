@@ -3,13 +3,16 @@ title: Painting & Visual Effects
 description: Background decorations, gradients, colored boxes, filters, opacity, visibility, clipping, and 2D/3D transformations in Naki UI.
 ---
 
-Painting components provide visual modifications, background fills, gradients, clipping, filters, and matrix transformations. All components are exported directly from `package:naki_ui/naki_ui.dart`.
+Painting components provide visual modifications, background fills, gradients,
+clipping, filters, and matrix transformations. All components are exported
+directly from `package:naki_ui/naki_ui.dart`.
 
 ---
 
 ## `DecoratedBox`
 
-Paints a styled box decoration with background color or gradient, borders, corner radii, and drop shadows around a child:
+Paints a styled box decoration with background color or gradient, borders,
+corner radii, and drop shadows around a child:
 
 ```dart
 import 'package:jaspr/dom.dart' hide Filter, Visibility;
@@ -53,7 +56,8 @@ DecoratedBox(
 
 ## `ColoredBox`
 
-Paints an efficient background color or multi-stop gradient directly behind its child:
+Paints an efficient background color or multi-stop gradient directly behind its
+child:
 
 ```dart
 // 1. Solid background color
@@ -86,13 +90,16 @@ ColoredBox(
 ```
 
 > [!TIP]
-> `ColoredBox` must be provided with either a `color` or a `gradient`. Use `DecoratedBox` or `Container` if you also need borders, padding, or shadow styling.
+> `ColoredBox` must be provided with either a `color` or a `gradient`. Use
+> `DecoratedBox` or `Container` if you also need borders, padding, or shadow
+> styling.
 
 ---
 
 ## `BackdropFilter`
 
-Applies CSS filter effects (such as frosted glass blurs, brightness, grayscale, and contrast) to the area behind its child:
+Applies CSS filter effects (such as frosted glass blurs, brightness, grayscale,
+and contrast) to the area behind its child:
 
 ```dart
 // 1. Composed standalone filter subclasses (or cascading Filter()..apply*())
@@ -188,7 +195,8 @@ ClipOval(
 
 ## `RotatedBox`
 
-Rotates its child by integral 90-degree quarter turns, updating the layout geometry accordingly:
+Rotates its child by integral 90-degree quarter turns, updating the layout
+geometry accordingly:
 
 ```dart
 RotatedBox(

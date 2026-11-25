@@ -3,13 +3,15 @@ title: Basic & Content Components
 description: Buttons, typography, formatting components, rich text, icons, images, spinners, and banners in Naki UI.
 ---
 
-Core display and interaction primitives exported from `package:naki_ui/naki_ui.dart`.
+Core display and interaction primitives exported from
+`package:naki_ui/naki_ui.dart`.
 
 ---
 
 ## `Button`
 
-Buttons trigger user actions, submit forms, or navigate. All button constructors use the `onTap` callback:
+Buttons trigger user actions, submit forms, or navigate. All button constructors
+use the `onTap` callback:
 
 ```dart
 import 'package:jaspr/dom.dart';
@@ -61,7 +63,8 @@ Button.iconText(
 
 ## `NakiText` & Typography Helpers
 
-`NakiText` renders styled text via `TextStyle`. Naki UI also provides semantic HTML text elements:
+`NakiText` renders styled text via `TextStyle`. Naki UI also provides semantic
+HTML text elements:
 
 ```dart
 // Standard text with custom TextStyle
@@ -88,7 +91,8 @@ const Strikethrough('Discounted price: $99')
 
 ## `RichText` & `TextSpan`
 
-Combines styled text spans and interactive click handlers into a single paragraph:
+Combines styled text spans and interactive click handlers into a single
+paragraph:
 
 ```dart
 RichText(
@@ -163,15 +167,23 @@ Spinner.glass(
 )
 ```
 
-`Spinner.glass` has a `size` parameter that's the arc's diameter. The disc shows 20% of its surface color, so the glass effect works well over any content. `surfaceColor` is optional and defaults to the theme's `spinnerSurfaceColor`. Set the `spinnerGlassRim` theme value (`--naki-spinner-glass-rim`, default `100%`, `40%` in dark mode) to soften or strengthen the disc's light rim. The disc stays still while only the arc spins, and it falls back to a solid surface under reduced transparency, higher contrast and forced colors.
+`Spinner.glass` has a `size` parameter that's the arc's diameter. The disc shows
+20% of its surface color, so the glass effect works well over any content.
+`surfaceColor` is optional and defaults to the theme's `spinnerSurfaceColor`.
+Set the `spinnerGlassRim` theme value (`--naki-spinner-glass-rim`, default
+`100%`, `40%` in dark mode) to soften or strengthen the disc's light rim. The
+disc stays still while only the arc spins, and it falls back to a solid surface
+under reduced transparency, higher contrast and forced colors.
 
-Under `prefers-reduced-motion`, spinners pulse slowly instead of rotating, so they still show activity.
+Under `prefers-reduced-motion`, spinners pulse slowly instead of rotating, so
+they still show activity.
 
 ---
 
 ## `Banner`
 
-Callout notification banners with severity color-coding, actions, and dismiss support:
+Callout notification banners with severity color-coding, actions, and dismiss
+support:
 
 ```dart
 Banner(
@@ -194,7 +206,8 @@ Banner(
 
 ## `GestureDetector`
 
-Captures user pointer interactions, keyboard navigation, and clicks on arbitrary components:
+Captures user pointer interactions, keyboard navigation, and clicks on arbitrary
+components:
 
 ```dart
 GestureDetector(

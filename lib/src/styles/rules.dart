@@ -2597,9 +2597,10 @@ class Rules {
       ),
 
       // handle
-      css(
-        '.naki-bottomsheet-handle',
-      ).styles(raw: Css.nakiBottomSheetStyle['handle']),
+      css('.naki-bottomsheet-handle', [
+        css('&').styles(raw: Css.nakiBottomSheetStyle['handle-wrapper']),
+        css('& > *').styles(raw: Css.nakiBottomSheetStyle['handle-track']),
+      ]),
     ]),
 
     // prevent background body scrolling when bottom sheet is open

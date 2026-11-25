@@ -3,7 +3,8 @@ title: Installation & Setup
 description: Step-by-step installation and project configuration for Naki UI in Jaspr applications.
 ---
 
-Get up and running with Naki UI in your Jaspr web project in under three minutes.
+Get up and running with Naki UI in your Jaspr web project in under three
+minutes.
 
 ---
 
@@ -35,7 +36,10 @@ Ensure your environment meets the minimum version requirements:
     ```
 
     <Info>
-      Naki UI works with both of Jaspr's styling modes. For production builds we recommend `styles: standalone` in the `jaspr` section of your `pubspec.yaml`: component CSS is then generated once into a cacheable stylesheet instead of being inlined into every server response.
+      Naki UI works with both of Jaspr's styling modes. For production builds we
+      recommend `styles: standalone` in the `jaspr` section of your
+      `pubspec.yaml`: component CSS is then generated once into a cacheable
+      stylesheet instead of being inlined into every server response.
 
       ```yaml
       jaspr:
@@ -47,7 +51,9 @@ Ensure your environment meets the minimum version requirements:
   </Step>
 
   <Step title="Wrap your root component in NakiApp">
-    `NakiApp` is the top-level foundation of any Naki UI application. It injects dynamic CSS design tokens into the DOM head, manages light and dark theme switching, configures document SEO, and wraps your visual tree.
+    `NakiApp` is the top-level foundation of any Naki UI application. It injects
+    dynamic CSS design tokens into the DOM head, manages light and dark theme
+    switching, configures document SEO, and wraps your visual tree.
 
     ```dart
     import 'package:jaspr/dom.dart';
@@ -87,17 +93,19 @@ Ensure your environment meets the minimum version requirements:
     }
     ```
 
-    #### When to use `home` vs. `pageBuilder`
+    #### When to use `home` vs. `builder`
 
-    `NakiApp` accepts either `home` or `pageBuilder` to define the root view:
+    `NakiApp` accepts `home`, `builder`, or both:
 
-    - **Use `home`** when your root page is static or self-contained and does not need to access `NakiApp`'s inner `BuildContext` during initialization (e.g., `home: const HomePage()` or a constant `Scaffold`). Child components within `home` will still have full access to `context` in their own `build` methods.
-    - **Use `pageBuilder`** when the root component itself needs immediate access to the `BuildContext` established by `NakiApp`—such as reading `context.themeTokens`, toggling themes via `context.toggleTheme` in the top-level app bar, or wrapping the entire application tree in custom inherited widgets and state providers:
+    - **Use `home`** when your root page is static or self-contained
+      (`home: const HomePage()`). You can use a `Builder` component inside
+      `home` if your root component needs direct access to `NakiApp`'s
+      `BuildContext` (such as `context.toggleTheme` or `context.themeTokens`):
 
     ```dart
     NakiApp(
-      pageBuilder: (context, child) {
-        return Scaffold(
+      home: Builder(
+        builder: (context) => Scaffold(
           appBar: AppBar(
             titleText: 'My App',
             actions: [
@@ -113,7 +121,21 @@ Ensure your environment meets the minimum version requirements:
             alignment: Alignment.center,
             child: NakiText('Hello Naki UI!'),
           ),
-        );
+        ),
+      ),
+    )
+    ```
+
+    - **Use `builder`** (`builder: (context, child)`) to wrap the root
+      `Navigator` in application-wide providers or inherited components above
+      `home` (when `home` is omitted, `child` is a `Navigator` wrapping an empty
+      `SizedBox`):
+
+    ```dart
+    NakiApp(
+      home: const HomePage(),
+      builder: (context, child) {
+        return MyAppScope(child: child!);
       },
     )
     ```
@@ -121,16 +143,20 @@ Ensure your environment meets the minimum version requirements:
   </Step>
 
   <Step title="Configure interactive client hydration">
-    In Jaspr `static` and `server` rendering modes, annotate your interactive component tree with `@client`.
+    In Jaspr `static` and `server` rendering modes, annotate your interactive
+    component tree with `@client`.
 
     <Info>
-      A single `@client` annotation at the highest interactive ancestor boundary is sufficient. Descendant components automatically participate in client hydration without duplicating annotations.
+      A single `@client` annotation at the highest interactive ancestor boundary
+      is sufficient. Descendant components automatically participate in client
+      hydration without duplicating annotations.
     </Info>
 
   </Step>
 
   <Step title="Install coding agent skills (Optional)">
-    Equip your coding assistants (Antigravity, Cursor, Claude Code, Cline, etc.) with Naki UI component knowledge and prompt guides:
+    Equip your coding assistants (Antigravity, Cursor, Claude Code, Cline, etc.)
+    with Naki UI component knowledge and prompt guides:
 
     ```shell
     dart pub global activate naki_ui  # only needed for first time

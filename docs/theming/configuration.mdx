@@ -3,7 +3,8 @@ title: Theme Configuration
 description: Configuring LightThemeData, DarkThemeData, and ThemeConfig on NakiApp.
 ---
 
-Theme data encapsulates all styling tokens, color schemes, font families, and component defaults for a mode.
+Theme data encapsulates all styling tokens, color schemes, font families, and
+component defaults for a mode.
 
 ---
 
@@ -50,35 +51,3 @@ NakiApp(
   home: const MyHomeScreen(),
 )
 ```
-
-### Choosing `home` or `pageBuilder`
-
-- **`home`**: Use `home` when your root screen is a pre-instantiated or `const` component (`home: const MyHomeScreen()`). Child components inside `MyHomeScreen` can access `context.themeTokens` in their own `build` methods.
-- **`pageBuilder`**: Use `pageBuilder: (context, child)` when the top-level page itself needs to read active theme tokens, invoke `context.toggleTheme()`, or wrap the entire app in additional providers:
-
-```dart
-NakiApp(
-  themeMode: ThemeMode.system,
-  cacheThemeMode: true,
-  lightTheme: lightTheme,
-  darkTheme: darkTheme,
-  pageBuilder: (context, child) {
-    return Scaffold(
-      appBar: AppBar(
-        titleText: 'Themed App',
-        actions: [
-          Button.icon(
-            context.themeMode == ThemeMode.dark
-                ? MaterialIcons.light_mode
-                : MaterialIcons.dark_mode,
-            onTap: context.toggleTheme,
-          ),
-        ],
-      ),
-      body: child ?? const MyHomeScreen(),
-    );
-  },
-)
-```
-
-

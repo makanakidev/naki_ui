@@ -4,6 +4,7 @@ library;
 import 'dart:async';
 
 import 'package:jaspr/jaspr.dart' hide Element;
+import 'package:jaspr_router/jaspr_router.dart' show Route;
 import 'package:jaspr_test/client_test.dart';
 import 'package:naki_ui/framework.dart';
 import 'package:naki_ui/naki_ui.dart';
@@ -13,6 +14,20 @@ Future<void> _settle([int ms = 80]) =>
     Future<void>.delayed(Duration(milliseconds: ms));
 
 web.Element? _query(String selector) => web.document.querySelector(selector);
+
+class _TestInheritedScope extends InheritedComponent {
+  final String value;
+
+  const _TestInheritedScope({required this.value, required super.child});
+
+  static String? maybeOf(BuildContext context) => context
+      .dependOnInheritedComponentOfExactType<_TestInheritedScope>()
+      ?.value;
+
+  @override
+  bool updateShouldNotify(_TestInheritedScope oldComponent) =>
+      oldComponent.value != value;
+}
 
 /// A Scaffold whose body hands its context to [onContext].
 Component _shell(void Function(BuildContext) onContext) => Scaffold(
@@ -609,5 +624,217 @@ void main() {
 
       expect(await future, initial);
     });
+  });
+
+  group('NakiApp builder inherited scope', () {
+    testClient(
+      'NakiApp.router builder wraps Navigator, routes, and OverlayHost',
+      (tester) async {
+        late BuildContext routeCtx;
+        late BuildContext firstDialogCtx;
+
+        String? dialogScopeValue;
+        String? pushedRouteScopeValue;
+        String? pushedDialogScopeValue;
+
+        bool hasRootNavigatorInDialog = false;
+
+        tester.pumpComponent(
+          NakiApp.router(
+            routes: [
+              Route(
+                path: '/',
+                builder: (context, _) {
+                  routeCtx = context;
+                  return const NakiText('home');
+                },
+              ),
+            ],
+            builder: (context, child) =>
+                _TestInheritedScope(value: 'router-scope', child: child!),
+          ),
+        );
+        await _settle();
+
+        final firstDialog = showDialog<void>(
+          context: routeCtx,
+          title: 'In portal',
+          builder: (dialogCtx) {
+            firstDialogCtx = dialogCtx;
+            dialogScopeValue = _TestInheritedScope.maybeOf(dialogCtx);
+            hasRootNavigatorInDialog = Navigator.maybeOf(dialogCtx) != null;
+            return NakiText(dialogScopeValue ?? 'missing');
+          },
+        );
+        await _settle();
+
+        expect(dialogScopeValue, 'router-scope');
+        expect(hasRootNavigatorInDialog, isTrue);
+
+        Navigator.pop(firstDialogCtx);
+        await firstDialog;
+        await _settle(400);
+
+        late BuildContext pushedDialogCtxRef;
+        unawaited(
+          Navigator.push<void>(
+            routeCtx,
+            NakiPageRoute<void>(
+              builder: (pushedCtx) {
+                pushedRouteScopeValue = _TestInheritedScope.maybeOf(pushedCtx);
+                return Builder(
+                  builder: (innerCtx) {
+                    return Button.text(
+                      'Open dialog',
+                      onTap: () => unawaited(
+                        showDialog<void>(
+                          context: innerCtx,
+                          title: 'Pushed dialog',
+                          builder: (pushedDialogCtx) {
+                            pushedDialogCtxRef = pushedDialogCtx;
+                            pushedDialogScopeValue =
+                                _TestInheritedScope.maybeOf(
+                                  pushedDialogCtx,
+                                );
+                            return const NakiText('ok');
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        );
+        await _settle();
+
+        expect(pushedRouteScopeValue, 'router-scope');
+
+        (_query('.naki-button')! as web.HTMLElement).click();
+        await _settle();
+        expect(pushedDialogScopeValue, 'router-scope');
+
+        Navigator.pop(pushedDialogCtxRef);
+        await _settle(400);
+        Navigator.of(routeCtx).pop();
+        await _settle(400);
+      },
+    );
+
+    testClient('NakiApp builder wraps Navigator and OverlayHost', (
+      tester,
+    ) async {
+      late BuildContext homeCtx;
+      late BuildContext activeDialogCtx;
+      String? dialogScopeValue;
+
+      tester.pumpComponent(
+        NakiApp(
+          home: Builder(
+            builder: (context) {
+              homeCtx = context;
+              return const NakiText('home');
+            },
+          ),
+          builder: (context, child) =>
+              _TestInheritedScope(value: 'app-scope', child: child!),
+        ),
+      );
+      await _settle();
+
+      final dialogFuture = showDialog<void>(
+        context: homeCtx,
+        title: 'App scope dialog',
+        builder: (dialogCtx) {
+          activeDialogCtx = dialogCtx;
+          dialogScopeValue = _TestInheritedScope.maybeOf(dialogCtx);
+          return const NakiText('ok');
+        },
+      );
+      await _settle();
+
+      expect(dialogScopeValue, 'app-scope');
+
+      Navigator.pop(activeDialogCtx);
+      await dialogFuture;
+      await _settle(400);
+    });
+
+    testClient(
+      'NakiApp builder without home wraps Navigator over SizedBox',
+      (tester) async {
+        late BuildContext builderCtx;
+        late BuildContext pushedRouteCtx;
+        late BuildContext activeDialogCtx;
+        bool builderCalled = false;
+        Component? receivedChild;
+        String? dialogScopeValue;
+
+        tester.pumpComponent(
+          NakiApp(
+            builder: (context, child) {
+              builderCalled = true;
+              receivedChild = child;
+              return _TestInheritedScope(
+                value: 'no-home-scope',
+                child: Builder(
+                  builder: (innerCtx) {
+                    builderCtx = innerCtx;
+                    return child!;
+                  },
+                ),
+              );
+            },
+          ),
+        );
+        await _settle();
+
+        expect(builderCalled, isTrue);
+        expect(receivedChild, isA<Navigator>());
+
+        NavigatorState? navState;
+        builderCtx.visitChildElements((element) {
+          if (element is StatefulElement && element.state is NavigatorState) {
+            navState = element.state as NavigatorState;
+          }
+        });
+        expect(navState, isNotNull);
+
+        unawaited(
+          navState!.push(
+            NakiPageRoute<void>(
+              builder: (routeCtx) {
+                pushedRouteCtx = routeCtx;
+                return const NakiText('pushed from sizedbox');
+              },
+            ),
+          ),
+        );
+        await _settle();
+
+        final dialogFuture = showDialog<void>(
+          context: pushedRouteCtx,
+          builder: (dialogCtx) {
+            activeDialogCtx = dialogCtx;
+            dialogScopeValue = _TestInheritedScope.maybeOf(dialogCtx);
+            return const NakiText('Builder root dialog');
+          },
+        );
+        await _settle();
+
+        expect(dialogScopeValue, 'no-home-scope');
+        expect(
+          _query('naki-dialog')?.textContent,
+          contains('Builder root dialog'),
+        );
+
+        Navigator.pop(activeDialogCtx);
+        await dialogFuture;
+        await _settle(400);
+        Navigator.pop(pushedRouteCtx);
+        await _settle(400);
+      },
+    );
   });
 }
